@@ -11,7 +11,7 @@
 #include "userdef.h"
 #include "proto.h"
 
-static char sizechar[2];
+/*static char sizechar[2];*/
 
 /* ********************************************* */
 /* ROUTINE: BITNUM							     */

@@ -158,14 +158,14 @@ build_path (p, faccs)
     char *c;
     FILE *fp;
 
-    if (fp = fopen (p, faccs))
+    if ((fp = fopen (p, faccs)))
     {
         return fp;
     }
 
     if (p[0] == '~')
     {
-        if (c = getenv ("HOME"))   /* Try the HOME env variable */
+        if ((c = getenv ("HOME")))   /* Try the HOME env variable */
         {
             /* We will make some assumptions here..
              * We will assume the path is in the form "~/..."*/
@@ -194,9 +194,9 @@ build_path (p, faccs)
 
     if (CmdFileName && strlen(CmdFileName))
     {
-        char dirpath[256];
+        /*char dirpath[256];
         char fname[256];
-        int relpath;
+        int relpath;*/
 #ifdef _WIN32
         char drv[3];
         char ext[256];

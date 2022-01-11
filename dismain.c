@@ -50,7 +50,7 @@ void reflst();
 int LblFilz;              /* Count of Label files specified     */
 char *LblFNam[MAX_LBFIL]; /* Pointers to the path names for the files */
 
-static int HdrLen;
+/*static int HdrLen;*/
 int CodeEnd;
 
 extern struct databndaries *dbounds;
@@ -145,11 +145,11 @@ get_drvr_jmps(mty)
         if (jmpdst)
         {
             addlbl ('L', jmpdst, *pt);
-            sprintf (boundstr, "L W L %x-%x", jmpbegin, ftell(ModFP) - 1);
+            sprintf (boundstr, "L W L %x-%lx", jmpbegin, ftell(ModFP) - 1);
         }
         else
         {
-            sprintf (boundstr, "L W & %x-%x", jmpbegin, ftell(ModFP) - 1);
+            sprintf (boundstr, "L W & %x-%lx", jmpbegin, ftell(ModFP) - 1);
         }
 
         setupbounds (boundstr);
@@ -207,7 +207,7 @@ get_modhead()
             
             /* Add label for Exception Handler, if applicable */
             /* Only for specific Module Types??? */
-            if (M_Except = fread_l(ModFP))
+            if ((M_Except = fread_l(ModFP)))
             {
                 addlbl('L', M_Except, "");
             }
@@ -454,9 +454,9 @@ dopass(argc,argv,mypass)
     int mypass;
 #endif
 {
-    int sval = 0;
+    /*int sval = 0;
     int lval = 0;
-    int wval = 0;
+    int wval = 0;*/
 
     if (Pass == 1)
     {
@@ -556,7 +556,7 @@ dopass(argc,argv,mypass)
         /* NOTE: The 6809 version did an "if" and it apparently worked,
          *     but we had to do this to get it to work with consecutive bounds.
          */
-        while (bp = ClasHere (dbounds, PCPos))
+        while ((bp = ClasHere (dbounds, PCPos)))
         {
             NsrtBnds (bp);
             CmdEnt = PCPos;
@@ -586,19 +586,19 @@ dopass(argc,argv,mypass)
                         sprintf (tmpcod, "%04x ", (unsigned short)Instruction.code[wpos++]);
                         strcat (codbuf, tmpcod);
                         --count;
-//                        if (count > 1)
-//                        {
-//                            PrintAllCodLine(Instruction.code[wpos],
-//                                    Instruction.code[wpos + 1]);
-//                            count -= 2;
-//                            wpos += 2;
-//                        }
-//                        else
-//                        {
-//                            PrintAllCodL1(Instruction.code[wpos]);
-//                            --count;
-//                            ++wpos;
-//                        }
+/*                        if (count > 1)
+                        {
+                            PrintAllCodLine(Instruction.code[wpos],
+                                    Instruction.code[wpos + 1]);
+                            count -= 2;
+                            wpos += 2;
+                        }
+                        else
+                        {
+                            PrintAllCodL1(Instruction.code[wpos]);
+                            --count;
+                            ++wpos;
+                        }*/
                        /*printf("%04x ", Instruction.code[count] & 0xffff);*/
                     }
 
@@ -632,9 +632,9 @@ dopass(argc,argv,mypass)
 extern struct rof_extrn *refs_code;
 int showem()
 {
-    char c = '_';
+    /*char c = '_';*/
     struct rof_extrn *rf = refs_code;
-    LBLCLAS *l = labelclass(c);
+    /*LBLCLAS *l = labelclass(c);*/
 
     if (!rf)
         fprintf(stderr, "No Code refs found!\n");
@@ -712,10 +712,10 @@ get_asmcmd()
 
     int opword;
     int j;
-    int size;
+    /*int size;*/
 
 
-    size = 0;
+    /*size = 0;*/
     Instruction.wcount = 0;
     opword = getnext_w (&Instruction);
     /* Make adjustments for this being the command word */
@@ -818,7 +818,7 @@ MovBytes (db)
 #ifdef _OSK
     static
 #endif
-    char *xFmt[3] = {"$%02x", "$%04x", "$%08x"};
+    /*char *xFmt[3] = {"$%02x", "$%04x", "$%08x"};*/
     char xtrabytes[50];
     int cCount = 0,
         maxLst;

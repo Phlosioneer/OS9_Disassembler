@@ -112,7 +112,6 @@ AddInitLbls(tbl, dataSiz, klas);
 {
     char *dataBuf,
          *ptr;
-    int c = 1;
     register int refVal;
 
     dataBuf = (char *)mem_alloc(dataSiz + 1);
@@ -226,7 +225,7 @@ rofhdr()
         typ = fread_w (progpath);
         adrs = fread_l (progpath);
 
-        if (me = addlbl(rof_class(typ, REFGLBL), adrs, name))
+        if ((me = addlbl(rof_class(typ, REFGLBL), adrs, name)))
         {
             me->global = 1;
         }
@@ -659,7 +658,7 @@ find_extrn (xtrn, adrs)
     struct rof_extrn *xtrn; int adrs;
 #endif
 {
-    int found = 0;
+    /*int found = 0;*/
 
     if (!xtrn)
     {
@@ -751,7 +750,7 @@ rof_lblref (ci, value)
  * Returns: tree entry if present, 0 if no match            *
  * ******************************************************** */
 
-static struct asc_data *
+/*static struct asc_data *
 #ifdef __STDC__
 rof_find_asc (struct asc_data *tree, int entry)
 #else
@@ -796,7 +795,7 @@ rof_find_asc (tree, entry)
             }
         }
     }
-}
+}*/
 
 /* ******************************************************** *
  * rof_datasize() - returns the end of rof data area        *
@@ -877,8 +876,8 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
 
     while (PCPos < blkEnd)
     {
-        int bump = 2,
-            my_val;
+        /*int bump = 2,
+            my_val;*/
 
         CmdEnt = PCPos;
         /* First check that refsList is not null. If this vsect has no
@@ -893,19 +892,19 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
             {
             case 1:         /* SIZ_BYTE */
                 strcat (Ci.mnem, "b");
-                my_val = *(iBuf++);
+                /*my_val = *(iBuf++);*/
                 ++PCPos;
                 break;
             case 2:         /* SIZ_WORD */
                 strcat (Ci.mnem, "w");
-                my_val = bufReadW(&iBuf) & 0xffff;
+                /*my_val = bufReadW(&iBuf) & 0xffff;*/
                 /*iBuf += 2;*/
                 /*my_val = (*(iBuf++) << 8) | (*(iBuf++) & 0xff);*/
                 PCPos += 2;
                 break;
             default:         /* SIZ_LONG */
                 strcat (Ci.mnem, "l");
-                my_val = bufReadL(&iBuf);
+                /*my_val = bufReadL(&iBuf);*/
                 /*iBuf += 4;*/
                 /*my_val = (*(iBuf++) << 24) | ((*(iBuf++) & 0xff) << 16) | ((*(iBuf++) & 0xff) << 8) |
                     (*(iBuf++) & 0xff);*/
@@ -944,7 +943,7 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
             register int bytCount,
                 bytSize;
 
-            if (bytCount = DoAsciiBlock (&Ci, iBuf, blkEnd, cclass))
+            if ((bytCount = DoAsciiBlock (&Ci, iBuf, blkEnd, cclass)))
             {
                 iBuf += bytCount;
                 continue;
@@ -1013,22 +1012,22 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
 
             /* Check for ASCII definition, and print it out if so */
 
-        //    mydat = rof_find_asc (ascdat, CmdEnt);
+        /*    mydat = rof_find_asc (ascdat, CmdEnt);
 
-        //    if (mydat)
-        //    {
-        //        PCPos = CmdEnt;    /* MovASC sets CmdEnt = Pc */
-        //        MovASC (mydat->length, cclass);
-        //        CmdEnt += mydat->length;
-        //        PrevEnt = CmdEnt;
-        //        blkEnd -= mydat->length;
-        //        continue;
-        //    }
+            if (mydat)
+            {
+                PCPos = CmdEnt;*/    /* MovASC sets CmdEnt = Pc */
+        /*        MovASC (mydat->length, cclass);
+                CmdEnt += mydat->length;
+                PrevEnt = CmdEnt;
+                blkEnd -= mydat->length;
+                continue;
+            }
 
-        //    my_val = fgetc (ModFP);
-        //    bump = 1;
-        //    strcpy (Ci.mnem, "dc.b");
-        //    sprintf (Ci.opcode, "$%02x", my_val);
+            my_val = fgetc (ModFP);
+            bump = 1;
+            strcpy (Ci.mnem, "dc.b");
+            sprintf (Ci.opcode, "$%02x", my_val);*/
         }
 
         //PrintLine (realcmd, &Ci, cclass, CmdEnt, CmdEnt + blkEnd);
@@ -1099,9 +1098,9 @@ ListInitROF (hdr, refsList, iBuf, isize, iClass)
 
     ascdat = data_ascii;
     PCPos = 0;
-    {
+    /*{
         LBLDEF *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
-    }
+    }*/
 
     while (PCPos < (isize))
     {

@@ -398,7 +398,7 @@ BlankLine ()                    /* Prints a blank line */
  *         postblank - true if blankline after str              *
  * ************************************************************ */
 
-static void
+/*static void
 #ifdef __STDC__
 PrintNonCmd (char *str, int preblank, int postblank)
 #else
@@ -435,7 +435,7 @@ PrintNonCmd (str, preblank, postblank)
     }
 
     PrintCleanup ();
-}
+}*/
 
 /* ******************************************************** *
  * get_comment() - Checks for append comment for current    *
@@ -533,9 +533,9 @@ PrintLine (pfmt, ci, cClass, cmdlow, cmdhi)
     PrintCleanup ();
 }
 
-static void
+/*static void
 #ifdef __STDC__
-UpString (char *s)              /* Translate a string to uppercase */
+UpString (char *s)              // Translate a string to uppercase
 #else
 UpString (s)
     char *s;
@@ -549,7 +549,7 @@ UpString (s)
             *s = toupper (*s);
         ++s;
     }
-}
+} */
 
 /* *********************************************** *
  * UpPbuf() - Translates a whole print buffer's    *
@@ -913,7 +913,7 @@ ROFPsect (rptr)
 
     if ((nl = findlbl('L', rptr->code_begin)))
     {
-        sprintf (Ci.opcode, "%s,%s", Ci.opcode, nl->sname);
+        snprintf (Ci.opcode, sizeof(Ci.opcode), "%s,%s", Ci.opcode, nl->sname);
         /*OPSCAT(nl->sname);*/
     }
     else
@@ -1275,7 +1275,7 @@ ListInitData (ldf, nBytes, lclass)
 #endif
 {
     CMD_ITMS Ci;
-    char *hexFmt;
+    /*char *hexFmt;*/
     char *what = "* Initialized Data Definitions";
     LBLDEF *curlbl;
 
@@ -1371,13 +1371,13 @@ ListInitData (ldf, nBytes, lclass)
             {
                 PBytSiz = 1;
                 strcpy (Ci.mnem, "dc.b");
-                hexFmt = "$%02x";
+                /*hexFmt = "$%02x";*/
             }
             else
             {
                 PBytSiz = 2;
                 strcpy (Ci.mnem, "dc.w");
-                hexFmt = "$%04x";
+                /*hexFmt = "$%04x";*/
             }
 
             /*Ci.lblname = findlbl ('D', CmdEnt)->sname;
@@ -1514,7 +1514,7 @@ ROFDataPrint ()
 {
     LBLDEF *srch;
 
-    char dattmp[5];
+    /*char dattmp[5];*/
     register char *udat = "* Uninitialized data (Class %c)";
     char *idat = "* Initialized data (Class %c)";
 

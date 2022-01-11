@@ -63,247 +63,247 @@ bitModeRegLegal(mode, reg)
 }*/
 
 /*int 
-//#ifdef __STDC__
-//    bit_movep_immediate (CMD_ITMS *cmditms)
-//#else
-//    bit_movep_immediate (CMD_ITMS *cmdims)
-//
-//    CMD_ITMS *cmditms;
-//#endif
-//{
-//    register int firstword = cmditms->cmd_wrd;    /* To save calculations */
+#ifdef __STDC__
+    bit_movep_immediate (CMD_ITMS *cmditms)
+#else
+    bit_movep_immediate (CMD_ITMS *cmdims)
+
+    CMD_ITMS *cmditms;
+#endif
+{
+    register int firstword = cmditms->cmd_wrd;*/    /* To save calculations */
 /*    short ext1, ext2;
-//    int mode,reg;
-//
-//    /* 68020+ code
+    int mode,reg;*/
+
+    /* 68020+ code*/
 /*    if ((firstword & 0xfff0) == 0x6c)  // "rtm"
-//    {
-//        //if (cpu >= 2)
-//        {
-//            return rtm_020(cmditms);
-//        }
-//       // else
-//            //return 0;
-//    }*/
+    {
+        //if (cpu >= 2)
+        {
+            return rtm_020(cmditms);
+        }
+       // else
+            //return 0;
+    }*/
 /*
-//    switch (firstword)
-//    {
-//    case 0x3c:
-//    case 0x7c:
-//        return biti_reg(cmditms, "ori");
-//    case 0x023c:
-//    case 0x027c:
-//        return biti_reg(cmditms, "andi");
-//    case 0x0a3c:
-//    case 0x0a7c:
-//        return biti_reg(cmditms, "eori");
-//    default:
-//        break;
-//    }
-//
-//    /* Handle static bit cmds */
+    switch (firstword)
+    {
+    case 0x3c:
+    case 0x7c:
+        return biti_reg(cmditms, "ori");
+    case 0x023c:
+    case 0x027c:
+        return biti_reg(cmditms, "andi");
+    case 0x0a3c:
+    case 0x0a7c:
+        return biti_reg(cmditms, "eori");
+    default:
+        break;
+    }*/
+
+    /* Handle static bit cmds */
 /*
-//    switch (firstword & 0xffd0)
-//    {
-//    case 0x0800:
-//        return bit_static(cmditms, "btst");
-//    case 0x0840:
-//        return bit_static(cmditms, "bchg");
-//    case 0x0880:
-//        return bit_static(cmditms, "bclr");
-//    case 0x8a0:
-//        return bit_static(cmditms, "bset");
-//    }
-//
-//    /* Dynamic bit commands */
+    switch (firstword & 0xffd0)
+    {
+    case 0x0800:
+        return bit_static(cmditms, "btst");
+    case 0x0840:
+        return bit_static(cmditms, "bchg");
+    case 0x0880:
+        return bit_static(cmditms, "bclr");
+    case 0x8a0:
+        return bit_static(cmditms, "bset");
+    }*/
+
+    /* Dynamic bit commands */
 /*
-//    switch ((firstword >> 6) & 7)
-//    {
-//        case 4:
-//            if (bit_dynamic(cmditms, "btst"))
-//            {
-//                return 1;
-//            }
-//            break;
-//        case 5:
-//            if (bit_dynamic(cmditms, "bchg"))
-//            {
-//                return 1;
-//            }
-//            break;
-//        case 6:
-//            if (bit_dynamic(cmditms, "bclr"))
-//            {
-//                return 1;
-//            }
-//            break;
-//        case 7:
-//            if (bit_dynamic(cmditms, "bset"))
-//            {
-//                return 1;
-//            }
-//            break;
-//
-//    }
-//
-//    switch ((firstword >> 8) & 0x0f)
-//    {
-//    case 0:
-//        if (cpu >= 2)
-//        {
-//            if ((firstword & 0x1c) == 0x0c)    /* "cmp2" or "chk2"? */
-/*            {
+    switch ((firstword >> 6) & 7)
+    {
+        case 4:
+            if (bit_dynamic(cmditms, "btst"))
+            {
+                return 1;
+            }
+            break;
+        case 5:
+            if (bit_dynamic(cmditms, "bchg"))
+            {
+                return 1;
+            }
+            break;
+        case 6:
+            if (bit_dynamic(cmditms, "bclr"))
+            {
+                return 1;
+            }
+            break;
+        case 7:
+            if (bit_dynamic(cmditms, "bset"))
+            {
+                return 1;
+            }
+            break;
+
+    }
+
+    switch ((firstword >> 8) & 0x0f)
+    {
+    case 0:
+        if (cpu >= 2)
+        {
+            if ((firstword & 0x1c) == 0x0c) */   /* "cmp2" or "chk2"? */
+/*            {*/
                 /* For the time being, if this is not a match, simply
                                  * continue */
 /*
-//                if (cmp2_chk2(cmditms))
-//                    return 1;
-//            }
-//        }
-//
-//        return (biti_size(cmditms, "ori"));
-//        break;
-//    case 0x01:
-//        return (biti_size(cmditms, "andi"));
-//        /* Eliminate ccr & SR */
+                if (cmp2_chk2(cmditms))
+                    return 1;
+            }
+        }
+
+        return (biti_size(cmditms, "ori"));
+        break;
+    case 0x01:
+        return (biti_size(cmditms, "andi"));*/
+        /* Eliminate ccr & SR */
 /*        break;
-//    case 0x02:
-//        return (biti_size(cmditms, "ori"));
-//    case 0x03:
-//        if ((firstword & 0x1f0) == 0xf0)
-//        {
-//            if (cpu > 2)
-//            {
-//                /* Process rtm, callm, cmp2, chk2 */
+    case 0x02:
+        return (biti_size(cmditms, "ori"));
+    case 0x03:
+        if ((firstword & 0x1f0) == 0xf0)
+        {
+            if (cpu > 2)
+            {*/
+                /* Process rtm, callm, cmp2, chk2 */
 /*            }
-//            else
-//            {
-//                return 0;
-//            }
-//        }
-//        else
-//        {
-//            return (biti_size(cmditms, "andi"));
-//        }
-//
-//        break;
-//    case 4:
-//        break;
-//    case 0x6:
-//
-//        if ((firstword & 0xc0) == 0xc0)
-//        {
-//            strcpy(cmditms->mnem, "callm");
-//            /* special case */
+            else
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            return (biti_size(cmditms, "andi"));
+        }
+
+        break;
+    case 4:
+        break;
+    case 0x6:
+
+        if ((firstword & 0xc0) == 0xc0)
+        {
+            strcpy(cmditms->mnem, "callm");*/
+            /* special case */
 /*        }
-//        else
-//        {
-//            return biti_size(cmditms, "addi");
-//        }
-//        break;
-//    case 0x0a:
-//        strcpy(cmditms->mnem, "eori");
-//        /* Eliminate ccr & SR */
+        else
+        {
+            return biti_size(cmditms, "addi");
+        }
+        break;
+    case 0x0a:
+        strcpy(cmditms->mnem, "eori");*/
+        /* Eliminate ccr & SR */
         /* Go process extended command */
 /*        break;
-//    case 0x0c:
-//        return biti_size(cmditms, "cmpi");
-//        break;
-//    case 0x08:
-//        {
-//            switch ((firstword >> 6) & 3)
-//            {
-//            case 0:
-//                strcpy(cmditms->mnem, "btst");
-//                break;
-//            case 1:
-//                strcpy(cmditms->mnem, "bchg");
-//                break;
-//            case 2:
-//                strcpy(cmditms->mnem, "bclr");
-//                break;
-//            case 3:
-//                strcpy(cmditms->mnem, "bset");
-//                break;
-//            }
-//        }
-//    case 0x0ff:
-//        strcpy(cmditms->mnem, "moves");
-//        break;
-//    }
-//
-//    /* We need to now check a different set of bits */
+    case 0x0c:
+        return biti_size(cmditms, "cmpi");
+        break;
+    case 0x08:
+        {
+            switch ((firstword >> 6) & 3)
+            {
+            case 0:
+                strcpy(cmditms->mnem, "btst");
+                break;
+            case 1:
+                strcpy(cmditms->mnem, "bchg");
+                break;
+            case 2:
+                strcpy(cmditms->mnem, "bclr");
+                break;
+            case 3:
+                strcpy(cmditms->mnem, "bset");
+                break;
+            }
+        }
+    case 0x0ff:
+        strcpy(cmditms->mnem, "moves");
+        break;
+    }*/
+
+    /* We need to now check a different set of bits */
 /*    switch ((firstword >>6) & 0x07)
-//    {
-//    case 3:
-//        if (firstword & 0x800)
-//        {
-//            if ((firstword & 0x3f) == 0x3d)
-//            {
-//                strcpy(cmditms->mnem, "cas");
-//                break;
-//            }
-//            else
-//            {
-//                /* Possible tests needed */
+    {
+    case 3:
+        if (firstword & 0x800)
+        {
+            if ((firstword & 0x3f) == 0x3d)
+            {
+                strcpy(cmditms->mnem, "cas");
+                break;
+            }
+            else
+            {*/
+                /* Possible tests needed */
 /*                strcpy(cmditms->mnem, "cas");
-//                break;
-//            }
-//        }
-//
-//        break;
-//    case 0x4:
-//        strcpy(cmditms->mnem, "btst");
-//        break;
-//    case 5:
-//        strcpy(cmditms->mnem, "bchg");
-//        break;
-//    case 6:
-//        strcpy(cmditms->mnem, "bclr");
-//        break;
-//    case 7:
-//        strcpy(cmditms->mnem, "bset");
-//        break;
-//    case 10:
-//        ext1 = getnext_w(cmditms);
-//        /* Eliminate ccr & SR */
+                break;
+            }
+        }
+
+        break;
+    case 0x4:
+        strcpy(cmditms->mnem, "btst");
+        break;
+    case 5:
+        strcpy(cmditms->mnem, "bchg");
+        break;
+    case 6:
+        strcpy(cmditms->mnem, "bclr");
+        break;
+    case 7:
+        strcpy(cmditms->mnem, "bset");
+        break;
+    case 10:
+        ext1 = getnext_w(cmditms);*/
+        /* Eliminate ccr & SR */
 /*        switch (cmditms->cmd_wrd & 0xff)
-//        {
-//            int regflag = cmditms->cmd_wrd & 0x40; /* 0 if ccr, 1 if sr */
+        {
+            int regflag = cmditms->cmd_wrd & 0x40;*/
 /*
-//        case 0x3c:
-//        case 0x7c:
-//            /* If it's ccr and it's negative, sign extend it */
+        case 0x3c:
+        case 0x7c:*/
+            /* If it's ccr and it's negative, sign extend it */
 /*            if ((regflag == 0) && ( ext1 & 0x80))
-//            {
-//                ext1 |= 0xffff0000;
-//            }
-//
-//            /* Verify if it's a label */
+            {
+                ext1 |= 0xffff0000;
+            }*/
+
+            /* Verify if it's a label */
 /*            if (regflag == 0)
-//            {
-//                sprintf(cmditms->opcode, "#%s,ccr", ext1);
-//            }
-//            else
-//            {
-//                sprintf (cmditms->opcode, "#%s,sr", ext1);
-//            }
-//
-//            strcpy(cmditms->mnem,"eori");
-//            return 1;
-//        default:
-//            strcpy (cmditms->mnem, "eori");
-//        }
-//    }
-//
-//    if ((firstword & 0x38) == 0x08)
-//    {
-//        strcpy(cmditms->mnem, "movep");
-//    }
-//
-//
-//    return 0;
-//}*/
+            {
+                sprintf(cmditms->opcode, "#%s,ccr", ext1);
+            }
+            else
+            {
+                sprintf (cmditms->opcode, "#%s,sr", ext1);
+            }
+
+            strcpy(cmditms->mnem,"eori");
+            return 1;
+        default:
+            strcpy (cmditms->mnem, "eori");
+        }
+    }
+
+    if ((firstword & 0x38) == 0x08)
+    {
+        strcpy(cmditms->mnem, "movep");
+    }
+
+
+    return 0;
+}*/
 
 /* ******************
  * Immediate bit operations involving the status registers
@@ -366,7 +366,7 @@ biti_size(ci, j, op)
     register int size = (ci->cmd_wrd >> 6) & 3;
     register int mode = (ci->cmd_wrd >> 3) & 7;
     register int reg;
-    register int firstword = ci->wcount;
+    /*register int firstword = ci->wcount;*/
     char ea[30];
     int data;
 
@@ -779,7 +779,7 @@ moveq(ci, j, op)
     sprintf(ci->opcode, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
     strcpy (ci->mnem, op->name);
 
-    if (dot = strchr(ci->mnem, '.'))
+    if ((dot = strchr(ci->mnem, '.')))
     {
         *dot = '\0';
     }
@@ -862,10 +862,10 @@ one_ea(ci, j, op)
 
         if (get_eff_addr(ci, ea, mode, reg, size))
         {
+            char *statreg = "ccr";
+
             switch (op->id)
             {
-                 char *statreg = "ccr";
-
                 case 28:    /* Move from SR */
                     statreg = "sr";
                 case 33:    /* Move to CCR  */
@@ -1162,7 +1162,7 @@ add_sub(ci, j, op)
     OPSTRUCTURE *op;
 #endif
 {
-    int datareg = (ci->cmd_wrd >> 9) & 7;
+    /*int datareg = (ci->cmd_wrd >> 9) & 7;*/
     int ea_mode = (ci->cmd_wrd >> 3) & 7;
     int ea_reg = ci->cmd_wrd & 7;
     register int opmode = (ci->cmd_wrd >>6) & 7;
@@ -1351,7 +1351,7 @@ abcd_sbcd(ci, j, op)
 
     strcpy(ci->mnem, op->name);
 
-    if (dot = strchr(ci->mnem, '.'))
+    if ((dot = strchr(ci->mnem, '.')))
     {
         *dot = '\0';
     }
@@ -1472,13 +1472,13 @@ cmd_dbcc(ci, j, op)
     OPSTRUCTURE *op;
 #endif
 {
-    int br_from = PCPos;
-    register int dest;
+    /*int br_from = PCPos;
+    register int dest;*/
     char *condpos;
 
     strcpy (ci->mnem, op->name);
 
-    if (condpos = strchr(ci->mnem, '~'))
+    if ((condpos = strchr(ci->mnem, '~')))
     {
         register int offset;
         int ent = (ci->cmd_wrd >> 8) & 0x0f;
@@ -1496,7 +1496,7 @@ cmd_dbcc(ci, j, op)
         }
 
         offset = getnext_w(ci);
-        dest  = br_from + offset;
+        /*dest  = br_from + offset;*/
 
         /*process_label (ci, 'L', dest);*/
         AMode = AM_REL;
@@ -1538,7 +1538,7 @@ cmd_scc(ci, j, op)
 
     strcpy (ci->mnem, op->name);
 
-    if (condpos = strchr(ci->mnem, '~'))
+    if ((condpos = strchr(ci->mnem, '~')))
     {
         strcpy(condpos, typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition);
 
@@ -1584,7 +1584,7 @@ cmd_exg(ci, j, op)
     sprintf (ci->opcode, "%c%d,%c%d", regnameSrc,regnumSrc,regnameDst, regnumDst);
     strcpy (ci->mnem, op->name);
 
-    if (dot = strchr(ci->mnem, '.'))
+    if ((dot = strchr(ci->mnem, '.')))
     {
         *dot = '\0';
     }
