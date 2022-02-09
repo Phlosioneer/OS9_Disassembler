@@ -913,12 +913,14 @@ ROFPsect (rptr)
 
     if ((nl = findlbl('L', rptr->code_begin)))
     {
-        snprintf (Ci.opcode, sizeof(Ci.opcode), "%s,%s", Ci.opcode, nl->sname);
+        char *oc = Ci.opcode;
+        snprintf (Ci.opcode, sizeof(Ci.opcode), "%s,%s", oc, nl->sname);
         /*OPSCAT(nl->sname);*/
     }
     else
     {
-        sprintf (Ci.opcode, "%s,%04x", Ci.opcode, (int)(rptr->code_begin));
+        char *oc = Ci.opcode;
+        sprintf (Ci.opcode, "%s,%04x", oc, (int)(rptr->code_begin));
         /*OPHCAT ((int)(rptr->modent));*/
     }
 

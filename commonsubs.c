@@ -1362,8 +1362,6 @@ int fread_l(fp)
 #else
 short fread_w(FILE *fp)
 {
-    int tmpi[2] = {0,0};
-    /*int *tt = tmpi;*/
     int tt;
 
     tt = (fgetc(ModFP) << 8) | (fgetc (ModFP) & 0xff);

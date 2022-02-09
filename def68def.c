@@ -13,6 +13,7 @@
 
 /*static char sizechar[2];*/
 
+#if 0
 /* ********************************************* */
 /* ROUTINE: BITNUM							     */
 /* ********************************************* */
@@ -41,6 +42,7 @@ bitnum (startbit, endbit, opword)
     }
     return (value);
 }
+#endif
 
 #if (DEVICE==68040 || COPROCESSOR==TRUE)
 

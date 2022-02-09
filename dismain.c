@@ -67,6 +67,7 @@ static int get_asmcmd(
 #endif
 );
 
+#if 0
 /*
  * list_print() - Handle printouts of lines of code.  Prints to the listing
  *        and prints to asm code file if specified
@@ -102,6 +103,7 @@ list_print (ci, ent, lblnam)
     /* Provide for printing to asm src listing */
 
 }
+#endif
 
 static char *DrvrJmps[] = {
     "Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL

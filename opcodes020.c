@@ -301,7 +301,7 @@ cmd_cas2 (ci, j, op)
 
     if (Pass == 2)
     {
-        sprintf (ci->mnem, op->name);
+        strcpy (ci->mnem, op->name);
         strcat (ci->mnem, stdSiz[size]);
         sprintf (ci->opcode, "d%d:d%d,d%d:d%d,(%c%d):(%c%d)", dc1, dc2, du1, du2, r1, rn1, r2, rn2);
     }
@@ -350,7 +350,7 @@ cmd_callm(ci, j, op)
         }
 
         /* Possibly allow for label name ??? */
-        sprintf (ci->mnem, op->name);
+        strcpy (ci->mnem, op->name);
         sprintf (ci->opcode, "#%d,%s", ew, EaString);
         return 1;
     }

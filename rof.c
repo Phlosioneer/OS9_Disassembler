@@ -35,7 +35,7 @@
 #include "proto.h"
 
 #ifdef __STDC__
-static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);
+/*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer);
 #else
 void ROFDataLst ();
@@ -1041,6 +1041,7 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
     return iBuf;
 }
 
+#if 0
 static void
 #ifdef __STDC__
 ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat,
@@ -1075,6 +1076,7 @@ ROFDataLst (mylist, maxcount, ascdat, cclass)
         }
     }
 }
+#endif
 
 /* **************************************************************** *
  * ListInitROF() - moves initialized data into the listing.         *

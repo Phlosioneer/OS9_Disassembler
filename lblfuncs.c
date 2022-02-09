@@ -137,7 +137,7 @@ movchr (dst, ch)
     }
     else
     {
-        if (pp = findlbl ('^', ch))
+        if ((pp = findlbl ('^', ch)))
         /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
         {
             strcat (dst, pp->sname);
@@ -176,7 +176,7 @@ PrintLbl (dest, clas, adr, dl, amod)
 #endif
 {
     char tmp[10];
-    short decn = adr & 0xffff;
+    /*short decn = adr & 0xffff;*/
     register int mask;
 
     /* Readjust class definition if necessary */
@@ -462,7 +462,7 @@ addlbl (lblclass, val, newname)
 
     if (!labelclass(lblclass)->cEnt)      /* first entry in this tree */
     {
-        if (newlbl = create_lbldef(lblclass, val, newname))
+        if ((newlbl = create_lbldef(lblclass, val, newname)))
         {
             LBLCLAS *clas = labelclass(lblclass);
 
@@ -571,7 +571,7 @@ process_label (ci, lblclass, addr)
     {
         register LBLDEF *me;
 
-        if (me = findlbl(lblclass, addr))
+        if ((me = findlbl(lblclass, addr)))
         {
             strcpy (ci->opcode, me->sname);
         }
@@ -610,7 +610,7 @@ parsetree(c)
 
             while (l->Next)
             {
-                printf ("%s equ $%x\n", l->sname, l->myaddr);
+                printf ("%s equ $%d\n", l->sname, (int)(l->myaddr));
                 l = l->Next;
             }
         }
@@ -635,8 +635,7 @@ LblCalc (dst, adr, amod, curloc)
 #endif
 {
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
-    char mainclass,                 /* Class for this location */
-         oclass = 0;                /* Class for offset (if present) */
+    char mainclass;                 /* Class for this location */
 
     struct databndaries *kls = 0;
     LBLDEF *mylabel = 0;
@@ -664,8 +663,6 @@ LblCalc (dst, adr, amod, curloc)
 
             if (kls->dofst)     /* Offset ? */
             {
-                oclass = (char) (kls->dofst->oclas_maj);
-
                 if (kls->dofst->add_to)
                 {
                     raw -= kls->dofst->of_maj;
@@ -699,8 +696,6 @@ LblCalc (dst, adr, amod, curloc)
 
             if (kls->dofst)
             {
-                oclass = kls->dofst->oclas_maj;
-
                 if (kls->dofst->add_to)
                 {
                     raw -= kls->dofst->of_maj;
@@ -788,7 +783,7 @@ LblCalc (dst, adr, amod, curloc)
                     return 1;
                 }
             }
-            if (mylabel = findlbl (c,  kls->dofst->of_maj))
+            if ((mylabel = findlbl (c,  kls->dofst->of_maj)))
             /*if ((mylabel = FindLbl (LblList[strpos (lblorder, c)],
                                     kls->dofst->of_maj)))*/
             {

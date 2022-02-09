@@ -393,8 +393,7 @@ ApndCmnt (lpos)
 #endif
 {
     char lblclass;
-    int myadr,
-        make_cmnt = 1;
+    int myadr;
     struct apndcmnt *mycmnt,
                     **me_ptr;
     char *cline;
@@ -441,7 +440,6 @@ ApndCmnt (lpos)
                 }
                 else                /* Else we've encountered an   */
                 {                   /* existing entry for this adr */
-                    make_cmnt = 0;  /* Flag not to calloc()        */
                     break;
                 }
             }
