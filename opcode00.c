@@ -979,7 +979,7 @@ bra_bsr(ci, j, op)
 
     strcpy (ci->mnem, op->name);
     strcat (ci->mnem, siz);
-    /*dstAddr = jmp_base + displ;*/
+    /*dstAddr = jmp_base + displ;
 
     //if (IsROF && (Pass == 2))
     //{
@@ -987,9 +987,9 @@ bra_bsr(ci, j, op)
     //    {
     //        return 1;
     //    }
-    //}
+    //}*/
 
-    //process_label (ci, 'L', dstAddr);
+    /*process_label (ci, 'L', dstAddr);*/
     LblCalc(ci->opcode, displ, AM_REL, jmp_base);
 
     return 1;

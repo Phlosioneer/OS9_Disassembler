@@ -57,7 +57,7 @@ void
 reflst (void)
 #else
 reflst ()
-    struct asc_data *cl;
+    /*struct asc_data *cl;*/
 #endif
 {
     struct rof_extrn * meme = refs_code;
@@ -106,8 +106,8 @@ void
 #ifdef __STDC__
 AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas)
 #else
-AddInitLbls(tbl, dataSiz, klas);
-    struct rof_extrn *tbl, int dataSiz; char klas;
+AddInitLbls(tbl, dataSiz, klas)
+    struct rof_extrn *tbl; int dataSiz; char klas;
 #endif
 {
     char *dataBuf,
@@ -161,7 +161,7 @@ void
 #ifdef __STDC__
 getRofHdr (FILE *progpath)
 #else
-rofhdr()
+getRofHdr (progpath)
     FILE *progpath;
 #endif
 {
@@ -176,7 +176,7 @@ rofhdr()
 
     /* get header data */
 
-        //ROFHd.sync = (M_ID << 16) | (fread_w(ModFP) & 0xffff);
+        /*ROFHd.sync = (M_ID << 16) | (fread_w(ModFP) & 0xffff); */
         ROFHd.sync = fread_l(ModFP);
         
         if (ROFHd.sync != 0xdeadface)
@@ -321,7 +321,7 @@ void
 #ifdef __STDC__
     RofLoadInitData (void)
 #else
-    ROFLoadInitData()
+    RofLoadInitData()
 #endif
 {
     /* ********************************** *
@@ -349,8 +349,8 @@ char
 #ifdef __STDC__
 rof_class (int typ, int refTy)
 #else
-rof_class (typ)
-    int typ; int refTy
+rof_class (typ, refTy)
+    int typ; int refTy;
 #endif
 {
     /* We'll tie up additional classes for data/bss as follows
@@ -447,38 +447,38 @@ rof_class (typ)
  *         ref  - reference structure                 *
  * ************************************************** */
 
-//void
-//#ifdef __STDC__
-//rof_addlbl (int adrs, struct rof_extrn *ref)
-//#else
-//rof_addlbl (adrs, ref)
-//    int adrs; struct rof_extrn *ref;
-//#endif
-//{
-//    LBLDEF *nl;
-//
-//    /* The following may be a kludge.  The problem is that Relative
-//     * external references get added to class C.
-//     * Hopefully, no external references are needed in the label ref
-//     * tables.  We'll try this to see...
-//     */
-//
-//    if (ref->Extrn)
-//    {
-//        return;
-//    }
-//
-//    if ((nl = addlbl (adrs, rof_class (ref->Type, 1), NULL)))
-//    {
-//        if (strlen (ref->EName))
-//        {
-//            if (strcmp (nl->sname, ref->EName))
-//            {
-//                strcpy (nl->sname, ref->EName);
-//            }
-//        }
-//    }
-//}
+/*void
+#ifdef __STDC__
+rof_addlbl (int adrs, struct rof_extrn *ref)
+#else
+rof_addlbl (adrs, ref)
+    int adrs; struct rof_extrn *ref;
+#endif
+{
+    LBLDEF *nl;
+
+    // The following may be a kludge.  The problem is that Relative
+     * external references get added to class C.
+     * Hopefully, no external references are needed in the label ref
+     * tables.  We'll try this to see...
+     //
+
+    if (ref->Extrn)
+    {
+        return;
+    }
+
+    if ((nl = addlbl (adrs, rof_class (ref->Type, 1), NULL)))
+    {
+        if (strlen (ref->EName))
+        {
+            if (strcmp (nl->sname, ref->EName))
+            {
+                strcpy (nl->sname, ref->EName);
+            }
+        }
+    }
+}*/
 
 /* ************************************************************** *
  * get_refs() - get entries for given reference,                  *
@@ -492,8 +492,8 @@ static void
 #ifdef __STDC__
 get_refs(char *vname, int count, int ref_typ, char *code_buf)
 #else
-get_refs(vname, count, ref_typ)
-    char *vname; int count; int refType, int ref_typ;
+get_refs(vname, count, ref_typ, code_buf)
+    char *vname; int count; int ref_typ; char *code_buf;
 #endif
 {
     struct rof_extrn *prevRef = NULL;
@@ -848,9 +848,9 @@ static char *
 DataDoBlock (struct rof_extrn **refsList, LBLDEF **lblList, char *iBuf, int blkEnd,
              struct asc_data *ascdat, char cclass)
 #else
-DataDoBlock (refsList, lblList, iBuf, int blkEnd, ascdat, cclass)
+DataDoBlock (refsList, lblList, iBuf, blkEnd, ascdat, cclass)
 struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
-             struct asc_data *ascdat, char cclass;
+             struct asc_data *ascdat; char cclass;
 #endif
 {
     /*struct rof_extrn *srch;*/
@@ -1030,12 +1030,12 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
             sprintf (Ci.opcode, "$%02x", my_val);*/
         }
 
-        //PrintLine (realcmd, &Ci, cclass, CmdEnt, CmdEnt + blkEnd);
-        //CmdEnt += bump;
-        //PrevEnt = CmdEnt;
-        //blkEnd -= bump;
-        //(*refsList) = (*refsList)->ENext;
-        //nl = nl->Next;
+        /*PrintLine (realcmd, &Ci, cclass, CmdEnt, CmdEnt + blkEnd);
+        CmdEnt += bump;
+        PrevEnt = CmdEnt;
+        blkEnd -= bump;
+        (*refsList) = (*refsList)->ENext;
+        nl = nl->Next;*/
     }
 
     return iBuf;
@@ -1120,7 +1120,7 @@ ListInitROF (hdr, refsList, iBuf, isize, iClass)
 
         iBuf = DataDoBlock (&refsList, &lblList, iBuf, blkEnd, ascdat, iClass);
 
-        //memset (&Ci, 0, sizeof(CMD_ITMS));
+        /*memset (&Ci, 0, sizeof(CMD_ITMS));
         //Ci.cmd_wrd = refsList->Ofst;
         //CmdEnt = PCPos;
         // 
@@ -1130,13 +1130,13 @@ ListInitROF (hdr, refsList, iBuf, isize, iClass)
 
         //    switch ((refsList->Type >> 3) & 3)
         //    {
-        //    case 1: /*SIZ_BYTE:*/
+        //    case 1: //SIZ_BYTE:
         //        strcpy (Ci.mnem, "dc.b");
         //        myVal = *(iBuf++);
         //        Ci.cmd_wrd = myVal & 0xff;
         //        ++PCPos;
         //        break;
-        //    case 2: /*SIZ_WORD:*/
+        //    case 2: //SIZ_WORD:
         //        strcpy (Ci.mnem, "dc.w");
         //        myVal = (*(iBuf++) << 8) | (*(iBuf++) & 0xff);
         //        Ci.cmd_wrd = myVal & 0xffff;
@@ -1160,11 +1160,11 @@ ListInitROF (hdr, refsList, iBuf, isize, iClass)
         //        lblList  = lblList->Next;
         //    }
 
-        //    /*if (refsList->dstClass)
-        //    {
-        //        mylbl = findlbl(*iClass, myVal);
-        //        strcpy (Ci.opcode, mylbl ? mylbl->sname :
-        //    }*/
+        ////    if (refsList->dstClass)
+        ////    {
+        ////        mylbl = findlbl(*iClass, myVal);
+        ////        strcpy (Ci.opcode, mylbl ? mylbl->sname :
+        ////    }
 
         //    strcpy (Ci.opcode, refsList->Extrn ? refsList->EName.nam : refsList->EName.lbl->sname);
         //    PrintLine(pseudcmd, &Ci, iClass, 0, 0);
@@ -1177,10 +1177,10 @@ ListInitROF (hdr, refsList, iBuf, isize, iClass)
 
         //    if (refsList)
         //    {
-        //        nxtVal = refsList->Ofst;        /* This Value should always be greater than PCPos */
+        //        nxtVal = refsList->Ofst;        // This Value should always be greater than PCPos
         //    }
 
-        //}
+        }*/
     }
 }
 

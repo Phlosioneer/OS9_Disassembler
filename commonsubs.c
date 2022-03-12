@@ -26,6 +26,7 @@
 
 
 #include <string.h>
+#include <stdio.h>
 #include "userdef.h"
 #include "modtypes.h"
 #include "disglobs.h"
@@ -1209,13 +1210,23 @@ strdup (oldstr)
 #endif
 
 unsigned int
+#ifdef __STDC__
 fget_w (FILE *fp)
+#else
+fget_w (fp)
+FILE *fp;
+#endif
 {
     return ((unsigned char)fgetc(fp) << 8) | (unsigned char)fgetc(fp);
 }
 
 unsigned int
-fget_l(FILE *fp)
+#ifdef __STDC__
+fget_l (FILE *fp)
+#else
+fget_l (fp)
+FILE *fp;
+#endif
 {
     unsigned int val,
                  c;
@@ -1461,7 +1472,7 @@ char *
 #ifdef __STDC__
 freadString()
 #else
-freadstring()
+freadString()
 #endif
 {
     register char *strPt = strBuf;

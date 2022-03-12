@@ -29,11 +29,11 @@
 #define _MAIN_  /* We will define all variables in one header file, then
                    define them extern from all other files */
 
+#include <string.h>
 #include <ctype.h>
 #include "disglobs.h"
 #include "textdef.h"
 #include "modtypes.h"
-#include <string.h>
 #include "proto.h"
 int error;
 

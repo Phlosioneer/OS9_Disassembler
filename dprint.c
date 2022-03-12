@@ -681,7 +681,12 @@ PrintFormatted (pfmt, ci)
  * **************************************************************** */
 
 void
+#ifdef __STDC__
 printXtraBytes (char *data)
+#else
+printXtraBytes (data)
+char *data;
+#endif
 {
     if (strlen (data))
     {
@@ -1393,11 +1398,11 @@ ListInitData (ldf, nBytes, lclass)
 
                 if ((IRefs) && (PCPos == IRefs->dAddr))
                 {
+                    LBLDEF *mylbl;
+                    struct ireflist *tmpref;
                     char xtrabytes[10];
                     val = 0;
                     tmp[0] = '\0';
-                    LBLDEF *mylbl;
-                    struct ireflist *tmpref;
 
                     xtrabytes[0] = '\0';
 
@@ -1606,7 +1611,7 @@ ROFDataPrint ()
      * should work here automatically rather than hard-coding the classes
      */
 
-    //dattyp[2] = '\0';
+    /*dattyp[2] = '\0';
 
     //for (vs = 0; vs < 2; vs++)
     //{
@@ -1620,7 +1625,7 @@ ROFDataPrint ()
     //    PrintLine (realcmd, &Ci, dattyp[vs], 0, 0);
     //    BlankLine();
 
-    //    /* Process each of un-init, init */
+    ////     Process each of un-init, init
 
     //    for (isinit = 0; isinit <= 1; isinit++)
     //    {
@@ -1641,9 +1646,9 @@ ROFDataPrint ()
     //        {
     //            if (dta)
     //            {
-    //                /* for PrintNonCmd(), send isinit so that a pre-blank
-    //                    * line is not printed, since it is provided by
-    //                    * PrinLine above */
+    ////                 for PrintNonCmd(), send isinit so that a pre-blank
+    ////                    * line is not printed, since it is provided by
+    ////                    * PrinLine above
 
     //                if (thissz[isinit])
     //                {
@@ -1652,13 +1657,13 @@ ROFDataPrint ()
 
     //                srch = dta->cEnt;
 
-    //                /*while (srch->Next)
+    //                //while (srch->Next)
     //                {
     //                    srch = srch->Next;
-    //                }*/
+    //                }
 
     //                if (srch->myaddr)
-    //                {                       /* i.e., if not D000 */
+    //                {                       // i.e., if not D000
     //                    strcpy (Ci.mnem, isinit ? "dc" : "ds");
     //                    sprintf (Ci.opcode, "%d", srch->myaddr);
     //                    CmdEnt = PrevEnt = 0;
@@ -1666,15 +1671,11 @@ ROFDataPrint ()
     //                                                srch->myaddr);
     //                }
 
-    //                /* For max value, send a large value so ListData
-    //                    * will print all for cClass
-    //                    */
-
     //                M_Mem = sizes[isinit];
     //                ListData (dta->cEnt, sizes[isinit], dattyp[isinit]);
-    //            }          /* end "if (dta)" */
-    //            else        /* else no labels.. check to see */
-    //            {           /* if any "hidden" variables */
+    //            }          // end "if (dta)"
+    //            else        // else no labels.. check to see
+    //            {           // if any "hidden" variables
     //                if (sizes[isinit])
     //                {
     //                    PrintNonCmd (mytmp, isinit, 1);
@@ -1687,16 +1688,16 @@ ROFDataPrint ()
     //        }
     //    }
 
-    //    /* Do "ends" for this vsect */
+    //
 
     //    WrtEnds();
     //}
 
-    //dattyp += 2;  /* Done with this cClass, point to next */
-    ///*thissz += 2;*/   /* And to the next data size */
+    //dattyp += 2;
+    ////thissz += 2;
 
     //BlankLine ();
-    //InProg = 1;
+    //InProg = 1;*/
 }
 
 

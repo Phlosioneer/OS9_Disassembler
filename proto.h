@@ -178,6 +178,9 @@ int bufReadL();
 void *mem_alloc();
 char *freadString();
 char *lbldup();
+#ifdef _OSK
+char *strdup();
+#endif
 /* def68def.c */
 OPSTRUCTURE *tablematch();
 /* dis68.c */
