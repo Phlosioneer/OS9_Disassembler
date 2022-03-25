@@ -665,7 +665,7 @@ find_extrn (xtrn, adrs)
         return 0;
     }
 
-    while ((adrs < xtrn->Ofst) && (xtrn->ENext))
+    while ((adrs > xtrn->Ofst) && (xtrn->ENext))
     {
         xtrn = xtrn->ENext;
     }

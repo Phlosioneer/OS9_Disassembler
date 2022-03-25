@@ -27,6 +27,7 @@
 #include "disglobs.h"
 #include "userdef.h"
 #include "sysnames.h"
+#include "rof.h"
 
 #include "proto.h"
 
@@ -397,7 +398,7 @@ biti_size(ci, j, op)
         {
             return 0;
         }
-   
+
         if (mode == 7)
         {
                 /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
@@ -561,7 +562,7 @@ move_instr(ci, j, op)
     int d_mode, d_reg, src_mode, src_reg;
     char src_ea[50], dst_ea[50];
     register int size;
-    
+
     /* Move instructions have size a bit different */
     switch ((ci->cmd_wrd >> 12) & 3)
     {
@@ -745,7 +746,7 @@ movep(ci, j, op)
 
     strcpy (opcodeFmt, "%s,%s");
     sprintf (DReg, "D%d", (ci->cmd_wrd >> 9) & 7);
-    
+
     sprintf (AReg, "%d(A%d)", disp, addr_reg);
 
     if (opMode & 2)
@@ -1399,47 +1400,137 @@ trap(ci, j, op)
 {
     register int vector = ci->cmd_wrd & 0x0f;
     register int syscall = getnext_w(ci);
+    unsigned int sysCallCount = sizeof(SysNames)/sizeof(SysNames[0]);
+    unsigned int mathCallCount = sizeof(MathCalls)/sizeof(MathCalls[0]);
+
+    ci->mnem[0] = '\0';
 
     switch (vector)
     {
     case 0:             /* System Call */
-    case 0x0f:          /* Math trap   */
-        if (syscall)
+        if (IsROF)
         {
-            switch (vector)
+            if (Pass == 2)
             {
-            case 0:
-                if (strlen (SysNames[vector]))
+                struct rof_extrn *vec_ref = find_extrn (refs_code, CmdEnt + 1);
+                struct rof_extrn *call_ref = find_extrn (refs_code, CmdEnt + 2);
+                char *callName = NULL;
+
+                if (call_ref != NULL)
                 {
-                    if (Pass == 1)
+                    register int x;
+
+                    callName = call_ref->EName.nam;
+
+                    for (x = 0; x < sysCallCount; x++)
                     {
-                        addlbl ('!', syscall, SysNames[syscall]);
-                        addTrapOpt (ci, PCPos - 2);
+                        if (!strcmp(callName, SysNames[x]))
+                        {
+
+                            strcpy (ci->mnem, "os9");
+                            strcpy(ci->opcode, callName);
+                            return 1;
+                        }
+                    }
+                } /* end - if call_ref != null */
+
+                if (vec_ref)
+                {
+                    register char *vN = vec_ref->EName.nam;
+                    register int x;
+
+                    for (x = 0; x < mathCallCount; x++)
+                    {
+                        if (!strcmp("T$Math",vN) || !strcmp("T$Math",vN))
+                        {
+                            register int matched = FALSE;
+
+                            if (!strcmp(callName, MathCalls[x]))
+                            {
+                                matched = 1;
+                                break;
+                            }
+
+                            if (!matched)
+                            {
+                                ungetnext_w(ci);
+                                return 0;
+                            }
+                        }
+                    }
+
+                    if (callName)
+                    {
+                        sprintf(ci->opcode, "%s,%s", vN, callName);
                     }
                     else
                     {
-                        strcpy (ci->opcode, SysNames[syscall]);
+                        sprintf(ci->opcode, "%s,$%x", vN, syscall);
                     }
 
-                    strcpy (ci->mnem, "os9");
+                    strcpy (ci->mnem, "tcall");
                     return 1;
                 }
-            case 0x0f:
-                if (syscall < sizeof(MathCalls)/sizeof(MathCalls[0]))
+                else
                 {
-                    sprintf (ci->opcode, "T$Math,%s", MathCalls[syscall]);
-                    strcpy(ci->mnem, "tcall");
-                    addTrapOpt (ci, PCPos - 2);
+                    /* TODO: Check for user defined labels?? */
+                    if (callName)
+                    {
+                        sprintf(ci->opcode, "$%x,%s", vector, callName);
+                    }
+                    else
+                    {
+                        sprintf (ci->opcode, "$%x,$%x", vector, syscall);
+                    }
+
+                    strcpy (ci->mnem, "tcall");
                     return 1;
                 }
+                break;
             }
         }
+        else
+        {
+            if (Pass == 1)
+            {
+                if (syscall < sysCallCount)
+                {
+                    addlbl ('!', syscall, SysNames[syscall]);
+                    /*addTrapOpt (ci, PCPos - 2);*/
+                    return 1;
+                }
+                else
+                {
+                    ungetnext_w(ci);
+                    return 0;
+                }
+            }
+            else
+            {
+                strcpy (ci->opcode, SysNames[syscall]);
+                strcpy (ci->mnem, "os9");
+                return 1;
+            }
+        }
+    case 0x0f:          /* Math trap   */
+        if (syscall < sizeof(MathCalls)/sizeof(MathCalls[0]))
+        {
+            strcpy (ci->opcode, "T$Math");
+            strcpy(ci->mnem, "tcall");
+            /*addTrapOpt (ci, PCPos - 2);*/
+            return 1;
+        }
 
+        ungetnext_w (ci);
+        return 0;
         break;
     default:
-        sprintf (ci->opcode, "#%d", vector);
-        strcpy (ci->mnem, op->name);
-        addTrapOpt (ci, PCPos - 2);
+        /* TODO: Provide for user-defined labels */
+        sprintf (ci->opcode, "$%02x,", vector);
+        sprintf (&ci->opcode[strlen(ci->opcode)], "%04x", syscall);
+        strcpy (ci->mnem, "tcall");
+        /*strcpy (ci->mnem, op->name);*/
+        /*addTrapOpt (ci, PCPos - 2);*/
         return 1;
     }
 
@@ -1606,7 +1697,7 @@ ext_extb(ci, j, op)
 
     sprintf (ci->opcode, "d%d", ci->cmd_wrd & 7);
     strcpy (ci->mnem, op->name);
-    
+
     switch (ci->cmd_wrd & 0x01c0)
     {
     case 0x80:
@@ -1649,7 +1740,7 @@ cmpm_addx_subx(ci, j, op)
     {
         return 0;
     }
-    
+
     switch (ci->cmd_wrd & 0xf000)
     {
     case 0xb000:            /* cmpm */

@@ -102,7 +102,7 @@ badexit (msg)
  * AsmComment() Add comments to be placed into the assembler source/listing *
  *          on separate lines                                               *
  * Format for this entry:                                                   *
- *      " <Label class> addr <delim>Dtext<delim>                            *
+ *      <Label class> addr <delim>Dtext<delim>                              *
  *      ---                                                                 *
  *      textD\n                                                             *
  * D represents any delimiter, following lines will be added until a line   *
