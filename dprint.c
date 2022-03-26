@@ -902,11 +902,12 @@ ROFPsect (rptr)
     LBLDEF *nl;
     CMD_ITMS Ci;
 
+    memset (&Ci, 0, sizeof(CMD_ITMS));
     /*strcpy (Ci.instr, "");*/
     strcpy (Ci.opcode, "");
     Ci.lblname = "";
     strcpy (Ci.mnem, "psect");
-    sprintf (Ci.opcode, "%s,$%x,$%x,%d,%d", rptr->rname,
+    sprintf (Ci.opcode, "%s,$%x,$%x,%d,%d,", rptr->rname,
                                                 rptr->ty_lan >> 8,
                                                 rptr->ty_lan & 0xff,
                                                 rptr->edition,
@@ -918,20 +919,23 @@ ROFPsect (rptr)
 
     if ((nl = findlbl('L', rptr->code_begin)))
     {
-        char *oc = Ci.opcode;
-        snprintf (Ci.opcode, sizeof(Ci.opcode), "%s,%s", oc, nl->sname);
+        strcat(Ci.opcode, nl->sname);
         /*OPSCAT(nl->sname);*/
     }
     else
     {
-        char *oc = Ci.opcode;
-        sprintf (Ci.opcode, "%s,%04x", oc, (int)(rptr->code_begin));
+        char oc[10];
+
+        sprintf(oc, "$%04x", rptr->code_begin);
+        strcat(Ci.opcode, oc);
         /*OPHCAT ((int)(rptr->modent));*/
     }
 
     CmdEnt = 0;
     PrevEnt = 1;    /* To prevent NonBoundsLbl() output */
+    InProg = 0;    /* Inhibit Label Lookup */
     PrintLine (pseudcmd, &Ci, CNULL, 0, 0); 
+    InProg = 1;
 }
 
 
