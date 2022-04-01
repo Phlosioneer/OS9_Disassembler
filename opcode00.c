@@ -930,6 +930,9 @@ branch_displ (ci, cmd_word, siz_suffix)
             strcpy (siz_suffix, "w");
             break;
         case 0xff:
+            if (cpu < MC68020)
+                return 0;  /* Long branch not available for < 68020 */
+
             displ = (getnext_w(ci) << 16) | (getnext_w(ci) & 0xffff);
 
             if (displ & 1)
@@ -973,9 +976,40 @@ bra_bsr(ci, j, op)
 
     displ = branch_displ(ci, ci->cmd_wrd, siz);
 
-    if (!IsROF && (displ == 0))
-    {
+    if (displ & 1)
         return 0;
+
+    if (!IsROF)
+    {
+        if (displ == 0)
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        int ref_addr = ci->cmd_wrd & 0xff;
+
+        if ((ref_addr == 0) || (ref_addr == 0xff))
+        {
+            ref_addr = CmdEnt + 2;
+        }
+        else
+        {
+            ref_addr = CmdEnt + 1;
+        }
+
+        if (rof_setup_ref(refs_code, ref_addr, ci->opcode, displ))
+        {
+            strcpy (ci->mnem, op->name);
+            strcat (ci->mnem, siz);
+            return 1;
+        }
+        else
+        {
+            if (displ == 0)
+                return 0;
+        }
     }
 
     strcpy (ci->mnem, op->name);
@@ -1106,9 +1140,46 @@ br_cond(ci, j, op)
 
     displ = branch_displ(ci, ci->cmd_wrd, siz);
 
-    if (!IsROF && (displ == 0))
-    {
+    if (displ & 1)
         return 0;
+
+    /* It wouldn't seem likely that a conditional branch would
+     * ever branch to an external ref, and would probably ever
+     * occur in C-generated code, but manually-written asm source
+     * could contain this
+     */
+
+    if (!IsROF)
+    {
+        if (displ == 0)
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        int ref_addr = ci->cmd_wrd & 0xff;
+
+        if ((ref_addr == 0) || (ref_addr == 0xff))
+        {
+            ref_addr = CmdEnt + 2;
+        }
+        else
+        {
+            ref_addr = CmdEnt + 1;
+        }
+
+        if (rof_setup_ref(refs_code, ref_addr, ci->opcode, displ))
+        {
+            strcpy (ci->mnem, op->name);
+            strcat (ci->mnem, siz);
+            return 1;
+        }
+        else
+        {
+            if (displ == 0)
+                return 0;
+        }
     }
 
     strcpy(ci->mnem, op->name);
