@@ -30,6 +30,7 @@
 #include "userdef.h"
 #include "modtypes.h"
 #include "disglobs.h"
+#include "rof.h"
 #include "proto.h"
 
 typedef struct modestrs {
@@ -479,6 +480,7 @@ int reg;
 {
     int ext1;
     int ext2;
+    int ref_ptr;
     char dispstr[50];
     struct extWbrief ew_b;
     int ea_addr;
@@ -637,6 +639,7 @@ int reg;
             return 1;
         case 4:                 /* #<data> */
             AMode = AM_IMM;
+            ref_ptr = PCPos;
             ext1 = getnext_w(ci);
 
             switch (size)
@@ -661,6 +664,12 @@ int reg;
                 ext2 = getnext_w(ci);
                 ext1 = (ext1 << 16) | (ext2 & 0xffff);
                 break;
+            }
+
+            if (rof_setup_ref(refs_code, ref_ptr, dispstr, ext1))
+            {
+                    sprintf (ea, Mode07Strings[reg].str, dispstr);
+                    return 1;
             }
 
             LblCalc (dispstr, ext1, AMode, ea_addr);

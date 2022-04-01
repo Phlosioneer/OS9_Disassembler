@@ -34,6 +34,16 @@
 #include "rof.h"
 #include "proto.h"
 
+#ifdef _OSK
+/* This is to resolve a bug in stdlib.h */
+#ifdef abs
+#   undef abs
+#endif
+#define abs(a) ((a) < 0 ? -(a) : (a))
+#endif
+
+extern struct databndaries *LAdds[];
+
 #ifdef __STDC__
 /*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer);
@@ -665,7 +675,7 @@ find_extrn (xtrn, adrs)
         return 0;
     }
 
-    while ((adrs > xtrn->Ofst) && (xtrn->ENext))
+    while (((adrs > xtrn->Ofst) || !(xtrn->Extrn)) && (xtrn->ENext))
     {
         xtrn = xtrn->ENext;
     }
@@ -1297,6 +1307,60 @@ setROFPass()
     else
     {
         refs_code = codeRefs_sav;
+    }
+}
+
+/**
+ * rof_setup_ref:
+ *
+ * @ref: Reference to desired struct rof_extrn
+ * @addr: The position in the code where toe ref is located
+ * @dest: Pointer to where the string is to be stored
+ * @value: The value found at @addr.  If it's nonzero, this is the value to add o subtract to/from the ref
+ *
+ * Checks to see if an external reference is found at this location, nd if so, sets up the assembler string for this portion of the opcode
+ *
+ * Returns: trturns TRUE (1) if a ref was found and set up, FALSE (0) if no ref found here
+ **/
+
+int
+#ifdef __STDC__
+rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val)
+#else
+rof_setup_ref(ref, addrs, dest, val)
+struct rof_extrn *ref; int addrs; char *dest; int val;
+#endif
+{
+    if (find_extrn(ref,addrs))
+    {
+        strcpy (dest, find_extrn(ref, addrs)->EName.nam);
+
+        if (ClasHere(LAdds[AMode], CmdEnt))
+        {
+            struct databndaries *kls = ClasHere(LAdds[AMode], CmdEnt);
+
+            if (kls->dofst)
+            {
+                if (kls->dofst->incl_pc)
+                {
+                    strcat(dest, "-*");
+                }
+
+                strcat(dest, (kls->dofst->add_to) ? "+" : "-");
+                sprintf(&dest[strlen(dest)], "%d", kls->dofst->of_maj);
+            }
+        }
+        else if (val != 0)
+        {
+            strcat(dest, (val > 0 ? "+" : "-"));
+            sprintf(&dest[strlen(dest)], "%d", abs(val));
+        }
+
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 

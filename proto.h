@@ -140,6 +140,7 @@ int rof_datasize(char cclass);
 void ListInitROF(char *hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass);
 void rof_ascii(char *cmdline);
 void setROFPass(void);
+int rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val);
 char *IsRef(char *dst, int curloc, int ival);
 
 #else
@@ -178,9 +179,6 @@ int bufReadL();
 void *mem_alloc();
 char *freadString();
 char *lbldup();
-#ifdef _OSK
-char *strdup();
-#endif
 /* def68def.c */
 OPSTRUCTURE *tablematch();
 /* dis68.c */
@@ -279,6 +277,7 @@ int rof_datasize();
 void ListInitROF();
 void rof_ascii();
 void setROFPass();
+int rof_setup_ref();
 char *IsRef();
 #endif   /* __STDC__*/
 
