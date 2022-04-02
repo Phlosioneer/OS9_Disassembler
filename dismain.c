@@ -563,6 +563,8 @@ dopass(argc,argv,mypass)
             NsrtBnds (bp);
             CmdEnt = PCPos;
         }
+
+        if (CmdEnt >= CodeEnd) continue;
        
         if (get_asmcmd())
         {
