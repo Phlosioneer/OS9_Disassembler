@@ -23,6 +23,7 @@
 #                                                               		#
 # ********************************************************************* #
 
+VPATH = ../..
 CFLAGS = -m32 -c -g -Wall
 LFLAGS = -m32 -g
 DISRELS = dis68.o dismain.o def68def.o opcode00.o commonsubs.o lblfuncs.o\
@@ -33,21 +34,7 @@ PROG  = dis68
 $(PROG): $(DISRELS)
 	cc $(LFLAGS) $(DISRELS) -o $@
 
-#$(DISRELS):
-#	cc $(CFLAGS) $*.c
-
-# I broke down the dependencies for the object files
-# because I couldn't get the above to work...
-
-#dis68.o:
-#	cc $(CFLAGS) $*.c -I /usr/include/sys
-
-dismain.o: dismain.c $(XTRAS)
-	cc $(CFLAGS) -o $@ $*.c
-
-opcode00.o: $(XTRAS)
-
-commonsubs.o:
+$(DISRELS):
 
 clean:
 	rm -f *.o dis68
