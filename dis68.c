@@ -194,9 +194,9 @@ build_path (p, faccs)
 
     if (CmdFileName && strlen(CmdFileName))
     {
-        /*char dirpath[256];
+        char dirpath[256];
         char fname[256];
-        int relpath;*/
+        int relpath;
 #ifdef _WIN32
         char drv[3];
         char ext[256];
@@ -297,7 +297,13 @@ do_opt (c)
 
         if ( ! (AsmPath = fopen (AsmFile, BINWRITE)))
         {
-            errexit ("Cannot open output file\n");
+            if (strlen(AsmFile) == 0) {
+                errexit("Error: no output file path after -o. Are you missing an = after -o? ");
+            }
+            else
+            {
+                errexit("Cannot open output file (are you missing an = after -o?)");
+            }
         }
         
         WrtSrc = 1;
@@ -410,7 +416,14 @@ void errexit
 (char *pmpt)
 #endif
 {
-    fprintf (stderr, "%s\n",pmpt);
+    if (errno)
+    {
+        perror(pmpt);
+    }
+    else
+    {
+        fprintf(stderr, "%s\n", pmpt);
+    }
     exit(errno ? errno : 1);
 }
 
