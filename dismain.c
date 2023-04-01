@@ -308,6 +308,11 @@ modnam_find (pt, desired)
  * RdLblFile() - Reads a label file and stores label values into label  *
  *      tree if value (or address) is present in tree                   *
  *      Path to file has already been opened and is stored in "inpath"  *
+ *                                                                      *
+ *      Lines are in the format:                                        *
+ *        NAME equ ADDR CLASS                                           *
+ *      ADDR can be either decimal, or hex with the prefix $.           *
+ *      CLASS is one "D" or "L"                                         *
  * ******************************************************************** */
 
 static void
