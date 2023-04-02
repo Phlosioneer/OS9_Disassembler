@@ -54,18 +54,10 @@ static int PgLin;
 
 static void BlankLine();
 
-#ifdef __STDC__
 static void PrintFormatted (char *pfmt, CMD_ITMS *ci);
 static void NonBoundsLbl (char cClass);
 static void StartPage ();
 static void TellLabels (LBLDEF *me, int flg, char cClass, int minval);
-#else
-static void PrintFormatted ();
-static void NonBoundsLbl ();
-static void PrintComment();
-static void StartPage ();
-static void TellLabels ();
-#endif
 
 extern char *CmdBuf;
 /*extern struct printbuf *pbuf;*/
@@ -544,25 +536,6 @@ static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
 
     if (pfmt == pseudcmd)
     {
-#ifdef _OSK
-        if (IsUnformatted)
-        {
-            _linlen = sprintf (FmtBuf, &(pfmt[3]),
-                                    CmdEnt, ci->cmd_wrd, ci->lblname,
-                                        ci->mnem, ci->opcode, ci->comment);
-        }
-        else
-        {
-            _linlen = sprintf (FmtBuf, pfmt,
-                                    LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
-                                        ci->mnem, ci->opcode, ci->comment);
-        }
-
-        if (_linlen > PgWidth - 2)
-        {
-            FmtBuf[PgWidth - 2] = '\0';
-         }
-#else
         if (IsUnformatted)
         {
             _linlen = snprintf (FmtBuf, PgWidth - 2, &(pfmt[3]),
@@ -575,29 +548,9 @@ static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
                                     LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
                                     ci->mnem, ci->opcode, ci->comment);
         }
-#endif
     }
     else
     {
-#ifdef _OSK
-        if (IsUnformatted)
-        {
-            _linlen = sprintf (FmtBuf, &(pfmt[3]),
-                                CmdEnt, ci->cmd_wrd, ci->lblname,
-                                ci->mnem, ci->opcode, "");
-        }
-        else
-        {
-            _linlen = sprintf (FmtBuf, pfmt,
-                                LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
-                                ci->mnem, ci->opcode, "");
-        }
-
-        if (_linlen > PgWidth - 2)
-        {
-            FmtBuf[PgWidth - 2] = '\0';
-        }
-#else
         if (IsUnformatted)
         {
             _linlen = snprintf (FmtBuf, PgWidth - 2, &(pfmt[3]),
@@ -610,7 +563,6 @@ static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
                                 LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
                                 ci->mnem, ci->opcode, ci->comment);
         }
-#endif
     }
 
     if ((_linlen >= PgWidth - 2) || (_linlen < 0))

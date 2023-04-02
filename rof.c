@@ -34,23 +34,10 @@
 #include "rof.h"
 #include "proto.h"
 
-#ifdef _OSK
-/* This is to resolve a bug in stdlib.h */
-#ifdef abs
-#   undef abs
-#endif
-#define abs(a) ((a) < 0 ? -(a) : (a))
-#endif
-
 extern struct databndaries *LAdds[];
 
-#ifdef __STDC__
 /*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer);
-#else
-void ROFDataLst ();
-void get_refs();
-#endif
 
 char  rname[100];
 

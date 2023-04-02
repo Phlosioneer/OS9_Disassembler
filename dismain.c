@@ -55,17 +55,9 @@ int CodeEnd;
 
 extern struct databndaries *dbounds;
 extern char realcmd[], pseudcmd[];
-#ifdef __STDC__
-    extern void printXtraBytes (char *);
-#else
-    extern void printXtraBytes ();
-#endif
+extern void printXtraBytes (char *);
 
-static int get_asmcmd(
-#ifdef __STDC__
-    void
-#endif
-);
+static int get_asmcmd(void);
 
 #if 0
 /*
@@ -317,17 +309,8 @@ static void RdLblFile (FILE *inpath)
 
         if (sscanf (rdbuf, "%s %s %s %c", labelname, eq, strval, &clas) == 4)
         {
-#ifdef _OSK
-              register int c;
-#endif
             clas = toupper (clas);
 
-#ifdef _OSK
-            for (c = 0; c < 3; c++)
-            {
-                eq[c] = _tolower(eq[c]);
-            }
-#endif
             if ( ! strcasecmp (eq, "equ"))
             {
                 /* Store address in proper place */
@@ -769,9 +752,6 @@ void MovBytes (struct databndaries *db)
     char tmps[20];
     unsigned int valu;
     int bmask;
-#ifdef _OSK
-    static
-#endif
     /*char *xFmt[3] = {"$%02x", "$%04x", "$%08x"};*/
     char xtrabytes[50];
     int cCount = 0,

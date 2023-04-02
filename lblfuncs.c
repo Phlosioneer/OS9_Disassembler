@@ -29,14 +29,6 @@
 #include "userdef.h"
 #include "proto.h"
 
-#ifdef _OSK
-/* This is to resolve a bug in stdlib.h */
-#ifdef abs
-#   undef abs
-#endif
-#define abs(a) ((a) < 0 ? -(a) : (a))
-#endif
-
 LBLCLAS LblList[] = {
     {'_', NULL},
     {'!', NULL}, {'=', NULL}, {'A', NULL}, {'B', NULL},

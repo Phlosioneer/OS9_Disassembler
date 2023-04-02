@@ -381,13 +381,7 @@ void do_opt (char *c)
  *      required in the prompt string; the subroutine provides one.              *
  * ***************************************************************************** */
 
-void errexit
-#ifdef _OSK
-(pmpt)
-    char *pmpt;
-#else
-(char *pmpt)
-#endif
+void errexit(char *pmpt)
 {
     if (errno)
     {

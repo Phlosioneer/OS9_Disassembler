@@ -31,10 +31,6 @@
 
 #define VERSION "0.1.0"
 
-#ifdef _OSK
-#   include <osk.h>
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>

@@ -1071,28 +1071,6 @@ int link_unlk(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-#ifdef _OSK
-/*
- * OSK does not have a built-in "strdup()"
- */
-char *
-strdup (oldstr)
-    char *oldstr;
-{
-    char *newstr;
-    
-    if ((newstr = malloc (strlen(oldstr) +1)))
-    {
-        strcpy (newstr, oldstr);
-        return newstr;
-    }
-    else
-    {
-        return NULL;
-    }
-}
-#endif
-
 unsigned int fget_w (FILE *fp)
 {
     return ((unsigned char)fgetc(fp) << 8) | (unsigned char)fgetc(fp);
