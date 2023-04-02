@@ -57,13 +57,7 @@ extern struct databndaries *dbounds;
  *
  */
 
-LBLCLAS *
-#ifdef __STDC__
-labelclass (char lblclass)
-#else
-labelclass (lblclass)
-    char lblclass;
-#endif
+LBLCLAS * labelclass (char lblclass)
 {
     LBLCLAS *c = LblList;
 
@@ -91,14 +85,7 @@ labelclass (lblclass)
  *          location where it should be.                        *
  * ------------------------------------------------------------ */
 
-static LBLDEF *
-#ifdef __STDC__
-lblpos (char lblclass, int lblval)
-#else
-lblpos (lblclass, lblval)
-    char lblclass;
-    int lblval;
-#endif
+static LBLDEF * lblpos (char lblclass, int lblval)
 {
     LBLDEF *me = labelclass (lblclass)->cEnt;
 
@@ -118,14 +105,7 @@ lblpos (lblclass, lblval)
  * movchr() - Append a char in the desired printable format onto dst    *
  * ******************************************************************** */
 
-static void
-#ifdef __STDC__
-movchr (char *dst, unsigned char ch)
-#else
-movchr (dst, ch)
-    char *dst;
-    unsigned char ch;
-#endif
+static void movchr (char *dst, unsigned char ch)
 {
     char mytmp[10];
     register LBLDEF *pp;
@@ -163,17 +143,7 @@ movchr (dst, ch)
  *          (4)   dl - ptr to the nlist tree for the label
  */
 
-void
-#ifdef __STDC__
-PrintLbl (char *dest, char clas, int adr, LBLDEF *dl, int amod)
-#else
-PrintLbl (dest, clas, adr, dl, amod)
-    char *dest;
-    char clas;
-    int adr;
-    LBLDEF *dl;
-    int amod;
-#endif
+void PrintLbl (char *dest, char clas, int adr, LBLDEF *dl, int amod)
 {
     char tmp[10];
     /*short decn = adr & 0xffff;*/
@@ -291,14 +261,7 @@ PrintLbl (dest, clas, adr, dl, amod)
  * Returns: Ptr to Boundary definition if found,  NULL if no match. *
  * **************************************************************** */
 
-struct databndaries *
-#ifdef __STDC__
-ClasHere (struct databndaries *bp, int adrs)
-#else
-ClasHere (bp, adrs)
-    struct databndaries *bp;
-    int adrs;
-#endif
+struct databndaries * ClasHere (struct databndaries *bp, int adrs)
 {
     register struct databndaries *pt;
     register int h = (int) adrs;
@@ -346,14 +309,7 @@ ClasHere (bp, adrs)
  *
  */
 
-LBLDEF *
-#ifdef __STDC__
-findlbl (char lblclass, int lblval)
-#else
-findlbl (lblclass, lblval)
-    char lblclass;
-    int lblval;
-#endif
+LBLDEF * findlbl (char lblclass, int lblval)
 {
     LBLDEF *found;
 
@@ -370,14 +326,7 @@ findlbl (lblclass, lblval)
     return NULL;
 }
 
-char *
-#ifdef __STDC__
-lblstr (char lblclass, int lblval)
-#else
-lblstr (lblclass, lblval)
-    char lblclass;
-    int lblval;
-#endif
+char * lblstr (char lblclass, int lblval)
 {
     LBLDEF *me = findlbl(lblclass, lblval);
 
@@ -392,16 +341,7 @@ lblstr (lblclass, lblval)
  *          The name and address is already stored.                 *
  * ---------------------------------------------------------------- */
 
-static LBLDEF *
-#ifdef __STDC__
-create_lbldef (char lblclass, int val, char *name)
-#else
-create_lbldef (lblclass, val, name)
-    char lblclass;
-    int val;
-    char *name;
-
-#endif
+static LBLDEF * create_lbldef (char lblclass, int val, char *name)
 {
     register LBLDEF *newlbl;
     
@@ -436,15 +376,7 @@ create_lbldef (lblclass, val, name)
  *              the class letter is used.
  */
 
-LBLDEF *
-#ifdef __STDC__
-addlbl (char lblclass, int val, char *newname)
-#else
-addlbl (lblclass, val, newname)
-    char lblclass;
-    int val;
-    char *newname;
-#endif
+LBLDEF * addlbl (char lblclass, int val, char *newname)
 {
     register LBLDEF *oldlbl;
     register LBLDEF *newlbl;
@@ -553,15 +485,7 @@ addlbl (lblclass, val, newname)
  *
  */
 
-void
-#ifdef __STDC__
-process_label (CMD_ITMS *ci, char lblclass, int addr)
-#else
-process_label (ci, lblclass, addr)
-    CMD_ITMS *ci;
-    char lblclass;
-    int addr;
-#endif
+void process_label (CMD_ITMS *ci, char lblclass, int addr)
 {
     if (Pass == 1)
     {
@@ -583,13 +507,7 @@ process_label (ci, lblclass, addr)
     }
 }
 
-void
-#ifdef __STDC__
-parsetree(char c)
-#else
-parsetree(c)
-    char c;
-#endif
+void parsetree(char c)
 {
     LBLDEF *l;
     LBLCLAS *lc;
@@ -626,13 +544,7 @@ parsetree(c)
  *          (3) amod - the AMode desired
  */
 
-int
-#ifdef __STDC__
-LblCalc (char *dst, int adr, int amod, int curloc)
-#else
-LblCalc (dst, adr, amod, curloc)
-    char *dst; int adr; int amod; int curloc;
-#endif
+int LblCalc (char *dst, int adr, int amod, int curloc)
 {
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
     char mainclass;                 /* Class for this location */

@@ -18,15 +18,7 @@
 /* ROUTINE: BITNUM							     */
 /* ********************************************* */
 
-static int
-#ifdef __STDC__
-bitnum (int startbit, int endbit, int opword)
-#else
-bitnum (startbit, endbit, opword)
-     int startbit,
-         endbit,
-         opword;
-#endif
+static int bitnum (int startbit, int endbit, int opword)
 {
     int shifted_word,
         i,
@@ -50,13 +42,7 @@ bitnum (startbit, endbit, opword)
 /* ROUTINE: FPMATCH							     */
 /* ********************************************* */
 
-int
-#ifdef __STDC__
-fpmatch (int start)
-#else
-fpmatch (start)
-     int start;
-#endif
+int fpmatch (int start)
 {
     extern error;
     extern char sizechar[];
@@ -139,14 +125,7 @@ fpmatch (start)
 /* ROUTINE: TABLEMATCH							 */
 /* ********************************************* */
 
-OPSTRUCTURE *
-#ifdef __STDC__
-tablematch (int opword, OPSTRUCTURE *entry)
-#else
-tablematch (opword, entry)
-     int opword;
-     OPSTRUCTURE *entry;
-#endif
+OPSTRUCTURE * tablematch (int opword, OPSTRUCTURE *entry)
 {
     /*extern OPSTRUCTURE syntax1[];*/
     extern int error;

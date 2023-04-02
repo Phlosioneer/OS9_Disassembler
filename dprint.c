@@ -143,13 +143,7 @@ tabinit ()
     strcpy (pseudcmd, "%5d\t%04X\t%s\t\t%s\t%s\t%s\n");
 }
 
-void
-#ifdef __STDC__
-PrintAllCodLine (int w1, int w2)
-#else
-PrintAllCodLine (w1, w2)
-    int w1, w2;
-#endif
+void PrintAllCodLine (int w1, int w2)
 {
     if (IsUnformatted)
     {
@@ -167,13 +161,7 @@ PrintAllCodLine (w1, w2)
     }
 }
 
-void
-#ifdef __STDC__
-PrintAllCodL1 (int w1)
-#else
-PrintAllCodL1 (w1)
-    int w1;
-#endif
+void PrintAllCodL1 (int w1)
 {
     if (IsUnformatted)
     {
@@ -316,13 +304,7 @@ PrintPsect()
  * to the listing and/or source file      *
  * ************************************** */
 
-static void
-#ifdef __STDC__
-OutputLine (char *pfmt, CMD_ITMS *ci)
-#else
-OutputLine (pfmt, ci)
-char *pfmt; CMD_ITMS *ci;
-#endif
+static void OutputLine (char *pfmt, CMD_ITMS *ci)
 {
     LBLDEF *nl;
     char lbl[100];
@@ -398,13 +380,7 @@ BlankLine ()                    /* Prints a blank line */
  *         postblank - true if blankline after str              *
  * ************************************************************ */
 
-/*static void
-#ifdef __STDC__
-PrintNonCmd (char *str, int preblank, int postblank)
-#else
-PrintNonCmd (str, preblank, postblank)
-    char *str; int preblank; int postblank;
-#endif
+/*static void PrintNonCmd (char *str, int preblank, int postblank)
 {
     if (IsROF)
     {
@@ -446,14 +422,7 @@ PrintNonCmd (str, preblank, postblank)
  *          ptr to empty string if none                     *
  * ******************************************************** */
 
-char *
-#ifdef __STDC__
-get_apcomment(char clas, int addr)
-#else
-get_apcomment (clas, addr)
-    char clas;
-    int addr;
-#endif
+char * get_apcomment(char clas, int addr)
 {
     struct apndcmnt *mytree = CmntApnd[strpos (lblorder, clas)];
 
@@ -508,17 +477,7 @@ get_apcomment (clas, addr)
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void
-#ifdef __STDC__
-PrintLine (char *pfmt, CMD_ITMS *ci, char cClass, int cmdlow, int cmdhi)
-#else
-PrintLine (pfmt, ci, cClass, cmdlow, cmdhi)
-    char *pfmt;
-    CMD_ITMS *ci;
-    char cClass;
-    int cmdlow,
-        cmdhi;
-#endif
+void PrintLine (char *pfmt, CMD_ITMS *ci, char cClass, int cmdlow, int cmdhi)
 {
     NonBoundsLbl (cClass);            /*Check for non-boundary labels */
 
@@ -533,13 +492,7 @@ PrintLine (pfmt, ci, cClass, cmdlow, cmdhi)
     PrintCleanup ();
 }
 
-/*static void
-#ifdef __STDC__
-UpString (char *s)              // Translate a string to uppercase
-#else
-UpString (s)
-    char *s;
-#endif
+/*static void UpString (char *s)              // Translate a string to uppercase
 {
     register int x = strlen (s);
 
@@ -570,13 +523,7 @@ UpPbuf (struct printbuf *pb)
     }
 }*/
 
-static void
-#ifdef __STDC__
-PrintFormatted (char *pfmt, CMD_ITMS *ci)
-#else
-PrintFormatted (pfmt, ci)
-    char *pfmt; CMD_ITMS *ci;
-#endif
+static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
 {
     int _linlen;
 
@@ -680,13 +627,7 @@ PrintFormatted (pfmt, ci)
  * Print additional data bytes in line following main line          *
  * **************************************************************** */
 
-void
-#ifdef __STDC__
-printXtraBytes (char *data)
-#else
-printXtraBytes (data)
-char *data;
-#endif
+void printXtraBytes (char *data)
 {
     if (strlen (data))
     {
@@ -758,13 +699,7 @@ StartPage ()
  *
  */
 
-void
-#ifdef __STDC__
-PrintComment(char lblcClass, int cmdlow, int cmdhi)
-#else
-PrintComment(lblcClass, cmdlow, cmdhi)
-    char lblcClass; int cmdlow, cmdhi;
-#endif
+void PrintComment(char lblcClass, int cmdlow, int cmdhi)
 {
     register struct commenttree *me;
     register int x;
@@ -815,13 +750,7 @@ PrintComment(lblcClass, cmdlow, cmdhi)
     }
 }
 
-static void
-#ifdef __STDC__
-NonBoundsLbl (char cClass)
-#else
-    NonBoundsLbl(cClass)
-    char cClass;
-#endif
+static void NonBoundsLbl (char cClass)
 {
     if (cClass)
     {
@@ -891,13 +820,7 @@ NonBoundsLbl (char cClass)
 #define OPDCAT(nu) sprintf (ci->opcode, "%s,%d", pbuf->operand, nu)
 #define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
 
-void
-#ifdef __STDC__
-ROFPsect (struct rof_hdr *rptr)
-#else
-ROFPsect (rptr)
-    struct rof_hdr *rptr;
-#endif
+void ROFPsect (struct rof_hdr *rptr)
 {
     LBLDEF *nl;
     CMD_ITMS Ci;
@@ -982,13 +905,7 @@ struct ireflist {
  *    IRef table.
  */
 
-void
-#ifdef __STDC__
-ParseIRefs(char rClass)
-#else
-ParseIRefs(rClass)
-    char rClass;
-#endif
+void ParseIRefs(char rClass)
 {
     register int rCount;  /* The count for this block */
     register int MSB;
@@ -1098,13 +1015,7 @@ GetIRefs()
     }
 }
 
-static void
-#ifdef __STDC__
-dataprintHeader(char *hdr, char klas)
-#else
-dataprintHeader(hdr, klas)
-    char *hdr; char klas;
-#endif
+static void dataprintHeader(char *hdr, char klas)
 {
     CMD_ITMS Ci;
 
@@ -1140,13 +1051,7 @@ dataprintHeader(hdr, klas)
     PrintLine (pseudcmd, &Ci, 'D', 0, 0);
 }
 
-int
-#ifdef __STDC__
-DoAsciiBlock(CMD_ITMS *ci, char *buf, int bufEnd, char iClass)
-#else
-DoAsciiBlock(ci, buf, bufEnd, iClass)
-    CMD_ITMS *ci; char *buf; int bufEnd; char iClass;
-#endif
+int DoAsciiBlock(CMD_ITMS *ci, char *buf, int bufEnd, char iClass)
 {
     register int count = bufEnd;
     register char *ch = buf;
@@ -1277,13 +1182,7 @@ DoAsciiBlock(ci, buf, bufEnd, iClass)
  *
  */
 
-static void
-#ifdef __STDC__
-ListInitData (LBLDEF *ldf, int nBytes, char lclass)
-#else
-ListInitData (ldf, nBytes, lclass)
-    LBLDEF *ldf; int nBytes; char lclass;
-#endif
+static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
 {
     CMD_ITMS Ci;
     /*char *hexFmt;*/
@@ -1839,13 +1738,7 @@ OS9DataPrint ()
  *         Label cClass                                      *
  * ******************************************************** */
 
-void
-#ifdef __STDC__
-ListData (LBLDEF *me, int upadr, char cClass)
-#else
-ListData (me, upadr, cClass)
-    LBLDEF *me; int upadr; char cClass;
-#endif
+void ListData (LBLDEF *me, int upadr, char cClass)
 {
     CMD_ITMS Ci;
     register int datasize;
@@ -1964,13 +1857,7 @@ ListData (me, upadr, cClass)
  * Passed: stdflg - 1 for std labels, 0 for externals *
  * ************************************************** */
 
-void
-#ifdef __STDC__
-WrtEquates (int stdflg)
-#else
-WrtEquates (stdflg)
-    int stdflg;
-#endif
+void WrtEquates (int stdflg)
 {
     char *claspt = "_!^ABCDEFGHIJKMNOPQRSTUVWXYZ;",
         *curnt = claspt,
@@ -2090,16 +1977,7 @@ WrtEquates (stdflg)
 
 /* TellLabels(me) - Print out the labels for cClass in "me" tree */
 
-static void
-#ifdef __STDC__
-TellLabels (LBLDEF *me, int flg, char cClass, int minval)
-#else
-TellLabels (me, flg, cClass, minval)
-    LBLDEF *me;
-    int flg;
-    char cClass;
-    int minval;
-#endif
+static void TellLabels (LBLDEF *me, int flg, char cClass, int minval)
 {
     CMD_ITMS Ci;
 

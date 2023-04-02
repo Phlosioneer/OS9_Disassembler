@@ -62,13 +62,7 @@ extern char realcmd[],
             pseudcmd[];
 
 /* DEBUGGING function */
-void
-#ifdef __STDC__
-reflst (void)
-#else
-reflst ()
-    /*struct asc_data *cl;*/
-#endif
+void reflst (void)
 {
     struct rof_extrn * meme = refs_code;
 
@@ -96,12 +90,7 @@ reflst ()
  *             Non-ROF files, CmdEnt Offset by Code Entry Point     *
  * **************************************************************** */
 
-int
-#ifdef __STDC__
-RealEnt(void)
-#else
-RealEnt()
-#endif
+int RealEnt(void)
 {
     return IsROF ? (CmdEnt + HdrEnd) : CmdEnt;
 }
@@ -112,13 +101,7 @@ RealEnt()
  *          initialized data list for this particular vsect.                *
  * ************************************************************************ */
 
-void
-#ifdef __STDC__
-AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas)
-#else
-AddInitLbls(tbl, dataSiz, klas)
-    struct rof_extrn *tbl; int dataSiz; char klas;
-#endif
+void AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas)
 {
     char *dataBuf,
          *ptr;
@@ -167,13 +150,7 @@ AddInitLbls(tbl, dataSiz, klas)
  * rofhdr() - read and interpret rof header           *
  * ************************************************** */
 
-void
-#ifdef __STDC__
-getRofHdr (FILE *progpath)
-#else
-getRofHdr (progpath)
-    FILE *progpath;
-#endif
+void getRofHdr (FILE *progpath)
 {
     int glbl_cnt,
         ext_count,
@@ -327,12 +304,7 @@ getRofHdr (progpath)
    /* rofdis();*/
 }
 
-void
-#ifdef __STDC__
-    RofLoadInitData (void)
-#else
-    RofLoadInitData()
-#endif
+void RofLoadInitData (void)
 {
     /* ********************************** *
      * Initialized data section           *
@@ -355,13 +327,7 @@ void
  * Returns: The Class Letter for the entry                *
  * ****************************************************** */
 
-char
-#ifdef __STDC__
-rof_class (int typ, int refTy)
-#else
-rof_class (typ, refTy)
-    int typ; int refTy;
-#endif
+char rof_class (int typ, int refTy)
 {
     /* We'll tie up additional classes for data/bss as follows
      * D for data
@@ -457,13 +423,7 @@ rof_class (typ, refTy)
  *         ref  - reference structure                 *
  * ************************************************** */
 
-/*void
-#ifdef __STDC__
-rof_addlbl (int adrs, struct rof_extrn *ref)
-#else
-rof_addlbl (adrs, ref)
-    int adrs; struct rof_extrn *ref;
-#endif
+/*void rof_addlbl (int adrs, struct rof_extrn *ref)
 {
     LBLDEF *nl;
 
@@ -498,13 +458,7 @@ rof_addlbl (adrs, ref)
  *          1 if external, 0 if local                             *
  * ************************************************************** */
 
-static void
-#ifdef __STDC__
-get_refs(char *vname, int count, int ref_typ, char *code_buf)
-#else
-get_refs(vname, count, ref_typ, code_buf)
-    char *vname; int count; int ref_typ; char *code_buf;
-#endif
+static void get_refs(char *vname, int count, int ref_typ, char *code_buf)
 {
     struct rof_extrn *prevRef = NULL;
     char myClass;
@@ -660,13 +614,7 @@ get_refs(vname, count, ref_typ, code_buf)
  *          (2) adrs - Address to match               *
  * ************************************************** */
 
-struct rof_extrn *
-#ifdef __STDC__
-find_extrn ( struct rof_extrn *xtrn, int adrs)
-#else
-find_extrn (xtrn, adrs)
-    struct rof_extrn *xtrn; int adrs;
-#endif
+struct rof_extrn * find_extrn ( struct rof_extrn *xtrn, int adrs)
 {
     /*int found = 0;*/
 
@@ -687,13 +635,7 @@ find_extrn (xtrn, adrs)
  * Returns the size defined in the type                     *
  * ******************************************************** */
 
-int
-#ifdef __STDC__
-typeFetchSize (int rtype)
-#else
-typeFetchSize (rtype)
-    int rtype;
-#endif
+int typeFetchSize (int rtype)
 {
     return (rtype >> 3) & 3;
 }
@@ -707,14 +649,7 @@ typeFetchSize (rtype)
  *       added, if applicable                                   *
  * ************************************************************ */
 
-struct rof_extrn *
-#ifdef __STDC__
-rof_lblref (CMD_ITMS *ci, int *value)
-#else
-rof_lblref (ci, value)
-    CMD_ITMS *ci;
-    int *value;
-#endif
+struct rof_extrn * rof_lblref (CMD_ITMS *ci, int *value)
 {
     struct rof_extrn *thisref;
     register char *refFmt;
@@ -760,13 +695,7 @@ rof_lblref (ci, value)
  * Returns: tree entry if present, 0 if no match            *
  * ******************************************************** */
 
-/*static struct asc_data *
-#ifdef __STDC__
-rof_find_asc (struct asc_data *tree, int entry)
-#else
-rof_find_asc (tree, entry)
-    struct asc_data *tree; int entry;
-#endif
+/*static struct asc_data * rof_find_asc (struct asc_data *tree, int entry)
 {
     if (!tree)
     {
@@ -814,13 +743,7 @@ rof_find_asc (tree, entry)
  *          If not a data area, returns 0                   *
  * ******************************************************** */
 
-int
-#ifdef __STDC__
-rof_datasize (char cclass)
-#else
-rof_datasize (cclass)
-char cclass;
-#endif
+int rof_datasize (char cclass)
 {
     int dsize;
 
@@ -853,15 +776,8 @@ char cclass;
  *          (3) char class - the label class (D or C)                   *
  * ******************************************************************** */
 
-static char *
-#ifdef __STDC__
-DataDoBlock (struct rof_extrn **refsList, LBLDEF **lblList, char *iBuf, int blkEnd,
+static char * DataDoBlock (struct rof_extrn **refsList, LBLDEF **lblList, char *iBuf, int blkEnd,
              struct asc_data *ascdat, char cclass)
-#else
-DataDoBlock (refsList, lblList, iBuf, blkEnd, ascdat, cclass)
-struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
-             struct asc_data *ascdat; char cclass;
-#endif
 {
     /*struct rof_extrn *srch;*/
     CMD_ITMS Ci;
@@ -1052,14 +968,8 @@ struct rof_extrn **refsList; LBLDEF **lblList; char *iBuf; int blkEnd;
 }
 
 #if 0
-static void
-#ifdef __STDC__
-ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat,
+static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat,
             char cclass)
-#else
-ROFDataLst (mylist, maxcount, ascdat, cclass)
-    struct rof_extrn *mylist; int maxcount; struct asc_data *ascdat; char cclass;
-#endif
 {
 	struct rof_extrn *my_ref;
 
@@ -1097,13 +1007,7 @@ ROFDataLst (mylist, maxcount, ascdat, cclass)
  *          (3) class   - Label Class letter                        *
  * **************************************************************** */
 
-void
-#ifdef __STDC__
-ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass)
-#else
-ListInitROF (hdr, refsList, iBuf, isize, iClass)
-    char *hdr; struct rof_extrn *refsList; char *iBuf; int isize; char iClass;
-#endif
+void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass)
 {
     struct asc_data *ascdat;
     LBLDEF *lblList = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
@@ -1205,13 +1109,7 @@ ListInitROF (hdr, refsList, iBuf, isize, iClass)
  *                                      <start>/<length>               *
  * ******************************************************************* */
 
-void
-#ifdef __STDC__
-rof_ascii ( char *cmdline)
-#else
-rof_ascii (cmdline)
-char *cmdline;
-#endif
+void rof_ascii ( char *cmdline)
 {
     struct asc_data *me,
                     **tree = NULL;
@@ -1293,12 +1191,7 @@ char *cmdline;
     }
 }
 
-void
-#ifdef __STDC__
-setROFPass(void)
-#else
-setROFPass()
-#endif
+void setROFPass(void)
 {
     if (Pass == 1)
     {
@@ -1323,13 +1216,7 @@ setROFPass()
  * Returns: trturns TRUE (1) if a ref was found and set up, FALSE (0) if no ref found here
  **/
 
-int
-#ifdef __STDC__
-rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val)
-#else
-rof_setup_ref(ref, addrs, dest, val)
-struct rof_extrn *ref; int addrs; char *dest; int val;
-#endif
+int rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val)
 {
     if (find_extrn(ref,addrs))
     {
@@ -1364,13 +1251,7 @@ struct rof_extrn *ref; int addrs; char *dest; int val;
     }
 }
 
-char *
-#ifdef __STDC__
-IsRef(char *dst, int curloc, int ival)
-#else
-IsRef(dst, curloc, ival)
-    char *dst; int curloc; int ival;
-#endif
+char * IsRef(char *dst, int curloc, int ival)
 {
     register char *retVal = NULL;
 

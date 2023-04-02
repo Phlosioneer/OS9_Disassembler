@@ -35,27 +35,13 @@ extern CONDITIONALS typecondition[];
  * Returns: The string containing the Regname and number
  */
 
-static char *
-#ifdef __STDC__
-ewReg(int extWrd, char *dst)
-#else
-ewReg(extWrd, dst)
-    int extWrd; char *dst;
-#endif
+static char * ewReg(int extWrd, char *dst)
 {
     sprintf (dst, "%c%d", dispRegNam[(extWrd >> 15) & 1], (extWrd >> 12) & 7);
     return dst;
 }
 
-int
-#ifdef __STDC__
-cmp2_chk2(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmp2_chk2(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmp2_chk2(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int w2;
     int mode, reg;
@@ -111,26 +97,14 @@ cmp2_chk2(ci, j, op)
     return 0;      /* Until we finish the function */
 }
 
-int
-#ifdef __STDC__
-rtm_020(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-rtm_020(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int rtm_020(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     sprintf (ci->opcode, "%c%d", dispRegNam[(ci->cmd_wrd >> 3) & 1], ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
     return 1;
 }
 
-int
-#ifdef __STDC__
-cmd_moves(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_moves(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int cmd_moves(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int ew,
@@ -191,13 +165,7 @@ cmd_moves(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-cmd_cas (CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_cas (ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int cmd_cas (CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int reg;
     int size;
@@ -248,13 +216,7 @@ cmd_cas (ci, j, op)
  * Returns: the character name of the register (either "d" or "a").
  */
 
-static char
-#ifdef __STDC__
-getcas2Ew(CMD_ITMS *ci, int *dc, int *du, int *rn)
-#else
-getcas2Ew(ci, dc, du, rn)
-    CMD_ITMS *ci; int *dc; int *du; int *rn;
-#endif
+static char getcas2Ew(CMD_ITMS *ci, int *dc, int *du, int *rn)
 {
     int ew = getnext_w(ci);
 
@@ -270,13 +232,7 @@ getcas2Ew(ci, dc, du, rn)
     return dispRegNam[(ew >> 15) & 1];
 }
 
-int
-#ifdef __STDC__
-cmd_cas2 (CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_cas2 (ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int cmd_cas2 (CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int size;
     int dc1, dc2, du1, du2, rn1, rn2;
@@ -309,13 +265,7 @@ cmd_cas2 (ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-cmd_callm(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_callm(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int cmd_callm(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int ew;
@@ -358,13 +308,7 @@ cmd_callm(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-muldiv_020(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-muldiv_020(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int muldiv_020(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int ew;
@@ -432,13 +376,7 @@ muldiv_020(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-cmd_rtd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_rtd(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int cmd_rtd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int ew = getnext_w(ci);
 
@@ -451,13 +389,7 @@ cmd_rtd(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-cmd_trapcc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_trapcc(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int cmd_trapcc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int opmode = ci->cmd_wrd & 7;
     int oprnd;
@@ -508,13 +440,7 @@ cmd_trapcc(ci, j, op)
 static char *bfty0[] = {"tst", "chg", "clr", "set"};
 static char *bfty1[] = {"extu", "exts", "ffo","ins"};
 
-static char *
-#ifdef __STDC__
-getbf_fld(char *dst, int flg, int val)
-#else
-getbf_fld(dst, flg, val)
-    char *dst; int flg; int val;
-#endif
+static char * getbf_fld(char *dst, int flg, int val)
 {
     if (flg)
     {
@@ -532,13 +458,7 @@ getbf_fld(dst, flg, val)
  * bitfields_020() - Handles the bitfield functions
  */
 
-int
-#ifdef __STDC__
-bitfields_020(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-bitfields_020(ci, j, op)
-    CMD_ITMS *ci; int j; OPSTRUCTURE *op;
-#endif
+int bitfields_020(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int v;   /* Generic value */

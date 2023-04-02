@@ -89,14 +89,7 @@ extern char *SizSufx[];
  *
  */
 
-static int
-#ifdef __STDC__
-set_indirect_idx (char *dest, struct extWbrief *extW)
-#else
-set_indirect_idx (dest, extW)
-    char *dest;
-    struct extWbrief *extW;
-#endif
+static int set_indirect_idx (char *dest, struct extWbrief *extW)
 {
 
     /* Scale not allowed for < 68020 */
@@ -141,15 +134,7 @@ set_indirect_idx (dest, extW)
  * Returns 1 if valid, 0 if cpu < 68020 && is Full Extended Word      *
  * ------------------------------------------------------------------ */
 
-static int
-#ifdef __STDC__
-get_ext_wrd (CMD_ITMS *ci, struct extWbrief *extW, int mode, int reg)
-#else
-get_ext_wrd (ci, extW, mode, reg)
-    CMD_ITMS *ci;
-    struct extWbrief *extW;
-    int mode, reg;
-#endif
+static int get_ext_wrd (CMD_ITMS *ci, struct extWbrief *extW, int mode, int reg)
 {
     int ew;     /* A local copy of the extended word (stored in ci->code[0] */
 
@@ -206,13 +191,7 @@ get_ext_wrd (ci, extW, mode, reg)
  *          or the outer displacement, if not suppressed
  */
 
-static void
-#ifdef __STDC__
-get_displ(CMD_ITMS *ci, char *dst, int siz_flag)
-#else
-get_displ(ci, dst, siz_flag)
-    CMD_ITMS *ci; char *dst; int siz_flag;
-#endif
+static void get_displ(CMD_ITMS *ci, char *dst, int siz_flag)
 {
     switch (siz_flag)
     {
@@ -233,15 +212,8 @@ get_displ(ci, dst, siz_flag)
  *          indexed modes
  */
 
-static int
-#ifdef __STDC__
-process_extended_word_full(CMD_ITMS *ci, char *dststr, struct extWbrief *ew, int mode,
+static int process_extended_word_full(CMD_ITMS *ci, char *dststr, struct extWbrief *ew, int mode,
         int reg, int size)
-#else
-process_extended_word_full(ci, dststr, ew, mode, reg, siz)
-    CMD_ITMS *ci; char *dststr; struct extWbrief *ew; int mode;
-        int reg; int siz;
-#endif
 {
     char base_str[50];
     char idx_reg[20];
@@ -397,14 +369,8 @@ process_extended_word_full(ci, dststr, ew, mode, reg, siz)
     return 1;
 }
 
-static int
-#ifdef __STDC__
-process_extended_word_brief(CMD_ITMS *ci, char *dststr, struct extWbrief *ew_b,
+static int process_extended_word_brief(CMD_ITMS *ci, char *dststr, struct extWbrief *ew_b,
         int mode, int reg, int size)
-#else
-process_extended_word_brief(ci, dststr, ew_b, mode, reg, size)
-    CMD_ITMS *ci; char *dststr; struct extWbrief *ew_b; int mode; int reg; int size;
-#endif
 {
     char a_disp[50];
     char idxstr[30];
@@ -466,17 +432,7 @@ process_extended_word_brief(ci, dststr, ew_b, mode, reg, size)
  *
  * ------------------------- */
 
-int
-#ifdef __STDC__
-get_eff_addr(CMD_ITMS *ci, char *ea, int mode, int reg, int size)
-#else
-get_eff_addr(ci, ea, mode, reg, size)
-    CMD_ITMS *ci;
-    char * ea;
-    int size;
-int mode;
-int reg;
-#endif
+int get_eff_addr(CMD_ITMS *ci, char *ea, int mode, int reg, int size)
 {
     int ext1;
     int ext2;
@@ -735,13 +691,7 @@ int reg;
  *      at the begin of the next string.
  */
 
-char *
-#ifdef __STDC__
-pass_eq (char *p)
-#else
-pass_eq (p)
-char *p;
-#endif
+char * pass_eq (char *p)
 {
     while ((*p) && (strchr ("= \t\r\f\n", *p)))
     {
@@ -761,14 +711,7 @@ char *p;
  *        base-1 offset from the begin of the string.
  */
 
-int
-#ifdef __STDC__
-strpos (char *s, char c)
-#else
-strpos (s, c)
-char *s;
-char c;
-#endif
+int strpos (char *s, char c)
 {
     register int p;
 
@@ -783,13 +726,7 @@ char c;
  *          or null if end of data                                  *
  * **************************************************************** */
 
-char *
-#ifdef __STDC__
-skipblank (char *p)
-#else
-skipblank (p)
-char *p;
-#endif
+char * skipblank (char *p)
 {
     /* We did just pass over spaces or tabs, but we need to
      * also be sure we are past all return characters
@@ -820,14 +757,7 @@ char *p;
 
 char *sizebits[] = {".s", ".w", ".l"};
 
-int
-#ifdef __STDC__
-get_extends_common(CMD_ITMS *ci, char *mnem)
-#else
-get_extends_common(ci, mnem)
-    CMD_ITMS *ci;
-    char *mnem;
-#endif
+int get_extends_common(CMD_ITMS *ci, char *mnem)
 {
     int mode, reg;
     int size;
@@ -852,12 +782,7 @@ get_extends_common(ci, mnem)
  *    but a Control addressing mode                                  *
  * ----------------------------------------------------------------- */
 
-int
-#ifdef __STDC__
-ctl_addrmodesonly(int mode, int reg)
-#else
-ctl_addrmodesonly(mode, reg)
-#endif
+int ctl_addrmodesonly(int mode, int reg)
 {
     if ((mode < 2) || (mode == 4) || (mode == 8))
         return 0;
@@ -876,15 +801,7 @@ ctl_addrmodesonly(mode, reg)
  *      in the command word, and also have an effective address      *
  * ----------------------------------------------------------------- */
 
-int
-#ifdef __STDC__
-reg_ea(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-reg_ea(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int reg_ea(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -970,13 +887,7 @@ reg_ea(ci, j, op)
  * ``ad'' specifies either address (A) or data (D) registers.
  */
 
-static char *
-#ifdef __STDC__
-regwrite(char *s, char *ad, int low, int high, int slash)
-#else
-regwrite(s, ad, low, high, slash)
-    char *s; char *ad; int low; int high; int slash;
-#endif
+static char * regwrite(char *s, char *ad, int low, int high, int slash)
 {
 
 	if (slash)
@@ -1008,13 +919,7 @@ regwrite(s, ad, low, high, slash)
  * whether the mask is for address, data, or floating-point registers.
  */
 
-char *
-#ifdef __STDC__
-regbyte(char *s, unsigned char regmask, char *ad, int doslash)
-#else
-regbyte (s, regmask, ad, doslash)
-    char *s; unsigned char regmask; char *ad; int doslash;
-#endif
+char * regbyte(char *s, unsigned char regmask, char *ad, int doslash)
 {
 	int	i;
 	int	last;
@@ -1045,13 +950,7 @@ regbyte (s, regmask, ad, doslash)
  * ------------------------------------------------------------------ */
 
 
-int
-#ifdef __STDC__
-revbits(int num, int lgth)
-#else
-revbits(num, lgth)
-    int num, lgth;
-#endif
+int revbits(int num, int lgth)
 {
     int n2 = 0;
     int c, i;
@@ -1067,15 +966,7 @@ revbits(num, lgth)
     return n2;
 }
 
-static void
-#ifdef __STDC__
-reglist(char *s, unsigned long regmask, int mode)
-#else
-reglist (s, regmask, mode)
-    char *s;
-    unsigned long regmask;
-    int mode;
-#endif
+static void reglist(char *s, unsigned long regmask, int mode)
 {
     char *t = s;
 
@@ -1093,15 +984,7 @@ reglist (s, regmask, mode)
     }
 }
 
-int
-#ifdef __STDC__
-movem_cmd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-movem_cmd(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int movem_cmd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1155,15 +1038,7 @@ movem_cmd(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-link_unlk(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-link_unlk(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int link_unlk(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int regno = ci->cmd_wrd & 7;
     int ext_w;
@@ -1218,24 +1093,12 @@ strdup (oldstr)
 }
 #endif
 
-unsigned int
-#ifdef __STDC__
-fget_w (FILE *fp)
-#else
-fget_w (fp)
-FILE *fp;
-#endif
+unsigned int fget_w (FILE *fp)
 {
     return ((unsigned char)fgetc(fp) << 8) | (unsigned char)fgetc(fp);
 }
 
-unsigned int
-#ifdef __STDC__
-fget_l (FILE *fp)
-#else
-fget_l (fp)
-FILE *fp;
-#endif
+unsigned int fget_l (FILE *fp)
 {
     unsigned int val,
                  c;
@@ -1256,13 +1119,7 @@ FILE *fp;
  * If the read fails, the program is immediately exited.                     *
  * ************************************************************************* */
 
-char
-#ifdef __STDC__
-fread_b(FILE *fp)
-#else
-fread_b(fp)
-    FILE *fp;
-#endif
+char fread_b(FILE *fp)
 {
     char b;
 
@@ -1274,13 +1131,8 @@ fread_b(fp)
     return b;
 }
 
-char
-#ifdef __STDC__
-getnext_b(CMD_ITMS *ci)
-#else
-getnext_b(ci)
-    CMD_ITMS *ci;
-#endif
+char getnext_b(CMD_ITMS *ci)
+
 {
     char b;
 
@@ -1304,13 +1156,7 @@ getnext_b(ci)
  *    the word is stored in the proper Info->code position                      *
  * **************************************************************************** */
 
-int
-#ifdef __STDC__
-getnext_w(CMD_ITMS *ci)
-#else
-getnext_w(ci)
-    CMD_ITMS *ci;
-#endif
+int getnext_w(CMD_ITMS *ci)
 {
     short w;
 
@@ -1326,13 +1172,7 @@ getnext_w(ci)
  * Passed: Pointer to the cmditems struct
  * *************************************************************************** */
 
-void
-#ifdef __STDC__
-    ungetnext_w(CMD_ITMS *ci)
-#else
-    ungetnext_w(ci)
-    CMD_ITMS *ci;
-#endif
+void     ungetnext_w(CMD_ITMS *ci)
 {
     fseek (ModFP, -2, SEEK_CUR);
     PCPos -= 2;
@@ -1414,13 +1254,7 @@ int fread_l(FILE *fp)
  * bufReadW() - Returns the word value stored at pos pt in a buffer *
  * **************************************************************** */
 
-short
-#ifdef __STDC__
-bufReadW(char **pt)
-#else
-bufReadW(pt)
-    char **pt;
-#endif
+short bufReadW(char **pt)
 {
     register int val = 0;
 
@@ -1434,13 +1268,7 @@ bufReadW(pt)
  * bufReadL() - Returns the long value stored at pos pt in a buffer *
  * **************************************************************** */
 
-int
-#ifdef __STDC__
-    bufReadL(char **pt)
-#else
-    bufReadL(pt)
-    char **pt;
-#endif
+int     bufReadL(char **pt)
 {
     register int byteCnt;
     register int val = 0;
@@ -1453,13 +1281,7 @@ int
     return val;
 }
 
-void *
-#ifdef __STDC__
-mem_alloc (int req)
-#else
-mem_alloc (req)
-    int req;
-#endif
+void * mem_alloc (int req)
 {
     void *addr;
 
@@ -1477,12 +1299,7 @@ mem_alloc (req)
  * Returns: Pointer to the new string.                             *
  * *************************************************************** */
 
-char *
-#ifdef __STDC__
-freadString()
-#else
-freadString()
-#endif
+char * freadString()
 {
     register char *strPt = strBuf;
     register char *newStr;
@@ -1498,13 +1315,7 @@ freadString()
     return newStr;
 }
 
-char *
-#ifdef __STDC__
-lbldup (char *lbl)
-#else
-lbldup (lbl)
-    char *lbl;
-#endif
+char * lbldup (char *lbl)
 {
     char *dupstr = (char *)mem_alloc (strlen(lbl) + 2);
     strcpy(dupstr, lbl);

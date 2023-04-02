@@ -54,7 +54,6 @@ static int NoEnd;      /* Flag that no end on last bound                 */
 static int GettingAmode;    /* Flag 1=getting Addressing mode 0=Data Boundary */
 static struct databndaries *prevbnd ;
 
-#ifdef __STDC__
 static char *cpyhexnum (char *dst, char *src);
 static char *cpy_digit_str (char *dst, char *src);
 static int do_mode (char *lpos);
@@ -63,15 +62,6 @@ static int optincmd (char *lpos);
 static void cmdamode (char *pt);
 static struct commenttree *newcomment (int addrs,
                             struct commenttree *parent);
-#else
-static char *cpyhexnum ();
-static char *cpy_digit_str ();
-static int do_mode ();
-static char *setoffset ();
-static int optincmd ();
-static void cmdamode ();
-static struct commenttree *newcomment ();
-#endif
 
 /* some of the following may need to be moved tothe global file */
 struct databndaries *LAdds[33];     /* Temporary */
@@ -79,12 +69,7 @@ struct databndaries *dbounds;
 char BoundsNames[] = "ABCDLSW";
 
 static void
-#ifdef __STDC__
 badexit (char *msg)
-#else
-badexit (msg)
-    char *msg;
-#endif
 {
     if (DoingCmds)
     {
@@ -112,12 +97,7 @@ badexit (msg)
  * ************************************************************************ */
 
 static int
-#ifdef __STDC__
 AsmComment (char *lpos, FILE *cmdfile)
-#else
-AsmComment (lpos, cmdfile)
-    char *lpos; FILE *cmdfile;
-#endif
 {
     int adr = 0;
     register char *txt;
@@ -385,12 +365,7 @@ do_cmd_file ()
  * ************************************************************************ */
 
 int
-#ifdef __STDC__
 ApndCmnt (char *lpos)
-#else
-ApndCmnt (lpos)
-    char *lpos;
-#endif
 {
     char lblclass;
     int myadr;
@@ -506,12 +481,7 @@ ApndCmnt (lpos)
  * ***************************************************** */
 
 char *
-#ifdef __STDC__
 cmntsetup (char *cpos, char *clas, int *adrs)
-#else
-cmntsetup (cpos, clas, adrs)
-char *cpos; char *clas; int *adrs;
-#endif
 {
     register char *p;
 
@@ -565,12 +535,7 @@ char *cpos; char *clas; int *adrs;
  * *********************************************** */
 
 static struct commenttree *
-#ifdef __STDC__
 newcomment (int addrs, struct commenttree *parent)
-#else
-newcomment (addrs, parent)
-    int addrs; struct commenttree *parent;
-#endif
 {
     struct commenttree *newtree;
 
@@ -587,12 +552,7 @@ newcomment (addrs, parent)
  * ****************************************** */
 
 static int
-#ifdef __STDC__
 optincmd (char *lpos)
-#else
-optincmd (lpos)
-    char *lpos;
-#endif
 {
     char st[500], *spt = st;
 
@@ -621,12 +581,7 @@ optincmd (lpos)
  * ************************************************************** */
 
 char *
-#ifdef __STDC__
 cmdsplit (char *dest, char *src)
-#else
-cmdsplit (dest, src)
-    char *dest, *src;
-#endif
 {
     char c;
 
@@ -658,12 +613,7 @@ cmdsplit (dest, src)
  * *************************************************** */
 
 static void
-#ifdef __STDC__
 cmdamode (char *pt)
-#else
-cmdamode (pt)
-    char *pt;
-#endif
 {
     char buf[80];
 
@@ -684,12 +634,7 @@ cmdamode (pt)
  * **************************************************************** */     
 
 void
-#ifdef __STDC__
 getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
-#else
-getrange (pt, lo, hi, usize, allowopen)
-    char *pt; int *lo, *hi, usize, allowopen;
-#endif
 {
     char tmpdat[50], c;
 
@@ -812,12 +757,7 @@ getrange (pt, lo, hi, usize, allowopen)
  */
 
 static int
-#ifdef __STDC__
 do_mode (char *lpos)
-#else
-do_mode (lpos)
-    char *lpos;
-#endif
 {
     struct databndaries *mptr;
     register int mclass;         /* addressing mode */
@@ -973,13 +913,7 @@ do_mode (lpos)
  *      (Called from mainline cmdfile processing routine.       *
  * ************************************************************ */     
 
-void
-#ifdef __STDC__
-boundsline (char *mypos)
-#else
-boundsline (mypos)
-    char *mypos;
-#endif
+void boundsline (char *mypos)
 {
     char tmpbuf[80];
     register char *hold;
@@ -1018,12 +952,7 @@ boundsline (mypos)
  * ************************************************* */
 
 static char *
-#ifdef __STDC__
 setoffset (char *p, struct ofsetree *oft)
-#else
-setoffset (p, oft)
-    char *p; struct ofsetree *oft;
-#endif
 {
     char c, bufr[80];
 
@@ -1114,12 +1043,7 @@ bndoverlap ()
  * ***************************************************** */
 
 static void
-#ifdef __STDC__
 bdinsert (struct databndaries *bb)
-#else
-bdinsert (bb)
-    struct databndaries *bb;
-#endif
 {
     register struct databndaries *npt;
     register int mylo = bb->b_lo, myhi = bb->b_hi;
@@ -1173,12 +1097,7 @@ bdinsert (bb)
  * **************************************************************** */
 
 void
-#ifdef __STDC__
 setupbounds (char *lpos)
-#else
-setupbounds (lpos)
-    char *lpos;
-#endif
 {
     struct databndaries *bdry;
     register int bdtyp,
@@ -1339,13 +1258,7 @@ setupbounds (lpos)
     }
 }
 
-void
-#ifdef __STDC__
-tellme (char *pt)
-#else
-tellme (pt)
-    char *pt;
-#endif
+void tellme (char *pt)
 {
     return;
 }
@@ -1361,14 +1274,7 @@ tellme (pt)
  *          This may be a space, "/", etc.                              *
  * ******************************************************************** */
 
-static char *
-#ifdef __STDC__
-cpyhexnum (char *dst, char *src)
-#else
-cpyhexnum (dst, src)
-    char *dst,
-         *src;
-#endif
+static char * cpyhexnum (char *dst, char *src)
 {
     while (isxdigit (*(src)))
         *(dst++) = tolower (*(src++));
@@ -1381,14 +1287,7 @@ cpyhexnum (dst, src)
  *      a non-digit is encountered.  See cpyhexnum() for details        *
  * ******************************************************************** */
 
-static char *
-#ifdef __STDC__
-cpy_digit_str (char *dst, char *src)
-#else
-cpy_digit_str (dst,src)
-    char *dst,
-         *src;
-#endif
+static char * cpy_digit_str (char *dst, char *src)
 {
     while (isdigit (*(src)))
         *(dst++) = *(src++);

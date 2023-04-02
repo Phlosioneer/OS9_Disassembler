@@ -40,14 +40,7 @@ char *SizSufx[] = {"b", "w", "l"};
 
 extern CONDITIONALS typecondition[];
 
-/*int
-#ifdef __STDC__
-bitModeRegLegal(int mode, int reg)
-#else
-bitModeRegLegal(mode, reg)
-    int mode;
-    int reg;
-#endif
+/*int bitModeRegLegal(int mode, int reg)
 {
     if ( ((2 ^ mode) & 0x7d) == 0)
     {
@@ -63,14 +56,7 @@ bitModeRegLegal(mode, reg)
     }
 }*/
 
-/*int 
-#ifdef __STDC__
-    bit_movep_immediate (CMD_ITMS *cmditms)
-#else
-    bit_movep_immediate (CMD_ITMS *cmdims)
-
-    CMD_ITMS *cmditms;
-#endif
+/*int      bit_movep_immediate (CMD_ITMS *cmditms)
 {
     register int firstword = cmditms->cmd_wrd;*/    /* To save calculations */
 /*    short ext1, ext2;
@@ -312,15 +298,7 @@ bitModeRegLegal(mode, reg)
  *
  */
 
-int
-#ifdef __STDC__
-biti_reg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-biti_reg(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int biti_reg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     static char *sr[2] = {"ccr", "sr"};
     register int size;
@@ -354,15 +332,7 @@ biti_reg(ci, j, op)
  *
  */
 
-int
-#ifdef __STDC__
-biti_size(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-biti_size(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int biti_size(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int size = (ci->cmd_wrd >> 6) & 3;
     register int mode = (ci->cmd_wrd >> 3) & 7;
@@ -457,15 +427,7 @@ biti_size(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-bit_static(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-bit_static(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int bit_static(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int ext0,
                  mode, reg;
@@ -505,15 +467,7 @@ bit_static(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-bit_dynamic(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-bit_dynamic(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int bit_dynamic(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int mode, reg;
 
@@ -549,15 +503,7 @@ bit_dynamic(ci, j, op)
  *
  */
 
-int
-#ifdef __STDC__
-move_instr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-move_instr(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int move_instr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int d_mode, d_reg, src_mode, src_reg;
     char src_ea[50], dst_ea[50];
@@ -629,15 +575,7 @@ move_instr(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-move_ccr_sr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-move_ccr_sr(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int move_ccr_sr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
     int dir;
@@ -693,15 +631,7 @@ move_ccr_sr(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-move_usp(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-move_usp(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int move_usp(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register char *dot;
 
@@ -726,15 +656,7 @@ move_usp(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-movep(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-movep(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int movep(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int addr_reg = ci->cmd_wrd & 7;
     register int opMode = (ci->cmd_wrd >> 6) & 7;
@@ -763,15 +685,7 @@ movep(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-moveq(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-moveq(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int moveq(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register char *dot;
 
@@ -793,15 +707,7 @@ moveq(ci, j, op)
  *      single word and the EA is in the lower 6 bytes             *
  * --------------------------------------------------------------- */
 
-int
-#ifdef __STDC__
-one_ea(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-one_ea(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int one_ea(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -904,15 +810,7 @@ one_ea(ci, j, op)
  *
  */
 
-static int
-#ifdef __STDC__
-branch_displ (CMD_ITMS *ci, int cmd_word, char *siz_suffix)
-#else
-branch_displ (ci, cmd_word, siz_suffix)
-    CMD_ITMS *ci;
-    int cmd_word;
-    char *siz_suffix;
-#endif
+static int branch_displ (CMD_ITMS *ci, int cmd_word, char *siz_suffix)
 {
     register int displ = cmd_word & 0xff;
 
@@ -960,15 +858,7 @@ branch_displ (ci, cmd_word, siz_suffix)
     return displ;
 }
 
-int
-#ifdef __STDC__
-bra_bsr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-bra_bsr(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int bra_bsr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int displ;
     register int jmp_base = PCPos;
@@ -1030,15 +920,7 @@ bra_bsr(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-cmd_no_opcode(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_no_opcode(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmd_no_opcode(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     ci->opcode[0] = '\0';
     strcpy(ci->mnem, op->name);
@@ -1047,15 +929,7 @@ cmd_no_opcode(ci, j, op)
 }
 
 
-int
-#ifdef __STDC__
-bit_rotate_mem(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-bit_rotate_mem(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int bit_rotate_mem(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1085,15 +959,7 @@ bit_rotate_mem(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-bit_rotate_reg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-bit_rotate_reg(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int bit_rotate_reg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int count_reg = (ci->cmd_wrd >> 9) & 7;
     char dest_ea[5];
@@ -1122,15 +988,7 @@ bit_rotate_reg(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-br_cond(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-br_cond(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int br_cond(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int jmp_base = PCPos;
     register char *condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
@@ -1224,15 +1082,7 @@ typedef struct add_sub_def {
  *     1101 - "add"
  */
 
-int
-#ifdef __STDC__
-add_sub(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-add_sub(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int add_sub(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     /*int datareg = (ci->cmd_wrd >> 9) & 7;*/
     int ea_mode = (ci->cmd_wrd >> 3) & 7;
@@ -1319,15 +1169,7 @@ add_sub(ci, j, op)
     }
 }
 
-int
-#ifdef __STDC__
-cmp_cmpa(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmp_cmpa(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmp_cmpa(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int mode = (ci->cmd_wrd >> 3) & 7;
     register int reg = ci->cmd_wrd & 7;
@@ -1362,15 +1204,7 @@ cmp_cmpa(ci, j, op)
 
     return 0;
 }
-int
-#ifdef __STDC__
-addq_subq(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-addq_subq(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int addq_subq(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1398,15 +1232,7 @@ addq_subq(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-abcd_sbcd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-abcd_sbcd(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int abcd_sbcd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int srcReg = ci->cmd_wrd & 7;
     register int dstReg = (ci->cmd_wrd >> 9) & 7;
@@ -1438,13 +1264,7 @@ abcd_sbcd(ci, j, op)
  *      disassebled as a constant.                                 *
  * *************************************************************** */
 
-void
-#ifdef __STDC__
-addTrapOpt(CMD_ITMS *ci, int ppos)
-#else
-addTrapOpt(ci, ppos)
-    CMD_ITMS *ci;int ppos;
-#endif
+void addTrapOpt(CMD_ITMS *ci, int ppos)
 {
     char bndstr[100];
 
@@ -1459,15 +1279,7 @@ addTrapOpt(ci, ppos)
     }
 }
 
-int
-#ifdef __STDC__
-trap(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-trap(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int trap(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int vector = ci->cmd_wrd & 0x0f;
     register int syscall = getnext_w(ci);
@@ -1609,30 +1421,14 @@ trap(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-cmd_stop(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_stop(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmd_stop(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     sprintf(ci->opcode, "#%d", getnext_w(ci));
     strcpy (ci->mnem, op->name);
     return 1;
 }
 
-int
-#ifdef __STDC__
-cmd_dbcc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_dbcc(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmd_dbcc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     /*int br_from = PCPos;
     register int dest;*/
@@ -1674,15 +1470,7 @@ cmd_dbcc(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-cmd_scc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_scc(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmd_scc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1714,15 +1502,7 @@ cmd_scc(ci, j, op)
     return 0;
 }
 
-int
-#ifdef __STDC__
-cmd_exg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmd_exg(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmd_exg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int regnumSrc = (ci->cmd_wrd >> 9) & 7;
     register int regnumDst = ci->cmd_wrd & 7;
@@ -1754,15 +1534,7 @@ cmd_exg(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-ext_extb(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-ext_extb(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int ext_extb(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register char *sufx;
 
@@ -1792,15 +1564,7 @@ ext_extb(ci, j, op)
     return 1;
 }
 
-int
-#ifdef __STDC__
-cmpm_addx_subx(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
-#else
-cmpm_addx_subx(ci, j, op)
-    CMD_ITMS *ci;
-    int j;
-    OPSTRUCTURE *op;
-#endif
+int cmpm_addx_subx(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 {
     register int srcRegno = ci->cmd_wrd & 7;
     register int dstRegno = (ci->cmd_wrd >> 9) & 7;

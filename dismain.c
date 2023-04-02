@@ -73,15 +73,7 @@ static int get_asmcmd(
  *        and prints to asm code file if specified
  */
 
-static void
-#ifdef __STDC__
-list_print (CMD_ITMS *ci, short ent, char *lblnam)
-#else
-list_print (ci, ent, lblnam)
-    CMD_ITMS *ci;
-    int ent;
-    char *lblnam;
-#endif
+static void list_print (CMD_ITMS *ci, short ent, char *lblnam)
 {
     register char *ListFmt = "%05x %04x %10.10s %s %s\n";
     register char *CmntFmt = "%05x %04x %10.10s %s %s %s\n";
@@ -118,13 +110,7 @@ static char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete", "Seek
  *    label names.
  */
 
-static void
-#ifdef __STDC__
-get_drvr_jmps(int mty)
-#else
-get_drvr_jmps(mty)
-    int mty;
-#endif
+static void get_drvr_jmps(int mty)
 {
     register char **pt;
     register int jmpdst;
@@ -287,14 +273,7 @@ get_modhead()
  *          On Failure: NULL
  */
 
-struct modnam *
-#ifdef __STDC__
-modnam_find (struct modnam *pt, int desired)
-#else
-modnam_find (pt, desired)
-    struct modnam *pt;
-    int desired;
-#endif
+struct modnam * modnam_find (struct modnam *pt, int desired)
 {
     while ((pt->val) && (pt->val != desired))
     {
@@ -315,13 +294,7 @@ modnam_find (pt, desired)
  *      CLASS is one "D" or "L"                                         *
  * ******************************************************************** */
 
-static void
-#ifdef __STDC__
-RdLblFile (FILE *inpath)
-#else
-RdLblFile (inpath)
-    FILE *inpath;
-#endif
+static void RdLblFile (FILE *inpath)
 {
     char labelname[30],
          clas,
@@ -451,15 +424,7 @@ GetLabels ()                    /* Read the labelfiles */
  *      done, if either or both is desired.
  */
 
-int
-#ifdef __STDC__
-dopass(int argc,char **argv,int mypass)
-#else
-dopass(argc,argv,mypass)
-    int argc;
-    char **argv;
-    int mypass;
-#endif
+int dopass(int argc,char **argv,int mypass)
 {
     /*int sval = 0;
     int lval = 0;
@@ -657,13 +622,7 @@ int showem()
 
     return 0;
 }
-static CMD_ITMS *
-#ifdef __STDC__
-initcmditems (CMD_ITMS *ci)
-#else
-initcmditems (ci)
-    CMD_ITMS *ci;
-#endif
+static CMD_ITMS * initcmditems (CMD_ITMS *ci)
 {
     ci->mnem[0] = 0;
     ci->wcount = 0;
@@ -677,15 +636,7 @@ initcmditems (ci)
  *       that do not yet have handler functions
  */
 
-int
-#ifdef __STDC__
-notimplemented(CMD_ITMS *ci, int tblno, OPSTRUCTURE *op)
-#else
-notimplemented (ci, tblno, op)
-    CMD_ITMS *ci;
-    int tblno;
-    OPSTRUCTURE *op;
-#endif
+int notimplemented(CMD_ITMS *ci, int tblno, OPSTRUCTURE *op)
 {
     return 0;
 }
@@ -812,13 +763,7 @@ get_asmcmd()
  *          printing if in pass 2).                                     *
  * ******************************************************************** */
 
-void
-#ifdef __STDC__
-MovBytes (struct databndaries *db)
-#else
-MovBytes (db)
-    struct databndaries *db;
-#endif
+void MovBytes (struct databndaries *db)
 {
     CMD_ITMS Ci;
     char tmps[20];
@@ -967,14 +912,7 @@ MovBytes (db)
  * MovAsc() - Move nb byes fordcb" statement
  */
 
-void
-#ifdef __STDC__
-MovASC (int nb, char aclass)
-#else
-MovASC (nb, aclass)
-    int nb;
-    char aclass;
-#endif
+void MovASC (int nb, char aclass)
 {
     char oper_tmp[30];
     CMD_ITMS Ci;
@@ -1092,13 +1030,7 @@ MovASC (nb, aclass)
  * NsertBnds():	Insert boundary area *
  * ********************************* */
 
-void
-#ifdef __STDC__
-NsrtBnds (struct databndaries *bp)
-#else
-NsrtBnds (bp)
-    struct databndaries *bp;
-#endif
+void NsrtBnds (struct databndaries *bp)
 {
     /*memset (pbuf, 0, sizeof (struct printbuf));*/
     AMode = 0;                  /* To prevent LblCalc from defining class */

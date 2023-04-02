@@ -79,14 +79,7 @@ usage()
  *        the old-fashioned way.                                    *
  * **************************************************************** *
  */
-static void
-#ifdef __STDC__
-getoptions(int argc, char **argv)
-#else
-getoptions (argc,argv)
-int argc;
-char **argv;
-#endif
+static void getoptions(int argc, char **argv)
 {
     register int count;
 
@@ -110,14 +103,7 @@ char **argv;
     }
 }
 
-int
-#ifdef __STDC__
-main(int argc,char **argv)
-#else
-main(argc,argv)
-    int argc;
-    char **argv;
-#endif
+int main(int argc,char **argv)
 {
 
     /* Process command-line options first */
@@ -145,14 +131,7 @@ main(argc,argv)
  *    If the path is not valid, try some alternatives.
  * ***** */
 
-FILE *
-#ifdef __STDC__
-build_path (char *p, char *faccs)
-#else
-build_path (p, faccs)
-    char *p;
-    char *faccs;
-#endif
+FILE * build_path (char *p, char *faccs)
 {
     char tmpnam[100];
     char *c;
@@ -232,13 +211,7 @@ build_path (p, faccs)
  *      the command file.                                           *
  * **************************************************************** */
 
-void
-#ifdef __STDC__
-do_opt (char *c)
-#else
-do_opt (c)
-    char *c;
-#endif
+void do_opt (char *c)
 {
     char *pt = c;
     char *AsmFile;
