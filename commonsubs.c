@@ -32,6 +32,7 @@
 #include "disglobs.h"
 #include "rof.h"
 #include "proto.h"
+#include "commonsubs.h"
 
 typedef struct modestrs {
     char *str;
@@ -562,9 +563,10 @@ int get_eff_addr(CMD_ITMS *ci, char *ea, int mode, int reg, int size)
             else
             {
                 sprintf (ea, ModeStrings[mode].str, a_disp, reg, idxstr);
-            }*/
+            }
 
             return 1;
+            */
         }
         else
         {
@@ -715,7 +717,8 @@ int strpos (char *s, char c)
 {
     register int p;
 
-    return ((p = (int)strchr(s, c)) ? (p - (int)s) : -1);
+    p = (int)strchr(s, c);
+    return (p ? (p - (int)s) : -1);
 }
 
 /* **************************************************************** *
@@ -1223,8 +1226,6 @@ int fread_l(FILE *fp)
     }
 
     return tmpnum;
-
-    return 1;
 }
 #endif
 
@@ -1263,7 +1264,8 @@ void * mem_alloc (size_t req)
 {
     void *addr;
 
-    if (!(addr = malloc (req)))
+    addr = malloc(req);
+    if (!addr)
     {
         errexit ("Failed to acquire requested memory");
     }
@@ -1283,7 +1285,8 @@ char * freadString()
     register char *newStr;
     register int ch;
 
-    while ((ch = getc(ModFP)) && (ch > 0))
+    ch = getc(ModFP);
+    while (ch && (ch > 0))
     {
         *(strPt++) = ch;
     }

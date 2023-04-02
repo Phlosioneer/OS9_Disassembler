@@ -43,6 +43,7 @@
 #include "userdef.h"
 #include "disglobs.h"
 #include "proto.h"
+#include "commonsubs.h"
 /*#include "amodes.h"*/
 
 char *CmdFileName;

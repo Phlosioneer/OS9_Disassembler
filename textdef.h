@@ -26,6 +26,8 @@ of every command, general, print, getline,main, and assembley routine.
 */
 #include "proto.h"
 
+#include "commonsubs.h"
+
 SIZETYPES sizefield[]=
 {
 	{"bwl~~~~"}, /* entry 0  */

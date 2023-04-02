@@ -32,6 +32,7 @@
 #include "userdef.h"
 #include "rof.h"
 #include "proto.h"
+#include "commonsubs.h"
 
 struct asc_data* data_ascii;
 struct rof_extrn* refs_data,
@@ -102,7 +103,7 @@ void AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas)
          *ptr;
     register int refVal;
 
-    dataBuf = (char *)mem_alloc(dataSiz + 1);
+    dataBuf = (char *)mem_alloc((size_t)dataSiz + 1);
 
     if (fread (dataBuf, dataSiz, 1, ModFP) == -1)
     {
@@ -207,7 +208,8 @@ void getRofHdr (FILE *progpath)
         typ = fread_w (progpath);
         adrs = fread_l (progpath);
 
-        if ((me = addlbl(rof_class(typ, REFGLBL), adrs, name)))
+        me = addlbl(rof_class(typ, REFGLBL), adrs, name);
+        if (me)
         {
             me->global = 1;
         }
@@ -221,7 +223,7 @@ void getRofHdr (FILE *progpath)
 
 
 
-    if (fread ((codeBuf = (char *)mem_alloc(ROFHd.codsz + 1)), ROFHd.codsz, 1, ModFP) == -1)
+    if (fread ((codeBuf = (char *)mem_alloc((size_t)ROFHd.codsz + 1)), ROFHd.codsz, 1, ModFP) == -1)
     {
         fprintf (stderr, "Failed to read code buffer\n");
     }
@@ -649,7 +651,8 @@ struct rof_extrn * rof_lblref (CMD_ITMS *ci, int *value)
     struct rof_extrn *thisref;
     register char *refFmt;
 
-    if ( ! (thisref = find_extrn (refs_code, PCPos)))
+    thisref = find_extrn(refs_code, PCPos);
+    if ( ! thisref)
     {
         return 0;
     }
@@ -673,6 +676,8 @@ struct rof_extrn * rof_lblref (CMD_ITMS *ci, int *value)
         *value |= getnext_w(ci) & 0xffff;
         refFmt = (*value > 0xffff) ? "%c%04x" : "%c%08x";
         break;
+    default:
+        errexit("Unexpected byte size");
     }
 
     if ((Pass == 2)  && (strlen(thisref->EName.nam) == 0))
@@ -863,8 +868,8 @@ static char * DataDoBlock (struct rof_extrn **refsList, LBLDEF **lblList, char *
         {
             register int bytCount,
                 bytSize;
-
-            if ((bytCount = DoAsciiBlock (&Ci, iBuf, blkEnd, cclass)))
+            bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, cclass);
+            if (bytCount)
             {
                 iBuf += bytCount;
                 continue;
@@ -1110,7 +1115,7 @@ void rof_ascii ( char *cmdline)
                     **tree = NULL;
     char oneline[80];
 
-    while ((cmdline = cmdsplit (oneline, cmdline)))
+    for (cmdline = cmdsplit(oneline, cmdline); cmdline; cmdline = cmdsplit(oneline, cmdline))
     {
         char vsct,      /* vsect type, d=dp, b=bss */
              *ptr;

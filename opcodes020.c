@@ -28,6 +28,7 @@
 #include "userdef.h"
 #include <string.h>
 #include "proto.h"
+#include "commonsubs.h"
 
 extern CONDITIONALS typecondition[];
 /*
@@ -244,13 +245,14 @@ int cmd_cas2 (CMD_ITMS *ci, int j, OPSTRUCTURE *op)
     {
         return 0;
     }
-
-    if (!(r1 = getcas2Ew (ci, &dc1, &du1, &rn1)))
+    r1 = getcas2Ew(ci, &dc1, &du1, &rn1);
+    if (!r1)
     {
         return 0;
     }
 
-    if (!(r2 = getcas2Ew (ci, &dc2, &du2, &rn2)))
+    r2 = getcas2Ew(ci, &dc2, &du2, &rn2);
+    if (!r2)
     {
         return 0;
     }

@@ -28,7 +28,7 @@
 #include "userdef.h"
 #include "sysnames.h"
 #include "rof.h"
-
+#include "commonsubs.h"
 #include "proto.h"
 
 enum {
@@ -620,7 +620,8 @@ int move_ccr_sr(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 
         strcpy (ci->mnem, op->name);
 
-        if ((dot = strchr(ci->mnem, '.')))
+        dot = strchr(ci->mnem, '.');
+        if (dot)
         {
             *dot = '\0';
         }
@@ -648,7 +649,8 @@ int move_usp(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 
     strcpy (ci->mnem, op->name);
 
-    if ((dot = strchr(ci->mnem, '.')))
+    dot = strchr(ci->mnem, '.');
+    if (dot)
     {
         *dot = '\0';
     }
@@ -694,7 +696,8 @@ int moveq(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
     sprintf(ci->opcode, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
     strcpy (ci->mnem, op->name);
 
-    if ((dot = strchr(ci->mnem, '.')))
+    dot = strchr(ci->mnem, '.');
+    if (dot)
     {
         *dot = '\0';
     }
@@ -1042,7 +1045,8 @@ int br_cond(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 
     strcpy(ci->mnem, op->name);
 
-    if ((subst = strchr(ci->mnem, '~')))
+    subst = strchr(ci->mnem, '~');
+    if (subst)
     {
         while (*condit)
         {
@@ -1249,7 +1253,8 @@ int abcd_sbcd(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 
     strcpy(ci->mnem, op->name);
 
-    if ((dot = strchr(ci->mnem, '.')))
+    dot = strchr(ci->mnem, '.');
+    if (dot)
     {
         *dot = '\0';
     }
@@ -1436,7 +1441,8 @@ int cmd_dbcc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 
     strcpy (ci->mnem, op->name);
 
-    if ((condpos = strchr(ci->mnem, '~')))
+    condpos = strchr(ci->mnem, '~');
+    if (condpos)
     {
         register int offset;
         int ent = (ci->cmd_wrd >> 8) & 0x0f;
@@ -1488,7 +1494,8 @@ int cmd_scc(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
 
     strcpy (ci->mnem, op->name);
 
-    if ((condpos = strchr(ci->mnem, '~')))
+    condpos = strchr(ci->mnem, '~');
+    if (condpos)
     {
         strcpy(condpos, typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition);
 
@@ -1526,7 +1533,8 @@ int cmd_exg(CMD_ITMS *ci, int j, OPSTRUCTURE *op)
     sprintf (ci->opcode, "%c%d,%c%d", regnameSrc,regnumSrc,regnameDst, regnumDst);
     strcpy (ci->mnem, op->name);
 
-    if ((dot = strchr(ci->mnem, '.')))
+    dot = strchr(ci->mnem, '.');
+    if (dot)
     {
         *dot = '\0';
     }

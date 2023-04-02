@@ -31,6 +31,7 @@
 #include "disglobs.h"
 #include "userdef.h"
 #include "proto.h"
+#include "commonsubs.h"
 
 #ifdef _WIN32
 #   define strdup _strdup

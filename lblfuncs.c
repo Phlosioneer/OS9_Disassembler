@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include "userdef.h"
 #include "proto.h"
+#include "commonsubs.h"
 
 LBLCLAS LblList[] = {
     {'_', NULL},

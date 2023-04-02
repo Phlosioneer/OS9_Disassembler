@@ -36,6 +36,7 @@
 #include "modtypes.h"
 #include "proto.h"
 #include "rof.h"
+#include "commonsubs.h"
 int error;
 
 void reflst();
@@ -188,7 +189,8 @@ get_modhead()
             
             /* Add label for Exception Handler, if applicable */
             /* Only for specific Module Types??? */
-            if ((M_Except = fread_l(ModFP)))
+            M_Except = fread_l(ModFP);
+            if (M_Except)
             {
                 addlbl('L', M_Except, "");
             }
@@ -303,7 +305,8 @@ static void RdLblFile (FILE *inpath)
 
         fgets (rdbuf, 80, inpath);
 
-        if ( ! (lbegin = skipblank (rdbuf)) || (*lbegin == '*'))
+        lbegin = skipblank(rdbuf);
+        if ( ! lbegin || (*lbegin == '*'))
         {
             continue;
         }
@@ -330,7 +333,7 @@ static void RdLblFile (FILE *inpath)
                 if (nl)
                 {
                     strncpy (nl->sname, labelname, sizeof(nl->sname) - 1);
-                    nl->sname[sizeof(nl->sname)] = '\0';
+                    nl->sname[sizeof(nl->sname) - 1] = '\0';
                     nl->stdname = 1;
                 }
             }
@@ -387,7 +390,8 @@ GetLabels ()                    /* Read the labelfiles */
     {
         register FILE *inpath;
 
-        if ((inpath = build_path (LblFNam[x], BINREAD)))
+        inpath = build_path(LblFNam[x], BINREAD);
+        if (inpath)
         {
             RdLblFile (inpath);
             fclose (inpath);
@@ -416,7 +420,8 @@ int dopass(int argc,char **argv,int mypass)
 
     if (Pass == 1)
     {
-        if (!(ModFP = fopen(ModFile, BINREAD)))
+        ModFP = fopen(ModFile, BINREAD);
+        if (!ModFP)
         {
             errexit("Cannot open Module file for read");
         }
@@ -512,7 +517,7 @@ int dopass(int argc,char **argv,int mypass)
         /* NOTE: The 6809 version did an "if" and it apparently worked,
          *     but we had to do this to get it to work with consecutive bounds.
          */
-        while ((bp = ClasHere (dbounds, PCPos)))
+        for (bp = ClasHere (dbounds, PCPos); bp; bp = ClasHere(dbounds, PCPos))
         {
             NsrtBnds (bp);
             CmdEnt = PCPos;
@@ -671,7 +676,8 @@ get_asmcmd()
     if ((opword & 0xf000) == 0xf000)
         return 0;
     
-    if (!(optbl = opmains[(opword >> 12) & 0x0f]))
+    optbl = opmains[(opword >> 12) & 0x0f];
+    if (!optbl)
     {
         return 0;
     }
@@ -796,6 +802,8 @@ void MovBytes (struct databndaries *db)
         maxLst = 1;
         bmask = 0xffff;
         break;
+    default:
+        errexit("Unexpected byte size");
     }
 
     while (PCPos <= db->b_hi)
@@ -815,6 +823,8 @@ void MovBytes (struct databndaries *db)
         case 4:
             valu = fread_l (ModFP);
             break;
+        default:
+            errexit("Unexpected byte size");
         }
 
         PCPos += db->b_siz;

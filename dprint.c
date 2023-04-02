@@ -43,6 +43,7 @@
 #include "userdef.h"
 #include "rof.h"
 #include "proto.h"
+#include "commonsubs.h"
 
 #ifdef _WIN32
 #   define snprintf _snprintf
@@ -1407,7 +1408,7 @@ ROFDataPrint ()
     {
         dataprintHeader("* Initialized Data (Class\"%c\")", '_');
 
-        IBuf = (char *)mem_alloc(ROFHd.idatsz + 1);
+        IBuf = (char *)mem_alloc((size_t)ROFHd.idatsz + 1);
 
         if (fseek (ModFP, IDataBegin, SEEK_SET))
         {
@@ -1451,7 +1452,7 @@ ROFDataPrint ()
     {
         dataprintHeader(idat, 'H');
 
-        IBuf = (char *)mem_alloc(ROFHd.remoteidatsiz + 1);
+        IBuf = (char *)mem_alloc((size_t)ROFHd.remoteidatsiz + 1);
 
         if (fread(IBuf, ROFHd.idatsz, 1, ModFP) < 1)
         {
@@ -1578,7 +1579,7 @@ LoadIData()
     if (!IBuf)
     {
         /* Allocate space for buffer */ 
-        IBuf = (char *)mem_alloc(IDataCount + 2);
+        IBuf = (char *)mem_alloc((size_t)IDataCount + 2);
 
         if (fseek (ModFP, M_IData + 8, SEEK_SET))
         {
