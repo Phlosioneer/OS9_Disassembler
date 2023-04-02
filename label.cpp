@@ -34,7 +34,7 @@
 #include "commonsubs.h"
 #include "dis68.h"
 #include "label.h"
-
+#include "command_items.h"
 
 LabelManager labelManager;
 
@@ -131,14 +131,7 @@ extern "C" {
         return label ? label->handle() : nullptr;
     }
 
-    /* Prints out all labels organized by class. */
-    void parsetree(char c)
-    {
-        if (Pass == 1)
-            return;
-
-        labelManager.printAll();
-    }
+    
 
     char* lblstr(char lblclass, int lblval)
     {
@@ -149,10 +142,10 @@ extern "C" {
 
     /*
      * process_label: Handle label depending upon Pass.  If Pass 1, add
-     *      it as needed, if Pass 2, place values into the CMD_ITEMS fields
+     *      it as needed, if Pass 2, place values into the struct cmd_items fields
      *
      */
-    void process_label(CMD_ITEMS * ci, char lblclass, int addr)
+    void process_label(struct cmd_items * ci, char lblclass, int addr)
     {
         if (Pass == 1)
         {
@@ -728,3 +721,11 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
     return 1;
 }
 
+/* For debugging. Prints out all labels organized by class. */
+extern "C" void parsetree(char c)
+{
+    if (Pass == 1)
+        return;
+
+    labelManager.printAll();
+}

@@ -37,6 +37,8 @@
 #include "structs.h"
 #include "rof.h"
 
+struct cmd_items;
+
 #ifdef _MAIN_
 #   define xt
 #   define xtst(s) s
@@ -138,7 +140,6 @@ struct extWbrief {
 
 xt int cpu;
 xt int PrintAllCode;
-xt  CMD_ITEMS Instruction;
 xt int Pass;    /* The disassembler is a two-pass assembler */
 xt char *ModFile;   /* The module file to read */
 xt FILE *ModFP;

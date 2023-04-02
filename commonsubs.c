@@ -35,6 +35,7 @@
 #include "commonsubs.h"
 #include "dis68.h"
 #include "label.h"
+#include "command_items.h"
 
 typedef struct modestrs {
     char *str;
@@ -137,7 +138,7 @@ static int set_indirect_idx (char *dest, struct extWbrief *extW)
  * Returns 1 if valid, 0 if cpu < 68020 && is Full Extended Word      *
  * ------------------------------------------------------------------ */
 
-static int get_ext_wrd (CMD_ITEMS *ci, struct extWbrief *extW, int mode, int reg)
+static int get_ext_wrd (struct cmd_items *ci, struct extWbrief *extW, int mode, int reg)
 {
     int ew;     /* A local copy of the extended word (stored in ci->code[0] */
 
@@ -194,7 +195,7 @@ static int get_ext_wrd (CMD_ITEMS *ci, struct extWbrief *extW, int mode, int reg
  *          or the outer displacement, if not suppressed
  */
 
-static void get_displ(CMD_ITEMS *ci, char *dst, int siz_flag)
+static void get_displ(struct cmd_items *ci, char *dst, int siz_flag)
 {
     switch (siz_flag)
     {
@@ -215,7 +216,7 @@ static void get_displ(CMD_ITEMS *ci, char *dst, int siz_flag)
  *          indexed modes
  */
 
-static int process_extended_word_full(CMD_ITEMS *ci, char *dststr, struct extWbrief *ew, int mode,
+static int process_extended_word_full(struct cmd_items *ci, char *dststr, struct extWbrief *ew, int mode,
         int reg, int size)
 {
     char base_str[50];
@@ -372,7 +373,7 @@ static int process_extended_word_full(CMD_ITEMS *ci, char *dststr, struct extWbr
     return 1;
 }
 
-static int process_extended_word_brief(CMD_ITEMS *ci, char *dststr, struct extWbrief *ew_b,
+static int process_extended_word_brief(struct cmd_items *ci, char *dststr, struct extWbrief *ew_b,
         int mode, int reg, int size)
 {
     char a_disp[50];
@@ -435,7 +436,7 @@ static int process_extended_word_brief(CMD_ITEMS *ci, char *dststr, struct extWb
  *
  * ------------------------- */
 
-int get_eff_addr(CMD_ITEMS *ci, char *ea, int mode, int reg, int size)
+int get_eff_addr(struct cmd_items *ci, char *ea, int mode, int reg, int size)
 {
     int ext1;
     int ext2;
@@ -762,7 +763,7 @@ char * skipblank (char *p)
 
 char *sizebits[] = {".s", ".w", ".l"};
 
-int get_extends_common(CMD_ITEMS *ci, char *mnem)
+int get_extends_common(struct cmd_items *ci, char *mnem)
 {
     int mode, reg;
     int size;
@@ -806,7 +807,7 @@ int ctl_addrmodesonly(int mode, int reg)
  *      in the command word, and also have an effective address      *
  * ----------------------------------------------------------------- */
 
-int reg_ea(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int reg_ea(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -989,7 +990,7 @@ static void reglist(char *s, unsigned long regmask, int mode)
     }
 }
 
-int movem_cmd(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int movem_cmd(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1043,7 +1044,7 @@ int movem_cmd(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int link_unlk(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int link_unlk(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int regno = ci->cmd_wrd & 7;
     int ext_w;
@@ -1114,7 +1115,7 @@ char fread_b(FILE *fp)
     return b;
 }
 
-char getnext_b(CMD_ITEMS *ci)
+char getnext_b(struct cmd_items *ci)
 
 {
     char b;
@@ -1132,14 +1133,14 @@ char getnext_b(CMD_ITEMS *ci)
 
 /* **************************************************************************** *
  * getnext_w() - Fetches the next word (an Extended Word) from the module        *
- * Passed: The cmd_items pointer                                                 *
+ * Passed: The struct cmd_items pointer                                                 *
  * Returns: the word retrieved                                                  *
  *                                                                              *
  * The PCPos is updated, the count of words in the instruction is updated and   *
  *    the word is stored in the proper Info->code position                      *
  * **************************************************************************** */
 
-int getnext_w(CMD_ITEMS *ci)
+int getnext_w(struct cmd_items *ci)
 {
     short w;
 
@@ -1152,10 +1153,10 @@ int getnext_w(CMD_ITEMS *ci)
 
 /* *************************************************************************** *
  * ungetnext_w() - ungets (undoes) a previous word-get.
- * Passed: Pointer to the cmd_items struct
+ * Passed: Pointer to the struct cmd_items struct
  * *************************************************************************** */
 
-void     ungetnext_w(CMD_ITEMS *ci)
+void     ungetnext_w(struct cmd_items *ci)
 {
     fseek (ModFP, -2, SEEK_CUR);
     PCPos -= 2;

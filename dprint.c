@@ -48,6 +48,7 @@
 #include "dismain.h"
 #include "dprint.h"
 #include "label.h"
+#include "command_items.h"
 
 #ifdef _WIN32
 #   define snprintf _snprintf
@@ -59,7 +60,7 @@ static int PgLin;
 
 static void BlankLine();
 
-static void PrintFormatted (char *pfmt, CMD_ITEMS *ci);
+static void PrintFormatted (char *pfmt, struct cmd_items *ci);
 static void NonBoundsLbl (char cClass);
 static void StartPage ();
 static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval);
@@ -189,7 +190,7 @@ PrintPsect()
     char ProgAtts[50];
     /*char *StackAddL;*/
     int c;
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     int pgWdthSave;
 
     Ci.comment = "";
@@ -301,7 +302,7 @@ PrintPsect()
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine (char *pfmt, CMD_ITEMS *ci)
+static void OutputLine (char *pfmt, struct cmd_items *ci)
 {
     struct symbol_def *nl;
     char lbl[100];
@@ -477,7 +478,7 @@ char * get_apcomment(char clas, int addr)
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine (char *pfmt, CMD_ITEMS *ci, char cClass, int cmdlow, int cmdhi)
+void PrintLine (char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int cmdhi)
 {
     NonBoundsLbl (cClass);            /*Check for non-boundary labels */
 
@@ -523,7 +524,7 @@ UpPbuf (struct printbuf *pb)
     }
 }*/
 
-static void PrintFormatted (char *pfmt, CMD_ITEMS *ci)
+static void PrintFormatted (char *pfmt, struct cmd_items *ci)
 {
     int _linlen;
 
@@ -716,7 +717,7 @@ static void NonBoundsLbl (char cClass)
     if (cClass)
     {
         register int x;
-        CMD_ITEMS Ci;
+        struct cmd_items Ci;
         register struct symbol_def *nl;
 
         strcpy (Ci.mnem, "equ");
@@ -784,9 +785,9 @@ static void NonBoundsLbl (char cClass)
 void ROFPsect (struct rof_header *rptr)
 {
     struct symbol_def *nl;
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
 
-    memset (&Ci, 0, sizeof(CMD_ITEMS));
+    memset (&Ci, 0, sizeof(struct cmd_items));
     /*strcpy (Ci.instr, "");*/
     strcpy (Ci.opcode, "");
     Ci.lblname = "";
@@ -832,7 +833,7 @@ void ROFPsect (struct rof_header *rptr)
 void
 WrtEnds()
 {
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
 
     memset (&Ci, 0, sizeof (Ci));
     strcpy (Ci.mnem, "ends");
@@ -979,7 +980,7 @@ GetIRefs()
 
 static void dataprintHeader(char *hdr, char klas)
 {
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
 
     BlankLine();
     memset (&Ci, 0, sizeof (Ci));
@@ -1013,7 +1014,7 @@ static void dataprintHeader(char *hdr, char klas)
     PrintLine (pseudcmd, &Ci, 'D', 0, 0);
 }
 
-int DoAsciiBlock(CMD_ITEMS *ci, char *buf, int bufEnd, char iClass)
+int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
 {
     register int count = bufEnd;
     register char *ch = buf;
@@ -1146,7 +1147,7 @@ int DoAsciiBlock(CMD_ITEMS *ci, char *buf, int bufEnd, char iClass)
 
 static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
 {
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     /*char *hexFmt;*/
     char *what = "* Initialized Data Definitions";
     struct symbol_def *curlbl, *prevlbl;
@@ -1614,7 +1615,7 @@ OS9DataPrint ()
 {
     struct symbol_def *dta, *srch;
     char *what = "* OS9 data area definitions";
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     long filePos = ftell (ModFP);
     
     if (!M_IData)
@@ -1710,7 +1711,7 @@ OS9DataPrint ()
 
 void ListData (struct symbol_def *me, int upadr, char cClass)
 {
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     register int datasize;
 
     memset (&Ci, 0, sizeof (Ci));
@@ -1952,7 +1953,7 @@ void WrtEquates (int stdflg)
 
 static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval)
 {
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
 
     memset (&Ci, 0, sizeof (Ci));
     strcpy (Ci.mnem, "equ");

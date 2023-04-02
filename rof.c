@@ -37,6 +37,7 @@
 #include "dis68.h"
 #include "dprint.h"
 #include "label.h"
+#include "command_items.h"
 
 struct asc_data* data_ascii;
 struct rof_extrn* refs_data,
@@ -650,7 +651,7 @@ int typeFetchSize (int rtype)
  *       added, if applicable                                   *
  * ************************************************************ */
 
-struct rof_extrn * rof_lblref (CMD_ITEMS *ci, int *value)
+struct rof_extrn * rof_lblref (struct cmd_items *ci, int *value)
 {
     struct rof_extrn *thisref;
     register char *refFmt;
@@ -784,10 +785,10 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
              struct asc_data *ascdat, char cclass)
 {
     /*struct rof_extrn *srch;*/
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     char lblString[200];
 
-    memset (&Ci, 0, sizeof(CMD_ITEMS));
+    memset (&Ci, 0, sizeof(struct cmd_items));
 
     /* Insert Label if applicable */
 
@@ -1038,7 +1039,7 @@ void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize,
 
         iBuf = DataDoBlock (&refsList, &lblList, iBuf, blkEnd, ascdat, iClass);
 
-        /*memset (&Ci, 0, sizeof(CMD_ITEMS));
+        /*memset (&Ci, 0, sizeof(struct cmd_items));
         //Ci.cmd_wrd = refsList->Ofst;
         //CmdEnt = PCPos;
         // 

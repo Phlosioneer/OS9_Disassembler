@@ -84,7 +84,7 @@ typedef struct opst
 	short sizeendbit;
     int cpulvl;
     int id;
-    int (*opfunc)(CMD_ITEMS *, int, struct opst *);
+    int (*opfunc)(struct cmd_items *, int, struct opst *);
 } OPSTRUCTURE;
 
 typedef struct

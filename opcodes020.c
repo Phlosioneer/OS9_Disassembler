@@ -30,6 +30,7 @@
 
 #include "commonsubs.h"
 #include "opcodes020.h"
+#include "command_items.h"
 
 extern CONDITIONALS typecondition[];
 /*
@@ -43,7 +44,7 @@ static char * ewReg(int extWrd, char *dst)
     return dst;
 }
 
-int cmp2_chk2(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmp2_chk2(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int w2;
     int mode, reg;
@@ -99,14 +100,14 @@ int cmp2_chk2(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 0;      /* Until we finish the function */
 }
 
-int rtm_020(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int rtm_020(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     sprintf (ci->opcode, "%c%d", dispRegNam[(ci->cmd_wrd >> 3) & 1], ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
     return 1;
 }
 
-int cmd_moves(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmd_moves(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int ew,
@@ -167,7 +168,7 @@ int cmd_moves(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int cmd_cas (CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmd_cas (struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int reg;
     int size;
@@ -218,7 +219,7 @@ int cmd_cas (CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
  * Returns: the character name of the register (either "d" or "a").
  */
 
-static char getcas2Ew(CMD_ITEMS *ci, int *dc, int *du, int *rn)
+static char getcas2Ew(struct cmd_items *ci, int *dc, int *du, int *rn)
 {
     int ew = getnext_w(ci);
 
@@ -234,7 +235,7 @@ static char getcas2Ew(CMD_ITEMS *ci, int *dc, int *du, int *rn)
     return dispRegNam[(ew >> 15) & 1];
 }
 
-int cmd_cas2 (CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmd_cas2 (struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int size;
     int dc1, dc2, du1, du2, rn1, rn2;
@@ -268,7 +269,7 @@ int cmd_cas2 (CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int cmd_callm(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmd_callm(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int ew;
@@ -311,7 +312,7 @@ int cmd_callm(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int muldiv_020(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int muldiv_020(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int ew;
@@ -379,7 +380,7 @@ int muldiv_020(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int cmd_rtd(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmd_rtd(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int ew = getnext_w(ci);
 
@@ -392,7 +393,7 @@ int cmd_rtd(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int cmd_trapcc(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int cmd_trapcc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int opmode = ci->cmd_wrd & 7;
     int oprnd;
@@ -461,7 +462,7 @@ static char * getbf_fld(char *dst, int flg, int val)
  * bitfields_020() - Handles the bitfield functions
  */
 
-int bitfields_020(CMD_ITEMS *ci, int j, OPSTRUCTURE *op)
+int bitfields_020(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     int mode, reg;
     int v;   /* Generic value */

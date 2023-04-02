@@ -4,6 +4,8 @@
 
 #define LBLLEN 40
 
+struct cmd_items;
+
 /* Defines a Label */
 
 struct symbol_def;
@@ -32,7 +34,7 @@ extern "C" {
     struct symbol_def* findlbl(char lblclass, int lblval);
     char* lblstr(char lblclass, int lblval);
     struct symbol_def* addlbl(char lblclass, int val, char* newname);
-    void process_label(CMD_ITEMS* ci, char lblclass, int addr);
+    void process_label(struct cmd_items* ci, char lblclass, int addr);
     void parsetree(char c);
     int LblCalc(char* dst, int adr, int amod, int curloc);
 

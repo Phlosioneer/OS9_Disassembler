@@ -43,6 +43,7 @@
 #include "dismain.h"
 #include "dprint.h"
 #include "label.h"
+#include "command_items.h"
 int error;
 
 void reflst();
@@ -73,7 +74,7 @@ static int get_asmcmd(void);
  *        and prints to asm code file if specified
  */
 
-static void list_print (CMD_ITEMS *ci, short ent, char *lblnam)
+static void list_print (struct cmd_items *ci, short ent, char *lblnam)
 {
     register char *ListFmt = "%05x %04x %10.10s %s %s\n";
     register char *CmntFmt = "%05x %04x %10.10s %s %s %s\n";
@@ -615,7 +616,7 @@ int showem()
 
     return 0;
 }
-static CMD_ITEMS * initcmditems (CMD_ITEMS *ci)
+static struct cmd_items * initcmditems (struct cmd_items *ci)
 {
     ci->mnem[0] = 0;
     ci->wcount = 0;
@@ -629,7 +630,7 @@ static CMD_ITEMS * initcmditems (CMD_ITEMS *ci)
  *       that do not yet have handler functions
  */
 
-int notimplemented(CMD_ITEMS *ci, int tblno, OPSTRUCTURE *op)
+int notimplemented(struct cmd_items *ci, int tblno, OPSTRUCTURE *op)
 {
     return 0;
 }
@@ -759,7 +760,7 @@ get_asmcmd()
 
 void MovBytes (struct data_bounds *db)
 {
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     char tmps[20];
     unsigned int valu;
     int bmask;
@@ -910,7 +911,7 @@ void MovBytes (struct data_bounds *db)
 void MovASC (int nb, char aclass)
 {
     char oper_tmp[30];
-    CMD_ITEMS Ci;
+    struct cmd_items Ci;
     int cCount = 0;
 
     strcpy (Ci.mnem, "dc.b");         /* Default mnemonic to "fcc" */
