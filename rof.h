@@ -25,6 +25,9 @@
 /* symbol table types */
 /* symbol definition/reference type/location */
 
+#ifndef ROF_H
+#define ROF_H
+
 /* location flags for Global Refs and Local dests */
 #define REFCOMN     0x100       /* Reference is COMMON      */
 #define EREFREMOTE  0x100       /* External Ref is Remote   */
@@ -42,11 +45,50 @@
 #define REFREL      0x04        /* Ref is relative to loc   */
 #define NEGMSK      0x08        /* Negate the symbol offset */
 
-#ifdef ROF_C
-#   define ROF_XT
-#else
-#   define ROF_XT extern
-#endif
+/* ROF header structure */
+
+struct rof_header {
+    int   sync;
+    short ty_lan,        /* Type/Language */
+        att_rev,       /* Attribute/Revision word */
+        valid,         /* Nonzero if valid */
+        series;        /* Assembler version used to compile */
+    char  rdate[6];
+    short edition;
+    int   statstorage,   /* Size of static variable storage */
+        idatsz,        /* Size of initialized data */
+        codsz,         /* Size of the object code  */
+        stksz,         /* Size of stack required   */
+        code_begin,    /* Offset to entry point of object code   */
+        utrap,         /* Offset to unitialized trap entry point */
+        remotestatsiz, /* Size of remote static storage   */
+        remoteidatsiz, /* Size of remote initialized data */
+        debugsiz;      /* Size of the debug   */
+    char* rname;         /* Ptr to module name  */
+};
+
+
+/* ************************* *
+ *  External references      *
+ *  -------------------      *
+ *  We will attempt to place *
+ *  all in one set           *
+ * ************************* */
+
+struct rof_extrn {
+    union {
+        char* nam;
+        LBLDEF* lbl;
+    } EName;
+    /*  void *EName;*/              /* External name                    */
+    char  dstClass;             /* Class for referenced item NUll if extern */
+    int   Type;                 /* Type Flag                        */
+    int   Ofst;                 /* Offset into code                 */
+    int   Extrn;                /* Flag that it's an external ref   */
+    struct rof_extrn* EUp,      /* Previous Ref for entire list     */
+        * ENext,                 /* Next Reference for All externs   */
+        * MyNext;                /* Next ref for this name.  If NULL, we can free EName */
+};
 
 /* Define flags for type of reference */
 enum {
@@ -63,7 +105,7 @@ struct asc_data {
 };
 
 
- ROF_XT struct asc_data *data_ascii;
+ extern struct asc_data *data_ascii;
 
 
 /*struct rof_extrn *xtrn_data = 0,
@@ -74,7 +116,7 @@ struct asc_data {
                  *extrns;*/                   /* Generic external pointer */
 
 
-ROF_XT struct rof_extrn *refs_data,
+extern struct rof_extrn *refs_data,
                  *refs_idata,
                  *refs_code,
                  *refs_remote,
@@ -88,6 +130,24 @@ ROF_XT struct rof_extrn *refs_data,
              *lblptr;*/
 
 
-/*struct rof_hdr ROF_hd,
+/*struct rof_header ROF_hd,
                *rofptr = &ROF_hd;*/
 
+
+void reflst(void);
+int RealEnt(void);
+void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas);
+void getRofHdr(FILE* progpath);
+void RofLoadInitData(void);
+char rof_class(int typ, int refTy);
+struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
+int typeFetchSize(int rtype);
+struct rof_extrn* rof_lblref(CMD_ITMS* ci, int* value);
+int rof_datasize(char cclass);
+void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass);
+void rof_ascii(char* cmdline);
+void setROFPass(void);
+int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
+char* IsRef(char* dst, int curloc, int ival);
+
+#endif // ROF_H

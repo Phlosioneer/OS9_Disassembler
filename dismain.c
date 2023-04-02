@@ -35,6 +35,7 @@
 #include "textdef.h"
 #include "modtypes.h"
 #include "proto.h"
+#include "rof.h"
 int error;
 
 void reflst();
@@ -586,7 +587,6 @@ int dopass(int argc,char **argv,int mypass)
     return 0;
 }
 
-extern struct rof_extrn *refs_code;
 int showem()
 {
     /*char c = '_';*/

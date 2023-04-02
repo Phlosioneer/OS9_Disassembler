@@ -30,9 +30,17 @@
 #include <ctype.h>
 #include "disglobs.h"
 #include "userdef.h"
-#define ROF_C
 #include "rof.h"
 #include "proto.h"
+
+struct asc_data* data_ascii;
+struct rof_extrn* refs_data,
+    * refs_idata,
+    * refs_code,
+    * refs_remote,
+    * refs_iremote,
+    * extrns,                   /* Generic external pointer */
+    * codeRefs_sav;
 
 extern struct databndaries *LAdds[];
 

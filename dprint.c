@@ -61,7 +61,7 @@ static void TellLabels (LBLDEF *me, int flg, char cClass, int minval);
 
 extern char *CmdBuf;
 /*extern struct printbuf *pbuf;*/
-extern struct rof_hdr ROFHd;
+extern struct rof_header ROFHd;
 
 char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
@@ -765,14 +765,14 @@ static void NonBoundsLbl (char cClass)
 
 /* ********************************************* *
  * ROFPsect() - writes out psect                 *
- * Passed: rof_hdr *rptr                         *
+ * Passed: rof_header *rptr                         *
  * ********************************************* */
 
 /*#define OPSCAT(str) sprintf (ci->opcode, "%s,%s", pbuf->operand, str)
 #define OPDCAT(nu) sprintf (ci->opcode, "%s,%d", pbuf->operand, nu)
 #define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
 
-void ROFPsect (struct rof_hdr *rptr)
+void ROFPsect (struct rof_header *rptr)
 {
     LBLDEF *nl;
     CMD_ITMS Ci;

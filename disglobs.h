@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "structs.h"
+#include "rof.h"
 
 #ifdef _MAIN_
 #   define xt
@@ -218,7 +219,7 @@ xt char *stdSiz[]
 #endif
 ;
 
-xt struct rof_hdr ROFHd;
+xt struct rof_header ROFHd;
 xt char strBuf[200];
 
 #endif                     /* #ifdef HAVE_GLOBALS */

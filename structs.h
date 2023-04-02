@@ -120,61 +120,7 @@ struct commenttree {
     struct cmntline *commts;
 };
 
-/* ***************************************** *
- * Structures for ROF files                  *
- * ***************************************** */
 
-/* ROF header structure */
-
-struct rof_hdr {
-            int   sync;
-            short ty_lan,        /* Type/Language */
-                  att_rev,       /* Attribute/Revision word */
-                  valid,         /* Nonzero if valid */
-                  series;        /* Assembler version used to compile */
-            char  rdate[6];
-            short edition;
-            int   statstorage,   /* Size of static variable storage */
-                  idatsz,        /* Size of initialized data */
-                  codsz,         /* Size of the object code  */
-                  stksz,         /* Size of stack required   */
-                  code_begin,    /* Offset to entry point of object code   */
-                  utrap,         /* Offset to unitialized trap entry point */
-                  remotestatsiz, /* Size of remote static storage   */
-                  remoteidatsiz, /* Size of remote initialized data */
-                  debugsiz;      /* Size of the debug   */
-            char *rname;         /* Ptr to module name  */
-};
-
-/* Global definitions */
-
-struct rof_glbl {
-            char  name[100];
-            char  Type;
-            int   Ofst;
-};
-
-/* ************************* *
- *  External references      *
- *  -------------------      *
- *  We will attempt to place *
- *  all in one set           *
- * ************************* */
-
-struct rof_extrn {
-    union {
-        char *nam;
-        LBLDEF *lbl;
-    } EName;
-/*            void *EName;*/                /* External name                    */
-            char  dstClass;             /* Class for referenced item NUll if extern */
-            int   Type;                 /* Type Flag                        */
-            int   Ofst;                 /* Offset into code                 */
-            int   Extrn;                /* Flag that it's an external ref   */
-            struct rof_extrn *EUp,      /* Previous Ref for entire list     */
-                             *ENext,    /* Next Reference for All externs   */
-                             *MyNext;   /* Next ref for this name.  If NULL, we can free EName */
-};
 #endif             /*    #define HAVE_STRUCTS */
 
 
