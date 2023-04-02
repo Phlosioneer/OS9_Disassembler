@@ -1259,7 +1259,7 @@ int     bufReadL(char **pt)
     return val;
 }
 
-void * mem_alloc (int req)
+void * mem_alloc (size_t req)
 {
     void *addr;
 

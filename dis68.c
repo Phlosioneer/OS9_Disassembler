@@ -137,20 +137,23 @@ FILE * build_path (char *p, char *faccs)
     char *c;
     FILE *fp;
 
-    if ((fp = fopen (p, faccs)))
+    fp = fopen(p, faccs);
+    if (fp)
     {
         return fp;
     }
 
     if (p[0] == '~')
     {
-        if ((c = getenv ("HOME")))   /* Try the HOME env variable */
+        c = getenv("HOME");
+        if (c)   /* Try the HOME env variable */
         {
             /* We will make some assumptions here..
              * We will assume the path is in the form "~/..."*/
             sprintf (tmpnam, "%s%s", c, &p[1]);
             
-            if ((fp = fopen (tmpnam, faccs)))
+            fp = fopen(tmpnam, faccs);
+            if (fp)
             {
                 return fp;
             }
@@ -165,7 +168,8 @@ FILE * build_path (char *p, char *faccs)
     {
         sprintf (tmpnam, "%s/%s", DefDir, p);
 
-        if ((fp = fopen (tmpnam, faccs)))
+        fp = fopen(tmpnam, faccs);
+        if (fp)
         {
             return fp;
         }
@@ -194,7 +198,8 @@ FILE * build_path (char *p, char *faccs)
         }
 #else
 #endif
-        if ((fp = fopen(tmpnam, faccs)))
+        fp = fopen(tmpnam, faccs);
+        if (fp)
         {
             return fp;
         }
@@ -232,7 +237,8 @@ void do_opt (char *c)
         {
             CmdFileName = pass_eq (pt);
 
-            if (!(CmdFP = build_path (CmdFileName, BINREAD)))
+            CmdFP = build_path(CmdFileName, BINREAD);
+            if (!CmdFP)
             {
                 fprintf (stderr, "*** Failed to open Command file %s***\n",
                         CmdFileName);
@@ -268,7 +274,8 @@ void do_opt (char *c)
     case 'o':                  /* output asm src file */
         AsmFile = pass_eq(pt);
 
-        if ( ! (AsmPath = fopen (AsmFile, BINWRITE)))
+        AsmPath = fopen(AsmFile, BINWRITE);
+        if ( ! AsmPath)
         {
             if (strlen(AsmFile) == 0) {
                 errexit("Error: no output file path after -o. Are you missing an = after -o? ");
@@ -358,7 +365,8 @@ void do_opt (char *c)
         {
             pt = pass_eq (pt);
 
-            if ( ! (DefDir = strdup (pt)))
+            DefDir = strdup(pt);
+            if ( ! DefDir)
             {
                 fprintf (stderr, "Cannot allocate memory for Defs dirname\n");
                 exit (1);

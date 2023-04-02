@@ -109,7 +109,8 @@ static void movchr (char *dst, unsigned char ch)
     }
     else
     {
-        if ((pp = findlbl ('^', ch)))
+        pp = findlbl('^', ch);
+        if (pp)
         /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
         {
             strcat (dst, pp->sname);
@@ -258,7 +259,8 @@ struct databndaries * ClasHere (struct databndaries *bp, int adrs)
     register struct databndaries *pt;
     register int h = (int) adrs;
 
-    if ( ! (pt = bp))
+    pt = bp;
+    if ( ! pt)
     {
         return 0;
     }
@@ -386,7 +388,8 @@ LBLDEF * addlbl (char lblclass, int val, char *newname)
 
     if (!labelclass(lblclass)->cEnt)      /* first entry in this tree */
     {
-        if ((newlbl = create_lbldef(lblclass, val, newname)))
+        newlbl = create_lbldef(lblclass, val, newname);
+        if (newlbl)
         {
             LBLCLAS *clas = labelclass(lblclass);
 
@@ -445,6 +448,14 @@ LBLDEF * addlbl (char lblclass, int val, char *newname)
     }
     else        /* Insert into chain */
     {
+        if (!newlbl)
+        {
+            errexit("Null pointer dereference: newlbl in lblfuncs.c");
+        }
+        if (!oldlbl)
+        {
+            errexit("Null pointer dereference: oldlbl in lblfuncs.c");
+        }
         if (newlbl->myaddr > oldlbl->myaddr)
         {
             newlbl->Prev = oldlbl;
@@ -487,7 +498,8 @@ void process_label (CMD_ITMS *ci, char lblclass, int addr)
     {
         register LBLDEF *me;
 
-        if ((me = findlbl(lblclass, addr)))
+        me = findlbl(lblclass, addr);
+        if (me)
         {
             strcpy (ci->opcode, me->sname);
         }
@@ -514,7 +526,8 @@ void parsetree(char c)
     {
         c = lc->lclass;
 
-        if ((l = labelclass (c)->cEnt))
+        l = labelclass(c)->cEnt;
+        if (l)
         {
             printf ("\nLabel definitions for Class '%c'\n\n", c);
 
@@ -561,7 +574,8 @@ int LblCalc (char *dst, int adr, int amod, int curloc)
 
     if (amod)
     {
-        if ((kls = ClasHere (LAdds[amod], CmdEnt)))
+        kls = ClasHere(LAdds[amod], CmdEnt);
+        if (kls)
         {
             mainclass = kls->b_typ;
 
@@ -635,7 +649,8 @@ int LblCalc (char *dst, int adr, int amod, int curloc)
     {                           /*Pass2 */
         char tmpname[20];
 
-        if ((mylabel = findlbl (mainclass, raw)))
+        mylabel = findlbl(mainclass, raw);
+        if (mylabel)
         {
             PrintLbl (tmpname, mainclass, raw, mylabel, amod);
             strcat (dst, tmpname);
@@ -687,7 +702,8 @@ int LblCalc (char *dst, int adr, int amod, int curloc)
                     return 1;
                 }
             }
-            if ((mylabel = findlbl (c,  kls->dofst->of_maj)))
+            mylabel = findlbl(c, kls->dofst->of_maj);
+            if (mylabel)
             /*if ((mylabel = FindLbl (LblList[strpos (lblorder, c)],
                                     kls->dofst->of_maj)))*/
             {

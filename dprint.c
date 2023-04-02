@@ -301,15 +301,18 @@ static void OutputLine (char *pfmt, CMD_ITMS *ci)
     LBLDEF *nl;
     char lbl[100];
 
-    if (  InProg &&
-        (nl = findlbl ('L', CmdEnt)))
+    if (InProg)
     {
-        strcpy (lbl, nl->sname);
-        ci->lblname = lbl;
-
-        if (IsROF && nl->global)
+        nl = findlbl('L', CmdEnt);
+        if (nl)
         {
-            strcat (lbl, ":");
+            strcpy(lbl, nl->sname);
+            ci->lblname = lbl;
+
+            if (IsROF && nl->global)
+            {
+                strcat(lbl, ":");
+            }
         }
     }
 
@@ -538,13 +541,13 @@ static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
     {
         if (IsUnformatted)
         {
-            _linlen = snprintf (FmtBuf, PgWidth - 2, &(pfmt[3]),
+            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, &(pfmt[3]),
                                     CmdEnt, ci->cmd_wrd, ci->lblname,
                                     ci->mnem, ci->opcode, ci->comment);
         }
         else
         {
-            _linlen = snprintf (FmtBuf, PgWidth - 2, pfmt,
+            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, pfmt,
                                     LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
                                     ci->mnem, ci->opcode, ci->comment);
         }
@@ -553,13 +556,13 @@ static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
     {
         if (IsUnformatted)
         {
-            _linlen = snprintf (FmtBuf, PgWidth - 2, &(pfmt[3]),
+            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, &(pfmt[3]),
                                 CmdEnt, ci->cmd_wrd, ci->lblname,
                                 ci->mnem, ci->opcode, ci->comment);
         }
         else
         {
-            _linlen = snprintf (FmtBuf, PgWidth - 2, pfmt,
+            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, pfmt,
                                 LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
                                 ci->mnem, ci->opcode, ci->comment);
         }
@@ -678,7 +681,8 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
 
                     line = me->commts;
 
-                    do {
+                    for (line = me->commts; line; line = line->nextline)
+                    {
                         if (IsUnformatted)
                         {
                             printf(" * %s\n", line->ctxt);
@@ -693,7 +697,7 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
                             fprintf (AsmPath, "* %s\n", line->ctxt);
                         }
 
-                    } while ((line = line->nextline));
+                    }
 
                     break;  /* This address done, proceed with next x */
                 }
@@ -715,8 +719,8 @@ static void NonBoundsLbl (char cClass)
 
         for (x = PrevEnt + 1; x < CmdEnt; x++)
         {
-
-            if ((nl = findlbl (cClass, x)))
+            nl = findlbl(cClass, x);
+            if (nl)
             {
                 char lbl[100];
                 strcpy (lbl, nl->sname);
@@ -792,7 +796,8 @@ void ROFPsect (struct rof_header *rptr)
 #define OPDCAT(nu) sprintf (ci->opcode, "%s,%d", pbuf->operand, nu)
 #define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
 
-    if ((nl = findlbl('L', rptr->code_begin)))
+    nl = findlbl('L', rptr->code_begin);
+    if (nl)
     {
         strcat(Ci.opcode, nl->sname);
         /*OPSCAT(nl->sname);*/
@@ -1148,7 +1153,8 @@ static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
     PCPos = IDataBegin;        /* MovBytes/MovASC use PCPos */
     CmdEnt = PCPos;
 
-    if (!(curlbl = findlbl('D', PCPos)))
+    curlbl = findlbl('D', PCPos);
+    if (!curlbl)
     {
         curlbl = addlbl('D', PCPos, "");
     }
@@ -1157,7 +1163,6 @@ static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
     {
         int     idatbegin,
                 idatcount;
-        LBLDEF *curlbl;
 
         if (fseek(ModFP, (long)fget_l(ModFP), SEEK_SET) == -1)
         {
@@ -1205,6 +1210,10 @@ static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
             char         lbl[100];
 
             /* Get byte count for this label */
+            if (!curlbl)
+            {
+                errexit("Null pointer dereference: curlbl in dprint.c");
+            }
             curlbl = curlbl->Next;
 
             if (curlbl)
@@ -1285,7 +1294,8 @@ static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
                         strcat(Ci.opcode, ",");
                     }
 
-                    if ((mylbl = findlbl('L', val)))
+                    mylbl = findlbl('L', val);
+                    if (mylbl)
                     {
                         strcat (Ci.opcode, mylbl->sname);
                     }
@@ -1381,8 +1391,8 @@ ROFDataPrint ()
     char *idat = "* Initialized data (Class %c)";
 
     InProg = 0;
-
-    if ((srch = labelclass ('D') ? labelclass('D')->cEnt : NULL))
+    srch = labelclass('D') ? labelclass('D')->cEnt : NULL;
+    if (srch)
     {
         dataprintHeader ("* Uninitialized Data (Class \"%c\")", 'D');
 
@@ -1424,7 +1434,8 @@ ROFDataPrint ()
         /*ListInitROF (dta, ROFHd.idatsz, '_');*/
     }
 
-    if ((srch = labelclass ('G') ? labelclass('G')->cEnt : NULL))
+    srch = labelclass('G') ? labelclass('G')->cEnt : NULL;
+    if (srch)
     {
         dataprintHeader (udat, 'G');
 
@@ -1660,7 +1671,8 @@ OS9DataPrint ()
 
         if (IDataBegin < M_Mem)
         {
-            if ((dta = findlbl('D', IDataBegin)))
+            dta = findlbl('D', IDataBegin);
+            if (dta)
             {
                 ListInitData (dta, IDataCount, 'D');
             }
@@ -1853,7 +1865,8 @@ void WrtEquates (int stdflg)
                  * last real data element*/
 
                /* if (!(me = FindLbl (me, M_Mem)))*/
-                if (! (me = findlbl (NowClass, M_Mem)))
+                me = findlbl(NowClass, M_Mem);
+                if (! me)
                 {
                     continue;
                 }

@@ -108,7 +108,8 @@ AsmComment (char *lpos, FILE *cmdfile)
     struct cmntline *prevline = 0;
     char lblclass;
 
-    if ( ! (lpos = cmntsetup (lpos, &lblclass, &adr)))
+    lpos = cmntsetup(lpos, &lblclass, &adr);
+    if ( ! lpos)
     {
         return -1;
     }
@@ -247,7 +248,8 @@ AsmComment (char *lpos, FILE *cmdfile)
         }
         else
         {
-            if (!(lpos = fgets(mbuf,sizeof(mbuf),cmdfile)))
+            lpos = fgets(mbuf, sizeof(mbuf), cmdfile);
+            if (!lpos)
             {
                 return -1; /* Try to proceed on error */
             }
@@ -289,13 +291,14 @@ do_cmd_file ()
         mbf = skipblank (miscbuf);
 
         /* Convert newlines and carriage returns to null */
-
-        if ((th = (char *) strchr (mbf, '\n')))
+        th = (char*)strchr(mbf, '\n');
+        if (th)
         {
             *th = '\0';
         }
 
-        if ((th = strchr (mbf, '\r')))
+        th = strchr(mbf, '\r');
+        if (th)
         {
                 *th = '\0';
         }
@@ -373,7 +376,8 @@ ApndCmnt (char *lpos)
                     **me_ptr;
     char *cline;
 
-    if ( ! (lpos = cmntsetup (lpos, &lblclass, &myadr)))
+    lpos = cmntsetup(lpos, &lblclass, &myadr);
+    if ( ! lpos)
     {
         return -1;
     }
@@ -443,12 +447,14 @@ ApndCmnt (char *lpos)
 
     /* Get rid of newlines */
 
-    if ((cline = strchr (lpos, '\n')))
+    cline = strchr(lpos, '\n');
+    if (cline)
     {
         *cline = '\0';
     }
 
-    if ((cline = strchr (lpos, '\r')))
+    cline = strchr(lpos, '\r');
+    if (cline)
     {
         *cline = '\0';
     }
@@ -587,7 +593,8 @@ cmdsplit (char *dest, char *src)
 
     src = skipblank (src);
 
-    if ( ! (c = *src) || (c == '\n'))
+    c = *src;
+    if ( ! c || (c == '\n'))
         return 0;
 
     if (strchr (src, ';'))
@@ -618,10 +625,11 @@ cmdamode (char *pt)
     char buf[80];
 
     GettingAmode = 1;
-
-    while ((pt = cmdsplit (buf, pt)))
+    pt = cmdsplit(buf, pt);
+    while (pt)
     {
         do_mode (buf);
+        pt = cmdsplit(buf, pt);
     }
 
     GettingAmode = 0;
@@ -640,7 +648,8 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
 
     /* see if it's just a single byte/word */
 
-    if ( ! (isxdigit (*(pt = skipblank (pt)))))
+    pt = skipblank(pt);
+    if ( ! isxdigit(*pt))
     {
         if ((*pt == '-') || ((*pt == '/')))
         {
@@ -821,7 +830,8 @@ do_mode (char *lpos)
 
     /* check for default reset (no address) */
 
-    if ( ! (lpos = skipblank (lpos)) || ! (*lpos) || (*lpos == ';'))
+    lpos = skipblank(lpos);
+    if ( ! lpos || ! (*lpos) || (*lpos == ';'))
     {
         DfltLbls[AMode - 1] = mclass;
         return 1;
@@ -939,7 +949,8 @@ void boundsline (char *mypos)
 
         /* Process each command (within the repeat) individually */
 
-        while ((nextpos = cmdsplit (tmpbuf, mypos)))
+        nextpos = cmdsplit(tmpbuf, mypos);
+        while (nextpos)
         {
             setupbounds (tmpbuf);
             mypos = nextpos;
