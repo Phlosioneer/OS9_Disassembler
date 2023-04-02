@@ -32,7 +32,7 @@
 #include "dis68.h"
 #include "lblfuncs.h"
 
-LBLCLAS LblList[] = {
+LABEL_CLASS LblList[] = {
     {'_', NULL},
     {'!', NULL}, {'=', NULL}, {'A', NULL}, {'B', NULL},
     {'C', NULL}, {'D', NULL}, {'E', NULL}, {'F', NULL},
@@ -44,17 +44,17 @@ LBLCLAS LblList[] = {
     {0, NULL}
 };
 
-extern struct databndaries *LAdds[];
-extern struct databndaries *dbounds;
+extern struct data_bounds *LAdds[];
+extern struct data_bounds *dbounds;
 
 /*
  * labelclass() - Returns the base entry for the desired class
  *
  */
 
-LBLCLAS * labelclass (char lblclass)
+LABEL_CLASS * labelclass (char lblclass)
 {
-    LBLCLAS *c = LblList;
+    LABEL_CLASS *c = LblList;
 
     while (c->lclass != lblclass)
     {
@@ -80,9 +80,9 @@ LBLCLAS * labelclass (char lblclass)
  *          location where it should be.                        *
  * ------------------------------------------------------------ */
 
-static LBLDEF * lblpos (char lblclass, int lblval)
+static LABEL_DEF * lblpos (char lblclass, int lblval)
 {
-    LBLDEF *me = labelclass (lblclass)->cEnt;
+    LABEL_DEF *me = labelclass (lblclass)->cEnt;
 
     if (me)
     {
@@ -103,7 +103,7 @@ static LBLDEF * lblpos (char lblclass, int lblval)
 static void movchr (char *dst, unsigned char ch)
 {
     char mytmp[10];
-    register LBLDEF *pp;
+    register LABEL_DEF *pp;
 
     if (isprint (ch & 0x7f) && ((ch & 0x7f) != ' '))
     {
@@ -139,7 +139,7 @@ static void movchr (char *dst, unsigned char ch)
  *          (4)   dl - ptr to the nlist tree for the label
  */
 
-void PrintLbl (char *dest, char clas, int adr, LBLDEF *dl, int amod)
+void PrintLbl (char *dest, char clas, int adr, LABEL_DEF *dl, int amod)
 {
     char tmp[10];
     /*short decn = adr & 0xffff;*/
@@ -257,9 +257,9 @@ void PrintLbl (char *dest, char clas, int adr, LBLDEF *dl, int amod)
  * Returns: Ptr to Boundary definition if found,  NULL if no match. *
  * **************************************************************** */
 
-struct databndaries * ClasHere (struct databndaries *bp, int adrs)
+struct data_bounds * ClasHere (struct data_bounds *bp, int adrs)
 {
-    register struct databndaries *pt;
+    register struct data_bounds *pt;
     register int h = (int) adrs;
 
     pt = bp;
@@ -306,9 +306,9 @@ struct databndaries * ClasHere (struct databndaries *bp, int adrs)
  *
  */
 
-LBLDEF * findlbl (char lblclass, int lblval)
+LABEL_DEF * findlbl (char lblclass, int lblval)
 {
-    LBLDEF *found;
+    LABEL_DEF *found;
 
     if (strchr ("^@$&", lblclass))
         return NULL;
@@ -325,12 +325,12 @@ LBLDEF * findlbl (char lblclass, int lblval)
 
 char * lblstr (char lblclass, int lblval)
 {
-    LBLDEF *me = findlbl(lblclass, lblval);
+    LABEL_DEF *me = findlbl(lblclass, lblval);
 
     return (me ? me->sname : "");
 }
 /* ---------------------------------------------------------------- *
- * create_lbldef() - Creates a new label definition                 *
+ * create_LABEL_DEF() - Creates a new label definition                 *
  * Passed:  (1) - value (the address or value of the label)         *
  *          (2) - the name of the label                             *
  * Returns: Pointer to the new label def, or NULL on failure to     *
@@ -338,12 +338,12 @@ char * lblstr (char lblclass, int lblval)
  *          The name and address is already stored.                 *
  * ---------------------------------------------------------------- */
 
-static LBLDEF * create_lbldef (char lblclass, int val, char *name)
+static LABEL_DEF * create_LABEL_DEF (char lblclass, int val, char *name)
 {
-    register LBLDEF *newlbl;
+    register LABEL_DEF *newlbl;
     
-    newlbl = (LBLDEF *)mem_alloc(sizeof(LBLDEF));
-    memset(newlbl, 0, sizeof(LBLDEF));
+    newlbl = (LABEL_DEF *)mem_alloc(sizeof(LABEL_DEF));
+    memset(newlbl, 0, sizeof(LABEL_DEF));
     {
         if (name && strlen(name))
         {
@@ -373,10 +373,10 @@ static LBLDEF * create_lbldef (char lblclass, int val, char *name)
  *              the class letter is used.
  */
 
-LBLDEF * addlbl (char lblclass, int val, char *newname)
+LABEL_DEF * addlbl (char lblclass, int val, char *newname)
 {
-    register LBLDEF *oldlbl;
-    register LBLDEF *newlbl;
+    register LABEL_DEF *oldlbl;
+    register LABEL_DEF *newlbl;
     register unsigned int maxsize = sizeof (oldlbl->sname);
 
     if (strchr("^@$&", lblclass))
@@ -391,10 +391,10 @@ LBLDEF * addlbl (char lblclass, int val, char *newname)
 
     if (!labelclass(lblclass)->cEnt)      /* first entry in this tree */
     {
-        newlbl = create_lbldef(lblclass, val, newname);
+        newlbl = create_LABEL_DEF(lblclass, val, newname);
         if (newlbl)
         {
-            LBLCLAS *clas = labelclass(lblclass);
+            LABEL_CLASS *clas = labelclass(lblclass);
 
             if (clas)
             {
@@ -425,14 +425,14 @@ LBLDEF * addlbl (char lblclass, int val, char *newname)
         return oldlbl;
     }
 
-    newlbl = create_lbldef(lblclass, val, newname);
+    newlbl = create_LABEL_DEF(lblclass, val, newname);
 
         /* New beginning entry ?  */
     if ((newlbl) && (val < labelclass(lblclass)->cEnt->myaddr))
     {
         if (val < labelclass(lblclass)->cEnt->myaddr)
         {
-            LBLCLAS *clas = labelclass(lblclass);
+            LABEL_CLASS *clas = labelclass(lblclass);
 
             if (clas)
             {
@@ -487,11 +487,11 @@ LBLDEF * addlbl (char lblclass, int val, char *newname)
 
 /*
  * process_label: Handle label depending upon Pass.  If Pass 1, add
- *      it as needed, if Pass 2, place values into the CMD_ITMS fields
+ *      it as needed, if Pass 2, place values into the CMD_ITEMS fields
  *
  */
 
-void process_label (CMD_ITMS *ci, char lblclass, int addr)
+void process_label (CMD_ITEMS *ci, char lblclass, int addr)
 {
     if (Pass == 1)
     {
@@ -499,7 +499,7 @@ void process_label (CMD_ITMS *ci, char lblclass, int addr)
     }
     else   /* Pass 2, find it */
     {
-        register LBLDEF *me;
+        register LABEL_DEF *me;
 
         me = findlbl(lblclass, addr);
         if (me)
@@ -516,8 +516,8 @@ void process_label (CMD_ITMS *ci, char lblclass, int addr)
 
 void parsetree(char c)
 {
-    LBLDEF *l;
-    LBLCLAS *lc;
+    LABEL_DEF *l;
+    LABEL_CLASS *lc;
 
     if (Pass == 1)
         return;
@@ -557,8 +557,8 @@ int LblCalc (char *dst, int adr, int amod, int curloc)
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
     char mainclass;                 /* Class for this location */
 
-    struct databndaries *kls = 0;
-    LBLDEF *mylabel = 0;
+    struct data_bounds *kls = 0;
+    LABEL_DEF *mylabel = 0;
 
     if (amod == AM_REL)
     {

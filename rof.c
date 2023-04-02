@@ -47,7 +47,7 @@ struct rof_extrn* refs_data,
     * extrns,                   /* Generic external pointer */
     * codeRefs_sav;
 
-extern struct databndaries *LAdds[];
+extern struct data_bounds *LAdds[];
 
 /*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer);
@@ -204,7 +204,7 @@ void getRofHdr (FILE *progpath)
     while (count--)
     {
         char *name;
-        LBLDEF *me;
+        LABEL_DEF *me;
         int adrs;
         int typ;
 
@@ -426,7 +426,7 @@ char rof_class (int typ, int refTy)
 
 /*void rof_addlbl (int adrs, struct rof_extrn *ref)
 {
-    LBLDEF *nl;
+    LABEL_DEF *nl;
 
     // The following may be a kludge.  The problem is that Relative
      * external references get added to class C.
@@ -650,7 +650,7 @@ int typeFetchSize (int rtype)
  *       added, if applicable                                   *
  * ************************************************************ */
 
-struct rof_extrn * rof_lblref (CMD_ITMS *ci, int *value)
+struct rof_extrn * rof_lblref (CMD_ITEMS *ci, int *value)
 {
     struct rof_extrn *thisref;
     register char *refFmt;
@@ -780,14 +780,14 @@ int rof_datasize (char cclass)
  *          (3) char class - the label class (D or C)                   *
  * ******************************************************************** */
 
-static char * DataDoBlock (struct rof_extrn **refsList, LBLDEF **lblList, char *iBuf, int blkEnd,
+static char * DataDoBlock (struct rof_extrn **refsList, LABEL_DEF **lblList, char *iBuf, int blkEnd,
              struct asc_data *ascdat, char cclass)
 {
     /*struct rof_extrn *srch;*/
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     char lblString[200];
 
-    memset (&Ci, 0, sizeof(CMD_ITMS));
+    memset (&Ci, 0, sizeof(CMD_ITEMS));
 
     /* Insert Label if applicable */
 
@@ -1014,12 +1014,12 @@ static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data 
 void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass)
 {
     struct asc_data *ascdat;
-    LBLDEF *lblList = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
+    LABEL_DEF *lblList = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
 
     ascdat = data_ascii;
     PCPos = 0;
     /*{
-        LBLDEF *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
+        LABEL_DEF *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
     }*/
 
     while (PCPos < (isize))
@@ -1038,7 +1038,7 @@ void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize,
 
         iBuf = DataDoBlock (&refsList, &lblList, iBuf, blkEnd, ascdat, iClass);
 
-        /*memset (&Ci, 0, sizeof(CMD_ITMS));
+        /*memset (&Ci, 0, sizeof(CMD_ITEMS));
         //Ci.cmd_wrd = refsList->Ofst;
         //CmdEnt = PCPos;
         // 
@@ -1228,7 +1228,7 @@ int rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val)
 
         if (ClasHere(LAdds[AMode], CmdEnt))
         {
-            struct databndaries *kls = ClasHere(LAdds[AMode], CmdEnt);
+            struct data_bounds *kls = ClasHere(LAdds[AMode], CmdEnt);
 
             if (kls->dofst)
             {

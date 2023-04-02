@@ -134,7 +134,7 @@ struct extWbrief {
 
 xt int cpu;
 xt int PrintAllCode;
-xt  CMD_ITMS Instruction;
+xt  CMD_ITEMS Instruction;
 xt int Pass;    /* The disassembler is a two-pass assembler */
 xt char *ModFile;   /* The module file to read */
 xt FILE *ModFP;
@@ -187,8 +187,8 @@ xt int PBytSiz;
 
 /* Comments tree */
 
-xt struct commenttree *Comments[33];
-xt struct apndcmnt *CmntApnd[33];
+xt struct comment_tree *Comments[33];
+xt struct append_comment *CmntApnd[33];
 
 xt char *lblorder
 #ifdef _MAIN_

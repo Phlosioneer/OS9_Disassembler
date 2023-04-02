@@ -78,7 +78,7 @@ struct rof_header {
 struct rof_extrn {
     union {
         char* nam;
-        LBLDEF* lbl;
+        LABEL_DEF* lbl;
     } EName;
     /*  void *EName;*/              /* External name                    */
     char  dstClass;             /* Class for referenced item NUll if extern */
@@ -142,7 +142,7 @@ void RofLoadInitData(void);
 char rof_class(int typ, int refTy);
 struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
 int typeFetchSize(int rtype);
-struct rof_extrn* rof_lblref(CMD_ITMS* ci, int* value);
+struct rof_extrn* rof_lblref(CMD_ITEMS* ci, int* value);
 int rof_datasize(char cclass);
 void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass);
 void rof_ascii(char* cmdline);

@@ -61,7 +61,7 @@ char *LblFNam[MAX_LBFIL]; /* Pointers to the path names for the files */
 /*static int HdrLen;*/
 int CodeEnd;
 
-extern struct databndaries *dbounds;
+extern struct data_bounds *dbounds;
 extern char realcmd[], pseudcmd[];
 extern void printXtraBytes (char *);
 
@@ -73,7 +73,7 @@ static int get_asmcmd(void);
  *        and prints to asm code file if specified
  */
 
-static void list_print (CMD_ITMS *ci, short ent, char *lblnam)
+static void list_print (CMD_ITEMS *ci, short ent, char *lblnam)
 {
     register char *ListFmt = "%05x %04x %10.10s %s %s\n";
     register char *CmntFmt = "%05x %04x %10.10s %s %s %s\n";
@@ -303,7 +303,7 @@ static void RdLblFile (FILE *inpath)
          strval[15],
         *lbegin;
     int address;
-    LBLDEF *nl;
+    LABEL_DEF *nl;
 
     while ( ! feof (inpath))
     {
@@ -515,7 +515,7 @@ int dopass(int argc,char **argv,int mypass)
 
     while (PCPos < CodeEnd)
     {
-        struct databndaries *bp;
+        struct data_bounds *bp;
 
         memset(&Instruction, 0, sizeof(Instruction));
         CmdEnt = PCPos;
@@ -602,7 +602,7 @@ int showem()
 {
     /*char c = '_';*/
     struct rof_extrn *rf = refs_code;
-    /*LBLCLAS *l = labelclass(c);*/
+    /*LABEL_CLASS *l = labelclass(c);*/
 
     if (!rf)
         fprintf(stderr, "No Code refs found!\n");
@@ -616,7 +616,7 @@ int showem()
 
     return 0;
 }
-static CMD_ITMS * initcmditems (CMD_ITMS *ci)
+static CMD_ITEMS * initcmditems (CMD_ITEMS *ci)
 {
     ci->mnem[0] = 0;
     ci->wcount = 0;
@@ -630,7 +630,7 @@ static CMD_ITMS * initcmditems (CMD_ITMS *ci)
  *       that do not yet have handler functions
  */
 
-int notimplemented(CMD_ITMS *ci, int tblno, OPSTRUCTURE *op)
+int notimplemented(CMD_ITEMS *ci, int tblno, OPSTRUCTURE *op)
 {
     return 0;
 }
@@ -758,9 +758,9 @@ get_asmcmd()
  *          printing if in pass 2).                                     *
  * ******************************************************************** */
 
-void MovBytes (struct databndaries *db)
+void MovBytes (struct data_bounds *db)
 {
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     char tmps[20];
     unsigned int valu;
     int bmask;
@@ -911,7 +911,7 @@ void MovBytes (struct databndaries *db)
 void MovASC (int nb, char aclass)
 {
     char oper_tmp[30];
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     int cCount = 0;
 
     strcpy (Ci.mnem, "dc.b");         /* Default mnemonic to "fcc" */
@@ -1026,7 +1026,7 @@ void MovASC (int nb, char aclass)
  * NsertBnds():	Insert boundary area *
  * ********************************* */
 
-void NsrtBnds (struct databndaries *bp)
+void NsrtBnds (struct data_bounds *bp)
 {
     /*memset (pbuf, 0, sizeof (struct printbuf));*/
     AMode = 0;                  /* To prevent LblCalc from defining class */

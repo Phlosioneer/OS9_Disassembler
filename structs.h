@@ -26,7 +26,7 @@
 #ifndef HAVE_STRUCTS
 #   define HAVE_STRUCTS
 
-typedef struct cmditems {
+typedef struct cmd_items {
     int cmd_wrd;        /* The single effective address word (the command) */
     char *lblname;
     char mnem[50];
@@ -35,7 +35,7 @@ typedef struct cmditems {
     char opcode[200];   /* Possibly ovesized, but just to be safe */
     char *comment;     /* Inline comment - NULL if none */
     /*struct extWbrief extend;*/   /* The extended command (if present) */
-} CMD_ITMS;
+} CMD_ITEMS;
 
 
 /*struct extended020 {
@@ -45,24 +45,24 @@ typedef struct cmditems {
 
 /* Defines a Label */
 
-typedef struct symbldef {
+typedef struct symbol_def {
     char sname[LBLLEN+1];         /* Symbol name */
     long myaddr;                  /* Address of symbol */
     int stdname;                  /* Flag that it's a std named label */
     int global;                   /* For ROF use... flags that it's global */
-    struct symbldef *Next;           /* Next */
-/*    struct symbldef *More;*/
-    struct symbldef *Prev;           /* Previous entry */
-} LBLDEF;
+    struct symbol_def *Next;           /* Next */
+/*    struct symbol_def *More;*/
+    struct symbol_def *Prev;           /* Previous entry */
+} LABEL_DEF;
 
 typedef struct {
     char lclass;
-    LBLDEF *cEnt;
-} LBLCLAS;
+    LABEL_DEF *cEnt;
+} LABEL_CLASS;
 
 /* Offset 9 (-L00xx) - type stuff ] */
 
-struct ofsetree {
+struct offset_tree {
     char oclas_maj;        /* Class to use in offset addressing          */
     int  of_maj;           /* The main offset value                      */
     char incl_pc;          /* Flag to include PC offset mode             */
@@ -73,14 +73,14 @@ struct ofsetree {
 
 /* Data areas/Label Addressing Modes tree structure */
 
-struct databndaries {
+struct data_bounds {
     int  b_lo,         /* Lower (beginning) boundary address       */
          b_hi,         /* Upper (ending) boundary address          */
          b_siz;        /* Size of one unit in the set              */
     char b_typ;        /* Boundary type for DA's and Lbl Class for AModes */
     char b_class;      /* Class for class 'L' and 'S' boundaries          */
-    struct ofsetree *dofst;
-    struct databndaries *DLess,
+    struct offset_tree *dofst;
+    struct data_bounds *DLess,
                         *DMore,
                         *DPrev;
 };
@@ -93,10 +93,10 @@ struct databndaries {
  * end of the assembly line                     *
  * ******************************************** */
 
-struct apndcmnt {
+struct append_comment {
     int adrs;
-    struct apndcmnt *apLeft;
-    struct apndcmnt *apRight;
+    struct append_comment *apLeft;
+    struct append_comment *apRight;
     char *CmPtr;
 };
 
@@ -105,19 +105,19 @@ struct apndcmnt {
  * ************************************ */
 
 /* Single line of a comment */
-struct cmntline {
-    struct cmntline *nextline;
+struct comment_line {
+    struct comment_line *nextline;
     char *ctxt;
 };
 
 /* Main tree */
 
-struct commenttree {
+struct comment_tree {
     int adrs;
-    struct commenttree *cmtUp;
-    struct commenttree *cmtLeft;
-    struct commenttree *cmtRight;
-    struct cmntline *commts;
+    struct comment_tree *cmtUp;
+    struct comment_tree *cmtLeft;
+    struct comment_tree *cmtRight;
+    struct comment_line *commts;
 };
 
 

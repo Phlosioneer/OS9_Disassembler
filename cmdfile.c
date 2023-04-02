@@ -42,7 +42,7 @@
 #include <ctype.h>
 #include "userdef.h"
 #include "disglobs.h"
-
+#include "structs.h"
 #include "commonsubs.h"
 #include "cmdfile.h"
 #include "dis68.h"
@@ -56,20 +56,20 @@ int DoingCmds;          /* Flag - Nonzero if we're doing the command file (not c
 static int NxtBnd;
 static int NoEnd;      /* Flag that no end on last bound                 */
 static int GettingAmode;    /* Flag 1=getting Addressing mode 0=Data Boundary */
-static struct databndaries *prevbnd ;
+static struct data_bounds *prevbnd ;
 
 static char *cpyhexnum (char *dst, char *src);
 static char *cpy_digit_str (char *dst, char *src);
 static int do_mode (char *lpos);
-static char *setoffset (char *p, struct ofsetree *oft);
+static char *setoffset (char *p, struct offset_tree *oft);
 static int optincmd (char *lpos);
 static void cmdamode (char *pt);
-static struct commenttree *newcomment (int addrs,
-                            struct commenttree *parent);
+static struct comment_tree *newcomment (int addrs,
+                            struct comment_tree *parent);
 
 /* some of the following may need to be moved tothe global file */
-struct databndaries *LAdds[33];     /* Temporary */
-struct databndaries *dbounds;
+struct data_bounds *LAdds[33];     /* Temporary */
+struct data_bounds *dbounds;
 char BoundsNames[] = "ABCDLSW";
 
 static void
@@ -107,9 +107,9 @@ AsmComment (char *lpos, FILE *cmdfile)
     register char *txt;
     char delim;
     int lastline;
-    struct commenttree *treebase;
-    register struct commenttree *me;
-    struct cmntline *prevline = 0;
+    struct comment_tree *treebase;
+    register struct comment_tree *me;
+    struct comment_line *prevline = 0;
     char lblclass;
 
     lpos = cmntsetup(lpos, &lblclass, &adr);
@@ -142,7 +142,7 @@ AsmComment (char *lpos, FILE *cmdfile)
     }
     else
     {
-        struct commenttree *oldme;
+        struct comment_tree *oldme;
 
        /* int cmtfound = 0;*/
         me = treebase;
@@ -198,14 +198,14 @@ AsmComment (char *lpos, FILE *cmdfile)
                 }
             }
         }       /* while (1) ( for locating or adding comments */
-    }           /* end of search in commenttree - me = appropriate tree */
+    }           /* end of search in comment_tree - me = appropriate tree */
 
 /************************************************************************** */
 
     /* Now get the comment strings */
     while (1)
     {
-        struct cmntline *cline;
+        struct comment_line *cline;
         char mbuf[500];
 
         lastline = 0;
@@ -231,8 +231,8 @@ AsmComment (char *lpos, FILE *cmdfile)
         txt = (char *)mem_alloc (strlen(lpos) + 1);
         txt[strlen(lpos)] = '\0';
         strncpy (txt,lpos,strlen(lpos));
-        cline = (struct cmntline *)mem_alloc (sizeof (struct cmntline));
-        memset (cline, 0, sizeof(struct cmntline));
+        cline = (struct comment_line *)mem_alloc (sizeof (struct comment_line));
+        memset (cline, 0, sizeof(struct comment_line));
 
         if (prevline)
         {
@@ -376,7 +376,7 @@ ApndCmnt (char *lpos)
 {
     char lblclass;
     int myadr;
-    struct apndcmnt *mycmnt,
+    struct append_comment *mycmnt,
                     **me_ptr;
     char *cline;
 
@@ -429,8 +429,8 @@ ApndCmnt (char *lpos)
         }
     }
 
-    mycmnt = (struct apndcmnt *)mem_alloc (sizeof (struct apndcmnt));
-    memset (mycmnt, 0, sizeof (struct apndcmnt));
+    mycmnt = (struct append_comment *)mem_alloc (sizeof (struct append_comment));
+    memset (mycmnt, 0, sizeof (struct append_comment));
 
     if ( ! mycmnt)
     {
@@ -539,18 +539,18 @@ cmntsetup (char *cpos, char *clas, int *adrs)
 }
 
 /* *********************************************** *
- * newcomment() adds new commenttree address       *
+ * newcomment() adds new comment_tree address       *
  * Passed: address for comment,                    *
  *         parent or null if first in tree         *
  * *********************************************** */
 
-static struct commenttree *
-newcomment (int addrs, struct commenttree *parent)
+static struct comment_tree *
+newcomment (int addrs, struct comment_tree *parent)
 {
-    struct commenttree *newtree;
+    struct comment_tree *newtree;
 
-    newtree = (struct commenttree *)mem_alloc(sizeof (struct commenttree));
-    memset(newtree, 0, sizeof(struct commenttree));
+    newtree = (struct comment_tree *)mem_alloc(sizeof (struct comment_tree));
+    memset(newtree, 0, sizeof(struct comment_tree));
 
     newtree->adrs = addrs;
     newtree->cmtUp = parent;
@@ -772,12 +772,12 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
 static int
 do_mode (char *lpos)
 {
-    struct databndaries *mptr;
+    struct data_bounds *mptr;
     register int mclass;         /* addressing mode */
     char c;
     int lo, hi;
-    register struct databndaries *lp;
-    struct ofsetree *otreept = 0;
+    register struct data_bounds *lp;
+    struct offset_tree *otreept = 0;
 
     if (*(lpos = skipblank (lpos)) == '#')
     {
@@ -843,8 +843,8 @@ do_mode (char *lpos)
 
     if (*(lpos) == '(')
     {
-        otreept = (struct ofsetree *)mem_alloc (sizeof (struct ofsetree));
-        memset (otreept, 0, sizeof(struct ofsetree));
+        otreept = (struct offset_tree *)mem_alloc (sizeof (struct offset_tree));
+        memset (otreept, 0, sizeof(struct offset_tree));
         lpos = setoffset (++lpos, otreept);
     }
 
@@ -857,8 +857,8 @@ do_mode (char *lpos)
 
     /* Now insert new range into tree */
 
-    mptr = (struct databndaries *)mem_alloc (sizeof (struct databndaries));
-    memset (mptr, 0, sizeof(struct databndaries));
+    mptr = (struct data_bounds *)mem_alloc (sizeof (struct data_bounds));
+    memset (mptr, 0, sizeof(struct data_bounds));
 
     mptr->b_lo = lo;
     mptr->b_hi = hi;
@@ -967,11 +967,11 @@ void boundsline (char *mypos)
  * ************************************************* */
 
 static char *
-setoffset (char *p, struct ofsetree *oft)
+setoffset (char *p, struct offset_tree *oft)
 {
     char c, bufr[80];
 
-    /* Insure that the ofsetree struct is all NULL */
+    /* Insure that the offset_tree struct is all NULL */
 
     oft->oclas_maj = oft->of_maj = oft->add_to = 0;
 
@@ -1058,9 +1058,9 @@ bndoverlap ()
  * ***************************************************** */
 
 static void
-bdinsert (struct databndaries *bb)
+bdinsert (struct data_bounds *bb)
 {
-    register struct databndaries *npt;
+    register struct data_bounds *npt;
     register int mylo = bb->b_lo, myhi = bb->b_hi;
 
     npt = dbounds;              /*  Start at base       */
@@ -1114,14 +1114,14 @@ bdinsert (struct databndaries *bb)
 void
 setupbounds (char *lpos)
 {
-    struct databndaries *bdry;
+    struct data_bounds *bdry;
     register int bdtyp,
              lclass = 0;
     int rglo,
         rghi;
     char c,
          loc[20];
-    struct ofsetree *otreept = 0;
+    struct offset_tree *otreept = 0;
 
     GettingAmode = 0;
     PBytSiz = 1;                /* Default to single byte */
@@ -1215,8 +1215,8 @@ setupbounds (char *lpos)
 
     if (*(lpos) == '(')
     {
-        otreept = (struct ofsetree *)mem_alloc (sizeof (struct ofsetree));
-        memset (otreept, 0, sizeof(struct ofsetree));
+        otreept = (struct offset_tree *)mem_alloc (sizeof (struct offset_tree));
+        memset (otreept, 0, sizeof(struct offset_tree));
         lpos = setoffset (++lpos, otreept);
     }
 
@@ -1224,8 +1224,8 @@ setupbounds (char *lpos)
 
     /* Now create the addition to the list */
 
-    bdry = (struct databndaries *)mem_alloc (sizeof (struct databndaries));
-    memset(bdry, 0, sizeof(struct databndaries));
+    bdry = (struct data_bounds *)mem_alloc (sizeof (struct data_bounds));
+    memset(bdry, 0, sizeof(struct data_bounds));
     bdry->b_lo = rglo;
     bdry->b_hi = rghi;
     bdry->b_siz = PBytSiz;

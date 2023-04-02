@@ -59,10 +59,10 @@ static int PgLin;
 
 static void BlankLine();
 
-static void PrintFormatted (char *pfmt, CMD_ITMS *ci);
+static void PrintFormatted (char *pfmt, CMD_ITEMS *ci);
 static void NonBoundsLbl (char cClass);
 static void StartPage ();
-static void TellLabels (LBLDEF *me, int flg, char cClass, int minval);
+static void TellLabels (LABEL_DEF *me, int flg, char cClass, int minval);
 
 extern char *CmdBuf;
 /*extern struct printbuf *pbuf;*/
@@ -189,7 +189,7 @@ PrintPsect()
     char ProgAtts[50];
     /*char *StackAddL;*/
     int c;
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     int pgWdthSave;
 
     Ci.comment = "";
@@ -278,7 +278,7 @@ PrintPsect()
 
     if (M_Except)
     {
-        LBLDEF *excep = findlbl('L', M_Except);
+        LABEL_DEF *excep = findlbl('L', M_Except);
         strcat(EaString, ",");
         strcat(EaString, excep->sname);
     }
@@ -301,9 +301,9 @@ PrintPsect()
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine (char *pfmt, CMD_ITMS *ci)
+static void OutputLine (char *pfmt, CMD_ITEMS *ci)
 {
-    LBLDEF *nl;
+    LABEL_DEF *nl;
     char lbl[100];
 
     if (InProg)
@@ -424,7 +424,7 @@ BlankLine ()                    /* Prints a blank line */
 
 char * get_apcomment(char clas, int addr)
 {
-    struct apndcmnt *mytree = CmntApnd[strpos (lblorder, clas)];
+    struct append_comment *mytree = CmntApnd[strpos (lblorder, clas)];
 
     if ( ! clas)
     {
@@ -477,7 +477,7 @@ char * get_apcomment(char clas, int addr)
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine (char *pfmt, CMD_ITMS *ci, char cClass, int cmdlow, int cmdhi)
+void PrintLine (char *pfmt, CMD_ITEMS *ci, char cClass, int cmdlow, int cmdhi)
 {
     NonBoundsLbl (cClass);            /*Check for non-boundary labels */
 
@@ -523,7 +523,7 @@ UpPbuf (struct printbuf *pb)
     }
 }*/
 
-static void PrintFormatted (char *pfmt, CMD_ITMS *ci)
+static void PrintFormatted (char *pfmt, CMD_ITEMS *ci)
 {
     int _linlen;
 
@@ -661,7 +661,7 @@ StartPage ()
 
 void PrintComment(char lblcClass, int cmdlow, int cmdhi)
 {
-    register struct commenttree *me;
+    register struct comment_tree *me;
     register int x;
 
     for (x = cmdlow; x < cmdhi; x++)
@@ -682,7 +682,7 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
                 }
                 else        /* Assume for now it's equal */
                 {
-                    struct cmntline *line;
+                    struct comment_line *line;
 
                     line = me->commts;
 
@@ -716,8 +716,8 @@ static void NonBoundsLbl (char cClass)
     if (cClass)
     {
         register int x;
-        CMD_ITMS Ci;
-        register LBLDEF *nl;
+        CMD_ITEMS Ci;
+        register LABEL_DEF *nl;
 
         strcpy (Ci.mnem, "equ");
         Ci.comment = "";
@@ -783,10 +783,10 @@ static void NonBoundsLbl (char cClass)
 
 void ROFPsect (struct rof_header *rptr)
 {
-    LBLDEF *nl;
-    CMD_ITMS Ci;
+    LABEL_DEF *nl;
+    CMD_ITEMS Ci;
 
-    memset (&Ci, 0, sizeof(CMD_ITMS));
+    memset (&Ci, 0, sizeof(CMD_ITEMS));
     /*strcpy (Ci.instr, "");*/
     strcpy (Ci.opcode, "");
     Ci.lblname = "";
@@ -832,7 +832,7 @@ void ROFPsect (struct rof_header *rptr)
 void
 WrtEnds()
 {
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
 
     memset (&Ci, 0, sizeof (Ci));
     strcpy (Ci.mnem, "ends");
@@ -979,7 +979,7 @@ GetIRefs()
 
 static void dataprintHeader(char *hdr, char klas)
 {
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
 
     BlankLine();
     memset (&Ci, 0, sizeof (Ci));
@@ -1013,7 +1013,7 @@ static void dataprintHeader(char *hdr, char klas)
     PrintLine (pseudcmd, &Ci, 'D', 0, 0);
 }
 
-int DoAsciiBlock(CMD_ITMS *ci, char *buf, int bufEnd, char iClass)
+int DoAsciiBlock(CMD_ITEMS *ci, char *buf, int bufEnd, char iClass)
 {
     register int count = bufEnd;
     register char *ch = buf;
@@ -1144,12 +1144,12 @@ int DoAsciiBlock(CMD_ITMS *ci, char *buf, int bufEnd, char iClass)
  *
  */
 
-static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
+static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
 {
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     /*char *hexFmt;*/
     char *what = "* Initialized Data Definitions";
-    LBLDEF *curlbl;
+    LABEL_DEF *curlbl;
 
     Ci.cmd_wrd = Ci.wcount = 0;
     Ci.comment = Ci.lblname = "";
@@ -1267,7 +1267,7 @@ static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
 
                 if ((IRefs) && (PCPos == IRefs->dAddr))
                 {
-                    LBLDEF *mylbl;
+                    LABEL_DEF *mylbl;
                     struct ireflist *tmpref;
                     char xtrabytes[10];
                     val = 0;
@@ -1389,7 +1389,7 @@ static void ListInitData (LBLDEF *ldf, int nBytes, char lclass)
 void
 ROFDataPrint ()
 {
-    LBLDEF *srch;
+    LABEL_DEF *srch;
 
     /*char dattmp[5];*/
     register char *udat = "* Uninitialized data (Class %c)";
@@ -1611,9 +1611,9 @@ LoadIData()
 void
 OS9DataPrint ()
 {
-    LBLDEF *dta, *srch;
+    LABEL_DEF *dta, *srch;
     char *what = "* OS9 data area definitions";
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     long filePos = ftell (ModFP);
     
     if (!M_IData)
@@ -1707,9 +1707,9 @@ OS9DataPrint ()
  *         Label cClass                                      *
  * ******************************************************** */
 
-void ListData (LBLDEF *me, int upadr, char cClass)
+void ListData (LABEL_DEF *me, int upadr, char cClass)
 {
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
     register int datasize;
 
     memset (&Ci, 0, sizeof (Ci));
@@ -1836,7 +1836,7 @@ void WrtEquates (int stdflg)
                       "* Class %c standard named label equates\n"
                     };
     register int flg;           /* local working flg - clone of stdflg */
-    LBLDEF *me;
+    LABEL_DEF *me;
 
     InProg = 0;
     curnt = claspt;
@@ -1947,9 +1947,9 @@ void WrtEquates (int stdflg)
 
 /* TellLabels(me) - Print out the labels for cClass in "me" tree */
 
-static void TellLabels (LBLDEF *me, int flg, char cClass, int minval)
+static void TellLabels (LABEL_DEF *me, int flg, char cClass, int minval)
 {
-    CMD_ITMS Ci;
+    CMD_ITEMS Ci;
 
     memset (&Ci, 0, sizeof (Ci));
     strcpy (Ci.mnem, "equ");
