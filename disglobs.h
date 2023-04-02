@@ -41,7 +41,11 @@
 #   define xt
 #   define xtst(s) s
 #else
-#   define xt extern
+#   ifdef __cplusplus
+#       define xt extern "C"
+#   else
+#       define xt extern
+#   endif
 #   define xtst
 #endif
 

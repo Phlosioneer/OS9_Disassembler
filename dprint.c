@@ -62,7 +62,7 @@ static void BlankLine();
 static void PrintFormatted (char *pfmt, CMD_ITEMS *ci);
 static void NonBoundsLbl (char cClass);
 static void StartPage ();
-static void TellLabels (LABEL_DEF *me, int flg, char cClass, int minval);
+static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval);
 
 extern char *CmdBuf;
 /*extern struct printbuf *pbuf;*/
@@ -274,13 +274,13 @@ PrintPsect()
     sprintf (&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, M_Revs);
     sprintf (&EaString[strlen(EaString)], ",%d", M_Edit);
     strcat (EaString, ",0");    /* For the time being, don't add any stack */
-    sprintf (&EaString[strlen(EaString)], ",%s", findlbl ('L', M_Exec)->sname);
+    sprintf (&EaString[strlen(EaString)], ",%s", label_getName(findlbl('L', M_Exec)));
 
     if (M_Except)
     {
-        LABEL_DEF *excep = findlbl('L', M_Except);
+        struct symbol_def *excep = findlbl('L', M_Except);
         strcat(EaString, ",");
-        strcat(EaString, excep->sname);
+        strcat(EaString, label_getName(excep));
     }
 
     strcpy (Ci.opcode, EaString);
@@ -303,7 +303,7 @@ PrintPsect()
 
 static void OutputLine (char *pfmt, CMD_ITEMS *ci)
 {
-    LABEL_DEF *nl;
+    struct symbol_def *nl;
     char lbl[100];
 
     if (InProg)
@@ -311,10 +311,10 @@ static void OutputLine (char *pfmt, CMD_ITEMS *ci)
         nl = findlbl('L', CmdEnt);
         if (nl)
         {
-            strcpy(lbl, nl->sname);
+            strcpy(lbl, label_getName(nl));
             ci->lblname = lbl;
 
-            if (IsROF && nl->global)
+            if (IsROF && label_getGlobal(nl))
             {
                 strcat(lbl, ":");
             }
@@ -717,7 +717,7 @@ static void NonBoundsLbl (char cClass)
     {
         register int x;
         CMD_ITEMS Ci;
-        register LABEL_DEF *nl;
+        register struct symbol_def *nl;
 
         strcpy (Ci.mnem, "equ");
         Ci.comment = "";
@@ -728,10 +728,10 @@ static void NonBoundsLbl (char cClass)
             if (nl)
             {
                 char lbl[100];
-                strcpy (lbl, nl->sname);
+                strcpy (lbl, label_getName(nl));
                 Ci.lblname = lbl;
 
-                if (IsROF && nl->global)
+                if (IsROF && label_getGlobal(nl))
                 {
                     strcat (Ci.lblname, ":");
                 }
@@ -748,12 +748,12 @@ static void NonBoundsLbl (char cClass)
                 /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
                 if (IsUnformatted)
                 {
-                    printf (&(pseudcmd[3]), nl->myaddr, Ci.cmd_wrd,
+                    printf (&(pseudcmd[3]), label_getMyAddr(nl), Ci.cmd_wrd,
                             Ci.lblname, Ci.mnem, Ci.opcode, "");
                 }
                 else
                 {
-                    printf (pseudcmd, LinNum++, nl->myaddr, Ci.cmd_wrd,
+                    printf (pseudcmd, LinNum++, label_getMyAddr(nl), Ci.cmd_wrd,
                             Ci.lblname, Ci.mnem, Ci.opcode, "");
                 }
                 ++PgLin;
@@ -783,7 +783,7 @@ static void NonBoundsLbl (char cClass)
 
 void ROFPsect (struct rof_header *rptr)
 {
-    LABEL_DEF *nl;
+    struct symbol_def *nl;
     CMD_ITEMS Ci;
 
     memset (&Ci, 0, sizeof(CMD_ITEMS));
@@ -804,7 +804,7 @@ void ROFPsect (struct rof_header *rptr)
     nl = findlbl('L', rptr->code_begin);
     if (nl)
     {
-        strcat(Ci.opcode, nl->sname);
+        strcat(Ci.opcode, label_getName(nl));
         /*OPSCAT(nl->sname);*/
     }
     else
@@ -1144,12 +1144,12 @@ int DoAsciiBlock(CMD_ITEMS *ci, char *buf, int bufEnd, char iClass)
  *
  */
 
-static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
+static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
 {
     CMD_ITEMS Ci;
     /*char *hexFmt;*/
     char *what = "* Initialized Data Definitions";
-    LABEL_DEF *curlbl;
+    struct symbol_def *curlbl, *prevlbl;
 
     Ci.cmd_wrd = Ci.wcount = 0;
     Ci.comment = Ci.lblname = "";
@@ -1219,10 +1219,11 @@ static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
             {
                 errexit("Null pointer dereference: curlbl in dprint.c");
             }
-            curlbl = curlbl->Next;
+            prevlbl = curlbl;
+            curlbl = label_getNext(curlbl);
 
             if (curlbl)
-                lblCount = curlbl->myaddr - curlbl->Prev->myaddr;
+                lblCount = label_getMyAddr(curlbl) - label_getMyAddr(prevlbl);
             else
                 lblCount = idatcount;
 
@@ -1233,10 +1234,10 @@ static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
 
             CmdEnt = PCPos;     /* Save Entry Point */
             ppos = lblCount;
-            strcpy (lbl, ldf->sname);
+            strcpy (lbl, label_getName(ldf));
             Ci.lblname = lbl;
 
-            if (IsROF && ldf->global)
+            if (IsROF && label_getGlobal(ldf))
             {
                 strcat (Ci.lblname, ":");
             }
@@ -1267,7 +1268,7 @@ static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
 
                 if ((IRefs) && (PCPos == IRefs->dAddr))
                 {
-                    LABEL_DEF *mylbl;
+                    struct symbol_def *mylbl;
                     struct ireflist *tmpref;
                     char xtrabytes[10];
                     val = 0;
@@ -1302,7 +1303,7 @@ static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
                     mylbl = findlbl('L', val);
                     if (mylbl)
                     {
-                        strcat (Ci.opcode, mylbl->sname);
+                        strcat (Ci.opcode, label_getName(mylbl));
                     }
                     else
                     {
@@ -1371,7 +1372,7 @@ static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
 
             CmdEnt = PCPos;
             idatcount -= lblCount;
-            ldf = ldf->Next;
+            ldf = label_getNext(ldf);
         }
     }
     else
@@ -1389,14 +1390,14 @@ static void ListInitData (LABEL_DEF *ldf, int nBytes, char lclass)
 void
 ROFDataPrint ()
 {
-    LABEL_DEF *srch;
+    struct symbol_def *srch;
 
     /*char dattmp[5];*/
     register char *udat = "* Uninitialized data (Class %c)";
     char *idat = "* Initialized data (Class %c)";
 
     InProg = 0;
-    srch = labelclass('D') ? labelclass('D')->cEnt : NULL;
+    srch = labelclass('D') ? labelclass_getFirst(labelclass('D')) : NULL;
     if (srch)
     {
         dataprintHeader ("* Uninitialized Data (Class \"%c\")", 'D');
@@ -1425,7 +1426,7 @@ ROFDataPrint ()
         }
 
         PCPos = 0;
-        srch = labelclass ('_') ? labelclass('_')->cEnt : NULL;
+        srch = labelclass ('_') ? labelclass_getFirst(labelclass('_')) : NULL;
 
         if (ROFHd.idatsz)
         {
@@ -1439,7 +1440,7 @@ ROFDataPrint ()
         /*ListInitROF (dta, ROFHd.idatsz, '_');*/
     }
 
-    srch = labelclass('G') ? labelclass('G')->cEnt : NULL;
+    srch = labelclass('G') ? labelclass_getFirst(labelclass('G')) : NULL;
     if (srch)
     {
         dataprintHeader (udat, 'G');
@@ -1464,7 +1465,7 @@ ROFDataPrint ()
         }
 
         PCPos = 0;
-        srch = labelclass ('H') ? labelclass('H')->cEnt : NULL;
+        srch = labelclass ('H') ? labelclass_getFirst(labelclass('H')) : NULL;
         ListInitROF ("", refs_iremote,IBuf, ROFHd.idatsz, 'H');
         BlankLine();
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
@@ -1611,7 +1612,7 @@ LoadIData()
 void
 OS9DataPrint ()
 {
-    LABEL_DEF *dta, *srch;
+    struct symbol_def *dta, *srch;
     char *what = "* OS9 data area definitions";
     CMD_ITEMS Ci;
     long filePos = ftell (ModFP);
@@ -1624,7 +1625,7 @@ OS9DataPrint ()
 
     InProg = 0;    /* Stop looking for Inline program labels to substitute */
     memset (&Ci, 0, sizeof (Ci));
-    dta = labelclass ('D') ? labelclass('D')->cEnt : NULL;
+    dta = labelclass ('D') ? labelclass_getFirst(labelclass('D')) : NULL;
 
     if (dta)
     {                           /* special tree for OS9 data defs */
@@ -1664,12 +1665,12 @@ OS9DataPrint ()
             srch = srch->LNext;
         }*/
 
-        if (srch->myaddr)              /* i.e., if not D000 */
+        if (label_getMyAddr(srch))              /* i.e., if not D000 */
         {
             strcpy (Ci.mnem, "ds.b");
-            sprintf (Ci.opcode, "%ld", srch->myaddr);
+            sprintf (Ci.opcode, "%ld", label_getMyAddr(srch));
             Ci.lblname = "";
-            PrintLine (pseudcmd, &Ci, 'D', 0, srch->myaddr);
+            PrintLine (pseudcmd, &Ci, 'D', 0, label_getMyAddr(srch));
         }
 
         ListData (dta, IDataBegin, 'D');
@@ -1707,7 +1708,7 @@ OS9DataPrint ()
  *         Label cClass                                      *
  * ******************************************************** */
 
-void ListData (LABEL_DEF *me, int upadr, char cClass)
+void ListData (struct symbol_def *me, int upadr, char cClass)
 {
     CMD_ITEMS Ci;
     register int datasize;
@@ -1718,12 +1719,12 @@ void ListData (LABEL_DEF *me, int upadr, char cClass)
 
     /*if (me->LNext)
     {
-        ListData (me->LNext, me->myaddr, cClass);
+        ListData (me->LNext, label_getMyAddr(me), cClass);
     }*/
 
     /* Don't print non-data elements here */
 
-    if (me->myaddr >= upadr)
+    if (label_getMyAddr(me) >= upadr)
     {
         return;
     }
@@ -1732,9 +1733,11 @@ void ListData (LABEL_DEF *me, int upadr, char cClass)
 
     /*strcpy (pbf->lbnm, me->sname);*/
 
-    if (IsROF && me->global)
+    if (IsROF && label_getGlobal(me))
     {
-        strcat (me->sname, ":");
+        char* newName = strdup(label_getName(me));
+        strcat (newName, ":");
+        label_setName(me, newName);
     }
 
     /*if (me->RNext)
@@ -1746,18 +1749,18 @@ void ListData (LABEL_DEF *me, int upadr, char cClass)
             srch = srch->LNext;
         }
 
-        datasize = (srch->myaddr) - (me->myaddr);
+        datasize = (srch->myaddr) - (label_getMyAddr(me));
     }
     else
     {
-        datasize = (upadr) - (me->myaddr);
+        datasize = (upadr) - (label_getMyAddr(me));
     }*/
 
     /* Don't print any Class 'D' variables which are not in Data area */
     /* Note, Don't think we'll get this far, we have a return up above,
      * but keep this one till we know it works
 
-    if ((OSType == OS_9) && (me->myaddr > M_Mem))
+    if ((OSType == OS_9) && (label_getMyAddr(me) > M_Mem))
     {
         return;
     }*/
@@ -1766,30 +1769,30 @@ void ListData (LABEL_DEF *me, int upadr, char cClass)
     {
         char lbl[100];
 
-        if (me->myaddr >= upadr)
+        if (label_getMyAddr(me) >= upadr)
         {
             break;
         }
 
-        if ((me->Next) && (me->Next->myaddr < upadr))
+        if ((label_getNext(me)) && (label_getMyAddr(label_getNext(me)) < upadr))
         {
-            datasize = me->Next->myaddr - me->myaddr;
+            datasize = label_getMyAddr(label_getNext(me)) - label_getMyAddr(me);
         }
         else
         {
-            datasize = upadr - me->myaddr;
+            datasize = upadr - label_getMyAddr(me);
         }
 
         strcpy (Ci.mnem, "ds.b");
         sprintf (Ci.opcode, "%d", datasize);
-        strcpy (lbl, me->sname);
+        strcpy (lbl, label_getName(me));
         Ci.lblname = lbl;
 
-        if (IsROF && me->global)
+        if (IsROF && label_getGlobal(me))
         {
             strcat(Ci.lblname, ":");
         }
-        /*if (me->myaddr != upadr)
+        /*if (label_getMyAddr(me) != upadr)
         {
             strcpy (Ci.mnem, "ds.b");
             sprintf (Ci.opcode, "%d", datasize);
@@ -1809,12 +1812,12 @@ void ListData (LABEL_DEF *me, int upadr, char cClass)
             }
         }*/
 
-        CmdEnt = me->myaddr;
+        CmdEnt = label_getMyAddr(me);
         PrevEnt = CmdEnt;
-        PrintLine (pseudcmd, &Ci, cClass, me->myaddr, (me->myaddr + datasize));
-        me = me->Next;
+        PrintLine (pseudcmd, &Ci, cClass, label_getMyAddr(me), (label_getMyAddr(me) + datasize));
+        me = label_getNext(me);
 
-        /*if (me->RNext && (me->myaddr < M_Mem))
+        /*if (me->RNext && (label_getMyAddr(me) < M_Mem))
         {
             ListData (me->RNext, upadr, cClass);
         }*/
@@ -1836,7 +1839,7 @@ void WrtEquates (int stdflg)
                       "* Class %c standard named label equates\n"
                     };
     register int flg;           /* local working flg - clone of stdflg */
-    LABEL_DEF *me;
+    struct symbol_def *me;
 
     InProg = 0;
     curnt = claspt;
@@ -1852,7 +1855,7 @@ void WrtEquates (int stdflg)
 
         flg = stdflg;
         strcpy (ClsHd, "%5d %21s");
-        me = labelclass (NowClass) ? labelclass (NowClass)->cEnt : NULL;
+        me = labelclass (NowClass) ? labelclass_getFirst(labelclass(NowClass)) : NULL;
 
         if (me)
         {
@@ -1947,7 +1950,7 @@ void WrtEquates (int stdflg)
 
 /* TellLabels(me) - Print out the labels for cClass in "me" tree */
 
-static void TellLabels (LABEL_DEF *me, int flg, char cClass, int minval)
+static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval)
 {
     CMD_ITEMS Ci;
 
@@ -1962,11 +1965,11 @@ static void TellLabels (LABEL_DEF *me, int flg, char cClass, int minval)
     {
         char lbl[100];
 
-        if ((flg < 0) || (flg == me->stdname))
+        if ((flg < 0) || (flg == label_getStdName(me)))
         {
             /* Don't print real OS9 Data variables here */
 
-            if (me->myaddr >= minval)
+            if (label_getMyAddr(me) >= minval)
             {
                 if ( ! HadWrote)
                 {
@@ -1993,30 +1996,30 @@ static void TellLabels (LABEL_DEF *me, int flg, char cClass, int minval)
                     BlankLine ();
                 }
 
-                strcpy (lbl, me->sname);
+                strcpy (lbl, label_getName(me));
                 Ci.lblname = lbl;
-                Ci.cmd_wrd = me->myaddr;
+                Ci.cmd_wrd = label_getMyAddr(me);
 
-                if (IsROF && me->global)
+                if (IsROF && label_getGlobal(me))
                 {
                     strcat (Ci.lblname, ":");
                 }
 
                 if (strchr ("!^", cClass))
                 {
-                    sprintf (Ci.opcode, "$%02lx", me->myaddr);
+                    sprintf (Ci.opcode, "$%02lx", label_getMyAddr(me));
                 }
                 else
                 {
-                    sprintf (Ci.opcode, "$%05lx", me->myaddr);
+                    sprintf (Ci.opcode, "$%05lx", label_getMyAddr(me));
                 }
 
-                CmdEnt = PrevEnt = me->myaddr;
-                PrintLine (pseudcmd, &Ci, cClass, me->myaddr, me->myaddr + 1);
+                CmdEnt = PrevEnt = label_getMyAddr(me);
+                PrintLine (pseudcmd, &Ci, cClass, label_getMyAddr(me), label_getMyAddr(me) + 1);
             }
         }
 
-        me = me->Next;
+        me = label_getNext(me);
        /* if (me->RNext)
         {
             TellLabels (me->RNext, flg, cClass, minval);

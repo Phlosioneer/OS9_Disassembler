@@ -303,7 +303,7 @@ static void RdLblFile (FILE *inpath)
          strval[15],
         *lbegin;
     int address;
-    LABEL_DEF *nl;
+    struct symbol_def *nl;
 
     while ( ! feof (inpath))
     {
@@ -338,9 +338,8 @@ static void RdLblFile (FILE *inpath)
 
                 if (nl)
                 {
-                    strncpy (nl->sname, labelname, sizeof(nl->sname) - 1);
-                    nl->sname[sizeof(nl->sname) - 1] = '\0';
-                    nl->stdname = 1;
+                    label_setName(nl, labelname);
+                    label_setStdName(nl, 1);
                 }
             }
         }
@@ -609,7 +608,7 @@ int showem()
     while (rf)
     {
         fprintf (stderr, "%04x: -> (%03x '%c') \"%-14s\" (%s)\n", rf->Ofst, rf->Type,
-            rf->dstClass ? rf->dstClass : ' ', rf->Extrn ? rf->EName.nam : rf->EName.lbl->sname,
+            rf->dstClass ? rf->dstClass : ' ', rf->Extrn ? rf->EName.nam : label_getName(rf->EName.lbl),
             rf->Extrn ? "Extern" : "Local");
         rf = rf->ENext;
     }

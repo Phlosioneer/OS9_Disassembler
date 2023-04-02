@@ -69,7 +69,7 @@ void reflst (void)
     while (meme)
     {
         fprintf (stderr, "%05x : %-20s (%s)\n", meme->Ofst, 
-            meme->Extrn ? meme->EName.nam : meme->EName.lbl->sname, meme->Extrn ? "Extern" : "Local");
+            meme->Extrn ? meme->EName.nam : label_getName(meme->EName.lbl), meme->Extrn ? "Extern" : "Local");
         meme = meme->ENext;
     }
     /*if (cl->LNext)
@@ -204,7 +204,7 @@ void getRofHdr (FILE *progpath)
     while (count--)
     {
         char *name;
-        LABEL_DEF *me;
+        struct symbol_def *me;
         int adrs;
         int typ;
 
@@ -215,7 +215,7 @@ void getRofHdr (FILE *progpath)
         me = addlbl(rof_class(typ, REFGLBL), adrs, name);
         if (me)
         {
-            me->global = 1;
+            label_setGlobal(me, 1);
         }
     }
 
@@ -426,7 +426,7 @@ char rof_class (int typ, int refTy)
 
 /*void rof_addlbl (int adrs, struct rof_extrn *ref)
 {
-    LABEL_DEF *nl;
+    struct symbol_def *nl;
 
     // The following may be a kludge.  The problem is that Relative
      * external references get added to class C.
@@ -780,7 +780,7 @@ int rof_datasize (char cclass)
  *          (3) char class - the label class (D or C)                   *
  * ******************************************************************** */
 
-static char * DataDoBlock (struct rof_extrn **refsList, LABEL_DEF **lblList, char *iBuf, int blkEnd,
+static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblList, char *iBuf, int blkEnd,
              struct asc_data *ascdat, char cclass)
 {
     /*struct rof_extrn *srch;*/
@@ -791,17 +791,17 @@ static char * DataDoBlock (struct rof_extrn **refsList, LABEL_DEF **lblList, cha
 
     /* Insert Label if applicable */
 
-    if ((*lblList)->myaddr == CmdEnt)
+    if (label_getMyAddr(*lblList) == CmdEnt)
     {
-        strcpy (lblString, (*lblList)->sname);
+        strcpy (lblString, label_getName(*lblList));
         Ci.lblname = lblString;
 
-        if ((*lblList)->global)
+        if (label_getGlobal(*lblList))
         {
             strcat (Ci.lblname, ":");
         }
 
-        (*lblList) = (*lblList)->Next;
+        (*lblList) = label_getNext(*lblList);
     }
 
     while (PCPos < blkEnd)
@@ -847,7 +847,7 @@ static char * DataDoBlock (struct rof_extrn **refsList, LABEL_DEF **lblList, cha
             }
             else
             {
-                strcpy (Ci.opcode, (*refsList)->EName.lbl->sname);
+                strcpy (Ci.opcode, label_getName((*refsList)->EName.lbl));
             }
 
             PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt);
@@ -1014,12 +1014,12 @@ static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data 
 void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass)
 {
     struct asc_data *ascdat;
-    LABEL_DEF *lblList = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
+    struct symbol_def *lblList = labelclass(iClass) ? labelclass_getFirst(labelclass(iClass)) : NULL;
 
     ascdat = data_ascii;
     PCPos = 0;
     /*{
-        LABEL_DEF *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
+        struct symbol_def *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
     }*/
 
     while (PCPos < (isize))
@@ -1030,9 +1030,9 @@ void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize,
 
         if (lblList)
         {
-            if (lblList->Next)
+            if (label_getNext(lblList))
             {
-                blkEnd = lblList->Next->myaddr;
+                blkEnd = label_getMyAddr(label_getNext(lblList));
             }
         }
 
@@ -1286,7 +1286,7 @@ char * IsRef(char *dst, int curloc, int ival)
             }   /* Else leave retVal=NULL - for local refs, let calling process handle it */
             else
             {
-                strcat(dst, refs_code->EName.lbl->sname);
+                strcat(dst, label_getName(refs_code->EName.lbl));
                 retVal = dst;
             }
 

@@ -20,7 +20,7 @@ int DoAsciiBlock(CMD_ITEMS* ci, char* buf, int bufEnd, char iClass);
 void ROFDataPrint(void);
 char* LoadIData(void);
 void OS9DataPrint(void);
-void ListData(LABEL_DEF* me, int upadr, char cClass);
+void ListData(struct symbol_def* me, int upadr, char cClass);
 void WrtEquates(int stdflg);
 
 #endif

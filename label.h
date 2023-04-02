@@ -6,29 +6,150 @@
 
 /* Defines a Label */
 
-typedef struct symbol_def {
-    char sname[LBLLEN + 1];         /* Symbol name */
-    long myaddr;                  /* Address of symbol */
-    int stdname;                  /* Flag that it's a std named label */
-    int global;                   /* For ROF use... flags that it's global */
-    struct symbol_def* Next;           /* Next */
-/*    struct symbol_def *More;*/
-    struct symbol_def* Prev;           /* Previous entry */
-} LABEL_DEF;
+struct symbol_def;
+struct label_class;
 
-typedef struct {
-    char lclass;
-    LABEL_DEF* cEnt;
-} LABEL_CLASS;
 
-LABEL_CLASS* labelclass(char lblclass);
-void PrintLbl(char* dest, char clas, int adr, LABEL_DEF* dl, int amod);
-struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
-LABEL_DEF* findlbl(char lblclass, int lblval);
-char* lblstr(char lblclass, int lblval);
-LABEL_DEF* addlbl(char lblclass, int val, char* newname);
-void process_label(CMD_ITEMS* ci, char lblclass, int addr);
-void parsetree(char c);
-int LblCalc(char* dst, int adr, int amod, int curloc);
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+    const char* label_getName(struct symbol_def* handle);
+    void label_setName(struct symbol_def* handle, const char* name);
+    long label_getMyAddr(struct symbol_def* handle);
+    int label_getStdName(struct symbol_def* handle);
+    void label_setStdName(struct symbol_def* handle, int isStdName);
+    int label_getGlobal(struct symbol_def* handle);
+    void label_setGlobal(struct symbol_def* handle, int isGlobal);
+    struct symbol_def* label_getNext(struct symbol_def* handle);
+
+    /* Formerly the field named "cEnt" */
+    struct symbol_def* labelclass_getFirst(struct label_class* handle);
+
+    struct label_class* labelclass(char lblclass);
+    void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, int amod);
+    struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
+    struct symbol_def* findlbl(char lblclass, int lblval);
+    char* lblstr(char lblclass, int lblval);
+    struct symbol_def* addlbl(char lblclass, int val, char* newname);
+    void process_label(CMD_ITEMS* ci, char lblclass, int addr);
+    void parsetree(char c);
+    int LblCalc(char* dst, int adr, int amod, int curloc);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#ifdef __cplusplus
+
+#include <vector>
+#include <memory>
+
+class Label {
+public:
+    Label(char category, int value, const char* name);
+    ~Label();
+
+    const char category;
+    const long myAddr;
+
+    inline char* name() { return _name; }
+    inline bool stdName() { return _stdName; }
+    inline void setStdName(bool isStdName) { _stdName = isStdName; }
+    inline bool global() { return _global; }
+    inline void setGlobal(bool isGlobal) { _global = isGlobal; }
+    inline symbol_def* handle() { return _handle; }
+
+    void setName(const char* newName);
+
+private:
+    char _name[LBLLEN + 1];
+    
+    bool _stdName;
+    bool _global;
+    symbol_def* _handle;
+
+    // Because of _handle, need to ensure it is always allocated/freed correctly.
+    Label(Label const&) = delete;
+    Label& operator=(Label const&) = delete;
+    Label& operator=(Label&&) = delete;
+};
+
+class LabelCategory {
+public:
+    typedef typename std::vector<Label*>::iterator iterator;
+
+    LabelCategory(char code);
+    ~LabelCategory();
+    
+    const char code;
+    
+    inline label_class* handle() { return _handle; }
+    inline iterator begin() { return _labels.begin(); }
+    inline iterator end() { return _labels.end(); }
+    Label* add(long value, const char* newName);
+    Label* get(long value);
+    void printAll();
+    Label* getNextAfter(Label* label);
+    Label* getFirst();
+
+private:
+    // This list is always sorted by address / value.
+    std::vector<Label*> _labels;
+    label_class* _handle;
+    std::map<long, Label*> _labelsByValue;
+
+    // Because of _handle, need to ensure it is always allocated/freed correctly.
+    LabelCategory(LabelCategory const&) = delete;
+    LabelCategory& operator=(LabelCategory const&) = delete;
+    LabelCategory& operator=(LabelCategory&&) = delete;
+};
+
+class LabelManager {
+public:
+    std::string validLabelClasses{ "_!=ABCDEFGHIJKLMNOPQRSTUVWXYZ\0" };
+    LabelManager();
+    ~LabelManager();
+
+    LabelCategory* getCategory(char code);
+    Label* addLabel(char code, long value, const char* name);
+    Label* getLabel(char code, long value);
+    void printAll();
+
+private:
+    std::map<char, LabelCategory*> _labelCategories;
+    
+    LabelManager(LabelManager const&) = delete;
+    LabelManager& operator=(LabelManager const&) = delete;
+    LabelManager& operator=(LabelManager&&) = delete;
+};
+
+#endif // __cplusplus
+
+
+
+
+#ifdef __cplusplus
+
+struct symbol_def {
+    Label* inner;
+};
+
+struct label_class {
+    LabelCategory* inner;
+};
+
+#else // __cplusplus
+
+struct symbol_def {
+    void* inner;
+};
+
+struct label_class {
+    void* inner;
+};
+
+#endif // __cplusplus
+
+#endif // LABEL_H

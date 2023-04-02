@@ -80,7 +80,7 @@ struct rof_header {
 struct rof_extrn {
     union {
         char* nam;
-        LABEL_DEF* lbl;
+        struct symbol_def* lbl;
     } EName;
     /*  void *EName;*/              /* External name                    */
     char  dstClass;             /* Class for referenced item NUll if extern */
@@ -106,8 +106,17 @@ struct asc_data {
                     *RNext;
 };
 
+#ifdef xt
+#undef xt
+#endif
 
- extern struct asc_data *data_ascii;
+#ifdef __cplusplus
+#define xt extern "C"
+#else
+#define xt extern
+#endif
+
+xt struct asc_data *data_ascii;
 
 
 /*struct rof_extrn *xtrn_data = 0,
@@ -118,7 +127,7 @@ struct asc_data {
                  *extrns;*/                   /* Generic external pointer */
 
 
-extern struct rof_extrn *refs_data,
+xt struct rof_extrn *refs_data,
                  *refs_idata,
                  *refs_code,
                  *refs_remote,
@@ -135,6 +144,9 @@ extern struct rof_extrn *refs_data,
 /*struct rof_header ROF_hd,
                *rofptr = &ROF_hd;*/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void reflst(void);
 int RealEnt(void);
@@ -151,5 +163,12 @@ void rof_ascii(char* cmdline);
 void setROFPass(void);
 int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, int curloc, int ival);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#undef xt
 
 #endif // ROF_H

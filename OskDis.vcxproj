@@ -110,7 +110,7 @@
     <ClCompile Include="dis68.c" />
     <ClCompile Include="dismain.c" />
     <ClCompile Include="dprint.c" />
-    <ClCompile Include="label.c" />
+    <ClCompile Include="label.cpp" />
     <ClCompile Include="opcode00.c" />
     <ClCompile Include="opcodes020.c" />
     <ClCompile Include="rof.c" />

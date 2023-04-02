@@ -23,6 +23,9 @@
  *                                                                      *
  * ******************************************************************** */
 
+#include <map>
+#include <string>
+
 #include "disglobs.h"
 #include <string.h>
 #include <ctype.h>
@@ -32,102 +35,335 @@
 #include "dis68.h"
 #include "label.h"
 
-LABEL_CLASS LblList[] = {
-    {'_', NULL},
-    {'!', NULL}, {'=', NULL}, {'A', NULL}, {'B', NULL},
-    {'C', NULL}, {'D', NULL}, {'E', NULL}, {'F', NULL},
-    {'G', NULL}, {'H', NULL}, {'I', NULL}, {'J', NULL},
-    {'K', NULL}, {'L', NULL}, {'M', NULL}, {'N', NULL},
-    {'O', NULL}, {'P', NULL}, {'Q', NULL}, {'R', NULL},
-    {'S', NULL}, {'T', NULL}, {'U', NULL}, {'V', NULL},
-    {'W', NULL}, {'X', NULL}, {'Y', NULL}, {'Z', NULL},
-    {0, NULL}
-};
 
-extern struct data_bounds *LAdds[];
-extern struct data_bounds *dbounds;
+LabelManager labelManager;
 
-/*
- * labelclass() - Returns the base entry for the desired class
- *
- */
+extern "C" struct data_bounds* LAdds[];
+extern "C" struct data_bounds* dbounds;
 
-LABEL_CLASS * labelclass (char lblclass)
-{
-    LABEL_CLASS *c = LblList;
 
-    while (c->lclass != lblclass)
+
+extern "C" {
+    const char* label_getName(struct symbol_def* handle) {
+        return handle->inner->name();
+    }
+
+    void label_setName(struct symbol_def* handle, const char* name) {
+        handle->inner->setName(name);
+    }
+
+    long label_getMyAddr(struct symbol_def* handle) {
+        return handle->inner->myAddr;
+    }
+
+    int label_getStdName(struct symbol_def* handle) {
+        return handle->inner->stdName();
+    }
+
+    void label_setStdName(struct symbol_def* handle, int isStdName) {
+        handle->inner->setStdName((bool)isStdName);
+    }
+
+    int label_getGlobal(struct symbol_def* handle) {
+        return handle->inner->global();
+    }
+
+    void label_setGlobal(struct symbol_def* handle, int isGlobal) {
+        handle->inner->setGlobal((bool)isGlobal);
+    }
+
+    struct symbol_def* label_getNext(struct symbol_def* handle) {
+        Label* label = labelManager.getCategory(handle->inner->category)->getNextAfter(handle->inner);
+        return label ? label->handle() : nullptr;
+    }
+
+    struct symbol_def* labelclass_getFirst(struct label_class* handle) {
+        Label* label = handle->inner->getFirst();
+        return label ? label->handle() : nullptr;
+    }
+
+    struct label_class* labelclass(char lblclass) {
+        return labelManager.getCategory(lblclass)->handle();
+    }
+
+    struct symbol_def* lblpos(char lblclass, int lblval)
     {
-        ++c;
+        Label* label = labelManager.getCategory(lblclass)->get(lblval);
+        return label ? label->handle() : nullptr;
+    }
 
-        if (c->lclass == 0)
+    /* ************************
+     * addlbl() - Add a label to the list
+     *        Does nothing for class '^', '@', '$', or '&'
+     *        if the label exists, and a different name is provided, renames the label
+     * Passed : (1) char label class
+     *          (2) int the address for the label
+     *          (3) char * - the name for the label
+     *              If NULL or empty string, the hex address of the label prepended with
+     *              the class letter is used.
+     */
+    struct symbol_def* addlbl(char lblclass, int value, char* newName)
+    {
+        if (strchr("^@$&", lblclass))
         {
-            c = NULL;
-            break;
+            return NULL;
+        }
+
+        // If the category doesn't exist already, create it.
+        Label* label = labelManager.addLabel(lblclass, value, newName);
+        return label ? label->handle() : nullptr;
+    }
+
+    /*
+     * findlbl() - Finds the label with the exact value 'lblval'
+     * Passed:  (1) - The character class for the label
+     *          (2) - The value for the address
+     * Returns: The label def if it exists, NULL if not found
+     *
+     */
+
+    struct symbol_def* findlbl(char lblclass, int lblval)
+    {
+        if (strchr("^@$&", lblclass))
+            return NULL;
+
+        Label* label = labelManager.getLabel(lblclass, lblval);
+        return label ? label->handle() : nullptr;
+    }
+
+    /* Prints out all labels organized by class. */
+    void parsetree(char c)
+    {
+        if (Pass == 1)
+            return;
+
+        labelManager.printAll();
+    }
+
+    char* lblstr(char lblclass, int lblval)
+    {
+        Label* label = labelManager.getLabel(lblclass, lblval);
+        return label ? label->name() : "";
+    }
+
+
+    /*
+     * process_label: Handle label depending upon Pass.  If Pass 1, add
+     *      it as needed, if Pass 2, place values into the CMD_ITEMS fields
+     *
+     */
+    void process_label(CMD_ITEMS * ci, char lblclass, int addr)
+    {
+        if (Pass == 1)
+        {
+            labelManager.addLabel(lblclass, addr, NULL);
+        }
+        else   /* Pass 2, find it */
+        {
+            Label* label = labelManager.getLabel(lblclass, addr);
+            if (label)
+            {
+                strcpy(ci->opcode, label->name());
+            }
+            else
+            {
+                fprintf(stderr, "*** phasing error ***\n");
+                sprintf(ci->opcode, "L%05x", addr);
+            }
         }
     }
 
-    return c;
-}
+    /* ******************************************************************** *
+     * movchr() - Append a char in the desired printable format onto dst    *
+     * ******************************************************************** */
 
-/* ------------------------------------------------------------ *
- * lblpos() - Searches the appropriate label list for a value   *
- * Passed:  (1) - The character representing the class          *
- *          (2) - The numeric value of that label               *
- *                                                              *
- * Returns: Pointer to the exact label if it has already been   *
- *          defined, else the label immediately preceding the   *
- *          location where it should be.                        *
- * ------------------------------------------------------------ */
-
-static LABEL_DEF * lblpos (char lblclass, int lblval)
-{
-    LABEL_DEF *me = labelclass (lblclass)->cEnt;
-
-    if (me)
+    void movchr(char* dst, unsigned char ch)
     {
-        while ((me->Next) && (lblval > me->myaddr))
+        char mytmp[10];
+
+        if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
         {
-            me = me->Next;
-        }
-    }
-
-    return me;
-
-}
-
-/* ******************************************************************** *
- * movchr() - Append a char in the desired printable format onto dst    *
- * ******************************************************************** */
-
-static void movchr (char *dst, unsigned char ch)
-{
-    char mytmp[10];
-    register LABEL_DEF *pp;
-
-    if (isprint (ch & 0x7f) && ((ch & 0x7f) != ' '))
-    {
-        sprintf (mytmp, "'%c'", ch & 0x7f);
-        strcat (dst, mytmp);
-    }
-    else
-    {
-        pp = findlbl('^', ch);
-        if (pp)
-        /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
-        {
-            strcat (dst, pp->sname);
+            sprintf(mytmp, "'%c'", ch & 0x7f);
+            strcat(dst, mytmp);
         }
         else
         {
-            sprintf (mytmp, "$%02x", ch & 0x7f);
-            strcat (dst, mytmp);
+            Label* pp = labelManager.getLabel('^', ch);
+            if (pp)
+                /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
+            {
+                strcat(dst, pp->name());
+            }
+            else
+            {
+                sprintf(mytmp, "$%02x", ch & 0x7f);
+                strcat(dst, mytmp);
+            }
+        }
+
+        if (ch & 0x80)
+        {
+            strcat(dst, "+$80");
         }
     }
+}
 
-    if (ch & 0x80)
+LabelManager::LabelManager() {};
+
+LabelManager::~LabelManager()
+{
+    for (auto pair : _labelCategories) {
+        delete pair.second;
+        pair.second = nullptr;
+    }
+}
+
+LabelCategory* LabelManager::getCategory(char code)
+{
+    auto pair = _labelCategories.find(code);
+    if (pair == _labelCategories.end())
     {
-        strcat (dst, "+$80");
+        auto result = _labelCategories.insert(std::make_pair(code, new LabelCategory(code)));
+        return result.first->second;
+    }
+    else
+    {
+        return pair->second;
+    }
+}
+
+/* Prints out all labels organized by class. */
+void LabelManager::printAll() {
+    for (auto it = _labelCategories.begin(); it != _labelCategories.end(); it++) {
+        it->second->printAll();
+    }
+}
+
+Label* LabelManager::addLabel(char code, long value, const char* name)
+{
+    return getCategory(code)->add(value, name);
+}
+
+Label* LabelManager::getLabel(char code, long value)
+{
+    return getCategory(code)->get(value);
+}
+
+LabelCategory::LabelCategory(char code) : code(code), _handle(new label_class{ this }) {};
+
+LabelCategory::~LabelCategory() {
+    for (auto &label : _labels) {
+        delete label;
+        label = nullptr;
+    }
+    delete _handle;
+    _handle = nullptr;
+}
+
+Label* LabelCategory::add(long value, const char* newName)
+{
+    Label* label = _labelsByValue[value];
+    if (label == nullptr) {
+        /* Add the label */
+        label = new Label(code, value, newName);
+        if (label)
+        {
+            // Keep the list of labels sorted by value.
+            iterator it;
+            for (it = begin(); it != end() && (*it)->myAddr < value; it++);
+            _labels.insert(it, label);
+
+            _labelsByValue[value] = label;
+        }
+    }
+    else
+    {
+        /* Rename the old label. */
+        label->setName(newName);
+    }
+
+    return label;
+}
+
+Label* LabelCategory::get(long value)
+{
+    if (_labelsByValue.count(value) != 0)
+    {
+        return _labelsByValue[value];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+void LabelCategory::printAll()
+{
+    if (!_labels.empty())
+    {
+        printf("\nLabel definitions for Class '%c'\n\n", code);
+        for (auto label : _labels) {
+            printf("%s equ $%d\n", label->name(), (int)(label->myAddr));
+        }
+    }
+}
+
+Label* LabelCategory::getNextAfter(Label* label)
+{
+    iterator it;
+    for (it = begin(); *it != label; it++);
+    if (it == end() || it + 1 == end())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return *(it + 1);
+    }
+}
+
+Label* LabelCategory::getFirst()
+{
+    if (_labels.empty())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return _labels[0];
+    }
+}
+
+/* Value is either the address of the label, or the value of the equate. */
+Label::Label(char category, int value, const char* name) : 
+    myAddr(value), category(category), _handle(new symbol_def{ this })
+{
+    setName(name);
+}
+
+Label::~Label()
+{
+    delete _handle;
+    _handle = nullptr;
+}
+
+void Label::setName(const char* name) {
+    if (name && strlen(name) > 0)
+    {
+        if (strlen(name) > LBLLEN) {
+            printf("Error: label name '%s' too long. Truncating to %d characters.", name, LBLLEN);
+        }
+        strncpy(_name, name, LBLLEN);
+        _name[LBLLEN] = '\0';
+    }
+    else
+    {
+        /* Assume that a program label does not exceed 20 bits */
+        if (myAddr > 0x3FFFF) {
+            printf("Error: label value %x is more than 20 bits. Truncating name to %05x.", myAddr, myAddr);
+        }
+
+        snprintf(_name, LBLLEN + 1, "%c%05x", toupper(category), myAddr & 0x3FFFF);
     }
 }
 
@@ -139,7 +375,7 @@ static void movchr (char *dst, unsigned char ch)
  *          (4)   dl - ptr to the nlist tree for the label
  */
 
-void PrintLbl (char *dest, char clas, int adr, LABEL_DEF *dl, int amod)
+extern "C" void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, int amod)
 {
     char tmp[10];
     /*short decn = adr & 0xffff;*/
@@ -246,7 +482,7 @@ void PrintLbl (char *dest, char clas, int adr, LABEL_DEF *dl, int amod)
 
             break;
         default:
-            strcpy (dest, dl->sname);
+            strcpy (dest, dl->inner->name());
     }
 }
 
@@ -257,7 +493,7 @@ void PrintLbl (char *dest, char clas, int adr, LABEL_DEF *dl, int amod)
  * Returns: Ptr to Boundary definition if found,  NULL if no match. *
  * **************************************************************** */
 
-struct data_bounds * ClasHere (struct data_bounds *bp, int adrs)
+extern "C" struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
 {
     register struct data_bounds *pt;
     register int h = (int) adrs;
@@ -299,266 +535,19 @@ struct data_bounds * ClasHere (struct data_bounds *bp, int adrs)
 }
 
 /*
- * findlbl() - Finds the label with the exact value 'lblval'
- * Passed:  (1) - The character class for the label
- *          (2) - The value for the address
- * Returns: The label def if it exists, NULL if not found
- *
- */
-
-LABEL_DEF * findlbl (char lblclass, int lblval)
-{
-    LABEL_DEF *found;
-
-    if (strchr ("^@$&", lblclass))
-        return NULL;
-
-    found = lblpos (lblclass, lblval);
-
-    if (found)
-    {
-        return (found->myaddr == lblval) ? found : NULL;
-    }
-
-    return NULL;
-}
-
-char * lblstr (char lblclass, int lblval)
-{
-    LABEL_DEF *me = findlbl(lblclass, lblval);
-
-    return (me ? me->sname : "");
-}
-/* ---------------------------------------------------------------- *
- * create_LABEL_DEF() - Creates a new label definition                 *
- * Passed:  (1) - value (the address or value of the label)         *
- *          (2) - the name of the label                             *
- * Returns: Pointer to the new label def, or NULL on failure to     *
- *          allocate memory for the label.                          *
- *          The name and address is already stored.                 *
- * ---------------------------------------------------------------- */
-
-static LABEL_DEF * create_LABEL_DEF (char lblclass, int val, char *name)
-{
-    register LABEL_DEF *newlbl;
-    
-    newlbl = (LABEL_DEF *)mem_alloc(sizeof(LABEL_DEF));
-    memset(newlbl, 0, sizeof(LABEL_DEF));
-    {
-        if (name && strlen(name))
-        {
-            strcpy (newlbl->sname, name);
-        }
-        else
-        {
-            /* Assume that a program label does not exceed 20 bits */
-            /*sprintf (newlbl->sname, "%c%05x", toupper(lblclass), val & 0x3ffff);*/
-            sprintf (newlbl->sname, "%c%05x", toupper(lblclass), val);
-        }
-
-        newlbl->myaddr = val;
-    }
-
-    return newlbl;
-}
-
-/* ************************
- * addlbl() - Add a label to the list
- *        Does nothing for class '^', '@', '$', or '&'
- *        if the label exists, and a different name is provided, renames the label
- * Passed : (1) char label class
- *          (2) int the address for the label
- *          (3) char * - the name for the label 
- *              If NULL or empty string, the hex address of the label prepended with
- *              the class letter is used.
- */
-
-LABEL_DEF * addlbl (char lblclass, int val, char *newname)
-{
-    register LABEL_DEF *oldlbl;
-    register LABEL_DEF *newlbl;
-    register unsigned int maxsize = sizeof (oldlbl->sname);
-
-    if (strchr("^@$&", lblclass))
-    {
-        return NULL;
-    }
-
-    if ((newname) && (strlen(newname) >= maxsize))
-    {
-        newname[maxsize-1] = '\0';
-    }
-
-    if (!labelclass(lblclass)->cEnt)      /* first entry in this tree */
-    {
-        newlbl = create_LABEL_DEF(lblclass, val, newname);
-        if (newlbl)
-        {
-            LABEL_CLASS *clas = labelclass(lblclass);
-
-            if (clas)
-            {
-                clas->cEnt = newlbl;
-            }
-            else
-            {
-                fprintf (stderr, "*** Label class '%c' not found\n",
-                        lblclass);
-            }
-
-            return newlbl;
-        }
-    }
-
-    oldlbl = lblpos (lblclass, val);
-
-    if ((oldlbl) && (oldlbl->myaddr == val))        /* Simply a rename */
-    {
-        if ((newname) && strlen (newname))
-        {
-            if (strcmp(newname, oldlbl->sname))
-            {
-                strcpy(oldlbl->sname, newname);
-            }
-        }
-
-        return oldlbl;
-    }
-
-    newlbl = create_LABEL_DEF(lblclass, val, newname);
-
-        /* New beginning entry ?  */
-    if ((newlbl) && (val < labelclass(lblclass)->cEnt->myaddr))
-    {
-        if (val < labelclass(lblclass)->cEnt->myaddr)
-        {
-            LABEL_CLASS *clas = labelclass(lblclass);
-
-            if (clas)
-            {
-                oldlbl = clas->cEnt;
-                clas->cEnt = newlbl;
-                oldlbl->Prev = newlbl;
-                newlbl->Next = oldlbl;
-                return newlbl;
-            }
-            else
-            {
-                fprintf (stderr, "*** Label class '%c' not found\n",
-                        lblclass);
-            }
-        }
-    }
-    else        /* Insert into chain */
-    {
-        if (!newlbl)
-        {
-            errexit("Null pointer dereference: newlbl in lblfuncs.c");
-        }
-        if (!oldlbl)
-        {
-            errexit("Null pointer dereference: oldlbl in lblfuncs.c");
-        }
-        if (newlbl->myaddr > oldlbl->myaddr)
-        {
-            newlbl->Prev = oldlbl;
-
-            if (oldlbl->Next)
-            {
-                newlbl->Next = oldlbl->Next;
-                oldlbl->Next->Prev = newlbl;
-            }
-
-            oldlbl->Next = newlbl;
-        }
-        else
-        {
-            oldlbl->Prev->Next = newlbl;
-            newlbl->Prev = oldlbl->Prev;
-            oldlbl->Prev = newlbl;
-            newlbl->Next = oldlbl;
-        }
-
-        return newlbl;
-    }
-
-    return 0;
-}
-
-/*
- * process_label: Handle label depending upon Pass.  If Pass 1, add
- *      it as needed, if Pass 2, place values into the CMD_ITEMS fields
- *
- */
-
-void process_label (CMD_ITEMS *ci, char lblclass, int addr)
-{
-    if (Pass == 1)
-    {
-        addlbl (lblclass, addr, NULL);
-    }
-    else   /* Pass 2, find it */
-    {
-        register LABEL_DEF *me;
-
-        me = findlbl(lblclass, addr);
-        if (me)
-        {
-            strcpy (ci->opcode, me->sname);
-        }
-        else
-        {
-            fprintf (stderr, "*** phasing error ***\n");
-            sprintf (ci->opcode, "L%05x", addr);
-        }
-    }
-}
-
-void parsetree(char c)
-{
-    LABEL_DEF *l;
-    LABEL_CLASS *lc;
-
-    if (Pass == 1)
-        return;
-
-    lc = LblList;
-
-
-    while (lc->lclass)
-    {
-        c = lc->lclass;
-
-        l = labelclass(c)->cEnt;
-        if (l)
-        {
-            printf ("\nLabel definitions for Class '%c'\n\n", c);
-
-            while (l->Next)
-            {
-                printf ("%s equ $%d\n", l->sname, (int)(l->myaddr));
-                l = l->Next;
-            }
-        }
-
-        ++lc;
-    }
-}
-
-/*
  * LblCalc() - Calculate the Label for a location
  * Passed:  (1) dst - pointer to character string into which to APPEND result                                       *
  *          (2) adr -  the address of the label
  *          (3) amod - the AMode desired
  */
 
-int LblCalc (char *dst, int adr, int amod, int curloc)
+extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
 {
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
     char mainclass;                 /* Class for this location */
 
     struct data_bounds *kls = 0;
-    LABEL_DEF *mylabel = 0;
+    struct symbol_def *mylabel = 0;
 
     if (amod == AM_REL)
     {
