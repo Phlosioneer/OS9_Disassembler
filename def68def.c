@@ -9,7 +9,7 @@
 
 #include "disglobs.h"
 #include "userdef.h"
-#include "proto.h"
+
 
 /*static char sizechar[2];*/
 

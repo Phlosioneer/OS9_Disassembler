@@ -24,9 +24,12 @@ of every command, general, print, getline,main, and assembley routine.
 /*
  * proto.h includes defs for the jump routines in the tables
 */
-#include "proto.h"
+
 
 #include "commonsubs.h"
+#include "dismain.h"
+#include "opcode00.h"
+#include "opcodes020.h"
 
 SIZETYPES sizefield[]=
 {

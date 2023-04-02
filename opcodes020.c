@@ -27,8 +27,9 @@
 #include "disglobs.h"
 #include "userdef.h"
 #include <string.h>
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "opcodes020.h"
 
 extern CONDITIONALS typecondition[];
 /*

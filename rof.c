@@ -31,8 +31,12 @@
 #include "disglobs.h"
 #include "userdef.h"
 #include "rof.h"
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "cmdfile.h"
+#include "dis68.h"
+#include "dprint.h"
+#include "lblfuncs.h"
 
 struct asc_data* data_ascii;
 struct rof_extrn* refs_data,

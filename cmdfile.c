@@ -42,8 +42,11 @@
 #include <ctype.h>
 #include "userdef.h"
 #include "disglobs.h"
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "cmdfile.h"
+#include "dis68.h"
+#include "lblfuncs.h"
 /*#include "amodes.h"*/
 
 char *CmdFileName;

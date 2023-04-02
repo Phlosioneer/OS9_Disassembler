@@ -34,9 +34,15 @@
 #include "disglobs.h"
 #include "textdef.h"
 #include "modtypes.h"
-#include "proto.h"
+
 #include "rof.h"
 #include "commonsubs.h"
+#include "cmdfile.h"
+#include "def68def.h"
+#include "dis68.h"
+#include "dismain.h"
+#include "dprint.h"
+#include "lblfuncs.h"
 int error;
 
 void reflst();

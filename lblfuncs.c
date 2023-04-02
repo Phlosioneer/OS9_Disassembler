@@ -27,8 +27,10 @@
 #include <string.h>
 #include <ctype.h>
 #include "userdef.h"
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "dis68.h"
+#include "lblfuncs.h"
 
 LBLCLAS LblList[] = {
     {'_', NULL},

@@ -31,8 +31,10 @@
 #include "modtypes.h"
 #include "disglobs.h"
 #include "rof.h"
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "dis68.h"
+#include "lblfuncs.h"
 
 typedef struct modestrs {
     char *str;

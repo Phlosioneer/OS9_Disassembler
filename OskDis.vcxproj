@@ -116,9 +116,17 @@
     <ClCompile Include="rof.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cmdfile.h" />
+    <ClInclude Include="def68def.h" />
+    <ClInclude Include="dis68.h" />
     <ClInclude Include="disglobs.h" />
     <ClInclude Include="commonsubs.h" />
+    <ClInclude Include="dismain.h" />
+    <ClInclude Include="dprint.h" />
+    <ClInclude Include="lblfuncs.h" />
     <ClInclude Include="modtypes.h" />
+    <ClInclude Include="opcode00.h" />
+    <ClInclude Include="opcodes020.h" />
     <ClInclude Include="rof.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="sysnames.h" />

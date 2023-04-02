@@ -30,8 +30,10 @@
 #endif
 #include "disglobs.h"
 #include "userdef.h"
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "dis68.h"
+#include "dismain.h"
 
 #ifdef _WIN32
 #   define strdup _strdup

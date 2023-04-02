@@ -42,8 +42,12 @@
 #include "modtypes.h"
 #include "userdef.h"
 #include "rof.h"
-#include "proto.h"
+
 #include "commonsubs.h"
+#include "dis68.h"
+#include "dismain.h"
+#include "dprint.h"
+#include "lblfuncs.h"
 
 #ifdef _WIN32
 #   define snprintf _snprintf

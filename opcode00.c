@@ -29,7 +29,10 @@
 #include "sysnames.h"
 #include "rof.h"
 #include "commonsubs.h"
-#include "proto.h"
+
+#include "cmdfile.h"
+#include "lblfuncs.h"
+#include "opcode00.h"
 
 enum {
     EA2REG,
