@@ -47,6 +47,8 @@
 
 /* ROF header structure */
 
+#include "label.h"
+
 struct rof_header {
     int   sync;
     short ty_lan,        /* Type/Language */

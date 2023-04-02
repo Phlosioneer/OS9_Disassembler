@@ -36,7 +36,7 @@
 #include "cmdfile.h"
 #include "dis68.h"
 #include "dprint.h"
-#include "lblfuncs.h"
+#include "label.h"
 
 struct asc_data* data_ascii;
 struct rof_extrn* refs_data,

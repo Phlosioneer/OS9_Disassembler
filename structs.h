@@ -41,24 +41,6 @@ typedef struct cmd_items {
 /*struct extended020 {
 };*/
 
-#define LBLLEN 40
-
-/* Defines a Label */
-
-typedef struct symbol_def {
-    char sname[LBLLEN+1];         /* Symbol name */
-    long myaddr;                  /* Address of symbol */
-    int stdname;                  /* Flag that it's a std named label */
-    int global;                   /* For ROF use... flags that it's global */
-    struct symbol_def *Next;           /* Next */
-/*    struct symbol_def *More;*/
-    struct symbol_def *Prev;           /* Previous entry */
-} LABEL_DEF;
-
-typedef struct {
-    char lclass;
-    LABEL_DEF *cEnt;
-} LABEL_CLASS;
 
 /* Offset 9 (-L00xx) - type stuff ] */
 

@@ -46,7 +46,7 @@
 #include "commonsubs.h"
 #include "cmdfile.h"
 #include "dis68.h"
-#include "lblfuncs.h"
+#include "label.h"
 /*#include "amodes.h"*/
 
 char *CmdFileName;

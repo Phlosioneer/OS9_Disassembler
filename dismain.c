@@ -42,7 +42,7 @@
 #include "dis68.h"
 #include "dismain.h"
 #include "dprint.h"
-#include "lblfuncs.h"
+#include "label.h"
 int error;
 
 void reflst();

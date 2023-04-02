@@ -30,7 +30,7 @@
 
 #include "commonsubs.h"
 #include "dis68.h"
-#include "lblfuncs.h"
+#include "label.h"
 
 LABEL_CLASS LblList[] = {
     {'_', NULL},

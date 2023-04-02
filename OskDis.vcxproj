@@ -110,7 +110,7 @@
     <ClCompile Include="dis68.c" />
     <ClCompile Include="dismain.c" />
     <ClCompile Include="dprint.c" />
-    <ClCompile Include="lblfuncs.c" />
+    <ClCompile Include="label.c" />
     <ClCompile Include="opcode00.c" />
     <ClCompile Include="opcodes020.c" />
     <ClCompile Include="rof.c" />
@@ -123,7 +123,7 @@
     <ClInclude Include="commonsubs.h" />
     <ClInclude Include="dismain.h" />
     <ClInclude Include="dprint.h" />
-    <ClInclude Include="lblfuncs.h" />
+    <ClInclude Include="label.h" />
     <ClInclude Include="modtypes.h" />
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="opcodes020.h" />

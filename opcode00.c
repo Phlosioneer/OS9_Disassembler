@@ -31,7 +31,7 @@
 #include "commonsubs.h"
 
 #include "cmdfile.h"
-#include "lblfuncs.h"
+#include "label.h"
 #include "opcode00.h"
 
 enum {
