@@ -421,3 +421,24 @@ void filereadexit()
     }
 }
 
+
+/*
+ * pass_eq() - Skip past the '=' of an assignment, and also skip
+ *      blanks so that on return, the pointer will be positioned
+ *      at the begin of the next string.
+ */
+
+char* pass_eq(char* p)
+{
+    while ((*p) && (strchr("= \t\r\f\n", *p)))
+    {
+        ++p;
+    }
+
+    if (*p == '\n')
+    {
+        *p = 0;
+    }
+
+    return p;
+}

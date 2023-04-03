@@ -40,7 +40,7 @@ enum {
     REG2EA
 };
 
-char *SizSufx[] = {"b", "w", "l"};
+
 
 extern CONDITIONALS typecondition[];
 

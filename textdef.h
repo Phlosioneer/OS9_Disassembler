@@ -30,6 +30,7 @@ of every command, general, print, getline,main, and assembley routine.
 #include "dismain.h"
 #include "opcode00.h"
 #include "opcodes020.h"
+#include "command_items.h"
 
 SIZETYPES sizefield[]=
 {

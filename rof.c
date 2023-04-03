@@ -188,7 +188,7 @@ void getRofHdr (FILE *progpath)
         ROFHd.remoteidatsiz = fread_l (ModFP); /* Size of remote initialized data */
         ROFHd.debugsiz = fread_l (ModFP);      /* Size of the debug   */
 
-        ROFHd.rname = freadString();
+        ROFHd.rname = freadString(ModFP);
 
     /* Set ModData to an unreasonable high number so ListData
      * won't do it's thing...
@@ -209,7 +209,7 @@ void getRofHdr (FILE *progpath)
         int adrs;
         int typ;
 
-        name = freadString();
+        name = freadString(ModFP);
         typ = fread_w (progpath);
         adrs = fread_l (progpath);
 
@@ -266,7 +266,7 @@ void getRofHdr (FILE *progpath)
         char *_name;
         int refcount;
 
-        _name = freadString();
+        _name = freadString(ModFP);
         refcount = fread_w (ModFP);
 
         /* Get the individual occurrences for this name */

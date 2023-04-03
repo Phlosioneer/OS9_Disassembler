@@ -68,36 +68,6 @@ extern void printXtraBytes (char *);
 
 static int get_asmcmd(void);
 
-#if 0
-/*
- * list_print() - Handle printouts of lines of code.  Prints to the listing
- *        and prints to asm code file if specified
- */
-
-static void list_print (struct cmd_items *ci, short ent, char *lblnam)
-{
-    register char *ListFmt = "%05x %04x %10.10s %s %s\n";
-    register char *CmntFmt = "%05x %04x %10.10s %s %s %s\n";
-    char *lb;
-
-    lb = (lblnam ? lblnam : lblstr('L', CmdEnt));
-
-    /* When ready, need to provide for option whether to print or not */
-    if (ci->comment)
-    {
-        printf(CmntFmt, ent & 0xffff, ci->cmd_wrd, lb,
-                        ci->mnem, ci->opcode, ci->comment);
-    }
-    else
-    {
-        printf(ListFmt, ent & 0xffff, ci->cmd_wrd, lb,
-                        ci->mnem, ci->opcode);
-    }
-    /* Provide for printing to asm src listing */
-
-}
-#endif
-
 static char *DrvrJmps[] = {
     "Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL
 };
@@ -152,8 +122,7 @@ static void get_drvr_jmps(int mty)
  * Get the module header.  We will do this only in Pass 1 *
  * ****************************************************** */
 
-static int
-get_modhead()
+static int get_modhead()
 {
     /* Get standard (common to all modules) header fields */
 
@@ -353,8 +322,7 @@ static void RdLblFile (FILE *inpath)
  *      any files specified by the '-s' option.             *
  * ******************************************************** */
 
-static void
-GetLabels ()                    /* Read the labelfiles */
+static void GetLabels ()                    /* Read the labelfiles */
 {
     register int x;
 
@@ -616,14 +584,6 @@ int showem()
 
     return 0;
 }
-static struct cmd_items * initcmditems (struct cmd_items *ci)
-{
-    ci->mnem[0] = 0;
-    ci->wcount = 0;
-    ci->opcode[0] ='\0';
-    ci->comment = NULL;
-    return ci;
-}
 
 /*
  * noimplemented() - A dummy function which simply returns NULL for instructions
@@ -657,8 +617,7 @@ OPSTRUCTURE *opmains[] =
     NULL
 };
 
-static int
-get_asmcmd()
+static int get_asmcmd()
 {
     /*extern OPSTRUCTURE syntax1[];
     extern COPROCSTRUCTURE syntax2[];*/

@@ -37,8 +37,6 @@
 #include "structs.h"
 #include "rof.h"
 
-struct cmd_items;
-
 #ifdef _MAIN_
 #   define xt
 #   define xtst(s) s
