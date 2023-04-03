@@ -59,7 +59,7 @@
 
 static void BlankLine();
 
-static void PrintFormatted (char *pfmt, struct cmd_items *ci);
+static void PrintFormatted (const char *pfmt, struct cmd_items *ci);
 static void NonBoundsLbl (char cClass);
 static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval);
 
@@ -67,12 +67,9 @@ extern char *CmdBuf;
 /*extern struct printbuf *pbuf;*/
 extern struct rof_header ROFHd;
 
-char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
-char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
-char allcodcmd[80] = "%5d        %04x %04x\n";
-char *xtraFmt = "             %s\n";
-char allcodcmd1[80] ="%5d        %04x\n";
-char *blankcmd = "%5d";
+const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
+const char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
+const char *xtraFmt = "             %s\n";
 
 int PgNum = 0;
 int PrevEnt = 0;                /* Previous CmdEnt - to print non-boundary labels */
@@ -116,62 +113,12 @@ struct modnam ModAtts[] = {
     {"",0}
 };
 
-/* *************************************************************** *
- * adjpscmd () - Adjusts pseudcmd/realcmd label length to          *
- *              NamLen + 2                                         *
- * *************************************************************** */
-
-/*void
-adjpscmd (void)
-{
-    sprintf (pseudcmd, "%s%d%s\n", "%5d  %04X %-14s %-",
-                                   NamLen + 2,
-                                   "s %-6s %-10s %s");
-    sprintf (realcmd, "%s%d%s\n", "%5d  %04X %-04s %-9s %-",
-                                  NamLen + 2,
-                                  "s %-6s %-10s %s");
-}*/
-
-void
-tabinit ()
-{
-    strcpy (realcmd, "%5d\t%04X\t%s\t%s\t%s\t%s\t%s\n");
-    strcpy (pseudcmd, "%5d\t%04X\t%s\t\t%s\t%s\t%s\n");
-}
-
-void PrintAllCodLine (int w1, int w2)
-{
-    if (IsUnformatted)
-    {
-        printf (&(allcodcmd[3]), w1 & 0xffff, w2 & 0xffff);
-        ++LinNum;
-    }
-    else
-    {
-        printf (allcodcmd, LinNum++, w1 & 0xffff, w2 & 0xffff);
-    }
-}
-
-void PrintAllCodL1 (int w1)
-{
-    if (IsUnformatted)
-    {
-        printf (&(allcodcmd1[3]), w1 & 0xffff);
-        ++LinNum;
-    }
-    else
-    {
-        printf (allcodcmd1, LinNum++, w1 & 0xffff);
-    }
-}
-
 /* **********
  * PrintPsect() - Set up the Psect for printout
  *
  */
 
-void
-PrintPsect()
+void PrintPsect()
 {
     char *ProgType = NULL;
     char *ProgLang = NULL;
@@ -237,29 +184,6 @@ PrintPsect()
         }
     }
 
-    /*prgsets[0] = ProgType; prgsets[1] = ProgLang;
-    prgsets[2] = ProgAtts; prgsets[3] = NULL;*/
-    /*ProgAtts = modnam_find (ModAtts, (unsigned char)M_Attr)->name;*/
-    /*hdrvals[2] = M_Attr;
-
-    for (c = 0; prgsets[c]; c++)
-    {
-        if (prgsets[c])
-        {
-            Ci.cmd_wrd = hdrvals[c];
-            sprintf (Ci.opcode, "$%02x", hdrvals[c]);
-            Ci.lblname = prgsets[c];
-            PrintLine (pseudcmd, &Ci, CNULL, 0, 0); 
-        }
-        else {
-            sprintf (Ci.mnem, "$%02x", hdrvals[c]);
-        }
-
-        sprintf (Ci.opcode, psecfld[c % 2], prgsets[c]);
-        strcat (EaString, Ci.opcode);
-    }
-
-    sprintf (&EaString[strlen(EaString)], "|%d)", M_Revs);*/
     sprintf (&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, M_Revs);
     sprintf (&EaString[strlen(EaString)], ",%d", M_Edit);
     strcat (EaString, ",0");    /* For the time being, don't add any stack */
@@ -290,7 +214,7 @@ PrintPsect()
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine (char *pfmt, struct cmd_items *ci)
+static void OutputLine (const char *pfmt, struct cmd_items *ci)
 {
     struct symbol_def *nl;
     char lbl[100];
@@ -327,8 +251,7 @@ static void OutputLine (char *pfmt, struct cmd_items *ci)
 
     /* Straighten/clean up - prepare for next line  */
 
-static void
-PrintCleanup ()
+static void PrintCleanup ()
 {
     PrevEnt = CmdEnt;
 
@@ -336,8 +259,7 @@ PrintCleanup ()
     ++LinNum;
 }
 
-static void
-BlankLine ()                    /* Prints a blank line */
+static void BlankLine ()                    /* Prints a blank line */
 {
     if (IsUnformatted)
     {
@@ -356,7 +278,7 @@ BlankLine ()                    /* Prints a blank line */
  * PrintNonCmd() - A utility function to print any non-command  *
  *          line (except stored comments).                      *
  *          Prints the line with line number, and updates       *
- *          LinNum                                      *
+ *          LinNum                                              *
  * Passed: str - the string to print                            *
  *         preblank - true if blankline before str              *
  *         postblank - true if blankline after str              *
@@ -459,7 +381,7 @@ char * get_apcomment(char clas, int addr)
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine (char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int cmdhi)
+void PrintLine(const char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int cmdhi)
 {
     NonBoundsLbl (cClass);            /*Check for non-boundary labels */
 
@@ -474,45 +396,9 @@ void PrintLine (char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int c
     PrintCleanup ();
 }
 
-/*static void UpString (char *s)              // Translate a string to uppercase
-{
-    register int x = strlen (s);
-
-    while (x--)
-    {
-        if (isalpha (*s))
-            *s = toupper (*s);
-        ++s;
-    }
-} */
-
-/* *********************************************** *
- * UpPbuf() - Translates a whole print buffer's    *
- *            contents to upper case, if UpCase    *
- * Passed: Pointer to the print buffer to UpCase   *
- * *********************************************** */
-
-/*static void
-UpPbuf (struct printbuf *pb)
-{
-    if (UpCase)
-    {
-        UpString (pb->instr);
-        UpString (pb->opcod);
-        UpString(pb->lbnm);
-        UpString (pb->mnem);
-        UpString(pb->operand);
-    }
-}*/
-
-static void PrintFormatted (char *pfmt, struct cmd_items *ci)
+static void PrintFormatted(const char *pfmt, struct cmd_items *ci)
 {
     int _linlen;
-
-    /*if (UpCase)
-    {
-        UpPbuf (pb);
-    }*/
 
     /* make sure any non-initialized fields don't create Segfault */
 
@@ -687,10 +573,6 @@ static void NonBoundsLbl (char cClass)
         }
     }
 }
-
-/* ****************************** *
- * RsOrg() - print RSDos org line *
- * ****************************** */
 
 /* ********************************************* *
  * ROFPsect() - writes out psect                 *

@@ -6,12 +6,9 @@
 
 struct cmd_items;
 
-void tabinit(void);
-void PrintAllCodLine(int w1, int w2);
-void PrintAllCodL1(int w1);
 void PrintPsect(void);
 char* get_apcomment(char clas, int addr);
-void PrintLine(char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi);
+void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi);
 void printXtraBytes(char* data);
 void PrintComment(char lblcClass, int cmdlow, int cmdhi);
 void ROFPsect(struct rof_header* rptr);
