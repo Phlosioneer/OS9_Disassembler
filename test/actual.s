@@ -1,5 +1,3 @@
-* Disassembly by Os9disasm of test/cdi_zelda.os9module
-
 
 * OS-9 system function equates
 

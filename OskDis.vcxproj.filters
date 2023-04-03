@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="cmdfile.c" />
+    <ClCompile Include="commonsubs.c" />
+    <ClCompile Include="def68def.c" />
+    <ClCompile Include="dis68.c" />
+    <ClCompile Include="dismain.c" />
+    <ClCompile Include="dprint.c" />
+    <ClCompile Include="label.cpp" />
+    <ClCompile Include="opcode00.c" />
+    <ClCompile Include="opcodes020.c" />
+    <ClCompile Include="rof.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="disglobs.h" />
+    <ClInclude Include="modtypes.h" />
+    <ClInclude Include="rof.h" />
+    <ClInclude Include="structs.h" />
+    <ClInclude Include="sysnames.h" />
+    <ClInclude Include="targetsys.h" />
+    <ClInclude Include="textdef.h" />
+    <ClInclude Include="userdef.h" />
+    <ClInclude Include="vardef.h" />
+  </ItemGroup>
+</Project>

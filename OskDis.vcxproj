@@ -137,6 +137,13 @@
     <ClInclude Include="userdef.h" />
     <ClInclude Include="vardef.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="test\actual.s" />
+    <None Include="test\expected.s" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test\actualStdout.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
