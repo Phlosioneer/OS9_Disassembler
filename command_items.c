@@ -82,7 +82,7 @@ const char* instr_getLabel(HANDLE handle) { return handle->inner->lblname; }
 const char* instr_getMneumonic(HANDLE handle) { return handle->inner->mnem; }
 short* instr_getCode(HANDLE handle) { return handle->inner->code; }
 int instr_getWordCont(HANDLE handle) { return handle->inner->wcount; }
-const char* instr_getOpCode(HANDLE handle) { return handle->inner->opcode; }
+const char* instr_getOpCode(HANDLE handle) { return handle->inner->params; }
 const char* instr_getComment(HANDLE handle) { return handle->inner->comment; }
 
 // Copies the label. Caller is responsible for freeing `name` afterwards, if needed.
@@ -95,7 +95,7 @@ void instr_setComment(HANDLE handle, const char* comment) {
 }
 
 void instr_setOpcode(struct cmd_items* handle, const char* opcode) {
-    strncpy(handle->inner->opcode, opcode, OPCODE_LEN);
+    strncpy(handle->inner->params, opcode, OPCODE_LEN);
 }
 
 void instr_setMneumonic(HANDLE handle, const char* s) {
@@ -138,7 +138,7 @@ struct cmd_items* initcmditems(struct cmd_items* ci)
 {
     ci->mnem[0] = 0;
     ci->wcount = 0;
-    ci->opcode[0] = '\0';
+    ci->params[0] = '\0';
     ci->comment = NULL;
     ci->lblname = NULL; // I added this line
     return ci;
@@ -204,7 +204,7 @@ int reg_ea(struct cmd_items* ci, int j, struct opst* op)
 
     if (get_eff_addr(ci, ea, mode, reg, size))
     {
-        sprintf(ci->opcode, "%s,%c%d", ea, regname[0], (ci->cmd_wrd >> 9) & 7);
+        sprintf(ci->params, "%s,%c%d", ea, regname[0], (ci->cmd_wrd >> 9) & 7);
         strcpy(ci->mnem, op->name);
 
         switch (size)
@@ -357,11 +357,11 @@ int movem_cmd(struct cmd_items* ci, int j, struct opst* op)
 
     if (dir)
     {
-        sprintf(ci->opcode, "%s,%s", ea, regnames);
+        sprintf(ci->params, "%s,%s", ea, regnames);
     }
     else
     {
-        sprintf(ci->opcode, "%s,%s", regnames, ea);
+        sprintf(ci->params, "%s,%s", regnames, ea);
     }
 
     return 1;
@@ -377,7 +377,7 @@ int link_unlk(struct cmd_items* ci, int j, struct opst* op)
     switch (op->id)
     {
     case 47:        /* "unlink: only needs regno for the opcode */
-        sprintf(ci->opcode, "A%d", regno);
+        sprintf(ci->params, "A%d", regno);
 
         if ((ci->mnem[strlen(ci->mnem) - 1]) == '.')
         {
@@ -393,7 +393,7 @@ int link_unlk(struct cmd_items* ci, int j, struct opst* op)
             ext_w = (ext_w << 8) | (getnext_w(ci) & 0xff);
         }
 
-        sprintf(ci->opcode, "A%d,#%d", regno, ext_w);
+        sprintf(ci->params, "A%d,#%d", regno, ext_w);
         strcat(ci->mnem, (j == 46) ? "w" : "l");
     }
 

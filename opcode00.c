@@ -273,11 +273,11 @@ extern CONDITIONALS typecondition[];
             /* Verify if it's a label */
 /*            if (regflag == 0)
             {
-                sprintf(cmditms->opcode, "#%s,ccr", ext1);
+                sprintf(cmditms->params, "#%s,ccr", ext1);
             }
             else
             {
-                sprintf (cmditms->opcode, "#%s,sr", ext1);
+                sprintf (cmditms->params, "#%s,sr", ext1);
             }
 
             strcpy(cmditms->mnem,"eori");
@@ -325,7 +325,7 @@ int biti_reg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     /* Add functions to retrieve label */
     if (Pass == 2) {
         strcpy (ci->mnem, op->name);
-        sprintf (ci->opcode, "#%d,%s", ext1, sr[size]);
+        sprintf (ci->params, "#%d,%s", ext1, sr[size]);
     }
 
     return 1;
@@ -425,7 +425,7 @@ int biti_size(struct cmd_items *ci, int j, OPSTRUCTURE *op)
         }
     }
 
-    sprintf (ci->opcode, "%s,%s", ea, EaString);
+    sprintf (ci->params, "%s,%s", ea, EaString);
     strcpy (ci->mnem, op->name);
     strcat (ci->mnem, SizSufx[size]);
     return 1;
@@ -461,7 +461,7 @@ int bit_static(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (get_eff_addr (ci, ea, mode, reg, (ext0 >7) ? SIZ_LONG : SIZ_BYTE))
     {
-        sprintf(ci->opcode, "#%d,%s", ext0, ea);
+        sprintf(ci->params, "#%d,%s", ext0, ea);
         strcpy(ci->mnem, op->name);
         strcat (ci->mnem, (mode == 0) ? "l" : "b");
         return 1;
@@ -493,7 +493,7 @@ int bit_dynamic(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (get_eff_addr (ci, EaString, mode, reg, SIZ_LONG))
     {
-        sprintf(ci->opcode,"d%d,%s", (ci->cmd_wrd >>9) & 7, EaString);
+        sprintf(ci->params,"d%d,%s", (ci->cmd_wrd >>9) & 7, EaString);
         strcpy(ci->mnem, op->name);
         strcat (ci->mnem, (mode == 0) ? "l" : "b");
         return 1;
@@ -545,7 +545,7 @@ int move_instr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     {
         if (get_eff_addr (ci, dst_ea, d_mode, d_reg, size))
         {
-            sprintf(ci->opcode, "%s,%s", src_ea, dst_ea);
+            sprintf(ci->params, "%s,%s", src_ea, dst_ea);
             strcpy (ci->mnem, "move");
 
             if (((ci->cmd_wrd >> 6) & 7) == 1)
@@ -616,10 +616,10 @@ int move_ccr_sr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
         switch (dir)
         {
         case EA2REG:
-            sprintf (ci->opcode, "%s,%s", EaString, statReg);
+            sprintf (ci->params, "%s,%s", EaString, statReg);
             break;
         default:
-            sprintf (ci->opcode, "%s,%s", statReg, EaString);
+            sprintf (ci->params, "%s,%s", statReg, EaString);
         }
 
         strcpy (ci->mnem, op->name);
@@ -644,11 +644,11 @@ int move_usp(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if ((ci->cmd_wrd >> 3) & 1)
     {
-        sprintf(ci->opcode, "%s,%s", "usp", EaString);
+        sprintf(ci->params, "%s,%s", "usp", EaString);
     }
     else
     {
-        sprintf (ci->opcode, "%s,%s", EaString, "usp");
+        sprintf (ci->params, "%s,%s", EaString, "usp");
     }
 
     strcpy (ci->mnem, op->name);
@@ -679,11 +679,11 @@ int movep(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (opMode & 2)
     {
-        sprintf (ci->opcode, opcodeFmt, DReg, AReg);
+        sprintf (ci->params, opcodeFmt, DReg, AReg);
     }
     else
     {
-        sprintf (ci->opcode, opcodeFmt, AReg, DReg);
+        sprintf (ci->params, opcodeFmt, AReg, DReg);
     }
 
     strcpy (ci->mnem, op->name);
@@ -697,7 +697,7 @@ int moveq(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     EaString[0] = '\0';
     LblCalc(EaString, ci->cmd_wrd & 0xff, AM_IMM, CmdEnt);
-    sprintf(ci->opcode, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
+    sprintf(ci->params, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
     strcpy (ci->mnem, op->name);
 
     dot = strchr(ci->mnem, '.');
@@ -731,7 +731,7 @@ int one_ea(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (j == 38)       /* swap */
     {
-        sprintf(ci->opcode, "d%d", ci->cmd_wrd & 7);
+        sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
     }
     else
     {
@@ -785,12 +785,12 @@ int one_ea(struct cmd_items *ci, int j, OPSTRUCTURE *op)
                 case 33:    /* Move to CCR  */
                 case 35:    /* Move from CCR */
                     if (ci->cmd_wrd & 0x400)
-                        sprintf (ci->opcode, "%s,%s", ea, statreg);
+                        sprintf (ci->params, "%s,%s", ea, statreg);
                     else
-                        sprintf (ci->opcode, "%s,%s", statreg, ea);
+                        sprintf (ci->params, "%s,%s", statreg, ea);
                     break;
                 default:    /* A single ea */
-                    strcpy(ci->opcode, ea);
+                    strcpy(ci->params, ea);
                     break;
             }
         }
@@ -896,7 +896,7 @@ int bra_bsr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
             ref_addr = CmdEnt + 1;
         }
 
-        if (rof_setup_ref(refs_code, ref_addr, ci->opcode, displ))
+        if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
         {
             strcpy (ci->mnem, op->name);
             strcat (ci->mnem, siz);
@@ -915,21 +915,21 @@ int bra_bsr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     //if (IsROF && (Pass == 2))
     //{
-    //    if (IsRef(ci->opcode, jmp_base))
+    //    if (IsRef(ci->params, jmp_base))
     //    {
     //        return 1;
     //    }
     //}*/
 
     /*process_label (ci, 'L', dstAddr);*/
-    LblCalc(ci->opcode, displ, AM_REL, jmp_base);
+    LblCalc(ci->params, displ, AM_REL, jmp_base);
 
     return 1;
 }
 
 int cmd_no_opcode(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
-    ci->opcode[0] = '\0';
+    ci->params[0] = '\0';
     strcpy(ci->mnem, op->name);
 
     return 1;
@@ -956,7 +956,7 @@ int bit_rotate_mem(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     {
         if (Pass == 2)
         {
-            strcpy (ci->opcode, ea);
+            strcpy (ci->params, ea);
             strcpy (ci->mnem, op->name);
         }
 
@@ -974,14 +974,14 @@ int bit_rotate_reg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     switch ((ci->cmd_wrd >> 5) & 1)
     {
         case 0:
-            sprintf (ci->opcode, "#%d,", (count_reg == 0) ? 8 : count_reg);
+            sprintf (ci->params, "#%d,", (count_reg == 0) ? 8 : count_reg);
             break;
         default:
-            sprintf (ci->opcode, "d%d,", count_reg);
+            sprintf (ci->params, "d%d,", count_reg);
     }
 
     sprintf(dest_ea, "d%d", ci->cmd_wrd & 7);
-    strcat (ci->opcode, dest_ea);
+    strcat (ci->params, dest_ea);
     strcpy (ci->mnem, op->name);
 
     /* Use count_reg to hold Size... */
@@ -1034,7 +1034,7 @@ int br_cond(struct cmd_items *ci, int j, OPSTRUCTURE *op)
             ref_addr = CmdEnt + 1;
         }
 
-        if (rof_setup_ref(refs_code, ref_addr, ci->opcode, displ))
+        if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
         {
             strcpy (ci->mnem, op->name);
             strcat (ci->mnem, siz);
@@ -1067,8 +1067,8 @@ int br_cond(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
         /* We need to calculate the address here */
     /*process_label (ci, 'L', jmp_base + displ);*/
-    LblCalc(ci->opcode, displ, AM_REL, jmp_base);
-    /*sprintf (ci->opcode, "L%05x", jmp_base + displ);*/
+    LblCalc(ci->params, displ, AM_REL, jmp_base);
+    /*sprintf (ci->params, "L%05x", jmp_base + displ);*/
 
     return 1;
 }
@@ -1160,11 +1160,11 @@ int add_sub(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     {
         if (asDef->direction == REG2EA)
         {
-            sprintf (ci->opcode, "%c%d,%s", asDef->regname, (ci->cmd_wrd >> 9) & 7, ea);
+            sprintf (ci->params, "%c%d,%s", asDef->regname, (ci->cmd_wrd >> 9) & 7, ea);
         }
         else
         {
-            sprintf (ci->opcode, "%s,%c%d", ea, asDef->regname, (ci->cmd_wrd >> 9) & 7);
+            sprintf (ci->params, "%s,%c%d", ea, asDef->regname, (ci->cmd_wrd >> 9) & 7);
         }
 
         strcpy (ci->mnem, op->name);
@@ -1203,7 +1203,7 @@ int cmp_cmpa(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (get_eff_addr(ci, EaString, mode, reg, size))
     {
-        sprintf (ci->opcode, "%s,%c%d", EaString, regName,
+        sprintf (ci->params, "%s,%c%d", EaString, regName,
                 (ci->cmd_wrd >> 9) & 7);
         strcpy (ci->mnem, op->name);
         strcat (ci->mnem, SizSufx[size]);
@@ -1231,7 +1231,7 @@ int addq_subq(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (get_eff_addr(ci, EaString, mode, reg, size))
     {
-        sprintf (ci->opcode, "#%d,%s", data, EaString);
+        sprintf (ci->params, "#%d,%s", data, EaString);
         strcpy (ci->mnem, op->name);
         strcat(ci->mnem, SizSufx[size]);
         return 1;
@@ -1248,11 +1248,11 @@ int abcd_sbcd(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     if (ci->cmd_wrd & 0x08)
     {
-        sprintf (ci->opcode, "-(a%d),-(a%d)", srcReg, dstReg);
+        sprintf (ci->params, "-(a%d),-(a%d)", srcReg, dstReg);
     }
     else
     {
-        sprintf (ci->opcode, "d%d,d%d", srcReg, dstReg);
+        sprintf (ci->params, "d%d,d%d", srcReg, dstReg);
     }
 
     strcpy(ci->mnem, op->name);
@@ -1320,7 +1320,7 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
                         {
 
                             strcpy (ci->mnem, "os9");
-                            strcpy(ci->opcode, callName);
+                            strcpy(ci->params, callName);
                             return 1;
                         }
                     }
@@ -1353,11 +1353,11 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
                     if (callName)
                     {
-                        sprintf(ci->opcode, "%s,%s", vN, callName);
+                        sprintf(ci->params, "%s,%s", vN, callName);
                     }
                     else
                     {
-                        sprintf(ci->opcode, "%s,$%x", vN, syscall);
+                        sprintf(ci->params, "%s,$%x", vN, syscall);
                     }
 
                     strcpy (ci->mnem, "tcall");
@@ -1368,11 +1368,11 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
                     /* TODO: Check for user defined labels?? */
                     if (callName)
                     {
-                        sprintf(ci->opcode, "$%x,%s", vector, callName);
+                        sprintf(ci->params, "$%x,%s", vector, callName);
                     }
                     else
                     {
-                        sprintf (ci->opcode, "$%x,$%x", vector, syscall);
+                        sprintf (ci->params, "$%x,$%x", vector, syscall);
                     }
 
                     strcpy (ci->mnem, "tcall");
@@ -1399,7 +1399,7 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
             }
             else
             {
-                strcpy (ci->opcode, SysNames[syscall]);
+                strcpy (ci->params, SysNames[syscall]);
                 strcpy (ci->mnem, "os9");
                 return 1;
             }
@@ -1407,7 +1407,7 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     case 0x0f:          /* Math trap   */
         if (syscall < sizeof(MathCalls)/sizeof(MathCalls[0]))
         {
-            strcpy (ci->opcode, "T$Math");
+            strcpy (ci->params, "T$Math");
             strcpy(ci->mnem, "tcall");
             /*addTrapOpt (ci, PCPos - 2);*/
             return 1;
@@ -1418,8 +1418,8 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
         break;
     default:
         /* TODO: Provide for user-defined labels */
-        sprintf (ci->opcode, "$%02x,", vector);
-        sprintf (&ci->opcode[strlen(ci->opcode)], "%04x", syscall);
+        sprintf (ci->params, "$%02x,", vector);
+        sprintf (&ci->params[strlen(ci->params)], "%04x", syscall);
         strcpy (ci->mnem, "tcall");
         /*strcpy (ci->mnem, op->name);*/
         /*addTrapOpt (ci, PCPos - 2);*/
@@ -1432,7 +1432,7 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
 int cmd_stop(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
-    sprintf(ci->opcode, "#%d", getnext_w(ci));
+    sprintf(ci->params, "#%d", getnext_w(ci));
     strcpy (ci->mnem, op->name);
     return 1;
 }
@@ -1472,7 +1472,7 @@ int cmd_dbcc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
         EaString[0] = '\0';
         LblCalc (EaString, offset, AM_REL, PCPos);
         PCPos += 2;
-        sprintf (ci->opcode, "d%d,%s", ci->cmd_wrd & 7, EaString);
+        sprintf (ci->params, "d%d,%s", ci->cmd_wrd & 7, EaString);
 
         return 1;
     }
@@ -1505,7 +1505,7 @@ int cmd_scc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
         if ( get_eff_addr(ci, EaString, mode, reg, SIZ_BYTE))
         {
-            strcpy(ci->opcode, EaString);
+            strcpy(ci->params, EaString);
             return 1;
         }
     }
@@ -1534,7 +1534,7 @@ int cmd_exg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
         return 0;
     }
 
-    sprintf (ci->opcode, "%c%d,%c%d", regnameSrc,regnumSrc,regnameDst, regnumDst);
+    sprintf (ci->params, "%c%d,%c%d", regnameSrc,regnumSrc,regnameDst, regnumDst);
     strcpy (ci->mnem, op->name);
 
     dot = strchr(ci->mnem, '.');
@@ -1550,7 +1550,7 @@ int ext_extb(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
     register char *sufx;
 
-    sprintf (ci->opcode, "d%d", ci->cmd_wrd & 7);
+    sprintf (ci->params, "d%d", ci->cmd_wrd & 7);
     strcpy (ci->mnem, op->name);
 
     switch (ci->cmd_wrd & 0x01c0)
@@ -1604,7 +1604,7 @@ int cmpm_addx_subx(struct cmd_items *ci, int j, OPSTRUCTURE *op)
         }
     }
 
-    sprintf (ci->opcode, opcodeFmt, srcRegno, dstRegno);
+    sprintf (ci->params, opcodeFmt, srcRegno, dstRegno);
     strcpy (ci->mnem, op->name);
     strcat (ci->mnem, SizSufx[size]);
 

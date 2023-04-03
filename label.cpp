@@ -156,12 +156,12 @@ extern "C" {
             Label* label = labelManager.getLabel(lblclass, addr);
             if (label)
             {
-                strcpy(ci->opcode, label->name());
+                strcpy(ci->params, label->name());
             }
             else
             {
                 fprintf(stderr, "*** phasing error ***\n");
-                sprintf(ci->opcode, "L%05x", addr);
+                sprintf(ci->params, "L%05x", addr);
             }
         }
     }

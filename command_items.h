@@ -27,7 +27,7 @@ struct cmd_items {
     char mnem[MNEM_LEN];
     short code[CODE_LEN];
     int wcount;         // The count of words in the instrct/.(except sea)
-    char opcode[OPCODE_LEN];   // Possibly ovesized, but just to be safe
+    char params[OPCODE_LEN];   // Possibly ovesized, but just to be safe
     //char comment[COMMENT_LEN];     // Inline comment - NULL if none
     char *comment;
     struct extWbrief extend;   // The extended command (if present)

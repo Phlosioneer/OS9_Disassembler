@@ -844,28 +844,28 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
 
             if ((*refsList)->Extrn)
             {
-                strcpy(Ci.opcode, (*refsList)->EName.nam);
+                strcpy(Ci.params, (*refsList)->EName.nam);
             }
             else
             {
-                strcpy (Ci.opcode, label_getName((*refsList)->EName.lbl));
+                strcpy (Ci.params, label_getName((*refsList)->EName.lbl));
             }
 
             PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt);
             CmdEnt = PCPos;
             Ci.lblname = NULL;
-            Ci.opcode[0] = '\0';
+            Ci.params[0] = '\0';
             Ci.mnem[0] = '\0';
             /*switch ((*refsList)->Type)
             {
             case REFGLBL:
-                strcpy(Ci.opcode, (*refsList)->EName.nam);
+                strcpy(Ci.params, (*refsList)->EName.nam);
                 break;
             case REFLOCAL:
-                strcpy (Ci.opcode, (*refsList)->EName.lbl->sname);
+                strcpy (Ci.params, (*refsList)->EName.lbl->sname);
                 break;
             default:
-                strcpy (Ci.opcode, "???");
+                strcpy (Ci.params, "???");
             }*/
 
         }
@@ -931,11 +931,11 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
                     }
 
                     PCPos += bytSize;
-                    sprintf (Ci.opcode, fmt, val);
+                    sprintf (Ci.params, fmt, val);
                     PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt);
                     CmdEnt = PCPos;
                     Ci.lblname = NULL;
-                    Ci.opcode[0] = '\0';
+                    Ci.params[0] = '\0';
                 }
                 
                 Ci.mnem[0] = '\0';
@@ -958,7 +958,7 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
             my_val = fgetc (ModFP);
             bump = 1;
             strcpy (Ci.mnem, "dc.b");
-            sprintf (Ci.opcode, "$%02x", my_val);*/
+            sprintf (Ci.params, "$%02x", my_val);*/
         }
 
         /*PrintLine (realcmd, &Ci, cclass, CmdEnt, CmdEnt + blkEnd);
@@ -1082,10 +1082,10 @@ void ListInitROF (char * hdr, struct rof_extrn *refsList, char *iBuf, int isize,
         ////    if (refsList->dstClass)
         ////    {
         ////        mylbl = findlbl(*iClass, myVal);
-        ////        strcpy (Ci.opcode, mylbl ? mylbl->sname :
+        ////        strcpy (Ci.params, mylbl ? mylbl->sname :
         ////    }
 
-        //    strcpy (Ci.opcode, refsList->Extrn ? refsList->EName.nam : refsList->EName.lbl->sname);
+        //    strcpy (Ci.params, refsList->Extrn ? refsList->EName.nam : refsList->EName.lbl->sname);
         //    PrintLine(pseudcmd, &Ci, iClass, 0, 0);
 
         //    refsList = refsList->ENext;

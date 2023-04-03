@@ -548,7 +548,7 @@ int dopass(int argc,char **argv,int mypass)
             if (Pass == 2)
             {
                 strcpy (Instruction.mnem, "dc.w");
-                sprintf (Instruction.opcode, "$%x",
+                sprintf (Instruction.params, "$%x",
                         Instruction.cmd_wrd & 0xffff);
                 PrintLine (pseudcmd, &Instruction, 'L', CmdEnt, PCPos);
                 CmdEnt = PCPos;
@@ -735,7 +735,7 @@ void MovBytes (struct data_bounds *db)
      * to the appropriate value */
     *xtrabytes = '\0';
     strcpy (Ci.mnem, "dc");
-    Ci.opcode[0] = '\0';
+    Ci.params[0] = '\0';
     Ci.lblname = "";
     Ci.comment = NULL;
     Ci.cmd_wrd = 0;
@@ -820,16 +820,16 @@ void MovBytes (struct data_bounds *db)
 
             ++cCount;
 
-            if (strlen(Ci.opcode))
+            if (strlen(Ci.params))
             {
-                strcat (Ci.opcode, ",");
+                strcat (Ci.params, ",");
             }
 
-            strcat (Ci.opcode, tmps);
+            strcat (Ci.params, tmps);
 
             /* If length of operand string is max, print a line */
 
-            if ( (strlen (Ci.opcode) > 22) || findlbl ('L', PCPos))
+            if ( (strlen (Ci.params) > 22) || findlbl ('L', PCPos))
             {
                 PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos);
 
@@ -838,7 +838,7 @@ void MovBytes (struct data_bounds *db)
                     printXtraBytes (xtrabytes);
                 }
 
-                Ci.opcode[0] = '\0';
+                Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
                 Ci.lblname = NULL;
                 CmdEnt = PCPos/* _ PBytSiz*/;
@@ -851,7 +851,7 @@ void MovBytes (struct data_bounds *db)
 
     /* Loop finished.. print any unprinted data */
 
-    if ((Pass == 2) && strlen (Ci.opcode))
+    if ((Pass == 2) && strlen (Ci.params))
     {
         PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos);
 
@@ -889,7 +889,7 @@ void MovASC (int nb, char aclass)
             (strlen (oper_tmp) && findlbl (aclass, PCPos)))
             /*(strlen (oper_tmp) && findlbl (ListRoot (aclass), PCPos + 1)))*/
         {
-            sprintf (Ci.opcode, "\"%s\"", oper_tmp);
+            sprintf (Ci.params, "\"%s\"", oper_tmp);
             PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos);
             oper_tmp[0] = '\0';
             CmdEnt = PCPos;
@@ -938,9 +938,9 @@ void MovASC (int nb, char aclass)
                 /* Print any unprinted ASCII characters */
                 if (strlen (oper_tmp))
                 {
-                    sprintf (Ci.opcode, "\"%s\"", oper_tmp);
+                    sprintf (Ci.params, "\"%s\"", oper_tmp);
                     PrintLine (pseudcmd, &Ci, aclass, CmdEnt, CmdEnt);
-                    Ci.opcode[0] = '\0';
+                    Ci.params[0] = '\0';
                     Ci.cmd_wrd = 0;
                     Ci.lblname = "";
                     oper_tmp[0] = '\0';
@@ -950,17 +950,17 @@ void MovASC (int nb, char aclass)
 
                 if (isprint(x))
                 {
-                    sprintf (Ci.opcode, "'%c'", x);
+                    sprintf (Ci.params, "'%c'", x);
                 }
                 else
                 {
-                    sprintf (Ci.opcode, "$%x", x);
+                    sprintf (Ci.params, "$%x", x);
                 }
 
                 Ci.cmd_wrd = x;
                 PrintLine (pseudcmd, &Ci, aclass, CmdEnt, PCPos);
                 Ci.lblname = "";
-                Ci.opcode[0] = '\0';
+                Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
                 cCount = 0;
                 CmdEnt = PCPos;
@@ -971,7 +971,7 @@ void MovASC (int nb, char aclass)
     /* Finally clean up any remaining data. */
     if ((Pass == 2) && (strlen (oper_tmp)) )       /* Clear out any pending string */
     {
-        sprintf (Ci.opcode, "\"%s\"", oper_tmp);
+        sprintf (Ci.params, "\"%s\"", oper_tmp);
         /*list_print (&Ci, CmdEnt, NULL);*/
         PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos);
         Ci.lblname = "";

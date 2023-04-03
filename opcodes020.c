@@ -91,7 +91,7 @@ int cmp2_chk2(struct cmd_items *ci, int j, OPSTRUCTURE *op)
             char dispreg[5];
             
             strcat (ci->mnem, stdSiz[size]);
-            sprintf(ci->opcode, "%s,%s", EaString, ewReg (w2, dispreg));
+            sprintf(ci->params, "%s,%s", EaString, ewReg (w2, dispreg));
         }
 
         return 1;
@@ -102,7 +102,7 @@ int cmp2_chk2(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
 int rtm_020(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 {
-    sprintf (ci->opcode, "%c%d", dispRegNam[(ci->cmd_wrd >> 3) & 1], ci->cmd_wrd & 7);
+    sprintf (ci->params, "%c%d", dispRegNam[(ci->cmd_wrd >> 3) & 1], ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
     return 1;
 }
@@ -155,10 +155,10 @@ int cmd_moves(struct cmd_items *ci, int j, OPSTRUCTURE *op)
             switch ((ew >> 11) & 1)
             {
             case 0:
-                sprintf (ci->opcode, "%s,%s", EaString, myReg);
+                sprintf (ci->params, "%s,%s", EaString, myReg);
                 break;
             case 1:
-                sprintf (ci->opcode, "%s,%s", myReg, EaString);
+                sprintf (ci->params, "%s,%s", myReg, EaString);
             }
         }
 
@@ -204,7 +204,7 @@ int cmd_cas (struct cmd_items *ci, int j, OPSTRUCTURE *op)
             du = (ew >> 6) & 7;
             strcpy (ci->mnem, op->name);
             strcat (ci->mnem, stdSiz[size]);
-            sprintf (ci->opcode, "D%d,D%d,%s", dc, du, EaString);
+            sprintf (ci->params, "D%d,D%d,%s", dc, du, EaString);
         }
 
         return 1;
@@ -263,7 +263,7 @@ int cmd_cas2 (struct cmd_items *ci, int j, OPSTRUCTURE *op)
     {
         strcpy (ci->mnem, op->name);
         strcat (ci->mnem, stdSiz[size]);
-        sprintf (ci->opcode, "d%d:d%d,d%d:d%d,(%c%d):(%c%d)", dc1, dc2, du1, du2, r1, rn1, r2, rn2);
+        sprintf (ci->params, "d%d:d%d,d%d:d%d,(%c%d):(%c%d)", dc1, dc2, du1, du2, r1, rn1, r2, rn2);
     }
 
     return 1;
@@ -305,7 +305,7 @@ int cmd_callm(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
         /* Possibly allow for label name ??? */
         strcpy (ci->mnem, op->name);
-        sprintf (ci->opcode, "#%d,%s", ew, EaString);
+        sprintf (ci->params, "#%d,%s", ew, EaString);
         return 1;
     }
 
@@ -363,11 +363,11 @@ int muldiv_020(struct cmd_items *ci, int j, OPSTRUCTURE *op)
                     strcat (ci->mnem, "l");
                 }
 
-                sprintf (ci->opcode, "%s,d%d:d%d", EaString, d_hr, d_lq);
+                sprintf (ci->params, "%s,d%d:d%d", EaString, d_hr, d_lq);
             }
             else
             {
-                sprintf (ci->opcode, "%s,d%d", EaString, d_hr);
+                sprintf (ci->params, "%s,d%d", EaString, d_hr);
             }
 
             strcat (ci->mnem, ".l");
@@ -387,7 +387,7 @@ int cmd_rtd(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     if (Pass == 2)
     {
         strcpy (ci->mnem, op->name);
-        sprintf (ci->opcode, "#%d", ew);
+        sprintf (ci->params, "#%d", ew);
     }
 
     return 1;
@@ -414,12 +414,12 @@ int cmd_trapcc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
         if (Pass == 2)
         {
-            sprintf (ci->opcode, "#%d", oprnd);
+            sprintf (ci->params, "#%d", oprnd);
         }
     }
     else
     {
-        ci->opcode[0] = '\0';
+        ci->params[0] = '\0';
     }
 
     if (Pass == 2)
@@ -553,18 +553,18 @@ int bitfields_020(struct cmd_items *ci, int j, OPSTRUCTURE *op)
             {
                 if ((ci->cmd_wrd & 0xffc0) == 0xefc0)
                 {
-                    sprintf (ci->opcode, "d%d,%s{%s:%s}", (ew >> 12) & 7,
+                    sprintf (ci->params, "d%d,%s{%s:%s}", (ew >> 12) & 7,
                                 EaString, ofstStr, wdthStr);
                 }
                 else
                 {
-                    sprintf (ci->opcode, "%s{%s:%s},d%d", EaString,
+                    sprintf (ci->params, "%s{%s:%s},d%d", EaString,
                                 ofstStr, wdthStr, (ew >> 12) & 7);
                 }
             }
             else
             {
-                sprintf (ci->opcode, "%s{%s:%s}", EaString, ofstStr, wdthStr);
+                sprintf (ci->params, "%s{%s:%s}", EaString, ofstStr, wdthStr);
             }
         }
 
