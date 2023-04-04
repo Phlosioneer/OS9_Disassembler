@@ -134,6 +134,7 @@ void instr_delete(HANDLE handle) {
 }
 */
 
+// This function is named "init cmd items" but it does not init cmd items.
 struct cmd_items* initcmditems(struct cmd_items* ci)
 {
     ci->mnem[0] = 0;
