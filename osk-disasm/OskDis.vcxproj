@@ -101,6 +101,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -108,10 +109,12 @@
     <ClCompile Include="command_items.c" />
     <ClCompile Include="commonsubs.c" />
     <ClCompile Include="def68def.c" />
-    <ClCompile Include="dis68.c" />
+    <ClCompile Include="main_support.c" />
     <ClCompile Include="dismain.c" />
     <ClCompile Include="dprint.c" />
+    <ClCompile Include="exit.c" />
     <ClCompile Include="label.cpp" />
+    <ClCompile Include="main.c" />
     <ClCompile Include="opcode00.c" />
     <ClCompile Include="opcodes020.c" />
     <ClCompile Include="rof.c" />
@@ -119,12 +122,13 @@
   <ItemGroup>
     <ClInclude Include="cmdfile.h" />
     <ClInclude Include="def68def.h" />
-    <ClInclude Include="dis68.h" />
+    <ClInclude Include="main_support.h" />
     <ClInclude Include="disglobs.h" />
     <ClInclude Include="commonsubs.h" />
     <ClInclude Include="dismain.h" />
     <ClInclude Include="dprint.h" />
     <ClInclude Include="command_items.h" />
+    <ClInclude Include="exit.h" />
     <ClInclude Include="label.h" />
     <ClInclude Include="modtypes.h" />
     <ClInclude Include="opcode00.h" />

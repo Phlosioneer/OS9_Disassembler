@@ -33,7 +33,7 @@
 #include "rof.h"
 
 #include "commonsubs.h"
-#include "dis68.h"
+#include "exit.h"
 #include "label.h"
 #include "command_items.h"
 

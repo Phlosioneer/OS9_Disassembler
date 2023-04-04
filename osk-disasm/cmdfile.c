@@ -45,8 +45,9 @@
 #include "structs.h"
 #include "commonsubs.h"
 #include "cmdfile.h"
-#include "dis68.h"
+#include "exit.h"
 #include "label.h"
+#include "main_support.h"
 /*#include "amodes.h"*/
 
 char *CmdFileName;

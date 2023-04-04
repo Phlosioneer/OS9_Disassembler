@@ -44,7 +44,7 @@
 #include "rof.h"
 
 #include "commonsubs.h"
-#include "dis68.h"
+#include "exit.h"
 #include "dismain.h"
 #include "dprint.h"
 #include "label.h"

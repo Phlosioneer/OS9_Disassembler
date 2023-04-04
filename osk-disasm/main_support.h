@@ -4,11 +4,10 @@
 
 #include <stdio.h>
 
-int main(int argc, char** argv);
+void usage(void);
+void getoptions(int argc, char** argv);
 FILE* build_path(char* p, char* faccs);
 void do_opt(char* c);
-__declspec(noreturn) void errexit(char* pmpt);
-void filereadexit(void);
 char* pass_eq(char* p);
 
 #endif

@@ -6,7 +6,7 @@
 #include "disglobs.h"
 #include "commonsubs.h"
 #include "modtypes.h"
-#include "dis68.h"
+#include "exit.h"
 
 #define LABEL_LEN 200
 #define MNEM_LEN 50

@@ -32,7 +32,8 @@
 #include "userdef.h"
 
 #include "commonsubs.h"
-#include "dis68.h"
+#include "main_support.h"
+#include "exit.h"
 #include "dismain.h"
 
 #ifdef _WIN32
@@ -52,8 +53,7 @@ extern int DoingCmds;
  *
  * ***** */
 
-static void
-usage()
+void usage(void)
 {
     char *tab = "    ";
     fprintf (stderr, "\nOSKDis: Disassemble an OS9-68K Module\n");
@@ -82,7 +82,7 @@ usage()
  *        the old-fashioned way.                                    *
  * **************************************************************** *
  */
-static void getoptions(int argc, char **argv)
+void getoptions(int argc, char **argv)
 {
     register int count;
 
@@ -106,28 +106,6 @@ static void getoptions(int argc, char **argv)
     }
 }
 
-int main(int argc,char **argv)
-{
-
-    /* Process command-line options first */
-
-    /*while ((ret = getopt(argc, argv, "abc:d")) != -1)
-    {
-    }*/
-    getoptions(argc, argv);
-
-    /* We must have a file to disassemble */
-    if (ModFile == NULL)
-        errexit("You must specify a file to disassemble");
-
-    /*ModFile = argv[1];*/
-    Pass = 1;
-    dopass(argc,argv,1);
-    Pass = 2;
-    dopass(argc, argv, Pass);
-
-    return 0;
-}
 
 /* *************************
  * build_path() - Verify that the path is a valid path.
@@ -386,40 +364,6 @@ void do_opt (char *c)
     }
 }
 
-/* ***************************************************************************** *
- * errexit() - Exit when an error occurs.  Prints a prompt describing the error  *
- * Passed: A brief string describing the nature of the error.  A return is not   *
- *      required in the prompt string; the subroutine provides one.              *
- * ***************************************************************************** */
-
-void errexit(char *pmpt)
-{
-    if (errno)
-    {
-        perror(pmpt);
-    }
-    else
-    {
-        fprintf(stderr, "%s\n", pmpt);
-    }
-    exit(errno ? errno : 1);
-}
-
-/* *******************************
- * Exit on File Read error...
- * ******************************* */
-
-void filereadexit()
-{
-    if (feof(ModFP))
-    {
-        errexit ("End of file reached prematurely\n");
-    }
-    else
-    {
-        errexit ("Error reading file...\nAborting");
-    }
-}
 
 
 /*

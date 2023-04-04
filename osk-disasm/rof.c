@@ -34,7 +34,7 @@
 
 #include "commonsubs.h"
 #include "cmdfile.h"
-#include "dis68.h"
+#include "exit.h"
 #include "dprint.h"
 #include "label.h"
 #include "command_items.h"
