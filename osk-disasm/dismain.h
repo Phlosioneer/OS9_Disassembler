@@ -3,15 +3,17 @@
 #define DIS_MAIN_H
 
 #include "userdef.h"
+#include "externc.h"
+
 struct modnam;
 struct cmd_items;
 
-struct modnam* modnam_find(struct modnam* pt, int desired);
-int dopass(int argc, char** argv, int mypass);
-int showem(void);
-int notimplemented(struct cmd_items* ci, int tblno, OPSTRUCTURE* op);
-void MovBytes(struct data_bounds* db);
-void MovASC(int nb, char aclass);
-void NsrtBnds(struct data_bounds* bp);
+cfunc struct modnam* modnam_find(struct modnam* pt, int desired);
+cfunc int dopass(int argc, char** argv, int mypass);
+cfunc int showem(void);
+cfunc int notimplemented(struct cmd_items* ci, int tblno, OPSTRUCTURE* op);
+cfunc void MovBytes(struct data_bounds* db);
+cfunc void MovASC(int nb, char aclass);
+cfunc void NsrtBnds(struct data_bounds* bp);
 
 #endif

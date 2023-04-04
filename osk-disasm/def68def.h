@@ -3,7 +3,8 @@
 #define DEF_68_DEF_H
 
 #include "userdef.h"
+#include "externc.h"
 
-OPSTRUCTURE* tablematch(int opword, OPSTRUCTURE* entry);
+cfunc OPSTRUCTURE* tablematch(int opword, OPSTRUCTURE* entry);
 
 #endif

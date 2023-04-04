@@ -122,6 +122,7 @@
   <ItemGroup>
     <ClInclude Include="cmdfile.h" />
     <ClInclude Include="def68def.h" />
+    <ClInclude Include="externc.h" />
     <ClInclude Include="main_support.h" />
     <ClInclude Include="disglobs.h" />
     <ClInclude Include="commonsubs.h" />
@@ -139,7 +140,6 @@
     <ClInclude Include="targetsys.h" />
     <ClInclude Include="textdef.h" />
     <ClInclude Include="userdef.h" />
-    <ClInclude Include="vardef.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test\actual.s" />

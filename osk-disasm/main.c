@@ -1,6 +1,8 @@
 
 #include "main_support.h"
 #include "disglobs.h"
+#include "exit.h"
+#include "dismain.h"
 
 int main(int argc, char** argv)
 {

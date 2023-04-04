@@ -3,11 +3,12 @@
 #define DIS_68_H
 
 #include <stdio.h>
+#include "externc.h"
 
-void usage(void);
-void getoptions(int argc, char** argv);
-FILE* build_path(char* p, char* faccs);
-void do_opt(char* c);
-char* pass_eq(char* p);
+cfunc void usage(void);
+cfunc void getoptions(int argc, char** argv);
+cfunc FILE* build_path(char* p, char* faccs);
+cfunc void do_opt(char* c);
+cfunc char* pass_eq(char* p);
 
 #endif

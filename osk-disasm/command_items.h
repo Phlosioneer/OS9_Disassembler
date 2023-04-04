@@ -3,6 +3,7 @@
 #define COMMAND_ITEMS_H
 
 #include "disglobs.h"
+#include "externc.h"
 
 struct opst;
 
@@ -34,58 +35,46 @@ struct cmd_items {
 };
 
 /*
-int instr_getOpWord(struct cmd_items* handle);
-const char* instr_getLabel(struct cmd_items* handle);
-const char* instr_getMneumonic(struct cmd_items* handle);
-short* instr_getCode(struct cmd_items* handle);
-int instr_getWordCount(struct cmd_items* handle);
-const char* instr_getOpCode(struct cmd_items* handle);
-const char* instr_getComment(struct cmd_items* handle);
+cfunc int instr_getOpWord(struct cmd_items* handle);
+cfunc const char* instr_getLabel(struct cmd_items* handle);
+cfunc const char* instr_getMneumonic(struct cmd_items* handle);
+cfunc short* instr_getCode(struct cmd_items* handle);
+cfunc int instr_getWordCount(struct cmd_items* handle);
+cfunc const char* instr_getOpCode(struct cmd_items* handle);
+cfunc const char* instr_getComment(struct cmd_items* handle);
 
-void instr_setLabel(struct cmd_items* handle, char* name);
-void instr_setOpcode(struct cmd_items* handle, const char* opcode);
-void instr_setMneumonic(struct cmd_items* handle, const char* s);
-void instr_setComment(struct cmd_items* handle, const char* s);
+cfunc void instr_setLabel(struct cmd_items* handle, char* name);
+cfunc void instr_setOpcode(struct cmd_items* handle, const char* opcode);
+cfunc void instr_setMneumonic(struct cmd_items* handle, const char* s);
+cfunc void instr_setComment(struct cmd_items* handle, const char* s);
 
-struct cmd_items* instr_new();
-void instr_delete(struct cmd_items* handle);
+cfunc struct cmd_items* instr_new();
+cfunc void instr_delete(struct cmd_items* handle);
 */
 
-int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size);
-int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg);
-int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode,
+cfunc int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size);
+cfunc int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg);
+cfunc int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode,
     int reg, int size);
-int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWbrief* ew_b,
+cfunc int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWbrief* ew_b,
     int mode, int reg, int size);
-void get_displ(struct cmd_items* ci, char* dst, int siz_flag);
-int set_indirect_idx(char* dest, struct extWbrief* extW);
+cfunc void get_displ(struct cmd_items* ci, char* dst, int siz_flag);
+cfunc int set_indirect_idx(char* dest, struct extWbrief* extW);
 
-int reg_ea(struct cmd_items* ci, int j, struct opst* op);
-char* regbyte(char* s, unsigned char regmask, char* ad, int doslash);
-int movem_cmd(struct cmd_items* ci, int j, struct opst* op);
-int link_unlk(struct cmd_items* ci, int j, struct opst* op);
-int getnext_w(struct cmd_items* ci);
-void ungetnext_w(struct cmd_items* ci);
-struct cmd_items* initcmditems(struct cmd_items* ci);
+cfunc int reg_ea(struct cmd_items* ci, int j, struct opst* op);
+cfunc char* regbyte(char* s, unsigned char regmask, char* ad, int doslash);
+cfunc int movem_cmd(struct cmd_items* ci, int j, struct opst* op);
+cfunc int link_unlk(struct cmd_items* ci, int j, struct opst* op);
+cfunc int getnext_w(struct cmd_items* ci);
+cfunc void ungetnext_w(struct cmd_items* ci);
+cfunc struct cmd_items* initcmditems(struct cmd_items* ci);
 
 // Unused
-int get_extends_common(struct cmd_items* ci, char* mnem);
-int ctl_addrmodesonly(int mode, int reg);
-char getnext_b(struct cmd_items* ci);
+cfunc int get_extends_common(struct cmd_items* ci, char* mnem);
+cfunc int ctl_addrmodesonly(int mode, int reg);
+cfunc char getnext_b(struct cmd_items* ci);
 
-#ifdef xt
-#undef xt
-#endif
-
-#ifdef __cplusplus
-#define xt extern "C"
-#else
-#define xt extern
-#endif
-
-xt struct cmd_items Instruction;
-xt char* SizSufx[3];
-
-#undef xt
+cglobal struct cmd_items Instruction;
+cglobal char* SizSufx[3];
 
 #endif // COMMAND_ITEMS_H

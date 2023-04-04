@@ -3,16 +3,17 @@
 #define OPCODES_020_H
 
 #include "userdef.h"
+#include "externc.h"
 
-int cmp2_chk2(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int rtm_020(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int cmd_moves(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int cmd_cas(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int cmd_cas2(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int cmd_callm(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int muldiv_020(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int cmd_rtd(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int cmd_trapcc(struct cmd_items* ci, int j, OPSTRUCTURE* op);
-int bitfields_020(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmp2_chk2(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int rtm_020(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmd_moves(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmd_cas(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmd_cas2(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmd_callm(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int muldiv_020(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmd_rtd(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int cmd_trapcc(struct cmd_items* ci, int j, OPSTRUCTURE* op);
+cfunc int bitfields_020(struct cmd_items* ci, int j, OPSTRUCTURE* op);
 
 #endif

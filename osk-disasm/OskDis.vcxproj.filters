@@ -96,10 +96,10 @@
     <ClInclude Include="userdef.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="vardef.h">
+    <ClInclude Include="exit.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="exit.h">
+    <ClInclude Include="externc.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

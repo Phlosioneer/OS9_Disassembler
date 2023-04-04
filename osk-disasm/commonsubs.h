@@ -5,26 +5,27 @@
 #include <stdio.h>
 #include "structs.h"
 #include "userdef.h"
+#include "externc.h"
 
 // Util
-int revbits(int num, int lgth);
+cfunc int revbits(int num, int lgth);
 
 // Parsing
-int strpos(char* s, char c);
-char* skipblank(char* p);
+cfunc int strpos(char* s, char c);
+cfunc char* skipblank(char* p);
 
 // IO
-unsigned int fget_w(FILE* fp);
-unsigned int fget_l(FILE* fp);
-char fread_b(FILE* fp);
-short fread_w(FILE* fp);
-int fread_l(FILE* fp);
-short bufReadW(char** pt);
-int bufReadL(char** pt);
-char* freadString(FILE* fp);
+cfunc unsigned int fget_w(FILE* fp);
+cfunc unsigned int fget_l(FILE* fp);
+cfunc char fread_b(FILE* fp);
+cfunc short fread_w(FILE* fp);
+cfunc int fread_l(FILE* fp);
+cfunc short bufReadW(char** pt);
+cfunc int bufReadL(char** pt);
+cfunc char* freadString(FILE* fp);
 
 // Memory
-void* mem_alloc(size_t req);
+cfunc void* mem_alloc(size_t req);
 
 
 #endif

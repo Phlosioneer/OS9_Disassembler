@@ -48,6 +48,7 @@
 /* ROF header structure */
 
 #include "label.h"
+#include "externc.h"
 
 struct cmd_items;
 
@@ -108,17 +109,7 @@ struct asc_data {
                     *RNext;
 };
 
-#ifdef xt
-#undef xt
-#endif
-
-#ifdef __cplusplus
-#define xt extern "C"
-#else
-#define xt extern
-#endif
-
-xt struct asc_data *data_ascii;
+cglobal struct asc_data *data_ascii;
 
 
 /*struct rof_extrn *xtrn_data = 0,
@@ -129,7 +120,7 @@ xt struct asc_data *data_ascii;
                  *extrns;*/                   /* Generic external pointer */
 
 
-xt struct rof_extrn *refs_data,
+cglobal struct rof_extrn *refs_data,
                  *refs_idata,
                  *refs_code,
                  *refs_remote,
@@ -146,31 +137,21 @@ xt struct rof_extrn *refs_data,
 /*struct rof_header ROF_hd,
                *rofptr = &ROF_hd;*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-void reflst(void);
-int RealEnt(void);
-void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas);
-void getRofHdr(FILE* progpath);
-void RofLoadInitData(void);
-char rof_class(int typ, int refTy);
-struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
-int typeFetchSize(int rtype);
-struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value);
-int rof_datasize(char cclass);
-void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass);
-void rof_ascii(char* cmdline);
-void setROFPass(void);
-int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
-char* IsRef(char* dst, int curloc, int ival);
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#undef xt
+cfunc void reflst(void);
+cfunc int RealEnt(void);
+cfunc void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas);
+cfunc void getRofHdr(FILE* progpath);
+cfunc void RofLoadInitData(void);
+cfunc char rof_class(int typ, int refTy);
+cfunc struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
+cfunc int typeFetchSize(int rtype);
+cfunc struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value);
+cfunc int rof_datasize(char cclass);
+cfunc void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass);
+cfunc void rof_ascii(char* cmdline);
+cfunc void setROFPass(void);
+cfunc int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
+cfunc char* IsRef(char* dst, int curloc, int ival);
 
 #endif // ROF_H

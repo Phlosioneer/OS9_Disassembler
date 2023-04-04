@@ -3,23 +3,24 @@
 #define DPRINT_H
 
 #include "userdef.h"
+#include "externc.h"
 
 struct cmd_items;
 
-void PrintPsect(void);
-char* get_apcomment(char clas, int addr);
-void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi);
-void printXtraBytes(char* data);
-void PrintComment(char lblcClass, int cmdlow, int cmdhi);
-void ROFPsect(struct rof_header* rptr);
-void WrtEnds(void);
-void ParseIRefs(char rClass);
-void GetIRefs(void);
-int DoAsciiBlock(struct cmd_items* ci, char* buf, int bufEnd, char iClass);
-void ROFDataPrint(void);
-char* LoadIData(void);
-void OS9DataPrint(void);
-void ListData(struct symbol_def* me, int upadr, char cClass);
-void WrtEquates(int stdflg);
+cfunc void PrintPsect(void);
+cfunc char* get_apcomment(char clas, int addr);
+cfunc void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi);
+cfunc void printXtraBytes(char* data);
+cfunc void PrintComment(char lblcClass, int cmdlow, int cmdhi);
+cfunc void ROFPsect(struct rof_header* rptr);
+cfunc void WrtEnds(void);
+cfunc void ParseIRefs(char rClass);
+cfunc void GetIRefs(void);
+cfunc int DoAsciiBlock(struct cmd_items* ci, char* buf, int bufEnd, char iClass);
+cfunc void ROFDataPrint(void);
+cfunc char* LoadIData(void);
+cfunc void OS9DataPrint(void);
+cfunc void ListData(struct symbol_def* me, int upadr, char cClass);
+cfunc void WrtEquates(int stdflg);
 
 #endif
