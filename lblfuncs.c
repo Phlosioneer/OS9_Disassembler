@@ -729,7 +729,8 @@ LblCalc (dst, adr, amod, curloc)
     }
     else
     {                           /*Pass2 */
-        char tmpname[20];
+        char tmpname[200];
+        memset(tmpname, 0, 200);
 
         if ((mylabel = findlbl (mainclass, raw)))
         {

@@ -50,20 +50,17 @@
 
 
 #define CNULL '\0'
-static int PgLin;
 
 static void BlankLine();
 
 #ifdef __STDC__
 static void PrintFormatted (char *pfmt, CMD_ITMS *ci);
 static void NonBoundsLbl (char cClass);
-static void StartPage ();
 static void TellLabels (LBLDEF *me, int flg, char cClass, int minval);
 #else
 static void PrintFormatted ();
 static void NonBoundsLbl ();
 static void PrintComment();
-static void StartPage ();
 static void TellLabels ();
 #endif
 
@@ -78,7 +75,6 @@ char *xtraFmt = "             %s\n";
 char allcodcmd1[80] ="%5d        %04x\n";
 char *blankcmd = "%5d";
 
-int PgNum = 0;
 int PrevEnt = 0;                /* Previous CmdEnt - to print non-boundary labels */
 int InProg;                     /* Flag that we're in main program, so that it won't
                                    munge the label name */
@@ -160,11 +156,6 @@ PrintAllCodLine (w1, w2)
     {
         printf (allcodcmd, LinNum++, w1 & 0xffff, w2 & 0xffff);
     }
-
-    if (PgLin > PgDepth - 3)
-    {
-        StartPage();
-    }
 }
 
 void
@@ -183,11 +174,6 @@ PrintAllCodL1 (w1)
     else
     {
         printf (allcodcmd1, LinNum++, w1 & 0xffff);
-
-        if (PgLin > PgDepth - 3)
-        {
-            StartPage();
-        }
     }
 }
 
@@ -362,7 +348,6 @@ PrintCleanup ()
     PrevEnt = CmdEnt;
 
     /*CmdLen = 0;*/
-    ++PgLin;
     ++LinNum;
 }
 
@@ -374,13 +359,7 @@ BlankLine ()                    /* Prints a blank line */
         return;
     }
 
-    if ( ! PgLin || PgLin > (PgDepth - 5))
-    {
-        StartPage ();
-    }
-
     printf ("%5d\n", LinNum++);
-    ++PgLin;
 
     if (WrtSrc)
     {
@@ -580,9 +559,6 @@ PrintFormatted (pfmt, ci)
 {
     int _linlen;
 
-    if ( ! PgLin || PgLin > (PgDepth - 3))
-        StartPage ();
-
     /*if (UpCase)
     {
         UpPbuf (pb);
@@ -692,64 +668,6 @@ char *data;
     {
         printf (xtraFmt, data);
         data[0] = '\0';     /* Reset data to empty string */
-        ++PgLin;
-
-        if (PgLin >= (PgDepth - 3))
-        {
-            StartPage ();
-        }
-    }
-}
-
-static void
-StartPage ()
-{
-    char *bywhom = "* Disassembly by Os9disasm of";
-    time_t now;
-    struct tm *tm;
-
-    if (IsUnformatted)
-    {
-        if (++PgNum == 1)
-        {
-            LinNum = 1;
-        }
-
-        return;
-    }
-
-    if (PgLin)
-    {
-        while (PgLin++ < PgDepth)
-        {
-            printf ("\n");
-        }
-    }
-
-    ++PgNum;
-    PgLin = 0;
-    /*.. */
-
-    now = time (0);
-    tm = localtime (&now);
-
-    printf
-        ("OS9 Cross Disassembler - Ver. %s    %02d/%02d/%02d %02d:%02d:%02d      Page %03d\n\n", VERSION,
-         tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900, tm->tm_hour,
-         tm->tm_min, tm->tm_sec, PgNum);
-    PgLin = 2;
-
-    if (PgNum == 1)
-    {                           /* print disassembler info on first page */
-        LinNum = 1;
-        printf ("%5d%20s %s %s\n", LinNum++, "", bywhom, ModFile);
-
-        if (WrtSrc)
-        {
-            fprintf (AsmPath, "%s %s\n", bywhom, ModFile);
-        }
-
-        BlankLine ();
     }
 }
 
@@ -866,7 +784,6 @@ NonBoundsLbl (char cClass)
                     printf (pseudcmd, LinNum++, nl->myaddr, Ci.cmd_wrd,
                             Ci.lblname, Ci.mnem, Ci.opcode, "");
                 }
-                ++PgLin;
 
                 if (WrtSrc)
                 {
@@ -1122,7 +1039,6 @@ dataprintHeader(hdr, klas)
 
         sprintf (f_fmt, "%%5d %s", hdr);
         printf (f_fmt, LinNum++, klas);
-        ++PgLin;
     }
 
     if (WrtSrc)
@@ -1333,8 +1249,6 @@ ListInitData (ldf, nBytes, lclass)
         {
             printf ("%5d %s\n", LinNum++, what);
         }
-
-        ++PgLin;
 
         if (WrtSrc)
         {
@@ -1773,8 +1687,6 @@ OS9DataPrint ()
             printf ("%5d %22s%s\n", LinNum++, "", what);
         }
 
-        ++PgLin;
-
         if (WrtSrc)
         {
             fprintf (AsmPath, "%s\n", what);
@@ -2133,8 +2045,6 @@ TellLabels (me, flg, cClass, minval)
                     {
                         printf (ClsHd, LinNum++, "", cClass);
                     }
-
-                    ++PgLin;
 
                     if (AsmPath)
                     {

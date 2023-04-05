@@ -194,10 +194,10 @@ build_path (p, faccs)
 
     if (CmdFileName && strlen(CmdFileName))
     {
-        /*char dirpath[256];
-        char fname[256];
-        int relpath;*/
 #ifdef _WIN32
+        int relpath;
+        char fname[256];
+        char dirpath[256];
         char drv[3];
         char ext[256];
 
