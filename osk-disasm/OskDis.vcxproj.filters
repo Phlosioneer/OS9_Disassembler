@@ -40,6 +40,9 @@
     <ClCompile Include="main.c">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="writer.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -100,6 +103,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="externc.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="writer.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

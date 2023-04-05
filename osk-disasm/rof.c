@@ -38,6 +38,7 @@
 #include "dprint.h"
 #include "label.h"
 #include "command_items.h"
+#include "writer.h"
 
 struct asc_data* data_ascii;
 struct rof_extrn* refs_data,
@@ -78,7 +79,7 @@ void reflst (void)
         reflst (cl->LNext);
     }
 
-    printf ("   >>>   %04x    %d\n",cl->start,cl->length);
+    writer_printf(stdout_writer, "   >>>   %04x    %d\n",cl->start,cl->length);
 
     if (cl->RNext)
     {

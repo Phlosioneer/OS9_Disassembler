@@ -9,7 +9,7 @@ struct modnam;
 struct cmd_items;
 
 cfunc struct modnam* modnam_find(struct modnam* pt, int desired);
-cfunc int dopass(int argc, char** argv, int mypass);
+cfunc int dopass(int mypass);
 cfunc int showem(void);
 cfunc int notimplemented(struct cmd_items* ci, int tblno, OPSTRUCTURE* op);
 cfunc void MovBytes(struct data_bounds* db);

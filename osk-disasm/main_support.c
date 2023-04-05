@@ -35,6 +35,7 @@
 #include "main_support.h"
 #include "exit.h"
 #include "dismain.h"
+#include "writer.h"
 
 #ifdef _WIN32
 #   define strdup _strdup
@@ -255,8 +256,9 @@ void do_opt (char *c)
     case 'o':                  /* output asm src file */
         AsmFile = pass_eq(pt);
 
-        AsmPath = fopen(AsmFile, BINWRITE);
-        if ( ! AsmPath)
+        //AsmPath = fopen(AsmFile, BINWRITE);
+        module_writer = file_writer_fopen(AsmFile);
+        if ( ! writer_opened_successfully(module_writer))
         {
             if (strlen(AsmFile) == 0) {
                 errexit("Error: no output file path after -o. Are you missing an = after -o? ");

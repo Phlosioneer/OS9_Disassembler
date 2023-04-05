@@ -49,6 +49,7 @@
 #include "dprint.h"
 #include "label.h"
 #include "command_items.h"
+#include "writer.h"
 
 #ifdef _WIN32
 #   define snprintf _snprintf
@@ -238,14 +239,14 @@ static void OutputLine (const char *pfmt, struct cmd_items *ci)
 
     if (WrtSrc)
     {
-        fprintf (AsmPath, "%s %s %s", ci->lblname, ci->mnem, ci->params);
+        writer_printf(module_writer, "%s %s %s", ci->lblname, ci->mnem, ci->params);
 
         if (ci->comment && strlen (ci->comment))
         {
-            fprintf (AsmPath, " %s", ci->comment);
+            writer_printf(module_writer, " %s", ci->comment);
         }
 
-        fprintf (AsmPath, "\n");
+        writer_printf(module_writer, "\n");
     }
 }
 
@@ -266,11 +267,11 @@ static void BlankLine ()                    /* Prints a blank line */
         return;
     }
 
-    printf ("%5d\n", LinNum++);
+    writer_printf(stdout_writer, "%5d\n", LinNum++);
 
     if (WrtSrc)
     {
-        fprintf (AsmPath, "\n");
+        writer_printf(module_writer, "\n");
     }
 }
 
@@ -295,17 +296,17 @@ static void BlankLine ()                    /* Prints a blank line */
 
         if (IsUnformatted)
         {
-            printf (" %s\n", str);
+            writer_printf(stdout_writer, " %s\n", str);
             ++LinNum;
         }
         else
         {
-            printf ("%5d %s\n", LinNum, str);
+            writer_printf(stdout_writer, "%5d %s\n", LinNum, str);
         }
 
         if (WrtSrc)
         {
-            fprintf (AsmPath, "%s", str);
+            writer_printf(module_writer, "%s", str);
         }
 
         if (postblank)
@@ -444,8 +445,8 @@ static void PrintFormatted(const char *pfmt, struct cmd_items *ci)
         FmtBuf[PgWidth - 2] = '\0';
     }
 
-    printf ("%s", FmtBuf);
-    fflush (stdout);
+    writer_printf(stdout_writer, "%s", FmtBuf);
+    writer_flush(stdout_writer);
 }
 
 /* **************************************************************** *
@@ -456,7 +457,7 @@ void printXtraBytes (char *data)
 {
     if (strlen (data))
     {
-        printf (xtraFmt, data);
+        writer_printf(stdout_writer, xtraFmt, data);
         data[0] = '\0';     /* Reset data to empty string */
     }
 }
@@ -506,7 +507,7 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
 
                         if (WrtSrc)
                         {
-                            fprintf (AsmPath, "* %s\n", line->ctxt);
+                            writer_printf(module_writer, "* %s\n", line->ctxt);
                         }
 
                     }
@@ -555,18 +556,18 @@ static void NonBoundsLbl (char cClass)
                 /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
                 if (IsUnformatted)
                 {
-                    printf (&(pseudcmd[3]), label_getMyAddr(nl), Ci.cmd_wrd,
+                    writer_printf(stdout_writer, &(pseudcmd[3]), label_getMyAddr(nl), Ci.cmd_wrd,
                             Ci.lblname, Ci.mnem, Ci.params, "");
                 }
                 else
                 {
-                    printf (pseudcmd, LinNum++, label_getMyAddr(nl), Ci.cmd_wrd,
+                    writer_printf(stdout_writer, pseudcmd, LinNum++, label_getMyAddr(nl), Ci.cmd_wrd,
                             Ci.lblname, Ci.mnem, Ci.params, "");
                 }
 
                 if (WrtSrc)
                 {
-                    fprintf (AsmPath, "%s %s %s\n", Ci.lblname, Ci.mnem,
+                    writer_printf(module_writer, "%s %s %s\n", Ci.lblname, Ci.mnem,
                              Ci.params);
                 }
             }
@@ -645,7 +646,7 @@ WrtEnds()
 
     if (WrtSrc)
     {
-        fprintf (AsmPath, "%s %s %s\n", "", "ends", "");
+        writer_printf(module_writer, "%s %s %s\n", "", "ends", "");
     }
 
     BlankLine();
@@ -788,7 +789,7 @@ static void dataprintHeader(char *hdr, char klas)
 
     if (IsUnformatted)
     {
-        printf (hdr, klas);
+        writer_printf(stdout_writer, hdr, klas);
         ++LinNum;
     }
     else
@@ -796,12 +797,12 @@ static void dataprintHeader(char *hdr, char klas)
         char f_fmt[100];
 
         sprintf (f_fmt, "%%5d %s", hdr);
-        printf (f_fmt, LinNum++, klas);
+        writer_printf(stdout_writer, f_fmt, LinNum++, klas);
     }
 
     if (WrtSrc)
     {
-        fprintf (AsmPath, "%c", klas);
+        writer_printf(module_writer, "%c", klas);
     }
 
     BlankLine ();
@@ -988,17 +989,17 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
 
         if (IsUnformatted)
         {
-            printf (" %s\n", what);
+            writer_printf(stdout_writer, " %s\n", what);
             ++LinNum;
         }
         else
         {
-            printf ("%5d %s\n", LinNum++, what);
+            writer_printf(stdout_writer, "%5d %s\n", LinNum++, what);
         }
 
         if (WrtSrc)
         {
-            fprintf (AsmPath, "%s\n", what);
+            writer_printf(module_writer, "%s\n", what);
         }
 
         BlankLine ();
@@ -1432,17 +1433,17 @@ OS9DataPrint ()
         
         if (IsUnformatted)
         {
-            printf (" %22s%s\n", "", what);
+            writer_printf(stdout_writer, " %22s%s\n", "", what);
             ++LinNum;
         }
         else
         {
-            printf ("%5d %22s%s\n", LinNum++, "", what);
+            writer_printf(stdout_writer, "%5d %22s%s\n", LinNum++, "", what);
         }
 
         if (WrtSrc)
         {
-            fprintf (AsmPath, "%s\n", what);
+            writer_printf(module_writer, "%s\n", what);
         }
 
         BlankLine ();
@@ -1774,17 +1775,17 @@ static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval)
 
                     if (IsUnformatted)
                     {
-                        printf (&(ClsHd[3]), "", cClass);
+                        writer_printf(stdout_writer, &(ClsHd[3]), "", cClass);
                         ++LinNum;
                     }
                     else
                     {
-                        printf (ClsHd, LinNum++, "", cClass);
+                        writer_printf(stdout_writer, ClsHd, LinNum++, "", cClass);
                     }
 
-                    if (AsmPath)
+                    if (module_writer)
                     {
-                        fprintf (AsmPath, SrcHd, cClass);
+                        writer_printf(module_writer, SrcHd, cClass);
                     }
 
                     HadWrote = 1;

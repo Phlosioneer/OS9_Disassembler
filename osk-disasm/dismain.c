@@ -387,7 +387,7 @@ static void GetLabels ()                    /* Read the labelfiles */
  *      done, if either or both is desired.
  */
 
-int dopass(int argc,char **argv,int mypass)
+int dopass(int mypass)
 {
     /*int sval = 0;
     int lval = 0;
@@ -701,9 +701,9 @@ static int get_asmcmd()
 #endif
 /*    if (size == 0)
     {
-        printf ("\n%c%8x", HEXDEL, start);
-        printf (" %4X\t\t  DC.W", get16 (start));
-        printf (" \t\t?  ");
+        writer_printf(stdout_writer, "\n%c%8x", HEXDEL, start);
+        writer_printf(stdout_writer, " %4X\t\t  DC.W", get16 (start));
+        writer_printf(stdout_writer, " \t\t?  ");
         return (2);
     }
     else

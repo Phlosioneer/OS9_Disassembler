@@ -141,7 +141,7 @@ xt int PrintAllCode;
 xt int Pass;    /* The disassembler is a two-pass assembler */
 xt char *ModFile;   /* The module file to read */
 xt FILE *ModFP;
-xt FILE *AsmPath;
+//xt FILE *AsmPath;
 xt int WrtSrc;
 xt int IsROF;
 xt int IsUnformatted;

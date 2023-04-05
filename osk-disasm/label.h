@@ -47,6 +47,7 @@ extern "C" {
 
 #include <vector>
 #include <memory>
+#include <map>
 
 class Label {
 public:
