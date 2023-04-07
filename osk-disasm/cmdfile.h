@@ -13,4 +13,6 @@ cfunc void boundsline(char* mypos);
 cfunc void setupbounds(char* lpos);
 cfunc void tellme(char* pt);
 
+cglobal FILE* CmdFP;
+
 #endif

@@ -228,8 +228,8 @@ void getRofHdr (FILE *progpath)
     /* Read code into buffer for get_refs() while we're here */
 
 
-
-    if (fread ((codeBuf = (char *)mem_alloc((size_t)ROFHd.codsz + 1)), ROFHd.codsz, 1, ModFP) == -1)
+    codeBuf = (char*)mem_alloc((size_t)ROFHd.codsz + 1);
+    if (fread (codeBuf, ROFHd.codsz, 1, ModFP) == -1)
     {
         fprintf (stderr, "Failed to read code buffer\n");
     }

@@ -11,4 +11,6 @@ cfunc FILE* build_path(char* p, char* faccs);
 cfunc void do_opt(char* c);
 cfunc char* pass_eq(char* p);
 
+cglobal char* PsectName;
+
 #endif

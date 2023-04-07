@@ -223,6 +223,6 @@ xt char *stdSiz[]
 ;
 
 xt struct rof_header ROFHd;
-xt char strBuf[200];
+xt char strBuf[2000];
 
 #endif                     /* #ifdef HAVE_GLOBALS */

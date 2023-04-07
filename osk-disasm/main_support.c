@@ -36,6 +36,7 @@
 #include "exit.h"
 #include "dismain.h"
 #include "writer.h"
+#include "cmdfile.h"
 
 #ifdef _WIN32
 #   define strdup _strdup
@@ -46,8 +47,9 @@
 extern int LblFilz;              /* Count of Label files specified     */
 extern char *LblFNam[]; /* Pointers to the path names for the files */
 extern char *CmdFileName;        /* The path for the Command File Name */
-extern FILE *CmdFP;
 extern int DoingCmds;
+
+char* PsectName = NULL;
 
 /* **********************
  * usage() - Print Help message

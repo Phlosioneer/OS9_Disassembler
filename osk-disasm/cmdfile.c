@@ -48,6 +48,7 @@
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
+#include "cmdfile.h"
 /*#include "amodes.h"*/
 
 char *CmdFileName;
@@ -954,11 +955,10 @@ void boundsline (char *mypos)
 
         /* Process each command (within the repeat) individually */
 
-        nextpos = cmdsplit(tmpbuf, mypos);
-        while (nextpos)
+        
+        for (nextpos = cmdsplit(tmpbuf, mypos); nextpos; mypos = nextpos, nextpos = cmdsplit(tmpbuf, mypos))
         {
             setupbounds (tmpbuf);
-            mypos = nextpos;
         }
     }
 }

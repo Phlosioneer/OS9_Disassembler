@@ -25,6 +25,7 @@
 
 #include <map>
 #include <string>
+#include <sstream>
 
 #include "disglobs.h"
 #include <string.h>
@@ -166,38 +167,50 @@ extern "C" {
         }
     }
 
-    /* ******************************************************************** *
-     * movchr() - Append a char in the desired printable format onto dst    *
-     * ******************************************************************** */
+}
 
-    void movchr(char* dst, unsigned char ch)
+/* ******************************************************************** *
+* singleCharData() - Append a char in the desired printable format onto dst    *
+* ******************************************************************** */
+
+void singleCharData(std::ostream &dest, char ch)
+{
+    //char mytmp[10];
+
+    if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
     {
-        char mytmp[10];
-
-        if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
+        dest << '\'' << ch << '\'';
+        //sprintf(mytmp, "'%c'", ch & 0x7f);
+        //strcat(dst, mytmp);
+    }
+    else
+    {
+        Label* pp = labelManager.getLabel('^', ch);
+        if (pp)
+            /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
         {
-            sprintf(mytmp, "'%c'", ch & 0x7f);
-            strcat(dst, mytmp);
+            dest << pp->name();
+            //strcat(dst, pp->name());
         }
         else
         {
-            Label* pp = labelManager.getLabel('^', ch);
-            if (pp)
-                /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
-            {
-                strcat(dst, pp->name());
-            }
-            else
-            {
-                sprintf(mytmp, "$%02x", ch & 0x7f);
-                strcat(dst, mytmp);
-            }
-        }
+            auto prevFill = dest.fill('0');
+            auto prevWidth = dest.width(2);
+            auto prevBase = dest.setf(std::ios_base::hex, std::ios_base::basefield);
+            dest << (int)ch;
+            dest.fill(prevFill);
+            dest.width(prevWidth);
+            dest.setf(prevBase, std::ios_base::basefield);
 
-        if (ch & 0x80)
-        {
-            strcat(dst, "+$80");
+            //sprintf(mytmp, "$%02x", ch & 0x7f);
+            //strcat(dst, mytmp);
         }
+    }
+
+    if (ch & 0x80)
+    {
+        dest << "+$80";
+        //strcat(dst, "+$80");
     }
 }
 
@@ -269,7 +282,7 @@ Label* LabelCategory::add(long value, const char* newName)
             _labelsByValue[value] = label;
         }
     }
-    else
+    else if (newName && strlen(newName) > 0)
     {
         /* Rename the old label. */
         label->setName(newName);
@@ -329,7 +342,8 @@ Label* LabelCategory::getFirst()
 
 /* Value is either the address of the label, or the value of the equate. */
 Label::Label(char category, int value, const char* name) : 
-    myAddr(value), category(category), _handle(new symbol_def{ this })
+    myAddr(value), category(category), _handle(new symbol_def{ this }),
+    _stdName(false), _global(false), _name("")
 {
     setName(name);
 }
@@ -368,14 +382,17 @@ void Label::setName(const char* name) {
  *          (4)   dl - ptr to the nlist tree for the label
  */
 
-extern "C" void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, int amod)
+void PrintLbl(std::ostream &dest, char clas, int adr, struct symbol_def* dl, int amod)
 {
-    char tmp[10];
+    auto prevFill = dest.fill();
+    auto prevWidth = dest.width();
+    auto prevBase = dest.flags() & std::ios_base::basefield;
+
+    //char tmp[10];
     /*short decn = adr & 0xffff;*/
-    register int mask;
+    int mask;
 
     /* Readjust class definition if necessary */
-
     if (clas == '@')
     {
          if (abs(adr) < 9)
@@ -393,9 +410,10 @@ extern "C" void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, 
 
     switch (clas)
     {
-        char *hexfmt;
+        //char *hexfmt;
 
         case '$':       /* Hexadecimal notation */
+            dest << '$';
             switch (amod)
             {
                 default:
@@ -413,46 +431,58 @@ extern "C" void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, 
 
                     if (abs(adr) <= 0xff)
                     {
-                        hexfmt = "%02x";
+                        dest.fill('0');
+                        dest.width(2);
+                        //hexfmt = "%02x";
                     }
                     else if (abs(adr) <= 0xffff)
                     {
-                        hexfmt = "%04x";
+                        dest.fill('0');
+                        dest.width(4);
+                        //hexfmt = "%04x";
                     }
                     else
                     {
-                        hexfmt = "%x";
+                        //hexfmt = "%x";
                     }
 
                     break;
                 case AM_LONG:
-                    hexfmt = "%08x";
+                    dest.fill('0');
+                    dest.width(8);
+                    //hexfmt = "%08x";
                     break;
                 case AM_SHORT:
-                    hexfmt = "%04x";
+                    dest.fill('0');
+                    dest.width(4);
+                    //hexfmt = "%04x";
                     break;
             }
 
-            sprintf (tmp, hexfmt, adr);
-            sprintf (dest, "$%s", tmp);
+            dest << std::hex << adr;
+            //sprintf (tmp, hexfmt, adr);
+            //sprintf (dest, "$%s", tmp);
             break;
         case '&':       /* Decimal */
-            sprintf (dest, "%d", adr);
+            dest << adr;
+            //sprintf (dest, "%d", adr);
             break;
         case '^':       /* ASCII */
-            *dest = '\0';
+            //*dest = '\0';
 
             if (adr > 0xff)
             {
-                movchr (dest, (adr >> 8) & 0xff);
-                strcat (dest, "*256+");
+                singleCharData(dest, adr & 0xff);
+                dest << "*256+";
+                //movchr (dest, (adr >> 8) & 0xff);
+                //strcat (dest, "*256+");
             }
-
-            movchr (dest, adr & 0xff);
+            singleCharData(dest, adr & 0xff);
 
             break;
         case '%':       /* Binary */
-            strcpy (dest, "%");
+            //strcpy (dest, "%");
+            dest << "%";
 
             if (adr > 0xffff)
             {
@@ -469,14 +499,20 @@ extern "C" void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, 
 
             while (mask)
             {
-                strcat (dest, (mask & adr ? "1" : "0"));
+                //strcat (dest, (mask & adr ? "1" : "0"));
+                dest << (mask & adr ? '1' : '0');
                 mask >>= 1;
             }
 
             break;
         default:
-            strcpy (dest, dl->inner->name());
+            //strcpy (dest, dl->inner->name());
+            dest << dl->inner->name();
     }
+
+    dest.fill(prevFill);
+    dest.width(prevWidth);
+    dest.setf(prevBase, std::ios_base::basefield);
 }
 
 /* **************************************************************** *
@@ -533,9 +569,10 @@ extern "C" struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
  *          (2) adr -  the address of the label
  *          (3) amod - the AMode desired
  */
-
+// This is NOT SAFE AT ALL.
 extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
 {
+
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
     char mainclass;                 /* Class for this location */
 
@@ -554,6 +591,8 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
             return 1;
         }
     }
+
+    std::ostringstream dest;
 
     /* if amod is non-zero, we're doing a label class */
 
@@ -632,20 +671,20 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
     }
     else
     {                           /*Pass2 */
-        char tmpname[20];
+        //char tmpname[20];
 
         mylabel = findlbl(mainclass, raw);
         if (mylabel)
         {
-            PrintLbl (tmpname, mainclass, raw, mylabel, amod);
-            strcat (dst, tmpname);
+            PrintLbl (dest, mainclass, raw, mylabel, amod);
+            //strcat (dst, tmpname);
         }
         else
         {                       /* Special case for these */
             if (strchr ("^$@&%", mainclass))
             {
-                PrintLbl (tmpname, mainclass, raw, mylabel, amod);
-                strcat (dst, tmpname);
+                PrintLbl (dest, mainclass, raw, mylabel, amod);
+                //strcat (dst, tmpname);
             }
             else
             {
@@ -667,24 +706,30 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
 
             if (kls->dofst->add_to)
             {
-                strcat (dst, "+");
+                dest << '+';
+                //strcat (dst, "+");
             }
             else
             {
-                strcat (dst, "-");
+                dest << '-';
+                //strcat (dst, "-");
             }
 
             if (kls->dofst->incl_pc)
             {
-                strcat (dst, "*");
+                //strcat (dst, "*");
+                dest << '*';
 
                 if (kls->dofst->of_maj)
                 {
-                    strcat (dst, "-");
+                    //strcat (dst, "-");
+                    dest << '-';
                 }
                 else
                 {
-                    return 1;
+                    // Messy kludge.
+                    goto cleanup;
+                    //return 1;
                 }
             }
             mylabel = findlbl(c, kls->dofst->of_maj);
@@ -692,15 +737,15 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
             /*if ((mylabel = FindLbl (LblList[strpos (lblorder, c)],
                                     kls->dofst->of_maj)))*/
             {
-                PrintLbl (tmpname, c, kls->dofst->of_maj, mylabel, amod);
-                strcat (dst, tmpname);
+                PrintLbl (dest, c, kls->dofst->of_maj, mylabel, amod);
+                //strcat (dst, tmpname);
             }
             else
             {                   /* Special case for these */
                 if (strchr ("^$@&", c))
                 {
-                    PrintLbl (tmpname, c, kls->dofst->of_maj, mylabel, amod);
-                    strcat (dst, tmpname);
+                    PrintLbl (dest, c, kls->dofst->of_maj, mylabel, amod);
+                    //strcat (dst, tmpname);
                 }
                 else
                 {
@@ -717,7 +762,9 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
 
         }
     }
-
+cleanup:
+    std::string destStr = dest.str();
+    strcat(dst, destStr.c_str());
     return 1;
 }
 

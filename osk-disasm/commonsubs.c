@@ -270,6 +270,7 @@ char * freadString(FILE* fp)
     while (ch && (ch > 0))
     {
         *(strPt++) = ch;
+        ch = getc(fp);
     }
 
     *strPt = '\0';

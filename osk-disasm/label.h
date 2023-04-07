@@ -29,7 +29,6 @@ extern "C" {
     struct symbol_def* labelclass_getFirst(struct label_class* handle);
 
     struct label_class* labelclass(char lblclass);
-    void PrintLbl(char* dest, char clas, int adr, struct symbol_def* dl, int amod);
     struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
     struct symbol_def* findlbl(char lblclass, int lblval);
     char* lblstr(char lblclass, int lblval);

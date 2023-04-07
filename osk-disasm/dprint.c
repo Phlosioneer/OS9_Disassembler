@@ -50,6 +50,7 @@
 #include "label.h"
 #include "command_items.h"
 #include "writer.h"
+#include "main_support.h"
 
 #ifdef _WIN32
 #   define snprintf _snprintf
@@ -134,7 +135,11 @@ void PrintPsect()
     BlankLine();
 
     /* Module name */
-    if (strrchr(ModFile, PATHSEP))
+    if (PsectName)
+    {
+        strcpy(EaString, PsectName);
+    }
+    else if (strrchr(ModFile, PATHSEP))
     {
         strcpy (EaString, strrchr(ModFile, PATHSEP) + 1);
     }
