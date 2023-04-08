@@ -159,7 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="IntegrationTestCase.cpp" />
-    <ClCompile Include="Testing.cpp" />
+    <ClCompile Include="IntegrationTests.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>

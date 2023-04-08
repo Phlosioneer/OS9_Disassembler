@@ -13,6 +13,7 @@ public:
 	const std::string basePath;
 	const std::string expectedOutputFilePath;
 	const std::string expectedStdOutFilePath;
+	std::string labelFilePath;
 	std::string inputFilePath;
 	std::string commandFilePath;
 	std::ifstream expectedOutputFile;

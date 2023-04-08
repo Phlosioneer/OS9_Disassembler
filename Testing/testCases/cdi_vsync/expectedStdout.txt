@@ -9,7 +9,7 @@
     8  00000 0001 Objct      set    $01        
     9  00000 0080 ReEnt      set    $80        
    10
-   11  00000 0080            psect  test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc 
+   11  00000 0080            psect  test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,cstart,ctrap 
    12
    13
    14                       * OS9 data area definitions
@@ -19,7 +19,7 @@
    18  00004 0000 D00004     ds.b   4          
    19  00008 0000 D00008     ds.b   4          
    20  0000c 0000 D0000c     ds.b   8          
-   21  00014 0000 D00014     ds.b   4          
+   21  00014 0000 totalMemSize ds.b   4          
    22  00018 0000 D00018     ds.b   2          
    23  0001a 0000 D0001a     ds.b   16         
    24  0002a 0000 D0002a     ds.b   2          
@@ -40,9 +40,9 @@
    38  0004c 7673            moveq  #115,d3    
    39  0004e 796e            dc.w   $796e      
    40  00050 6300            bls.w  L02d98     
-   41  00052 cccccccc L00052     equ    *-2        
+   41  00052 cccccccc cstart     equ    *-2        
    42  00054 8010            or.b   (a0),d0    
-   43  00056 2d46            move.l d6,D00014(a6) 
+   43  00056 2d46            move.l d6,totalMemSize(a6) 
    44  0005a 3d43            move.w d3,D00018(a6) 
    45  0005e 082b            btst.b #5,20(a3)  
    46  00064 670e            beq.s  L00074     
@@ -160,7 +160,7 @@
   158  001b2 202e            move.l D00008(a6),d0 
   159  001b6 90ae            sub.l  D00004(a6),d0 
   160  001ba 4e75            rts               
-  161  001bc 48e7 L001bc     movem.l a0-a3/d0-d1,-(sp) 
+  161  001bc 48e7 ctrap      movem.l a0-a3/d0-d1,-(sp) 
   162  001c0 302f            move.w 30(sp),d0  
   163  001c4 0440            subi.w #128,d0    
   164  001c8 e440            asr.w  #2,d0      

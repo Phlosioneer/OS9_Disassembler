@@ -92,7 +92,7 @@ static const char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete",
  *    Read the Driver initialization table and set up
  *    label names.
  */
-
+// NOT ACTIVELY MAINTAINED.
 static void get_drvr_jmps(int mty)
 {
     register const char **pt;
@@ -580,6 +580,8 @@ int dopass(int mypass)
     return 0;
 }
 
+// Debugging function?
+// NOT ACTIVELY MAINTAINED.
 int showem()
 {
     /*char c = '_';*/
@@ -880,7 +882,7 @@ void MovBytes (struct data_bounds *db)
 /* ******************************************
  * MovAsc() - Move nb byes fordcb" statement
  */
-
+// TODO: Not sure how to trigger this code for testing?
 void MovASC (int nb, char aclass)
 {
     char oper_tmp[30];

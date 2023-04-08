@@ -671,7 +671,7 @@ struct ireflist {
     struct ireflist *Prev;
     struct ireflist *Next;
     int dAddr;
-} *IRefs;
+} *IRefs = NULL;
 
 /* *******
  * ParseIRefs() - Parse through the Initialized Refs list for either
@@ -790,7 +790,7 @@ GetIRefs()
     }
 }
 
-static void dataprintHeader(char *hdr, char klas)
+static void dataprintHeader(const char *hdr, char klas, int isRemote)
 {
     struct cmd_items Ci;
 
@@ -818,7 +818,7 @@ static void dataprintHeader(char *hdr, char klas)
     BlankLine ();
 
     strcpy (Ci.mnem, "vsect");
-    strcpy (Ci.params, "");
+    strcpy (Ci.params, isRemote ? "remote" : "");
     Ci.cmd_wrd = 0;
     Ci.comment = "";
     CmdEnt = PrevEnt = 0;
@@ -1203,14 +1203,16 @@ ROFDataPrint ()
     struct symbol_def *srch;
 
     /*char dattmp[5];*/
-    register char *udat = "* Uninitialized data (Class %c)";
-    char *idat = "* Initialized data (Class %c)";
+    const char *udat = "* Uninitialized Data (Class \"%c\")";
+    // TODO: Change this to add a space. The reference exe will also have to be
+    // patched.
+    const char *idat = "* Initialized Data (Class\"%c\")";
 
     InProg = 0;
     srch = labelclass('D') ? labelclass_getFirst(labelclass('D')) : NULL;
     if (srch)
     {
-        dataprintHeader ("* Uninitialized Data (Class \"%c\")", 'D');
+        dataprintHeader (udat, 'D', FALSE);
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
@@ -1221,7 +1223,7 @@ ROFDataPrint ()
 
     if (ROFHd.idatsz)
     {
-        dataprintHeader("* Initialized Data (Class\"%c\")", '_');
+        dataprintHeader(idat, '_', FALSE);
 
         IBuf = (char *)mem_alloc((size_t)ROFHd.idatsz + 1);
 
@@ -1253,7 +1255,7 @@ ROFDataPrint ()
     srch = labelclass('G') ? labelclass_getFirst(labelclass('G')) : NULL;
     if (srch)
     {
-        dataprintHeader (udat, 'G');
+        dataprintHeader (udat, 'G', TRUE);
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
@@ -1265,18 +1267,18 @@ ROFDataPrint ()
 
     if ((ROFHd.remoteidatsiz))
     {
-        dataprintHeader(idat, 'H');
+        dataprintHeader(idat, 'H', TRUE);
 
         IBuf = (char *)mem_alloc((size_t)ROFHd.remoteidatsiz + 1);
 
-        if (fread(IBuf, ROFHd.idatsz, 1, ModFP) < 1)
+        if (fread(IBuf, ROFHd.remoteidatsiz, 1, ModFP) < 1)
         {
-            errexit ("Cannot read Initialized data from file!");
+            errexit ("Cannot read Remote Initialized data from file!");
         }
 
         PCPos = 0;
         srch = labelclass ('H') ? labelclass_getFirst(labelclass('H')) : NULL;
-        ListInitROF ("", refs_iremote,IBuf, ROFHd.idatsz, 'H');
+        ListInitROF ("", refs_iremote,IBuf, ROFHd.remoteidatsiz, 'H');
         BlankLine();
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
         free(IBuf);

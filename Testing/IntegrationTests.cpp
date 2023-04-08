@@ -9,7 +9,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace IntegrationTests
 {
-	TEST_CLASS(Testing)
+	TEST_CLASS(IntegrationTests)
 	{
 	public:
 		TEST_METHOD(ZeldasAdventureModule)
@@ -41,6 +41,23 @@ namespace IntegrationTests
 			reset();
 			IntegrationTestCase test("cdi_vsync");
 			PsectName = "test.os9";
+			
+			test.run();
+		}
+
+		TEST_METHOD(InitDataZeroCatRoff)
+		{
+			reset();
+			IntegrationTestCase test("init data zerocat_r");
+			
+			test.run();
+		}
+
+		TEST_METHOD(RemoteRoff)
+		{
+			reset();
+			IntegrationTestCase test("remote_r");
+
 			test.run();
 		}
 	};

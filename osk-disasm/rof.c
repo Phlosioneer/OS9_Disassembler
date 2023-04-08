@@ -255,9 +255,9 @@ void getRofHdr (FILE *progpath)
         exit (errno);
     }
 
-    ext_count = fread_w (ModFP);
+    
 
-    while (ext_count--)
+    for (ext_count = fread_w(ModFP); ext_count > 0; ext_count--)
     {
         char *_name;
         int refcount;
@@ -466,7 +466,7 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf)
                         *curRef,
                     **base = 0;
 
-    while (count--)
+    for (; count > 0; count--)
     {
         _ty = fread_w (ModFP);
         _ofst = fread_l (ModFP);

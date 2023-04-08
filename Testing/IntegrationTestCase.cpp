@@ -29,6 +29,7 @@ IntegrationTestCase::IntegrationTestCase(std::string caseName)
 {
 	inputFilePath = basePath + "test.module";
 	commandFilePath = basePath + "commands.txt";
+	labelFilePath = basePath + "labels.s";
 
 	std::ifstream moduleExists{ inputFilePath };
 	if (!moduleExists.good()) {
@@ -48,6 +49,11 @@ IntegrationTestCase::IntegrationTestCase(std::string caseName)
 	std::ifstream commandFileExits{ commandFilePath };
 	if (!commandFileExits.good()) {
 		commandFilePath = "";
+	}
+
+	std::ifstream labelFileExists{ labelFilePath };
+	if (!labelFileExists.good()) {
+		labelFilePath = "";
 	}
 }
 
@@ -75,6 +81,12 @@ void IntegrationTestCase::run()
 	WrtSrc = 1;
 
 	do_cmd_file();
+
+	if (!labelFilePath.empty())
+	{
+		LblFNam[0] = (char*)labelFilePath.c_str();
+		LblFilz = 1;
+	}
 
 	Pass = 1;
 	dopass(1);

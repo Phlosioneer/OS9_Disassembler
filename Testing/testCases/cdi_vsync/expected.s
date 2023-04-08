@@ -9,7 +9,7 @@ Prgrm set $1
 Objct set $01
 ReEnt set $80
 
- psect test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc
+ psect test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,cstart,ctrap
 
 
 * OS9 data area definitions
@@ -19,7 +19,7 @@ D00000 ds.b 4
 D00004 ds.b 4
 D00008 ds.b 4
 D0000c ds.b 8
-D00014 ds.b 4
+totalMemSize ds.b 4
 D00018 ds.b 2
 D0001a ds.b 16
 D0002a ds.b 2
@@ -40,9 +40,9 @@ D003a2 dc.l L00242
  moveq #115,d3
  dc.w $796e
  bls.w L02d98
-L00052 equ *-2
+cstart equ *-2
  or.b (a0),d0
- move.l d6,D00014(a6)
+ move.l d6,totalMemSize(a6)
  move.w d3,D00018(a6)
  btst.b #5,20(a3)
  beq.s L00074
@@ -160,7 +160,7 @@ L0019a move.w d1,-(sp)
  move.l D00008(a6),d0
  sub.l D00004(a6),d0
  rts 
-L001bc movem.l a0-a3/d0-d1,-(sp)
+ctrap movem.l a0-a3/d0-d1,-(sp)
  move.w 30(sp),d0
  subi.w #128,d0
  asr.w #2,d0
