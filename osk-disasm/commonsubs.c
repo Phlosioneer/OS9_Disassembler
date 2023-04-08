@@ -29,20 +29,23 @@
 #include <stdio.h>
 #include "userdef.h"
 #include "modtypes.h"
-#include "disglobs.h"
+
 #include "rof.h"
 
 #include "commonsubs.h"
 #include "exit.h"
 #include "label.h"
 #include "command_items.h"
+#include "main_support.h"
+
+static char strBuf[2000];
 
 /*
  * strpos() - Similar to strchr except that it returns the
  *        base-1 offset from the begin of the string.
  */
 
-int strpos (char *s, char c)
+int strpos (const char *s, char c)
 {
     register int p;
 

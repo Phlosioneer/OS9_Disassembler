@@ -7,12 +7,18 @@
 #include "commonsubs.h"
 #include "modtypes.h"
 #include "exit.h"
+#include "dismain.h"
+#include "main_support.h"
+#include "disglobs.h"
 
 #define LABEL_LEN 200
 #define MNEM_LEN 50
 #define CODE_LEN 10
 #define OPCODE_LEN 200
 #define COMMENT_LEN 200
+
+
+cglobal const char dispRegNam[] = { 'd','a' };
 
 /*
 struct cmd_items_inner {
@@ -29,7 +35,7 @@ struct cmd_items_inner {
 
 struct cmd_items Instruction;
 
-char* SizSufx[] = { "b", "w", "l" };
+const char* SizSufx[] = { "b", "w", "l" };
 
 typedef struct modestrs {
     char* str;
@@ -150,7 +156,7 @@ struct cmd_items* initcmditems(struct cmd_items* ci)
  *      in the command word, and also have an effective address      *
  * ----------------------------------------------------------------- */
 
-int reg_ea(struct cmd_items* ci, int j, struct opst* op)
+int reg_ea(struct cmd_items* ci, int j, const struct opst* op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -314,7 +320,7 @@ static void reglist(char* s, unsigned long regmask, int mode)
     }
 }
 
-int movem_cmd(struct cmd_items* ci, int j, struct opst* op)
+int movem_cmd(struct cmd_items* ci, int j, const struct opst* op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -368,7 +374,7 @@ int movem_cmd(struct cmd_items* ci, int j, struct opst* op)
     return 1;
 }
 
-int link_unlk(struct cmd_items* ci, int j, struct opst* op)
+int link_unlk(struct cmd_items* ci, int j, const struct opst* op)
 {
     int regno = ci->cmd_wrd & 7;
     int ext_w;

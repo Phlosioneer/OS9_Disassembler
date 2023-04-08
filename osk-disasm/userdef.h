@@ -73,19 +73,21 @@ typedef struct
 	char EAentry[7];
 }EA_TABLE;
 
-typedef struct opst
+struct opst
 {
-	char *name;
+	char* name;
 	short sizestr;	/* sizefield[size]   */
 	short source;	/* EAtype[source]    */
 	short dest;	/* EAtype[source]    */
-	char *opwordstr;
+	char* opwordstr;
 	short sizestartbit;
 	short sizeendbit;
-    int cpulvl;
-    int id;
-    int (*opfunc)(struct cmd_items *, int, struct opst *);
-} OPSTRUCTURE;
+	int cpulvl;
+	int id;
+	int (*opfunc)(struct cmd_items*, int, const struct opst*);
+};
+
+typedef struct opst OPSTRUCTURE;
 
 typedef struct
 {
@@ -196,18 +198,11 @@ struct breakelem	/* break table */
 external declerations
 */
 
-extern char PROMPT[];
 extern char MPUREGMSG[];
-extern char WHICHREGMSG[];
-extern char BRKMSG[];
-extern char SYMBMSG[];
 extern char BREAKMSG[];
 extern char TRACEMSG[];
 extern char VINTMSG[];
 extern char BERRMSG[];
-extern char UNKNOWNMSG[];
-extern char HITKEYMSG[];
-extern char MMASHELPMSG[];
 
 /* ***************************************************************** */
 #endif

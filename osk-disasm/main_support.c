@@ -37,6 +37,7 @@
 #include "dismain.h"
 #include "writer.h"
 #include "cmdfile.h"
+#include "dprint.h"
 
 #ifdef _WIN32
 #   define strdup _strdup
@@ -44,12 +45,18 @@
 #   define R_OK 4
 #endif
 
-extern int LblFilz;              /* Count of Label files specified     */
-extern char *LblFNam[]; /* Pointers to the path names for the files */
-extern char *CmdFileName;        /* The path for the Command File Name */
-extern int DoingCmds;
-
 char* PsectName = NULL;
+int cpu;
+int PrintAllCode;
+int Pass;    /* The disassembler is a two-pass assembler */
+char* ModFile;   /* The module file to read */
+FILE* ModFP;
+int WrtSrc;
+int IsUnformatted;
+int PCPos;
+int CmdEnt;   /* The Entry Point for the Command */
+int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
+char* DefDir;
 
 /* **********************
  * usage() - Print Help message
@@ -328,7 +335,7 @@ void do_opt (char *c)
             PgWidth = atoi (pass_eq (pt));
             break;
         case 'd':
-            PgDepth = atoi (pass_eq (pt));
+            //PgDepth = atoi (pass_eq (pt));
             break;
         default:
             usage ();

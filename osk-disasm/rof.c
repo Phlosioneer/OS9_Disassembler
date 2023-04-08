@@ -39,8 +39,13 @@
 #include "label.h"
 #include "command_items.h"
 #include "writer.h"
+#include "dismain.h"
+#include "main_support.h"
 
-struct asc_data* data_ascii;
+
+struct rof_header ROFHd;
+char  rname[100];
+static struct asc_data* data_ascii;
 struct rof_extrn* refs_data,
     * refs_idata,
     * refs_code,
@@ -48,20 +53,10 @@ struct rof_extrn* refs_data,
     * refs_iremote,
     * extrns,                   /* Generic external pointer */
     * codeRefs_sav;
-
-extern struct data_bounds *LAdds[];
+int IsROF;
 
 /*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer);
-
-char  rname[100];
-
-/*int code_begin;*/
-
-extern int CodeEnd,
-           PrevEnt;
-extern char realcmd[],
-            pseudcmd[];
 
 /* DEBUGGING function */
 void reflst (void)

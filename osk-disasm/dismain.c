@@ -45,7 +45,6 @@
 #include "dprint.h"
 #include "label.h"
 #include "command_items.h"
-int error;
 
 void reflst();
 #ifdef _WIN32
@@ -57,23 +56,35 @@ void reflst();
 #endif
 
 /* Some variables that are only used in one or two modules */
-int LblFilz;              /* Count of Label files specified     */
-char *LblFNam[MAX_LBFIL]; /* Pointers to the path names for the files */
-
+int LblFilz;
+char *LblFNam[MAX_LBFIL];
+int error;
 /*static int HdrLen;*/
 int CodeEnd;
 
-extern struct data_bounds *dbounds;
-extern char realcmd[], pseudcmd[];
-extern void printXtraBytes (char *);
+/* Module header variables */
+unsigned int M_ID, M_SysRev;
+long M_Size, M_Owner, M_Name;
+int M_Accs;
+char M_Type, M_Lang, M_Attr, M_Revs;
+int M_Edit, M_Usage, M_Symbol, M_Parity,
+    M_Exec, M_Except, M_Mem, M_Stack, M_IData,
+    M_IRefs, M_Init, M_Term;
+int IDataBegin;
+int IDataCount;
+int HdrEnd;   /* The first byte past end of header, usefull for begin of Pass 2 */
+
+int AMode;
+int NowClass;
+int PBytSiz;
 
 static int get_asmcmd(void);
 
-static char *DrvrJmps[] = {
+static const char *DrvrJmps[] = {
     "Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL
 };
 
-static char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete", "Seek",
+static const char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete", "Seek",
         "Read", "Write", "Readln", "Writeln", "Getstat", "Setstat", "Close", NULL};
 
 /* ***********************
@@ -84,7 +95,7 @@ static char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete", "Seek
 
 static void get_drvr_jmps(int mty)
 {
-    register char **pt;
+    register const char **pt;
     register int jmpdst;
     int jmpbegin = ftell (ModFP);
     char boundstr[50];
@@ -481,10 +492,12 @@ int dopass(int mypass)
         PCPos = HdrEnd;
     }
 
-
+    int instrNum = -1;
     while (PCPos < CodeEnd)
     {
         struct data_bounds *bp;
+
+        instrNum += 1;
 
         memset(&Instruction, 0, sizeof(Instruction));
         CmdEnt = PCPos;
@@ -591,14 +604,14 @@ int showem()
  *       that do not yet have handler functions
  */
 
-int notimplemented(struct cmd_items *ci, int tblno, OPSTRUCTURE *op)
+int notimplemented(struct cmd_items *ci, int tblno, const OPSTRUCTURE *op)
 {
     return 0;
 }
 
 /*extern OPSTRUCTURE *instr00,*instr01,*instr04,*instr05,*instr06,
        *instr07,*instr08,*instr09,*instr11,*instr12,*instr13,*instr14;*/
-OPSTRUCTURE *opmains[] =
+const OPSTRUCTURE *opmains[] =
 {
     instr00,
     instr01,
@@ -622,7 +635,7 @@ static int get_asmcmd()
 {
     /*extern OPSTRUCTURE syntax1[];
     extern COPROCSTRUCTURE syntax2[];*/
-    register OPSTRUCTURE *optbl;
+    register const OPSTRUCTURE *optbl;
 
     int opword;
     int j;
@@ -650,7 +663,7 @@ static int get_asmcmd()
 
     for (j = 0; j <= MAXINST; j++)
     {
-        OPSTRUCTURE *curop = &optbl[j];
+        const OPSTRUCTURE *curop = &optbl[j];
 
         error = FALSE;
 

@@ -1,6 +1,7 @@
 
 #ifndef LABEL_H
 #define LABEL_H
+#include "externc.h"
 
 #define LBLLEN 40
 
@@ -32,7 +33,7 @@ extern "C" {
     struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
     struct symbol_def* findlbl(char lblclass, int lblval);
     char* lblstr(char lblclass, int lblval);
-    struct symbol_def* addlbl(char lblclass, int val, char* newname);
+    struct symbol_def* addlbl(char lblclass, int val, const char* newname);
     void process_label(struct cmd_items* ci, char lblclass, int addr);
     void parsetree(char c);
     int LblCalc(char* dst, int adr, int amod, int curloc);
@@ -47,6 +48,7 @@ extern "C" {
 #include <vector>
 #include <memory>
 #include <map>
+#include <string>
 
 class Label {
 public:
@@ -127,6 +129,8 @@ private:
     LabelManager& operator=(LabelManager&&) = delete;
 };
 
+extern LabelManager *labelManager;
+
 #endif // __cplusplus
 
 
@@ -153,5 +157,9 @@ struct label_class {
 };
 
 #endif // __cplusplus
+
+
+cglobal const char lblorder[];
+cglobal char DfltLbls[];
 
 #endif // LABEL_H

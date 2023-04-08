@@ -11,7 +11,7 @@
 cfunc int revbits(int num, int lgth);
 
 // Parsing
-cfunc int strpos(char* s, char c);
+cfunc int strpos(const char* s, char c);
 cfunc char* skipblank(char* p);
 
 // IO

@@ -1,6 +1,6 @@
 
 #include "main_support.h"
-#include "disglobs.h"
+
 #include "exit.h"
 #include "dismain.h"
 #include "writer.h"

@@ -24,25 +24,24 @@
  * ******************************************************************** */
 
 #include <string.h>
-#include "disglobs.h"
+
 #include "userdef.h"
 #include "sysnames.h"
 #include "rof.h"
 #include "commonsubs.h"
-
+#include "disglobs.h"
 #include "cmdfile.h"
 #include "label.h"
 #include "opcode00.h"
 #include "command_items.h"
+#include "textdef.h"
+#include "main_support.h"
+#include "dprint.h"
 
 enum {
     EA2REG,
     REG2EA
 };
-
-
-
-extern CONDITIONALS typecondition[];
 
 /*int bitModeRegLegal(int mode, int reg)
 {
@@ -302,7 +301,7 @@ extern CONDITIONALS typecondition[];
  *
  */
 
-int biti_reg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int biti_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     static char *sr[2] = {"ccr", "sr"};
     register int size;
@@ -336,7 +335,7 @@ int biti_reg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
  *
  */
 
-int biti_size(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int biti_size(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int size = (ci->cmd_wrd >> 6) & 3;
     register int mode = (ci->cmd_wrd >> 3) & 7;
@@ -431,7 +430,7 @@ int biti_size(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int bit_static(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int bit_static(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int ext0,
                  mode, reg;
@@ -471,7 +470,7 @@ int bit_static(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int bit_dynamic(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int bit_dynamic(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int mode, reg;
 
@@ -507,7 +506,7 @@ int bit_dynamic(struct cmd_items *ci, int j, OPSTRUCTURE *op)
  *
  */
 
-int move_instr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int move_instr(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     int d_mode, d_reg, src_mode, src_reg;
     char src_ea[50], dst_ea[50];
@@ -579,7 +578,7 @@ int move_instr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int move_ccr_sr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int move_ccr_sr(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
     int dir;
@@ -636,7 +635,7 @@ int move_ccr_sr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int move_usp(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int move_usp(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register char *dot;
 
@@ -662,7 +661,7 @@ int move_usp(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int movep(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int movep(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int addr_reg = ci->cmd_wrd & 7;
     register int opMode = (ci->cmd_wrd >> 6) & 7;
@@ -691,7 +690,7 @@ int movep(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int moveq(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int moveq(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register char *dot;
 
@@ -714,7 +713,7 @@ int moveq(struct cmd_items *ci, int j, OPSTRUCTURE *op)
  *      single word and the EA is in the lower 6 bytes             *
  * --------------------------------------------------------------- */
 
-int one_ea(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -865,7 +864,7 @@ static int branch_displ (struct cmd_items *ci, int cmd_word, char *siz_suffix)
     return displ;
 }
 
-int bra_bsr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int bra_bsr(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int displ;
     register int jmp_base = PCPos;
@@ -927,7 +926,7 @@ int bra_bsr(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int cmd_no_opcode(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmd_no_opcode(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     ci->params[0] = '\0';
     strcpy(ci->mnem, op->name);
@@ -936,7 +935,7 @@ int cmd_no_opcode(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 }
 
 
-int bit_rotate_mem(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int bit_rotate_mem(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -966,7 +965,7 @@ int bit_rotate_mem(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int bit_rotate_reg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int bit_rotate_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int count_reg = (ci->cmd_wrd >> 9) & 7;
     char dest_ea[5];
@@ -995,7 +994,7 @@ int bit_rotate_reg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int br_cond(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int br_cond(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int jmp_base = PCPos;
     register char *condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
@@ -1090,7 +1089,7 @@ typedef struct add_sub_def {
  *     1101 - "add"
  */
 
-int add_sub(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int add_sub(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     /*int datareg = (ci->cmd_wrd >> 9) & 7;*/
     int ea_mode = (ci->cmd_wrd >> 3) & 7;
@@ -1177,7 +1176,7 @@ int add_sub(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     }
 }
 
-int cmp_cmpa(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmp_cmpa(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int mode = (ci->cmd_wrd >> 3) & 7;
     register int reg = ci->cmd_wrd & 7;
@@ -1212,7 +1211,7 @@ int cmp_cmpa(struct cmd_items *ci, int j, OPSTRUCTURE *op)
 
     return 0;
 }
-int addq_subq(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int addq_subq(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1240,7 +1239,7 @@ int addq_subq(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int abcd_sbcd(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int abcd_sbcd(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int srcReg = ci->cmd_wrd & 7;
     register int dstReg = (ci->cmd_wrd >> 9) & 7;
@@ -1288,7 +1287,7 @@ void addTrapOpt(struct cmd_items *ci, int ppos)
     }
 }
 
-int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int vector = ci->cmd_wrd & 0x0f;
     register int syscall = getnext_w(ci);
@@ -1430,14 +1429,14 @@ int trap(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int cmd_stop(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmd_stop(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     sprintf(ci->params, "#%d", getnext_w(ci));
     strcpy (ci->mnem, op->name);
     return 1;
 }
 
-int cmd_dbcc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmd_dbcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     /*int br_from = PCPos;
     register int dest;*/
@@ -1480,7 +1479,7 @@ int cmd_dbcc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int cmd_scc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmd_scc(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1513,7 +1512,7 @@ int cmd_scc(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 0;
 }
 
-int cmd_exg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmd_exg(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int regnumSrc = (ci->cmd_wrd >> 9) & 7;
     register int regnumDst = ci->cmd_wrd & 7;
@@ -1546,7 +1545,7 @@ int cmd_exg(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int ext_extb(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int ext_extb(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register char *sufx;
 
@@ -1576,7 +1575,7 @@ int ext_extb(struct cmd_items *ci, int j, OPSTRUCTURE *op)
     return 1;
 }
 
-int cmpm_addx_subx(struct cmd_items *ci, int j, OPSTRUCTURE *op)
+int cmpm_addx_subx(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 {
     register int srcRegno = ci->cmd_wrd & 7;
     register int dstRegno = (ci->cmd_wrd >> 9) & 7;

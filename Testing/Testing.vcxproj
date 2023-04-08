@@ -101,7 +101,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;D:\myDocuments\Documents\Source\C\OS9 Disassembler\osk-disasm\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>writer.obj;main_support.obj;cmdfile.obj;command_items.obj;commonsubs.obj;def68def.obj;dprint.obj;label.obj;opcode00.obj;opcodes020.obj;rof.obj;exit.obj;dismain.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>reset.obj;textdef.obj;writer.obj;main_support.obj;cmdfile.obj;command_items.obj;commonsubs.obj;def68def.obj;dprint.obj;label.obj;opcode00.obj;opcodes020.obj;rof.obj;exit.obj;dismain.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

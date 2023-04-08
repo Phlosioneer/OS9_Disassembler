@@ -7,9 +7,9 @@
  *                                                                          *
  * ************************************************************************ */
 
-#include "disglobs.h"
-#include "userdef.h"
 
+#include "userdef.h"
+#include "dismain.h"
 
 /*static char sizechar[2];*/
 
@@ -41,10 +41,8 @@ static int bitnum (int startbit, int endbit, int opword)
 /* ********************************************* */
 /* ROUTINE: FPMATCH							     */
 /* ********************************************* */
-
 int fpmatch (int start)
 {
-    extern error;
     extern char sizechar[];
 
     int operationword;
@@ -125,10 +123,9 @@ int fpmatch (int start)
 /* ROUTINE: TABLEMATCH							 */
 /* ********************************************* */
 
-OPSTRUCTURE * tablematch (int opword, OPSTRUCTURE *entry)
+const OPSTRUCTURE * tablematch (int opword, const OPSTRUCTURE *entry)
 {
     /*extern OPSTRUCTURE syntax1[];*/
-    extern int error;
 	int Bmatch;
     int j,
         b,

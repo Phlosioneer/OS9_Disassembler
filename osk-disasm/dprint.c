@@ -51,6 +51,7 @@
 #include "command_items.h"
 #include "writer.h"
 #include "main_support.h"
+#include "rof.h"
 
 #ifdef _WIN32
 #   define snprintf _snprintf
@@ -60,29 +61,33 @@
 #define CNULL '\0'
 
 static void BlankLine();
-
 static void PrintFormatted (const char *pfmt, struct cmd_items *ci);
 static void NonBoundsLbl (char cClass);
 static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval);
 
-extern char *CmdBuf;
 /*extern struct printbuf *pbuf;*/
 extern struct rof_header ROFHd;
 
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 const char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
-const char *xtraFmt = "             %s\n";
+static const char *xtraFmt = "             %s\n";
 
-int PgNum = 0;
 int PrevEnt = 0;                /* Previous CmdEnt - to print non-boundary labels */
 int InProg;                     /* Flag that we're in main program, so that it won't
                                    munge the label name */
 static char ClsHd[100];         /* header string for label equates */
 static char FmtBuf[200];        /* Buffer to store formatted string */
-int HadWrote;                   /* flag that header has been written */
-char *SrcHd;                    /* ptr for header for source file */
-char *IBuf;                     /* Pointer to buffer containing the Init Data values */
+static int HadWrote;            /* flag that header has been written */
+static char *SrcHd;             /* ptr for header for source file */
+static char *IBuf;              /* Pointer to buffer containing the Init Data values */
+int LinNum;
+int PgWidth = 80;
+char EaString[200];
 
+/* Comments tree */
+
+struct comment_tree* Comments[33];
+struct append_comment* CmntApnd[33];
 
 struct modnam ModTyps[] = {
     {"Prgrm", 1},

@@ -61,10 +61,10 @@ cfunc int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct
 cfunc void get_displ(struct cmd_items* ci, char* dst, int siz_flag);
 cfunc int set_indirect_idx(char* dest, struct extWbrief* extW);
 
-cfunc int reg_ea(struct cmd_items* ci, int j, struct opst* op);
+cfunc int reg_ea(struct cmd_items* ci, int j, const struct opst* op);
 cfunc char* regbyte(char* s, unsigned char regmask, char* ad, int doslash);
-cfunc int movem_cmd(struct cmd_items* ci, int j, struct opst* op);
-cfunc int link_unlk(struct cmd_items* ci, int j, struct opst* op);
+cfunc int movem_cmd(struct cmd_items* ci, int j, const struct opst* op);
+cfunc int link_unlk(struct cmd_items* ci, int j, const struct opst* op);
 cfunc int getnext_w(struct cmd_items* ci);
 cfunc void ungetnext_w(struct cmd_items* ci);
 cfunc struct cmd_items* initcmditems(struct cmd_items* ci);
@@ -75,6 +75,7 @@ cfunc int ctl_addrmodesonly(int mode, int reg);
 cfunc char getnext_b(struct cmd_items* ci);
 
 cglobal struct cmd_items Instruction;
-cglobal char* SizSufx[3];
+cglobal const char* SizSufx[3];
+cglobal const char dispRegNam[];
 
 #endif // COMMAND_ITEMS_H

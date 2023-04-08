@@ -5,6 +5,6 @@
 #include "userdef.h"
 #include "externc.h"
 
-cfunc OPSTRUCTURE* tablematch(int opword, OPSTRUCTURE* entry);
+cfunc const OPSTRUCTURE* tablematch(int opword, const OPSTRUCTURE* entry);
 
 #endif

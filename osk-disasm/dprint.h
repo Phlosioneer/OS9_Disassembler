@@ -23,4 +23,16 @@ cfunc void OS9DataPrint(void);
 cfunc void ListData(struct symbol_def* me, int upadr, char cClass);
 cfunc void WrtEquates(int stdflg);
 
+cglobal const char pseudcmd[80];
+cglobal const char realcmd[80];
+cglobal int PrevEnt;
+cglobal int LinNum;
+cglobal int PgWidth;
+cglobal char EaString[200]; /* Buffer to hold the effective address. */
+
+/* Comments tree */
+
+cglobal struct comment_tree* Comments[33];
+cglobal struct append_comment* CmntApnd[33];
+
 #endif

@@ -120,6 +120,8 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="opcode00.c" />
     <ClCompile Include="opcodes020.c" />
+    <ClCompile Include="reset.cpp" />
+    <ClCompile Include="textdef.cpp" />
     <ClCompile Include="writer.cpp" />
     <ClCompile Include="rof.c" />
   </ItemGroup>
@@ -138,6 +140,7 @@
     <ClInclude Include="modtypes.h" />
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="opcodes020.h" />
+    <ClInclude Include="reset.h" />
     <ClInclude Include="writer.h" />
     <ClInclude Include="rof.h" />
     <ClInclude Include="structs.h" />

@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include "disglobs.h"
+#include "main_support.h"
 
 /* ***************************************************************************** *
  * errexit() - Exit when an error occurs.  Prints a prompt describing the error  *

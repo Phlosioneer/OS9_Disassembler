@@ -27,7 +27,7 @@
 #include <string>
 #include <sstream>
 
-#include "disglobs.h"
+
 #include <string.h>
 #include <ctype.h>
 #include "userdef.h"
@@ -36,13 +36,17 @@
 #include "exit.h"
 #include "label.h"
 #include "command_items.h"
+#include "cmdfile.h"
+#include "main_support.h"
+#include "dismain.h"
 
-LabelManager labelManager;
+LabelManager* labelManager = new LabelManager();
 
-extern "C" struct data_bounds* LAdds[];
-extern "C" struct data_bounds* dbounds;
+const char lblorder[] = "_!^$&@%ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-
+// TODO: Make this const, or rename.
+char DfltLbls[] = "&&&&&&D&&LLLLLL";
+static_assert(sizeof(DfltLbls) == 16, "Expected 16 default labels.");
 
 extern "C" {
     const char* label_getName(struct symbol_def* handle) {
@@ -74,7 +78,7 @@ extern "C" {
     }
 
     struct symbol_def* label_getNext(struct symbol_def* handle) {
-        Label* label = labelManager.getCategory(handle->inner->category)->getNextAfter(handle->inner);
+        Label* label = labelManager->getCategory(handle->inner->category)->getNextAfter(handle->inner);
         return label ? label->handle() : nullptr;
     }
 
@@ -84,12 +88,12 @@ extern "C" {
     }
 
     struct label_class* labelclass(char lblclass) {
-        return labelManager.getCategory(lblclass)->handle();
+        return labelManager->getCategory(lblclass)->handle();
     }
 
     struct symbol_def* lblpos(char lblclass, int lblval)
     {
-        Label* label = labelManager.getCategory(lblclass)->get(lblval);
+        Label* label = labelManager->getCategory(lblclass)->get(lblval);
         return label ? label->handle() : nullptr;
     }
 
@@ -103,7 +107,7 @@ extern "C" {
      *              If NULL or empty string, the hex address of the label prepended with
      *              the class letter is used.
      */
-    struct symbol_def* addlbl(char lblclass, int value, char* newName)
+    struct symbol_def* addlbl(char lblclass, int value, const char* newName)
     {
         if (strchr("^@$&", lblclass))
         {
@@ -111,7 +115,7 @@ extern "C" {
         }
 
         // If the category doesn't exist already, create it.
-        Label* label = labelManager.addLabel(lblclass, value, newName);
+        Label* label = labelManager->addLabel(lblclass, value, newName);
         return label ? label->handle() : nullptr;
     }
 
@@ -128,7 +132,7 @@ extern "C" {
         if (strchr("^@$&", lblclass))
             return NULL;
 
-        Label* label = labelManager.getLabel(lblclass, lblval);
+        Label* label = labelManager->getLabel(lblclass, lblval);
         return label ? label->handle() : nullptr;
     }
 
@@ -136,7 +140,7 @@ extern "C" {
 
     char* lblstr(char lblclass, int lblval)
     {
-        Label* label = labelManager.getLabel(lblclass, lblval);
+        Label* label = labelManager->getLabel(lblclass, lblval);
         return label ? label->name() : "";
     }
 
@@ -150,11 +154,11 @@ extern "C" {
     {
         if (Pass == 1)
         {
-            labelManager.addLabel(lblclass, addr, NULL);
+            labelManager->addLabel(lblclass, addr, NULL);
         }
         else   /* Pass 2, find it */
         {
-            Label* label = labelManager.getLabel(lblclass, addr);
+            Label* label = labelManager->getLabel(lblclass, addr);
             if (label)
             {
                 strcpy(ci->params, label->name());
@@ -173,7 +177,7 @@ extern "C" {
 * singleCharData() - Append a char in the desired printable format onto dst    *
 * ******************************************************************** */
 
-void singleCharData(std::ostream &dest, char ch)
+static void singleCharData(std::ostream &dest, char ch)
 {
     //char mytmp[10];
 
@@ -185,7 +189,7 @@ void singleCharData(std::ostream &dest, char ch)
     }
     else
     {
-        Label* pp = labelManager.getLabel('^', ch);
+        Label* pp = labelManager->getLabel('^', ch);
         if (pp)
             /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
         {
@@ -382,7 +386,7 @@ void Label::setName(const char* name) {
  *          (4)   dl - ptr to the nlist tree for the label
  */
 
-void PrintLbl(std::ostream &dest, char clas, int adr, struct symbol_def* dl, int amod)
+static void PrintLbl(std::ostream &dest, char clas, int adr, struct symbol_def* dl, int amod)
 {
     auto prevFill = dest.fill();
     auto prevWidth = dest.width();
@@ -774,5 +778,5 @@ extern "C" void parsetree(char c)
     if (Pass == 1)
         return;
 
-    labelManager.printAll();
+    labelManager->printAll();
 }

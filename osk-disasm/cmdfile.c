@@ -36,7 +36,7 @@
  * ************************************************************************ */
 
 
-#define _GNU_SOURCE     /* Needed to get isblank() defined */
+//#define _GNU_SOURCE     /* Needed to get isblank() defined */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -49,11 +49,17 @@
 #include "label.h"
 #include "main_support.h"
 #include "cmdfile.h"
+#include "dprint.h"
+#include "dismain.h"
+#include "label.h"
 /*#include "amodes.h"*/
 
 char *CmdFileName;
 FILE *CmdFP;
 int DoingCmds;          /* Flag - Nonzero if we're doing the command file (not commandline) */
+struct data_bounds* LAdds[33];     /* Temporary */
+struct data_bounds* dbounds;
+static const char BoundsNames[] = "ABCDLSW";
 
 static int NxtBnd;
 static int NoEnd;      /* Flag that no end on last bound                 */
@@ -68,11 +74,6 @@ static int optincmd (char *lpos);
 static void cmdamode (char *pt);
 static struct comment_tree *newcomment (int addrs,
                             struct comment_tree *parent);
-
-/* some of the following may need to be moved tothe global file */
-struct data_bounds *LAdds[33];     /* Temporary */
-struct data_bounds *dbounds;
-char BoundsNames[] = "ABCDLSW";
 
 static void
 badexit (char *msg)

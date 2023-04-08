@@ -43,6 +43,12 @@
     <ClCompile Include="writer.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="reset.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="textdef.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -106,6 +112,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="writer.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="reset.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -49,6 +49,7 @@
 
 #include "label.h"
 #include "externc.h"
+#include <stdio.h>
 
 struct cmd_items;
 
@@ -109,8 +110,6 @@ struct asc_data {
                     *RNext;
 };
 
-cglobal struct asc_data *data_ascii;
-
 
 /*struct rof_extrn *xtrn_data = 0,
                  *xtrn_idata,
@@ -136,7 +135,8 @@ cglobal struct rof_extrn *refs_data,
 
 /*struct rof_header ROF_hd,
                *rofptr = &ROF_hd;*/
-
+cglobal struct rof_header ROFHd;
+cglobal int IsROF;
 
 cfunc void reflst(void);
 cfunc int RealEnt(void);
