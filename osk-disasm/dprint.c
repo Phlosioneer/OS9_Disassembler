@@ -73,7 +73,7 @@ const char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
 static const char *xtraFmt = "             %s\n";
 
 int PrevEnt = 0;                /* Previous CmdEnt - to print non-boundary labels */
-int InProg;                     /* Flag that we're in main program, so that it won't
+static int InProg;              /* Flag that we're in main program, so that it won't
                                    munge the label name */
 static char ClsHd[100];         /* header string for label equates */
 static char FmtBuf[200];        /* Buffer to store formatted string */

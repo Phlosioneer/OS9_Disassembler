@@ -89,25 +89,46 @@ void IntegrationTestCase::run()
 	}
 	fclose(ModFP);
 
-	//std::ifstream expectedFile;
-	//expectedFile.open("../../Testing/testCases/zeldas adventure/expected.s");
-	std::istringstream actualStream(moduleOutput.result());
+	std::string temp1 = moduleOutput.result();
+	//Logger::WriteMessage(temp1.c_str());
+	std::istringstream actualOutputFile(temp1);
+	assertStreamsEqual(expectedOutputFile, actualOutputFile, "Output File");
+
+	std::string temp2 = standardOutput.result();
+	//Logger::WriteMessage(temp2.c_str());
+	std::istringstream actualStdOut(temp2);
+	assertStreamsEqual(expectedStdOutFile, actualStdOut, "Standard Output");
+}
+
+void assertStreamsEqual(std::istream& expected, std::istream& actual, const char* file)
+{
 	std::string expectedLine, actualLine;
 	int lineNumber = 0;
 	while (true)
 	{
-		bool hasExpectedLine = (bool)std::getline(expectedOutputFile, expectedLine);
-		bool hasActualLine = (bool)std::getline(actualStream, actualLine);
+		bool hasExpectedLine = (bool)std::getline(expected, expectedLine);
+		bool hasActualLine = (bool)std::getline(actual, actualLine);
+
+		if (hasExpectedLine && lineNumber == 0 && expectedLine.size() >= 2) {
+			auto message = formatMessage("%s: File is encoded with a utf-16 BOM (Byte Order Mark), likely inserted by a redirect `>` from powershell. Re-encode the file as utf-8 or ascii using notepad++.", file);
+			auto encoding = expectedLine.substr(0, 2);
+			Assert::AreNotEqual(encoding, std::string("\xEF\xBB"), message.get());
+			Assert::AreNotEqual(encoding, std::string("\xFE\xFF"), message.get());
+			Assert::AreNotEqual(encoding, std::string("\xFF\xFE"), message.get());
+		}
+
 		if (hasExpectedLine && hasActualLine) {
-			auto message = formatMessage("Mismatch on line %d", lineNumber);
+			auto message = formatMessage("%s: Mismatch on line %d", file, lineNumber);
 			Assert::AreEqual(expectedLine, actualLine, message.get());
 		}
 		else if (hasExpectedLine) {
-			auto message = formatMessage("Expected string '%s' on line %d, found End of File.", expectedLine.c_str(), lineNumber);
+			auto message = formatMessage("%s: Expected string '%s' on line %d, found End of File.",
+				file, expectedLine.c_str(), lineNumber);
 			Assert::Fail(message.get());
 		}
 		else if (hasActualLine) {
-			auto message = formatMessage("Expected End of File, but found '%s' on line %d.", actualLine.c_str(), lineNumber);
+			auto message = formatMessage("%s: Expected End of File, but found '%s' on line %d.",
+				file, actualLine.c_str(), lineNumber);
 			Assert::Fail(message.get());
 		}
 		else {

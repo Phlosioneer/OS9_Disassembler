@@ -58,7 +58,7 @@
    57  00000 0001 Objct      set    $01        
    58  00000 0080 ReEnt      set    $80        
    59
-   60  00000 0080            psect  test/cdi_zelda.os9module_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc 
+   60  00000 0080            psect  cdi_zelda.os9module_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc 
    61
    62
    63                       * OS9 data area definitions

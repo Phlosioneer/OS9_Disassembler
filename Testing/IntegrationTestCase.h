@@ -20,3 +20,5 @@ public:
 
 	void run();
 };
+
+void assertStreamsEqual(std::istream& expected, std::istream& actual, const char* file);

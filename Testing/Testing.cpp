@@ -20,11 +20,27 @@ namespace IntegrationTests
 			test.run();
 		}
 
-		TEST_METHOD(FunctionRoff)
+		TEST_METHOD(BpsysFunctionRoff)
 		{
 			reset();
-			IntegrationTestCase test("function_r");
+			IntegrationTestCase test("bpsys function_r");
 
+			test.run();
+		}
+
+		TEST_METHOD(BpsysMainRoff)
+		{
+			reset();
+			IntegrationTestCase test("bpsys main_r");
+
+			test.run();
+		}
+
+		TEST_METHOD(VSyncModule)
+		{
+			reset();
+			IntegrationTestCase test("cdi_vsync");
+			PsectName = "test.os9";
 			test.run();
 		}
 	};

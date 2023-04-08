@@ -7,6 +7,7 @@
 #include "disglobs.h"
 #include "main_support.h"
 #include "rof.h"
+#include "dprint.h"
 
 // Reset all global state. Used between tests.
 void reset()
@@ -28,11 +29,21 @@ void reset()
 	CodeEnd = 0;
 
 	// dprint.c
-	int PrevEnt = 0;
-	int InProg = 0;
+	PrevEnt = 0;
+	LinNum = 0;
+	PgWidth = 80;
 
 	// main_support.c
 	PsectName = nullptr;
+	cpu = 0;
+	PrintAllCode = 0;
+	Pass = 0;
+	ModFile = nullptr;
+	ModFP = nullptr;
+	PCPos = 0;
+	CmdEnt = 0;
+	ExtBegin = 0;
+	DefDir = nullptr;
 
 	// rof.c
 	refs_data = nullptr;
