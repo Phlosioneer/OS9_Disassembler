@@ -840,7 +840,9 @@ do_mode (char *lpos)
     lpos = skipblank(lpos);
     if ( ! lpos || ! (*lpos) || (*lpos == ';'))
     {
-        DfltLbls[AMode - 1] = mclass;
+        AMODE_BOUNDS_CHECK(AMode);
+        defaultLabelClasses[AMode - 1] = mclass;
+
         return 1;
     }
 

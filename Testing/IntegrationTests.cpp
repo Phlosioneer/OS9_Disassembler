@@ -9,9 +9,8 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace IntegrationTests
 {
-	TEST_CLASS(IntegrationTests)
+	TEST_CLASS(ModuleIntegrationTests)
 	{
-	public:
 		TEST_METHOD(ZeldasAdventureModule)
 		{
 			reset();
@@ -20,6 +19,19 @@ namespace IntegrationTests
 			test.run();
 		}
 
+		TEST_METHOD(VSyncModule)
+		{
+			reset();
+			IntegrationTestCase test("cdi_vsync");
+			PsectName = "test.os9";
+
+			test.run();
+		}
+	};
+
+	TEST_CLASS(RoffIntegrationTests)
+	{
+	public:
 		TEST_METHOD(BpsysFunctionRoff)
 		{
 			reset();
@@ -36,15 +48,6 @@ namespace IntegrationTests
 			test.run();
 		}
 
-		TEST_METHOD(VSyncModule)
-		{
-			reset();
-			IntegrationTestCase test("cdi_vsync");
-			PsectName = "test.os9";
-			
-			test.run();
-		}
-
 		TEST_METHOD(InitDataZeroCatRoff)
 		{
 			reset();
@@ -57,6 +60,14 @@ namespace IntegrationTests
 		{
 			reset();
 			IntegrationTestCase test("remote_r");
+
+			test.run();
+		}
+
+		TEST_METHOD(EmptyRoff)
+		{
+			reset();
+			IntegrationTestCase test("empty_r");
 
 			test.run();
 		}

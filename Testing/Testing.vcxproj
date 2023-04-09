@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="IntegrationTestCase.cpp" />
     <ClCompile Include="IntegrationTests.cpp" />
+    <ClCompile Include="UnitTests.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>

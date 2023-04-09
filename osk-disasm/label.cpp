@@ -39,14 +39,21 @@
 #include "cmdfile.h"
 #include "main_support.h"
 #include "dismain.h"
+#include "rof.h"
 
 LabelManager* labelManager = new LabelManager();
 
 const char lblorder[] = "_!^$&@%ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-// TODO: Make this const, or rename.
-char DfltLbls[] = "&&&&&&D&&LLLLLL";
-static_assert(sizeof(DfltLbls) == 16, "Expected 16 default labels.");
+const char defaultDefaultLabelClasses[] = "&&&&&&D&&LLL"; //"&&&&&&D&&LLLLLL";
+const char programDefaultLabelClasses[] = "&&&&&&D&&&&L";
+const char driverDefaultLabelClasses[] =  "&ZD&PG&&&&&L";
+
+char defaultLabelClasses[AM_MAXMODES];
+
+static_assert(sizeof(defaultDefaultLabelClasses) == AM_MAXMODES, "Wrong number of default labels");
+static_assert(sizeof(programDefaultLabelClasses) == AM_MAXMODES, "Wrong number of program labels");
+static_assert(sizeof(driverDefaultLabelClasses) == AM_MAXMODES, "Wrong number of driver labels");
 
 extern "C" {
     const char* label_getName(struct symbol_def* handle) {
@@ -630,7 +637,8 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
         else
         {
             /*mainclass = DEFAULTCLASS;*/
-            mainclass = DfltLbls[amod - 1];
+            AMODE_BOUNDS_CHECK(amod);
+            mainclass = defaultLabelClasses[amod - 1];
         }
     }
     else              /* amod=0, it's a boundary def  */

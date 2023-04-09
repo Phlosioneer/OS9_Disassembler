@@ -2,6 +2,7 @@
 #ifndef LABEL_H
 #define LABEL_H
 #include "externc.h"
+#include "disglobs.h"
 
 #define LBLLEN 40
 
@@ -158,8 +159,11 @@ struct label_class {
 
 #endif // __cplusplus
 
-
 cglobal const char lblorder[];
-cglobal char DfltLbls[];
+
+cglobal const char defaultDefaultLabelClasses[];
+cglobal const char programDefaultLabelClasses[];
+cglobal const char driverDefaultLabelClasses[];
+cglobal char defaultLabelClasses[AM_MAXMODES];
 
 #endif // LABEL_H

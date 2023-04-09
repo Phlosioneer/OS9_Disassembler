@@ -140,6 +140,28 @@ static int get_modhead()
 
     M_ID = fread_w(ModFP) & 0xffff;
 
+    M_SysRev = 0;
+    M_Size = 0;
+    M_Owner = 0;
+    M_Name = 0;
+    M_Accs = 0;
+    M_Type = 0;
+    M_Lang = 0;
+    M_Attr = 0;
+    M_Revs = 0;
+    M_Edit = 0;
+    M_Usage = 0;
+    M_Symbol = 0;
+    M_Exec = 0;
+    M_Except = 0;
+    HdrEnd = 0;
+    M_Mem = 0;
+    M_Stack = 0;
+    M_IData = 0;
+    M_IRefs = 0;
+    M_Init = 0;
+    M_Term = 0;
+
     switch (M_ID)
     {
     case 0x4afc:
@@ -166,6 +188,7 @@ static int get_modhead()
 
         /* Now get any further Mod-type specific headers */
 
+        
         switch (M_Type)
         {
         case MT_PROGRAM:
@@ -422,7 +445,8 @@ int dopass(int mypass)
         switch (M_Type)
         {
         case MT_PROGRAM:
-            strcpy(DfltLbls, "&&&&&&D&&&&L");
+            //strcpy(DfltLbls, "&&&&&&D&&&&L");
+            strcpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
             break;
         case MT_DEVDRVR:
             /*  Init/Term:
@@ -435,8 +459,11 @@ int dopass(int mypass)
 
                (a1) & (a5) default to Read/Write, etc.  For Init/Term, specify
                AModes for these with Boundary Defs*/
-            strcpy (DfltLbls, "&ZD&PG&&&&&L");
+            //strcpy (DfltLbls, "&ZD&PG&&&&&L");
+            strncpy(defaultLabelClasses, driverDefaultLabelClasses, AM_MAXMODES);
             break;
+        default:
+            strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
         }
 
         GetIRefs();

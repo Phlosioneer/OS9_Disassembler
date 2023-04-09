@@ -867,8 +867,8 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
         }
         else      /* No reference entry for this area */
         {
-            register int bytCount,
-                bytSize;
+            int bytCount = 0;
+            int bytSize;
             bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, cclass);
             if (bytCount)
             {

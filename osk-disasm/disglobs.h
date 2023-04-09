@@ -34,8 +34,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-#include "structs.h"
-#include "rof.h"
 
 #ifdef _WIN32
 #   define BINREAD "rb"
@@ -83,8 +81,15 @@ enum {
     AM_SHORT,   /* Absolute Short */
     AM_LONG,    /* Absolute Long */
     AM_REL,
-    AM_MAXMODES   /* Count of Modes */
+    AM_MAXMODES   /* Count of Modes + 1 */
 };
+#define AMODE_BOUNDS_CHECK(mode)                                \
+    if ((mode) >= AM_MAXMODES || (mode) == 0)                   \
+    {                                                           \
+        char _errMessage[30];                                   \
+        snprintf(_errMessage, 30, "Invalid AMode: %d", (mode)); \
+        errexit(_errMessage);                                   \
+    }
 
 /* The following two structures define
  * the extended word

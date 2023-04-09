@@ -10,6 +10,7 @@
 #include "dismain.h"
 #include "main_support.h"
 #include "disglobs.h"
+#include "rof.h"
 
 #define LABEL_LEN 200
 #define MNEM_LEN 50

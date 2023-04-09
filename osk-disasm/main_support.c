@@ -38,6 +38,7 @@
 #include "writer.h"
 #include "cmdfile.h"
 #include "dprint.h"
+#include "rof.h"
 
 #ifdef _WIN32
 #   define strdup _strdup

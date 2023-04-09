@@ -825,29 +825,34 @@ static void dataprintHeader(const char *hdr, char klas, int isRemote)
     PrintLine (pseudcmd, &Ci, 'D', 0, 0);
 }
 
-int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
+// Attempt to match an asci string within a data block.
+//
+// This approach is way too greedy. It was completely broken in the oringal and
+// fixing it breaks a ton of other stuff.
+
+int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
 {
     register int count = bufEnd;
-    register char *ch = buf;
+    register const char *ch = buf;
     int hasAscii = 0;
 
-    /* It seems improbable that a string would begin with
-     * NULL
-     */
+    // It seems improbable that a string would begin with NULL
     if (!(isprint(*buf)) && !(isspace(*buf)))
     {
         return 0;
     }
 
-    /* At least for the time being, skip any blocks < sizeof(int)
-     * this may overlook some short strings, but it will avoid erroneous
-     * identifying non-ascii numbers.
-     */
+    // At least for the time being, skip any blocks < sizeof(int)
+    // this may overlook some short strings, but it will avoid erroneous
+    // identifying non-ascii numbers.
 
     if (bufEnd <= 4)
     {
         return 0;
     }
+
+    // Ensure the entire block is ascii, and there's at least one printable
+    // character. Multiple strings are allowed within the same block.
 
     while (count-- > CmdEnt)
     {
@@ -855,7 +860,10 @@ int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
 
         c = *(ch++);
 
+        // This condition is always true.
         if ( !(isprint (c)) || !(isspace(c)) || (c != '\0'))
+        // This is the correct conditional.
+        //if (!isprint(c) && !isspace(c) && c != '\0')
         {
             return 0;
         }
@@ -871,7 +879,7 @@ int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
         return 0;
     }
 
-    /* Assume that a string _MUST_ be NULL-terminated */
+    // Assume that a string _MUST_ be NULL-terminated
 
     if (*(--ch) != '\0')
     {
@@ -888,11 +896,12 @@ int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
         {
             if (*buf == '"')
             {
-                strcpy (tmpbuf, "\""); /* To make the resets work */
+                strcpy (tmpbuf, "\""); // To make the resets work
                 strcpy (ci->params, "'\"");
             }
             else
             {
+                // This algorithm is printing non-printable characters!
                 strncpy (tmpbuf, buf, 24);
 
                 if (strlen(tmpbuf) >= 24)
@@ -903,9 +912,10 @@ int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
 
 
             buf += strlen(tmpbuf);
-            /*siz -= strlen(tmpbuf);*/
+            //siz -= strlen(tmpbuf);
             count += strlen(tmpbuf);
             PCPos += strlen(tmpbuf);
+            strncpy(ci->mnem, "dc.b", MNEM_LEN);
             PrintLine (pseudcmd, ci, iClass, CmdEnt, CmdEnt);
             CmdEnt = PCPos;
             PrevEnt = PCPos;
@@ -950,6 +960,7 @@ int DoAsciiBlock(struct cmd_items *ci, char *buf, int bufEnd, char iClass)
 
     return count;
 }
+
 
 /* *************
  * ListInitData ()
@@ -1382,38 +1393,6 @@ ROFDataPrint ()
 
     //BlankLine ();
     //InProg = 1;*/
-}
-
-
-/* *************
- * LoadIData() - Allocate a buffer for the Init Data list
- *       and load the data
- */
-
-char *
-LoadIData()
-{
-    if (!IBuf)
-    {
-        /* Allocate space for buffer */ 
-        IBuf = (char *)mem_alloc((size_t)IDataCount + 2);
-
-        if (fseek (ModFP, M_IData + 8, SEEK_SET))
-        {
-            char en[100];
-
-            sprintf (en, "Error.. Cannot fseek() to Init Data list (%x)", M_IData + 8);
-            errexit (en);
-        }
-
-        /* Read data into buffer*/
-        if (fread (IBuf, 1, IDataCount, ModFP) < (unsigned)IDataCount)
-        {
-            errexit( "Cannot read Initialized Data bytes");
-        }
-    }
-
-    return IBuf;
 }
 
 /* ************
