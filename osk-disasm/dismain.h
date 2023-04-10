@@ -68,6 +68,7 @@ cglobal int IDataCount;
 cglobal int HdrEnd;   /* The first byte past end of header, usefull for begin of Pass 2 */
 
 cglobal int AMode;
+cglobal int AMode_cmdfile;
 cglobal int NowClass;
 cglobal int PBytSiz;
 

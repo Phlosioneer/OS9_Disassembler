@@ -66,6 +66,7 @@ int IDataCount;
 int HdrEnd;
 
 int AMode;
+//int AMode_cmdfile;
 int NowClass;
 int PBytSiz;
 

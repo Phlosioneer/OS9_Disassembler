@@ -10,10 +10,9 @@ cfunc void do_cmd_file(struct options* opt);
 cfunc int ApndCmnt(char* lpos);
 cfunc char* cmntsetup(char* cpos, char* clas, int* adrs);
 cfunc char* cmdsplit(char* dest, char* src);
-cfunc void getrange(char* pt, int* lo, int* hi, int usize, int allowopen);
+cfunc void getrange(char* pt, int* lo, int* hi, int usize, int allowopen, int GettingAmode);
 cfunc void boundsline(char* mypos);
 cfunc void setupbounds(char* lpos);
-cfunc void tellme(char* pt);
 
 cglobal struct data_bounds* dbounds;
 cglobal struct data_bounds* LAdds[];

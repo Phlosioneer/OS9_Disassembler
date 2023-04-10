@@ -1007,7 +1007,7 @@ void rof_ascii ( char *cmdline)
         vsct = *ptr;
         ptr = skipblank (++ptr);
 
-        getrange (ptr, &start, &end, 1, 0);
+        getrange (ptr, &start, &end, 1, 0, FALSE);
 
         if (end > 0)
         {

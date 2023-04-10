@@ -44,7 +44,7 @@ static char strBuf[2000];
  * strpos() - Similar to strchr except that it returns the
  *        base-1 offset from the begin of the string.
  */
-
+// Pure function
 int strpos (const char *s, char c)
 {
     register int p;
@@ -60,7 +60,7 @@ int strpos (const char *s, char c)
  * Returns: pointer to first character of "valid" data,             *
  *          or null if end of data                                  *
  * **************************************************************** */
-
+/* Pure function */
 char * skipblank (char *p)
 {
     /* We did just pass over spaces or tabs, but we need to

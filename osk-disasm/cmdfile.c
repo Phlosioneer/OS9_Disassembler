@@ -60,15 +60,14 @@ static const char BoundsNames[] = "ABCDLSW";
 
 static int NxtBnd;
 static int NoEnd;      /* Flag that no end on last bound                 */
-static int GettingAmode;    /* Flag 1=getting Addressing mode 0=Data Boundary */
 static struct data_bounds *prevbnd ;
 
 static char *cpyhexnum(char *dst, char *src);
 static char *cpy_digit_str(char *dst, char *src);
-static int do_mode(char *lpos);
+static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses);
 static char *setoffset(char *p, struct offset_tree *oft);
 static int optincmd(char *lpos, struct options* opt);
-static void cmdamode(char *pt);
+static int cmdamode(char *pt, char* defaultLabelClasses, int defaultMode);
 static struct comment_tree *newcomment(int addrs,
                             struct comment_tree *parent);
 
@@ -329,7 +328,7 @@ void do_cmd_file(struct options* opt)
 
             continue;
         case '>':
-            cmdamode (skipblank (++mbf));
+            AMode = cmdamode(skipblank (++mbf), defaultLabelClasses, AMode);
             continue;
 
         /* rof ascii data definition */
@@ -573,7 +572,7 @@ static int optincmd (char *lpos, struct options* opt)
  * cmdsplit() :  split cmdline..  i.e. transfer characters up to  *
  * ';' or end of line - returns ptr to next char in cmdline buffer*
  * ************************************************************** */
-
+// Pure function
 char *cmdsplit (char *dest, char *src)
 {
     char c;
@@ -605,20 +604,19 @@ char *cmdsplit (char *dest, char *src)
 /* *************************************************** *
  * Process addressing modes found in command file line *
  * *************************************************** */
-
-static void cmdamode (char *pt)
+// Pure function
+static int cmdamode(char *pt, char* defaultLabelClasses, int defaultAMode)
 {
     char buf[80];
+    int ret = defaultAMode;
 
-    GettingAmode = 1;
     pt = cmdsplit(buf, pt);
     while (pt)
     {
-        do_mode (buf);
+        ret = do_mode(buf, TRUE, defaultLabelClasses);
         pt = cmdsplit(buf, pt);
     }
-
-    GettingAmode = 0;
+    return ret;
 }
 
 /* **************************************************************** *
@@ -626,8 +624,8 @@ static void cmdamode (char *pt)
  *      command line and stores the low and high values in "lo"     *
  *      and "hi" (the addresses are passed by the caller            *
  * **************************************************************** */     
-
-void getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
+// Pure function
+void getrange(char *pt, int *lo, int *hi, int usize, int allowopen, int GettingAmode)
 {
     char tmpdat[50], c;
 
@@ -677,7 +675,7 @@ void getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
     switch (c = *(pt = skipblank (pt)))
     {
     case '/':
-        if (GettingAmode == 1)
+        if (GettingAmode)
         {
             errexitFromCmdfile ("Cannot specify \"/\" in this mode!");
         }
@@ -720,7 +718,6 @@ void getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
         default:
             if (isxdigit (*pt))
             {
-                tellme (pt);
                 pt = cpyhexnum (tmpdat, pt);
                 sscanf (tmpdat, "%x", hi);
                 NxtBnd = *hi + 1;
@@ -747,10 +744,11 @@ void getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
  * do_mode() - Process a single Addressing Mode command.  called by
  *      cmdamode(), which splits the command line up into single commands.
  * Passed : lpos - Pointer to current character in command line.
- *
+ * Outputs to AMode_cmdfile global
+ * 
+ * Pure function
  */
-
-static int do_mode (char *lpos)
+static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
 {
     struct data_bounds *mptr;
     register int mclass;         /* addressing mode */
@@ -759,6 +757,8 @@ static int do_mode (char *lpos)
     register struct data_bounds *lp;
     struct offset_tree *otreept = 0;
 
+    int ret;
+
     if (*(lpos = skipblank (lpos)) == '#')
     {
         lpos = skipblank (++lpos);
@@ -766,16 +766,16 @@ static int do_mode (char *lpos)
 
     switch (c = toupper (*(lpos++)))
     {
-    case 'I': AMode = AM_IMM;
+    case 'I': ret = AM_IMM;
         break;
     case 'A':
-        AMode = AM_A0;     /* Initial */
+        ret = AM_A0;     /* Initial */
         c = *(lpos++);
 
          /* Must be a0, a1, ..., a7 */
         if ((c >= '0') && c < ('8'))
         {
-            AMode += (c - '0');
+            ret += (c - '0');
         }
         else
         {
@@ -788,13 +788,13 @@ static int do_mode (char *lpos)
 
         break;
     case 'R':
-        AMode = AM_REL;
+        ret = AM_REL;
         break;
     case 'S':
-        AMode = AM_SHORT;
+        ret = AM_SHORT;
         break;
     case 'L':
-        AMode = AM_LONG;
+        ret = AM_LONG;
         break;
     default:
         errexitFromCmdfile ("Illegal addressing mode");
@@ -817,10 +817,10 @@ static int do_mode (char *lpos)
     lpos = skipblank(lpos);
     if ( ! lpos || ! (*lpos) || (*lpos == ';'))
     {
-        AMODE_BOUNDS_CHECK(AMode);
-        defaultLabelClasses[AMode - 1] = mclass;
+        AMODE_BOUNDS_CHECK(ret);
+        defaultLabelClasses[ret - 1] = mclass;
 
-        return 1;
+        return ret;
     }
 
     if (*(lpos) == '(')
@@ -835,7 +835,7 @@ static int do_mode (char *lpos)
      /*  Hopefully, passing a hard-coded 1 will work always.
      */
 
-    getrange (lpos, &lo, &hi, 1, 0);
+    getrange(lpos, &lo, &hi, 1, 0, GettingAmode);
 
     /* Now insert new range into tree */
 
@@ -848,14 +848,14 @@ static int do_mode (char *lpos)
     mptr->b_typ = mclass;        /*a_mode; */
     mptr->dofst = otreept;
 
-    if ( ! LAdds[AMode])
+    if ( ! LAdds[ret])
     {
-        LAdds[AMode] = mptr;
+        LAdds[ret] = mptr;
         mptr->DPrev = 0;
     }
     else
     {
-        lp = LAdds[AMode];
+        lp = LAdds[ret];
 
         while (1)
         {
@@ -870,7 +870,7 @@ static int do_mode (char *lpos)
                 {
                     lp->DLess = mptr;
                     mptr->DPrev = lp;
-                    return 1;
+                    break;
                 }
             }
             else
@@ -886,7 +886,7 @@ static int do_mode (char *lpos)
                     {
                         lp->DMore = mptr;
                         mptr->DPrev = lp;
-                        return 1;
+                        break;
                     }
                 }
                 else
@@ -897,7 +897,7 @@ static int do_mode (char *lpos)
         }
     }
 
-    return 1;
+    return ret;
 }
 
 #define ILLBDRYNAM "Illegal boundary name in line %d\n"
@@ -914,8 +914,6 @@ void boundsline (char *mypos)
     char tmpbuf[80];
     register char *hold;
     register int count = 1;
-
-    GettingAmode = 0;
 
     if (isdigit (*mypos))           /*   Repeat count for line   */
     {
@@ -1102,7 +1100,6 @@ void setupbounds (char *lpos)
          loc[20];
     struct offset_tree *otreept = 0;
 
-    GettingAmode = 0;
     PBytSiz = 1;                /* Default to single byte */
 
     /* First character should be boundary type */
@@ -1179,7 +1176,7 @@ void setupbounds (char *lpos)
             lclass = '^';
             break;
         case '>':
-            cmdamode (skipblank (++lpos));
+            AMode = cmdamode(skipblank (++lpos), defaultLabelClasses, AMode);
             break;
         default:
             fprintf(stderr, "%s\n", lpos);
@@ -1199,7 +1196,7 @@ void setupbounds (char *lpos)
         lpos = setoffset (++lpos, otreept);
     }
 
-    getrange (lpos, &rglo, &rghi, PBytSiz, 1);
+    getrange (lpos, &rglo, &rghi, PBytSiz, 1, FALSE);
 
     /* Now create the addition to the list */
 
@@ -1252,11 +1249,6 @@ void setupbounds (char *lpos)
     }
 }
 
-void tellme (char *pt)
-{
-    return;
-}
-
 /* ******************************************************************** *
  * cpyhexnum() - Copies all valid hexadecimal string from "src" to      *
  *      "dst" until a non-hex char is encountered and NULL-terminates   *
@@ -1267,7 +1259,7 @@ void tellme (char *pt)
  * Returns: Pointer to first non-hexadecimal character in src string.   *
  *          This may be a space, "/", etc.                              *
  * ******************************************************************** */
-
+// Pure function
 static char * cpyhexnum (char *dst, char *src)
 {
     while (isxdigit (*(src)))
@@ -1280,7 +1272,7 @@ static char * cpyhexnum (char *dst, char *src)
  * cpy_digit_str() - Copies string of digits from "src" to "dst" until  *
  *      a non-digit is encountered.  See cpyhexnum() for details        *
  * ******************************************************************** */
-
+// Pure function.
 static char * cpy_digit_str (char *dst, char *src)
 {
     while (isdigit (*(src)))
