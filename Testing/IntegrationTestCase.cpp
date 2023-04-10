@@ -67,39 +67,30 @@ void IntegrationTestCase::run()
 	// for now.
 	//ModFile = "cdi_zelda.os9module";
 
-	// This is safe, the code never modifies the variable.
-	// The only reason it can't be const is because it's global.
-	ModFile = (char*)inputFilePath.c_str();
+	options* opt = options_new();
+	opt->ModFile = _strdup(inputFilePath.c_str());
 	if (!commandFilePath.empty()) {
-		CmdFP = fopen(commandFilePath.c_str(), BINREAD);
+		opt->CmdFP = fopen(commandFilePath.c_str(), BINREAD);
 	}
-	else {
-		CmdFP = nullptr;
-	}
-	module_writer = moduleOutput.handle();
+	opt->asmFile = moduleOutput.handle();
 	stdout_writer = standardOutput.handle();
-	WrtSrc = 1;
-
-	do_cmd_file();
 
 	if (!labelFilePath.empty())
 	{
-		LblFNam[0] = (char*)labelFilePath.c_str();
-		LblFilz = 1;
+		options_addLabelFile(opt, labelFilePath.c_str());
 	}
+
+	do_cmd_file(opt);
 
 	Pass = 1;
-	dopass(1);
+	dopass(1, opt);
 	Pass = 2;
-	dopass(Pass);
+	dopass(Pass, opt);
 
-	module_writer = nullptr;
+	opt->asmFile = nullptr;
 	stdout_writer = nullptr;
 
-	if (CmdFP) {
-		fclose(CmdFP);
-	}
-	fclose(ModFP);
+	options_destroy(opt);
 
 	std::string temp1 = moduleOutput.result();
 	//Logger::WriteMessage(temp1.c_str());

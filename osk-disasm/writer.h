@@ -101,7 +101,7 @@ cfunc int writer_opened_successfully(struct writer_handle* handle);
 cfunc size_t writer_printf(struct writer_handle* handle, const char* format, ...);
 cfunc void writer_flush(struct writer_handle* handle);
 
-cglobal struct writer_handle* module_writer;
+//cglobal struct writer_handle* module_writer;
 cglobal struct writer_handle* stdout_writer;
 
 #endif

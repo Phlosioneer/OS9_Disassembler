@@ -48,7 +48,7 @@ static char * ewReg(int extWrd, char *dst)
     return dst;
 }
 
-int cmp2_chk2(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmp2_chk2(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int w2;
     int mode, reg;
@@ -68,7 +68,7 @@ int cmp2_chk2(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 0;
     }
 
-    w2 = getnext_w(ci);
+    w2 = getnext_w(ci, state);
 
     switch (w2 & 0xfff)
     {
@@ -81,14 +81,14 @@ int cmp2_chk2(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 
         break;
     default:
-        ungetnext_w (ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
     size = (ci->cmd_wrd >> 9) & 3;
     EaString[0] = '\0';
 
-    if (get_eff_addr(ci, EaString, mode, reg, size))
+    if (get_eff_addr(ci, EaString, mode, reg, size, state))
     {
         if (Pass == 2)
         {
@@ -104,14 +104,14 @@ int cmp2_chk2(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     return 0;      /* Until we finish the function */
 }
 
-int rtm_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int rtm_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     sprintf (ci->params, "%c%d", dispRegNam[(ci->cmd_wrd >> 3) & 1], ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
     return 1;
 }
 
-int cmd_moves(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmd_moves(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int mode, reg;
     int ew,
@@ -136,17 +136,17 @@ int cmd_moves(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 0;
     }
 
-    ew = getnext_w(ci);
+    ew = getnext_w(ci, state);
 
     if (ew & 0x07ff)
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
     size = (ci->cmd_wrd >> 6) & 7;
 
-    if (get_eff_addr (ci, EaString, mode, reg, size))
+    if (get_eff_addr(ci, EaString, mode, reg, size, state))
     {
         if (Pass == 2)
         {
@@ -172,13 +172,13 @@ int cmd_moves(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     return 0;
 }
 
-int cmd_cas (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmd_cas (struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int reg;
     int size;
     int mode = (ci->cmd_wrd >> 3) & 7;
     int dc, du;
-    int ew = getnext_w(ci);
+    int ew = getnext_w(ci, state);
 
     if ( mode < 2)
     {
@@ -194,13 +194,13 @@ int cmd_cas (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 
     if (ew & 0xfe38)
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
     size  = (ci->cmd_wrd >> 9) & 3;
 
-    if (get_eff_addr (ci, EaString, mode, reg, size))
+    if (get_eff_addr (ci, EaString, mode, reg, size, state))
     {
         if (Pass == 2)
         {
@@ -214,7 +214,7 @@ int cmd_cas (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 1;
     }
 
-    ungetnext_w(ci);
+    ungetnext_w(ci, state);
     return 0;
 }
 
@@ -223,13 +223,13 @@ int cmd_cas (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
  * Returns: the character name of the register (either "d" or "a").
  */
 
-static char getcas2Ew(struct cmd_items *ci, int *dc, int *du, int *rn)
+static char getcas2Ew(struct cmd_items *ci, int *dc, int *du, int *rn, struct parse_state* state)
 {
-    int ew = getnext_w(ci);
+    int ew = getnext_w(ci, state);
 
     if (ew & 0xfe38)
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
@@ -239,7 +239,7 @@ static char getcas2Ew(struct cmd_items *ci, int *dc, int *du, int *rn)
     return dispRegNam[(ew >> 15) & 1];
 }
 
-int cmd_cas2 (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmd_cas2 (struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int size;
     int dc1, dc2, du1, du2, rn1, rn2;
@@ -251,13 +251,13 @@ int cmd_cas2 (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     {
         return 0;
     }
-    r1 = getcas2Ew(ci, &dc1, &du1, &rn1);
+    r1 = getcas2Ew(ci, &dc1, &du1, &rn1, state);
     if (!r1)
     {
         return 0;
     }
 
-    r2 = getcas2Ew(ci, &dc2, &du2, &rn2);
+    r2 = getcas2Ew(ci, &dc2, &du2, &rn2, state);
     if (!r2)
     {
         return 0;
@@ -273,7 +273,7 @@ int cmd_cas2 (struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     return 1;
 }
 
-int cmd_callm(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmd_callm(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int mode, reg;
     int ew;
@@ -292,15 +292,15 @@ int cmd_callm(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 0;
     }
 
-    ew = getnext_w(ci);
+    ew = getnext_w(ci, state);
 
     if (ew & 0xff00)
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
-    if (get_eff_addr (ci, EaString, mode, reg, 0))
+    if (get_eff_addr (ci, EaString, mode, reg, 0, state))
     {
         if (ew & 0x80)
         {
@@ -316,7 +316,7 @@ int cmd_callm(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     return 0;
 }
 
-int muldiv_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int muldiv_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int mode, reg;
     int ew;
@@ -329,11 +329,11 @@ int muldiv_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 0;
     }
 
-    ew = getnext_w(ci);
+    ew = getnext_w(ci, state);
 
     if (ew & 0x83f8)
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
@@ -346,13 +346,13 @@ int muldiv_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 
     if ((d_hr == d_lq) && (ew & 0x0400))
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
     reg = ci->cmd_wrd & 7;
 
-    if (get_eff_addr(ci, EaString, mode, reg, 0))
+    if (get_eff_addr(ci, EaString, mode, reg, 0, state))
     {
         if (Pass == 2)
         {
@@ -380,13 +380,13 @@ int muldiv_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 1;
     }
 
-    ungetnext_w(ci);
+    ungetnext_w(ci, state);
     return 0;
 }
 
-int cmd_rtd(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmd_rtd(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
-    int ew = getnext_w(ci);
+    int ew = getnext_w(ci, state);
 
     if (Pass == 2)
     {
@@ -397,7 +397,7 @@ int cmd_rtd(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     return 1;
 }
 
-int cmd_trapcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int cmd_trapcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int opmode = ci->cmd_wrd & 7;
     int oprnd;
@@ -409,11 +409,11 @@ int cmd_trapcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 
     if (opmode < 4)
     {
-        oprnd = getnext_w(ci);
+        oprnd = getnext_w(ci, state);
 
         if (opmode == 3)
         {
-            oprnd = (oprnd << 15) | getnext_w(ci);
+            oprnd = (oprnd << 15) | getnext_w(ci, state);
         }
 
         if (Pass == 2)
@@ -466,7 +466,7 @@ static char * getbf_fld(char *dst, int flg, int val)
  * bitfields_020() - Handles the bitfield functions
  */
 
-int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
+int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int mode, reg;
     int v;   /* Generic value */
@@ -505,13 +505,13 @@ int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     }
 
     bitfunc = fld8 ? bfty1[v] : bfty0[v];
-    ew = getnext_w(ci);
+    ew = getnext_w(ci, state);
 
     if (v)
     {
         if (ew & 0x8000)
         {
-            ungetnext_w(ci);
+            ungetnext_w(ci, state);
             return 0;
         }
     }
@@ -519,12 +519,12 @@ int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
     {
         if (ew & 0xf000)
         {
-            ungetnext_w(ci);
+            ungetnext_w(ci, state);
             return 0;
         }
     }
 
-    if (get_eff_addr(ci, EaString, mode, reg, 0))
+    if (get_eff_addr(ci, EaString, mode, reg, 0, state))
     {
         /* Get the fields common to all functions */
         Do = (ew >> 11) & 1;
@@ -532,7 +532,7 @@ int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 
         if (Do && (offset & 0x18))
         {
-            ungetnext_w(ci);
+            ungetnext_w(ci, state);
             return 0;
         }
 
@@ -541,7 +541,7 @@ int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
 
         if (Dw && (width & 0x18))
         {
-            ungetnext_w(ci);
+            ungetnext_w(ci, state);
             return 0;
         }
 
@@ -575,6 +575,6 @@ int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op)
         return 1;
     }
 
-    ungetnext_w(ci);
+    ungetnext_w(ci, state);
     return 0;
 }

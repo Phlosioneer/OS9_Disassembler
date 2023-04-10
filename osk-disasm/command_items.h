@@ -2,10 +2,13 @@
 #ifndef COMMAND_ITEMS_H
 #define COMMAND_ITEMS_H
 
+#include <stdio.h>
+
 #include "disglobs.h"
 #include "externc.h"
 
 struct opst;
+struct options;
 
 /*
 struct cmd_items_inner;
@@ -34,6 +37,14 @@ struct cmd_items {
     struct extWbrief extend;   // The extended command (if present)
 };
 
+struct parse_state {
+    int cpu;
+    FILE* ModFP;
+
+    // Temporary?
+    struct options* opt;
+};
+
 /*
 cfunc int instr_getOpWord(struct cmd_items* handle);
 cfunc const char* instr_getLabel(struct cmd_items* handle);
@@ -52,27 +63,27 @@ cfunc struct cmd_items* instr_new();
 cfunc void instr_delete(struct cmd_items* handle);
 */
 
-cfunc int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size);
-cfunc int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg);
+cfunc int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, struct parse_state* state);
+cfunc int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 cfunc int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode,
-    int reg, int size);
+    int reg, int size, struct parse_state* state);
 cfunc int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWbrief* ew_b,
-    int mode, int reg, int size);
-cfunc void get_displ(struct cmd_items* ci, char* dst, int siz_flag);
-cfunc int set_indirect_idx(char* dest, struct extWbrief* extW);
+    int mode, int reg, int size, struct parse_state* state);
+cfunc void get_displ(struct cmd_items* ci, char* dst, int siz_flag, struct parse_state* state);
+cfunc int set_indirect_idx(char* dest, struct extWbrief* extW, int cpu);
 
-cfunc int reg_ea(struct cmd_items* ci, int j, const struct opst* op);
+cfunc int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
 cfunc char* regbyte(char* s, unsigned char regmask, char* ad, int doslash);
-cfunc int movem_cmd(struct cmd_items* ci, int j, const struct opst* op);
-cfunc int link_unlk(struct cmd_items* ci, int j, const struct opst* op);
-cfunc int getnext_w(struct cmd_items* ci);
-cfunc void ungetnext_w(struct cmd_items* ci);
+cfunc int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
+cfunc int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
+cfunc int getnext_w(struct cmd_items* ci, struct parse_state* state);
+cfunc void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
 cfunc struct cmd_items* initcmditems(struct cmd_items* ci);
 
 // Unused
-cfunc int get_extends_common(struct cmd_items* ci, char* mnem);
+cfunc int get_extends_common(struct cmd_items* ci, char* mnem, struct parse_state* state);
 cfunc int ctl_addrmodesonly(int mode, int reg);
-cfunc char getnext_b(struct cmd_items* ci);
+cfunc char getnext_b(struct cmd_items* ci, struct parse_state* state);
 
 cglobal struct cmd_items Instruction;
 cglobal const char* SizSufx[3];

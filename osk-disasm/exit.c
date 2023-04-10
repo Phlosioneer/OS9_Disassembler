@@ -26,9 +26,9 @@ void errexit(char* pmpt)
  * Exit on File Read error...
  * ******************************* */
 
-void filereadexit()
+void filereadexit(struct options* opt)
 {
-    if (feof(ModFP))
+    if (feof(opt->ModFP))
     {
         errexit("End of file reached prematurely\n");
     }

@@ -2,25 +2,24 @@
 #ifndef DIS_MAIN_H
 #define DIS_MAIN_H
 
+#include <stdio.h>
+
 #include "userdef.h"
 #include "externc.h"
 
 struct modnam;
 struct cmd_items;
+struct options;
 
 cfunc struct modnam* modnam_find(struct modnam* pt, int desired);
-cfunc int dopass(int mypass);
+cfunc int dopass(int mypass, struct options* opt);
 cfunc int showem(void);
-cfunc int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op);
-cfunc void MovBytes(struct data_bounds* db);
-cfunc void MovASC(int nb, char aclass);
-cfunc void NsrtBnds(struct data_bounds* bp); \
+cfunc int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
+cfunc void MovBytes(struct data_bounds* db, struct parse_state* state);
+cfunc void MovASC(int nb, char aclass, struct parse_state* state);
+cfunc void NsrtBnds(struct data_bounds* bp, struct parse_state* state); \
 
 cglobal int error;
-/* Count of Label files specified     */
-cglobal int LblFilz;
-/* Pointers to the path names for the files */
-cglobal char* LblFNam[];
 cglobal int CodeEnd;
 
 /* Module header variables */

@@ -54,9 +54,6 @@
 #include "label.h"
 /*#include "amodes.h"*/
 
-char *CmdFileName;
-FILE *CmdFP;
-int DoingCmds;          /* Flag - Nonzero if we're doing the command file (not commandline) */
 struct data_bounds* LAdds[33];     /* Temporary */
 struct data_bounds* dbounds;
 static const char BoundsNames[] = "ABCDLSW";
@@ -66,28 +63,20 @@ static int NoEnd;      /* Flag that no end on last bound                 */
 static int GettingAmode;    /* Flag 1=getting Addressing mode 0=Data Boundary */
 static struct data_bounds *prevbnd ;
 
-static char *cpyhexnum (char *dst, char *src);
-static char *cpy_digit_str (char *dst, char *src);
-static int do_mode (char *lpos);
-static char *setoffset (char *p, struct offset_tree *oft);
-static int optincmd (char *lpos);
-static void cmdamode (char *pt);
-static struct comment_tree *newcomment (int addrs,
+static char *cpyhexnum(char *dst, char *src);
+static char *cpy_digit_str(char *dst, char *src);
+static int do_mode(char *lpos);
+static char *setoffset(char *p, struct offset_tree *oft);
+static int optincmd(char *lpos, struct options* opt);
+static void cmdamode(char *pt);
+static struct comment_tree *newcomment(int addrs,
                             struct comment_tree *parent);
 
-static void
-badexit (char *msg)
+static void errexitFromCmdfile (char *msg)
 {
-    if (DoingCmds)
-    {
-        char errtxt[100];
-        sprintf (errtxt, "Line %d: %s", LinNum, msg);
-        errexit (errtxt);
-    }
-    else
-    {
-        errexit(msg);
-    }
+    char errtxt[100];
+    sprintf (errtxt, "Line %d: %s", LinNum, msg);
+    errexit (errtxt);
 }
 
 /* ************************************************************************ *
@@ -267,20 +256,17 @@ AsmComment (char *lpos, FILE *cmdfile)
     }
 }
 
-void
-do_cmd_file ()
+void do_cmd_file(struct options* opt)
 {
-   /* FILE *CmdFP;*/
     char miscbuf[240];
 
     /* We will do our check for a specification for the CmdFile here */
-    if ( !CmdFP)
+    if ( !opt->CmdFP)
     {
         return;
     }
 
     NxtBnd = 0;                 /* init Next boundary pointer */
-    DoingCmds = 1;
 
     /*if ( ! (CmdFP = fopen (CmdFileName, "rb")))
     {
@@ -289,7 +275,7 @@ do_cmd_file ()
         exit (1);
     }*/
 
-    while (fgets (miscbuf, sizeof (miscbuf), CmdFP))
+    while (fgets (miscbuf, sizeof (miscbuf), opt->CmdFP))
     {
         char *th,
              *mbf;
@@ -320,14 +306,14 @@ do_cmd_file ()
         case '*':         /* Comment */
             continue;           /*yes, ignore   */
         case '+':         /* Options */
-            if (optincmd (++mbf) == -1)
+            if (optincmd (++mbf, opt) == -1)
             {   /* an error in an option would probably be fatal, anyway */
                 fprintf (stderr, "Error processing cmd line #%d\n", LinNum);
                 exit (1);
             }
             continue;
         case '"':        /* Assembler file comment(s)    */
-            if (AsmComment (++mbf, CmdFP) == -1)
+            if (AsmComment (++mbf, opt->CmdFP) == -1)
             {
                 fprintf(stderr, "Error processing cmd line #%d\n", LinNum);
                 exit (1);
@@ -362,8 +348,6 @@ do_cmd_file ()
             exit (1);
         }
     }
-
-    DoingCmds = 0;
 }
 
 /* ************************************************************************ *
@@ -493,8 +477,7 @@ ApndCmnt (char *lpos)
  *          or the comment string for appends)           *
  * ***************************************************** */
 
-char *
-cmntsetup (char *cpos, char *clas, int *adrs)
+char *cmntsetup (char *cpos, char *clas, int *adrs)
 {
     register char *p;
 
@@ -547,8 +530,7 @@ cmntsetup (char *cpos, char *clas, int *adrs)
  *         parent or null if first in tree         *
  * *********************************************** */
 
-static struct comment_tree *
-newcomment (int addrs, struct comment_tree *parent)
+static struct comment_tree *newcomment (int addrs, struct comment_tree *parent)
 {
     struct comment_tree *newtree;
 
@@ -564,8 +546,7 @@ newcomment (int addrs, struct comment_tree *parent)
  * Process options found in command file line *
  * ****************************************** */
 
-static int
-optincmd (char *lpos)
+static int optincmd (char *lpos, struct options* opt)
 {
     char st[500], *spt = st;
 
@@ -583,7 +564,7 @@ optincmd (char *lpos)
             ++spt;
         }
 
-        do_opt (spt);
+        do_opt(spt, opt);
     }
     return (0);
 }
@@ -593,8 +574,7 @@ optincmd (char *lpos)
  * ';' or end of line - returns ptr to next char in cmdline buffer*
  * ************************************************************** */
 
-char *
-cmdsplit (char *dest, char *src)
+char *cmdsplit (char *dest, char *src)
 {
     char c;
 
@@ -626,8 +606,7 @@ cmdsplit (char *dest, char *src)
  * Process addressing modes found in command file line *
  * *************************************************** */
 
-static void
-cmdamode (char *pt)
+static void cmdamode (char *pt)
 {
     char buf[80];
 
@@ -648,8 +627,7 @@ cmdamode (char *pt)
  *      and "hi" (the addresses are passed by the caller            *
  * **************************************************************** */     
 
-void
-getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
+void getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
 {
     char tmpdat[50], c;
 
@@ -662,12 +640,12 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
         {
             if (GettingAmode)
             {
-                badexit ("Open-ended ranges not permitted with Amodes");
+                errexitFromCmdfile ("Open-ended ranges not permitted with Amodes");
             }
 
             if (NoEnd)
             {
-                badexit ("No start address/no end address in prev line");
+                errexitFromCmdfile ("No start address/no end address in prev line");
             }
 
             *lo = NxtBnd;
@@ -676,7 +654,7 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
         {                       /* no range specified */
             if (*pt && (*pt != '\n'))   /* non-digit gargabe */
             {
-                badexit ("Illegal Address specified");
+                errexitFromCmdfile ("Illegal Address specified");
             }
             else
             {
@@ -701,7 +679,7 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
     case '/':
         if (GettingAmode == 1)
         {
-            badexit ("Cannot specify \"/\" in this mode!");
+            errexitFromCmdfile ("Cannot specify \"/\" in this mode!");
         }
 
         pt = skipblank (++pt);
@@ -761,7 +739,7 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
 
     if (*pt)
     {
-        badexit ("Extra data...");
+        errexitFromCmdfile ("Extra data...");
     }
 }
 
@@ -772,8 +750,7 @@ getrange (char *pt, int *lo, int *hi, int usize, int allowopen)
  *
  */
 
-static int
-do_mode (char *lpos)
+static int do_mode (char *lpos)
 {
     struct data_bounds *mptr;
     register int mclass;         /* addressing mode */
@@ -820,7 +797,7 @@ do_mode (char *lpos)
         AMode = AM_LONG;
         break;
     default:
-        badexit ("Illegal addressing mode");
+        errexitFromCmdfile ("Illegal addressing mode");
         exit (1);               /* not needed but just to be safe */
     }
 
@@ -830,7 +807,7 @@ do_mode (char *lpos)
 
     if ( ! strchr (lblorder, mclass)) /* Legal class ? */
     {
-        badexit ("Illegal class definition");
+        errexitFromCmdfile ("Illegal class definition");
     }
 
     /* Offset spec (if any) */
@@ -914,7 +891,7 @@ do_mode (char *lpos)
                 }
                 else
                 {
-                    badexit ("Addressing mode segments overlap");
+                    errexitFromCmdfile ("Addressing mode segments overlap");
                 }
             }
         }
@@ -970,8 +947,7 @@ void boundsline (char *mypos)
  * set up offset (if there) for offset specification *
  * ************************************************* */
 
-static char *
-setoffset (char *p, struct offset_tree *oft)
+static char * setoffset (char *p, struct offset_tree *oft)
 {
     char c, bufr[80];
 
@@ -983,7 +959,7 @@ setoffset (char *p, struct offset_tree *oft)
 
     if ( ! strchr (p, ')'))
     {
-        badexit ("\"(\" in command with no \")\"");
+        errexitFromCmdfile ("\"(\" in command with no \")\"");
     }
 
     /* If it's "*", handle it */
@@ -1004,13 +980,13 @@ setoffset (char *p, struct offset_tree *oft)
             break;
         case ')':
             if (!oft->incl_pc)
-                badexit ("Blank offset spec!!!");
+                errexitFromCmdfile ("Blank offset spec!!!");
 
             oft->oclas_maj = 'L';
 
             return p;
         default:
-            badexit ("No '+', '-', or '*' in offset specification");
+            errexitFromCmdfile ("No '+', '-', or '*' in offset specification");
     }
 
     /* At this point, we have a "+" or "-" and are sitting on it */
@@ -1019,13 +995,13 @@ setoffset (char *p, struct offset_tree *oft)
     c = toupper (*(p++));
 
     if ( ! strchr (lblorder, oft->oclas_maj = c) )
-        badexit ("No offset specified !!");
+        errexitFromCmdfile ("No offset specified !!");
 
     p = skipblank (p);
 
     if ( ! isxdigit (*p))
     {
-        badexit ("Non-Hex number in offset value spec");
+        errexitFromCmdfile ("Non-Hex number in offset value spec");
     }
 
     /* NOTE: need to be sure string is lowercase and following
@@ -1044,7 +1020,7 @@ setoffset (char *p, struct offset_tree *oft)
         /*addlbl (oft->of_maj, c, NULL);*/
     }
     else {
-        badexit ("Illegal character.. offset must end with \")\"");
+        errexitFromCmdfile ("Illegal character.. offset must end with \")\"");
     }
 
     return ++p;
@@ -1115,8 +1091,7 @@ bdinsert (struct data_bounds *bb)
  * Passed : lpos = current position in cmd line                     *
  * **************************************************************** */
 
-void
-setupbounds (char *lpos)
+void setupbounds (char *lpos)
 {
     struct data_bounds *bdry;
     register int bdtyp,
@@ -1162,7 +1137,7 @@ setupbounds (char *lpos)
 
             if ( ! strchr (lblorder, lclass))
             {
-                badexit ("Illegal Label Class");
+                errexitFromCmdfile ("Illegal Label Class");
             }
 
             break;
@@ -1208,7 +1183,7 @@ setupbounds (char *lpos)
             break;
         default:
             fprintf(stderr, "%s\n", lpos);
-            badexit ("Illegal boundary name");
+            errexitFromCmdfile ("Illegal boundary name");
     }
 
     bdtyp = (int) strpos (BoundsNames, c) + 1;

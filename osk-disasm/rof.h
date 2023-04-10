@@ -136,22 +136,23 @@ cglobal struct rof_extrn *refs_data,
 /*struct rof_header ROF_hd,
                *rofptr = &ROF_hd;*/
 cglobal struct rof_header ROFHd;
-cglobal int IsROF;
 
 cfunc void reflst(void);
-cfunc int RealEnt(void);
-cfunc void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas);
-cfunc void getRofHdr(FILE* progpath);
+cfunc int RealEnt(struct options* opt);
+cfunc void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP);
+cfunc void getRofHdr(FILE* progpath, struct options* opt);
 cfunc void RofLoadInitData(void);
 cfunc char rof_class(int typ, int refTy);
 cfunc struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
 cfunc int typeFetchSize(int rtype);
-cfunc struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value);
 cfunc int rof_datasize(char cclass);
-cfunc void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass);
+cfunc void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct options* opt);
 cfunc void rof_ascii(char* cmdline);
 cfunc void setROFPass(void);
 cfunc int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
 cfunc char* IsRef(char* dst, int curloc, int ival);
+
+// Unused
+cfunc struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value, struct parse_state* state);
 
 #endif // ROF_H

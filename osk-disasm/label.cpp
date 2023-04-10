@@ -581,7 +581,7 @@ extern "C" struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
  *          (3) amod - the AMode desired
  */
 // This is NOT SAFE AT ALL.
-extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
+extern "C" int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
 {
 
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
@@ -595,7 +595,7 @@ extern "C" int LblCalc(char* dst, int adr, int amod, int curloc)
         raw += curloc;
     }
 
-    if (IsROF)
+    if (isRof)
     {
         if (IsRef(dst, curloc, adr))
         {

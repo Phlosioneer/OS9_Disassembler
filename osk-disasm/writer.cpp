@@ -3,7 +3,7 @@
 #include "exit.h"
 #include <cstdarg>
 
-writer_handle* module_writer = nullptr;
+//writer_handle* module_writer = nullptr;
 writer_handle* stdout_writer = nullptr;
 
 Writer::Writer() : _handle(new writer_handle{ this }) {}

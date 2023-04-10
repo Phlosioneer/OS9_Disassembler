@@ -45,8 +45,6 @@
 #   define PATHSEP '/'
 #endif
 
-#define MAX_LBFIL 32
-
 #ifndef SEEK_SET
 #   define SEEK_SET 0
 #   define SEEK_CUR 1

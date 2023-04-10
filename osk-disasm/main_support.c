@@ -47,17 +47,49 @@
 #endif
 
 char* PsectName = NULL;
-int cpu;
-int PrintAllCode;
 int Pass;    /* The disassembler is a two-pass assembler */
-char* ModFile;   /* The module file to read */
-FILE* ModFP;
-int WrtSrc;
-int IsUnformatted;
 int PCPos;
 int CmdEnt;   /* The Entry Point for the Command */
 int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
-char* DefDir;
+
+struct options* options_new()
+{
+    struct options* ret = malloc(sizeof(struct options));
+    if (ret == 0)
+    {
+        errexit("OoM");
+    }
+    memset(ret, 0, sizeof(struct options));
+
+    ret->PgWidth = 80;
+    
+    return ret;
+}
+
+void options_destroy(struct options* opt)
+{
+    if (opt->CmdFileName)   free(opt->CmdFileName);
+    if (opt->CmdFP)         fclose(opt->CmdFP);
+    if (opt->asmFile)       writer_close(opt->asmFile);
+    if (opt->DefDir)        free(opt->DefDir);
+    if (opt->ModFile)       free(opt->ModFile);
+    if (opt->ModFP)         fclose(opt->ModFP);
+    for (int i = 0; i < opt->LblFilz; i++)
+    {
+        free(opt->LblFNam[i]);
+    }
+    memset(opt, 0, sizeof(struct options));
+    free(opt);
+}
+
+void options_addLabelFile(struct options* opt, const char* name)
+{
+    if (opt->LblFilz >= MAX_LBFIL)
+    {
+        errexit("Too many label files!");
+    }
+    opt->LblFNam[opt->LblFilz++] = _strdup(name);
+}
 
 /* **********************
  * usage() - Print Help message
@@ -93,28 +125,31 @@ void usage(void)
  *        the old-fashioned way.                                    *
  * **************************************************************** *
  */
-void getoptions(int argc, char **argv)
+struct options* getoptions(int argc, char **argv)
 {
     register int count;
+    struct options* ret = options_new();
 
     for (count = 1; count < argc; count++)
     {
         if (argv[count][0] == '-')
         {    /* It's an option */
-            do_opt (&argv[count][1]);
+            do_opt (&argv[count][1], ret);
         }
         else
         {
-            if (ModFile != NULL)
+            if (ret->ModFile != NULL)
             {
                 /* I think we did handle multiple files in the 6809 version
                    If so, we'll fix that later*/
                 errexit("Only One File can be processed");
             }
 
-            ModFile = argv[count];
+            ret->ModFile = strdup(argv[count]);
         }
     }
+
+    return ret;
 }
 
 
@@ -123,7 +158,7 @@ void getoptions(int argc, char **argv)
  *    If the path is not valid, try some alternatives.
  * ***** */
 
-FILE * build_path (char *p, char *faccs)
+FILE * build_path (char *p, char *faccs, struct options *opt)
 {
     char tmpnam[100];
     char *c;
@@ -156,9 +191,9 @@ FILE * build_path (char *p, char *faccs)
         }
     }
 
-    if (DefDir)
+    if (opt->DefDir)
     {
-        sprintf (tmpnam, "%s/%s", DefDir, p);
+        sprintf (tmpnam, "%s/%s", opt->DefDir, p);
 
         fp = fopen(tmpnam, faccs);
         if (fp)
@@ -167,7 +202,7 @@ FILE * build_path (char *p, char *faccs)
         }
     }
 
-    if (CmdFileName && strlen(CmdFileName))
+    if (opt->CmdFileName && strlen(opt->CmdFileName))
     {
         char dirpath[256];
         char fname[256];
@@ -181,7 +216,7 @@ FILE * build_path (char *p, char *faccs)
 
         if (relpath == 0)
         {
-            _splitpath(CmdFileName, drv, dirpath, fname, ext);
+            _splitpath(opt->CmdFileName, drv, dirpath, fname, ext);
             _makepath(tmpnam, drv, dirpath, p, NULL);
         }
         else
@@ -208,7 +243,7 @@ FILE * build_path (char *p, char *faccs)
  *      the command file.                                           *
  * **************************************************************** */
 
-void do_opt (char *c)
+void do_opt (char *c, struct options *opt)
 {
     char *pt = c;
     char *AsmFile;
@@ -217,23 +252,23 @@ void do_opt (char *c)
     switch (tolower (*(pt++)))
     {
     case 'a':
-        PrintAllCode = 1;   /* Print all code words */
+        opt->PrintAllCode = 1;   /* Print all code words */
         break;
     case 'c':                  /* Specify Command file */
-        if (CmdFileName)
+        if (opt->CmdFileName)
         {
             fprintf (stderr, "Command file already defined\n");
             fprintf (stderr, "Ignoring %s\n", pass_eq (pt));
         }
         else
         {
-            CmdFileName = pass_eq (pt);
+            opt->CmdFileName = strdup(pass_eq (pt));
 
-            CmdFP = build_path(CmdFileName, BINREAD);
-            if (!CmdFP)
+            opt->CmdFP = build_path(opt->CmdFileName, BINREAD, opt);
+            if (!opt->CmdFP)
             {
                 fprintf (stderr, "*** Failed to open Command file %s***\n",
-                        CmdFileName);
+                    opt->CmdFileName);
                 fprintf (stderr,
                         "Continuing without using the Command file\n");
             }
@@ -249,13 +284,13 @@ void do_opt (char *c)
         case 68008:
         case 68010:
         case 68020:
-            cpu = v - 68000;
+            opt->cpu = v - 68000;
             break;
         case 0:
         case 8:
         case 10:
         case 20:
-            cpu = v;
+            opt->cpu = v;
             break;
         default:
             fprintf (stderr, "Error: %d is not a valid CPU... Ignoring\n", v);
@@ -267,8 +302,8 @@ void do_opt (char *c)
         AsmFile = pass_eq(pt);
 
         //AsmPath = fopen(AsmFile, BINWRITE);
-        module_writer = file_writer_fopen(AsmFile);
-        if ( ! writer_opened_successfully(module_writer))
+        opt->asmFile = file_writer_fopen(AsmFile);
+        if ( ! writer_opened_successfully(opt->asmFile))
         {
             if (strlen(AsmFile) == 0) {
                 errexit("Error: no output file path after -o. Are you missing an = after -o? ");
@@ -279,7 +314,7 @@ void do_opt (char *c)
             }
         }
         
-        WrtSrc = 1;
+        //WrtSrc = 1;
         break;
     /*case 'x':
         pt = pass_eq(pt);
@@ -298,10 +333,10 @@ void do_opt (char *c)
 
         break;*/
     case 'r':           /* File is an ROF file */
-        IsROF = 1;
+        opt->IsROF = 1;
         break;
     case 's':                  /* Label file name       */
-        if (LblFilz < MAX_LBFIL)
+        if (opt->LblFilz < MAX_LBFIL)
         {
             pt = pass_eq (pt);
 
@@ -310,14 +345,7 @@ void do_opt (char *c)
                 /* In the OS9 version we used build_path here,
                  * but let's try waiting till we read the file
                  */
-                if (DoingCmds)
-                {
-                    LblFNam[LblFilz++] = strdup(pt);
-                }
-                else
-                {
-                    LblFNam[LblFilz++] = pt;
-                }
+                options_addLabelFile(opt, pt);
             }
         }
         else
@@ -333,7 +361,7 @@ void do_opt (char *c)
         switch (tolower (*(pt++)))
         {
         case 'w':
-            PgWidth = atoi (pass_eq (pt));
+            opt->PgWidth = atoi (pass_eq (pt));
             break;
         case 'd':
             //PgDepth = atoi (pass_eq (pt));
@@ -346,24 +374,17 @@ void do_opt (char *c)
 
         break;
     case 'u':                  /* Translate to upper-case */
-        IsUnformatted = 1;
+        opt->IsUnformatted = 1;
         /*UpCase = 1;*/
         break;
     case 'd':
-        if ( ! DoingCmds)
-        {
-            DefDir = pass_eq (pt);
-        }
-        else
-        {
-            pt = pass_eq (pt);
+        pt = pass_eq (pt);
 
-            DefDir = strdup(pt);
-            if ( ! DefDir)
-            {
-                fprintf (stderr, "Cannot allocate memory for Defs dirname\n");
-                exit (1);
-            }
+        opt->DefDir = strdup(pt);
+        if ( !opt->DefDir)
+        {
+            fprintf (stderr, "Cannot allocate memory for Defs dirname\n");
+            exit (1);
         }
 
         break;

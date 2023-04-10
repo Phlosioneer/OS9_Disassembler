@@ -157,7 +157,7 @@ struct cmd_items* initcmditems(struct cmd_items* ci)
  *      in the command word, and also have an effective address      *
  * ----------------------------------------------------------------- */
 
-int reg_ea(struct cmd_items* ci, int j, const struct opst* op)
+int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -210,7 +210,7 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op)
         regname = "a";
     }
 
-    if (get_eff_addr(ci, ea, mode, reg, size))
+    if (get_eff_addr(ci, ea, mode, reg, size, state))
     {
         sprintf(ci->params, "%s,%c%d", ea, regname[0], (ci->cmd_wrd >> 9) & 7);
         strcpy(ci->mnem, op->name);
@@ -321,7 +321,7 @@ static void reglist(char* s, unsigned long regmask, int mode)
     }
 }
 
-int movem_cmd(struct cmd_items* ci, int j, const struct opst* op)
+int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -351,11 +351,11 @@ int movem_cmd(struct cmd_items* ci, int j, const struct opst* op)
             return 0;
     }
 
-    regmask = getnext_w(ci);
+    regmask = getnext_w(ci, state);
 
-    if (!get_eff_addr(ci, ea, mode, reg, size))
+    if (!get_eff_addr(ci, ea, mode, reg, size, state))
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
@@ -375,7 +375,7 @@ int movem_cmd(struct cmd_items* ci, int j, const struct opst* op)
     return 1;
 }
 
-int link_unlk(struct cmd_items* ci, int j, const struct opst* op)
+int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
 {
     int regno = ci->cmd_wrd & 7;
     int ext_w;
@@ -394,11 +394,11 @@ int link_unlk(struct cmd_items* ci, int j, const struct opst* op)
 
         break;
     default:
-        ext_w = getnext_w(ci);
+        ext_w = getnext_w(ci, state);
 
         if (j == 138)
         {
-            ext_w = (ext_w << 8) | (getnext_w(ci) & 0xff);
+            ext_w = (ext_w << 8) | (getnext_w(ci, state) & 0xff);
         }
 
         sprintf(ci->params, "A%d,#%d", regno, ext_w);
@@ -414,15 +414,15 @@ int link_unlk(struct cmd_items* ci, int j, const struct opst* op)
  * Returns 1 if valid, 0 if cpu < 68020 && is Full Extended Word      *
  * ------------------------------------------------------------------ */
 
-int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg)
+int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state)
 {
     int ew;     /* A local copy of the extended word (stored in ci->code[0]) */
 
-    ew = getnext_w(ci);
+    ew = getnext_w(ci, state);
 
-    if ((cpu < 20) && (ew & 0x0100))
+    if ((state->cpu < 20) && (ew & 0x0100))
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
@@ -437,7 +437,7 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg)
     {
         if (ew & 0x08)  /* Bit 3 must be 0 */
         {
-            ungetnext_w(ci);
+            ungetnext_w(ci, state);
             return 0;
         }
 
@@ -447,7 +447,7 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg)
 
         if ((extW->bdSize = (ew >> 4) & 3) == 0)
         {
-            ungetnext_w(ci);
+            ungetnext_w(ci, state);
             return 0;
         }
 
@@ -472,7 +472,7 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg)
  *
  * ------------------------- */
 
-int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
+int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, struct parse_state* state)
 {
     int ext1;
     int ext2;
@@ -525,7 +525,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
         break;
     case 5:             /* d{16}An */
         AMode = AM_A0 + reg;
-        ext1 = getnext_w(ci);
+        ext1 = getnext_w(ci, state);
 
         /* The system biases the data Pointer (a6) by 0x8000 bytes,
          * so compensate
@@ -543,7 +543,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        LblCalc(dispstr, ext1, AMode, ea_addr);
+        LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
 
         if (reg == 7)
         {
@@ -558,15 +558,15 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
     case 6:             /* d{8}(An,Xn) or 68020-up */
         AMode = AM_A0 + reg;
 
-        if (get_ext_wrd(ci, &ew_b, mode, reg))
+        if (get_ext_wrd(ci, &ew_b, mode, reg, state))
         {
             if (ew_b.isFull)
             {
-                return process_extended_word_full(ci, ea, &ew_b, mode, reg, size);
+                return process_extended_word_full(ci, ea, &ew_b, mode, reg, size, state);
             }
             else
             {
-                return process_extended_word_brief(ci, ea, &ew_b, mode, reg, size);
+                return process_extended_word_brief(ci, ea, &ew_b, mode, reg, size, state);
             }
             /* the displacement should be a string for it may sometimes
              * be a label */
@@ -622,29 +622,29 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
         switch (reg) {
         case 0:                 /* (xxx).W */
             AMode = AM_SHORT;
-            ext1 = getnext_w(ci);
+            ext1 = getnext_w(ci, state);
             /*sprintf (dispstr, "%d", displac_w);*/
-            LblCalc(dispstr, ext1, AMode, ea_addr);
+            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         case 1:                /* (xxx).L */
             AMode = AM_LONG;
-            ext1 = getnext_w(ci);
-            ext1 = (ext1 << 16) | (getnext_w(ci) & 0xffff);
-            LblCalc(dispstr, ext1, AMode, ea_addr);
+            ext1 = getnext_w(ci, state);
+            ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
+            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         case 4:                 /* #<data> */
             AMode = AM_IMM;
             ref_ptr = PCPos;
-            ext1 = getnext_w(ci);
+            ext1 = getnext_w(ci, state);
 
             switch (size)
             {
             case SIZ_BYTE:
                 if ((ext1 < -128) || (ext1 > 0xff))
                 {
-                    ungetnext_w(ci);
+                    ungetnext_w(ci, state);
                     return 0;
                 }
 
@@ -652,13 +652,13 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
             case SIZ_WORD:
                 if ((ext1 < -32768) || (ext1 > 0xffff))
                 {
-                    ungetnext_w(ci);
+                    ungetnext_w(ci, state);
                     return 0;
                 }
 
                 break;
             case SIZ_LONG:
-                ext2 = getnext_w(ci);
+                ext2 = getnext_w(ci, state);
                 ext1 = (ext1 << 16) | (ext2 & 0xffff);
                 break;
             }
@@ -669,29 +669,29 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
                 return 1;
             }
 
-            LblCalc(dispstr, ext1, AMode, ea_addr);
+            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         case 2:              /* (d16,PC) */
             AMode = AM_REL;
-            ext1 = getnext_w(ci);
+            ext1 = getnext_w(ci, state);
             /* (ext1 - 2) to reflect PCPos before getnext_w */
     /*LblCalc(dispstr, ext1 - 2, AMode, ea_addr);*/
-            LblCalc(dispstr, ext1, AMode, ea_addr);
+            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         case 3:              /* d8(PC,Xn) */
             AMode = AM_REL;
 
-            if (get_ext_wrd(ci, &ew_b, mode, reg))
+            if (get_ext_wrd(ci, &ew_b, mode, reg, state))
             {
                 if (ew_b.isFull)
                 {
-                    return process_extended_word_full(ci, ea, &ew_b, mode, reg, size);
+                    return process_extended_word_full(ci, ea, &ew_b, mode, reg, size, state);
                 }
                 else
                 {
-                    return process_extended_word_brief(ci, ea, &ew_b, mode, reg, size);
+                    return process_extended_word_brief(ci, ea, &ew_b, mode, reg, size, state);
                 }
                 /*char a_disp[50];
                 char idxstr[30];
@@ -733,7 +733,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size)
  */
 
 int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode,
-    int reg, int size)
+    int reg, int size, struct parse_state* state)
 {
     char base_str[50];
     char idx_reg[20];
@@ -748,7 +748,7 @@ int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbr
     {
         int pcadj;
 
-        get_displ(ci, base_str, ew->bdSize);
+        get_displ(ci, base_str, ew->bdSize, state);
 
         if (mode == 7)  /* Adjust for PC-Rel mode */
         {
@@ -804,7 +804,7 @@ int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbr
 
     if ((ew->iiSel & 3) > 1)
     {
-        get_displ(ci, od_str, ew->iiSel & 3);
+        get_displ(ci, od_str, ew->iiSel & 3, state);
     }
 
     if (ew->is == 0)
@@ -850,7 +850,7 @@ int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbr
         {
             while (ci->wcount)
             {
-                ungetnext_w(ci);
+                ungetnext_w(ci, state);
             }
 
             return 0;
@@ -890,7 +890,7 @@ int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbr
 }
 
 int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWbrief* ew_b,
-    int mode, int reg, int size)
+    int mode, int reg, int size, struct parse_state* state)
 {
     char a_disp[50];
     char idxstr[30];
@@ -913,12 +913,12 @@ int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWb
             ew_b->displ -= 2;
         }
 
-        LblCalc(a_disp, ew_b->displ, AMode, PCPos - 2);
+        LblCalc(a_disp, ew_b->displ, AMode, PCPos - 2, state->opt->IsROF);
     }
 
-    if (!set_indirect_idx(idxstr, ew_b))
+    if (!set_indirect_idx(idxstr, ew_b, state->cpu))
     {
-        ungetnext_w(ci);
+        ungetnext_w(ci, state);
         return 0;
     }
 
@@ -952,16 +952,16 @@ int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWb
  *          or the outer displacement, if not suppressed
  */
 
-void get_displ(struct cmd_items* ci, char* dst, int siz_flag)
+void get_displ(struct cmd_items* ci, char* dst, int siz_flag, struct parse_state* state)
 {
     switch (siz_flag)
     {
     case 2:   /* Word Displacement */
-        sprintf(dst, "%d.w", getnext_w(ci));
+        sprintf(dst, "%d.w", getnext_w(ci, state));
         break;
     case 3:  /* Long Displacement */
         sprintf(dst, "%d",
-            (getnext_w(ci) << 16) | (getnext_w(ci) & 0xffff));
+            (getnext_w(ci, state) << 16) | (getnext_w(ci, state) & 0xffff));
         break;
     default:
         break;
@@ -981,7 +981,7 @@ void get_displ(struct cmd_items* ci, char* dst, int siz_flag)
  *
  */
 
-int set_indirect_idx(char* dest, struct extWbrief* extW)
+int set_indirect_idx(char* dest, struct extWbrief* extW, int cpu)
 {
 
     /* Scale not allowed for < 68020 */
@@ -1030,7 +1030,7 @@ int set_indirect_idx(char* dest, struct extWbrief* extW)
  *               descriptor                                                 *
  * ------------------------------------------------------------------------ */
 
-int get_extends_common(struct cmd_items* ci, char* mnem)
+int get_extends_common(struct cmd_items* ci, char* mnem, struct parse_state* state)
 {
     int mode, reg;
     int size;
@@ -1040,11 +1040,11 @@ int get_extends_common(struct cmd_items* ci, char* mnem)
     reg = ci->cmd_wrd & 7;
     size = (ci->cmd_wrd >> 6) & 3;
 
-    get_eff_addr(ci, addr_mode, mode, reg, size);
-    getnext_w(ci);
+    get_eff_addr(ci, addr_mode, mode, reg, size, state);
+    getnext_w(ci, state);
 
     if (size > 1) {
-        getnext_w(ci);
+        getnext_w(ci, state);
     }
 
     return 1;
@@ -1070,12 +1070,12 @@ int ctl_addrmodesonly(int mode, int reg)
 }
 
 
-char getnext_b(struct cmd_items* ci)
+char getnext_b(struct cmd_items* ci, struct parse_state* state)
 
 {
     char b;
 
-    if (fread(&b, 1, 1, ModFP) < 1)
+    if (fread(&b, 1, 1, state->ModFP) < 1)
     {
         filereadexit();
     }
@@ -1095,11 +1095,11 @@ char getnext_b(struct cmd_items* ci)
  *    the word is stored in the proper Info->code position                      *
  * **************************************************************************** */
 
-int getnext_w(struct cmd_items* ci)
+int getnext_w(struct cmd_items* ci, struct parse_state* state)
 {
     short w;
 
-    w = fread_w(ModFP);
+    w = fread_w(state->ModFP);
     PCPos += 2;
     ci->code[ci->wcount] = w;
     ci->wcount += 1;
@@ -1111,9 +1111,9 @@ int getnext_w(struct cmd_items* ci)
  * Passed: Pointer to the struct cmd_items struct
  * *************************************************************************** */
 
-void ungetnext_w(struct cmd_items* ci)
+void ungetnext_w(struct cmd_items* ci, struct parse_state* state)
 {
-    fseek(ModFP, -2, SEEK_CUR);
+    fseek(state->ModFP, -2, SEEK_CUR);
     PCPos -= 2;
     ci->wcount -= 1;
 }

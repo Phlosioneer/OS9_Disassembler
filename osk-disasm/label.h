@@ -37,7 +37,7 @@ extern "C" {
     struct symbol_def* addlbl(char lblclass, int val, const char* newname);
     void process_label(struct cmd_items* ci, char lblclass, int addr);
     void parsetree(char c);
-    int LblCalc(char* dst, int adr, int amod, int curloc);
+    int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof);
 
 #ifdef __cplusplus
 }

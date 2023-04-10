@@ -189,7 +189,7 @@ short fread_w(FILE *fp)
 {
     int tt;
 
-    tt = (fgetc(ModFP) << 8) | (fgetc (ModFP) & 0xff);
+    tt = (fgetc(fp) << 8) | (fgetc (fp) & 0xff);
     return tt;
 }
 

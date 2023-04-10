@@ -59,11 +59,11 @@
 
 
 #define CNULL '\0'
-
-static void BlankLine();
-static void PrintFormatted (const char *pfmt, struct cmd_items *ci);
-static void NonBoundsLbl (char cClass);
-static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval);
+struct ireflist* IRefs = NULL;
+static void BlankLine(struct options* opt);
+static void PrintFormatted (const char *pfmt, struct cmd_items *ci, struct options* opt);
+static void NonBoundsLbl (char cClass, struct options* opt);
+static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval, struct options* opt);
 
 /*extern struct printbuf *pbuf;*/
 extern struct rof_header ROFHd;
@@ -81,7 +81,6 @@ static int HadWrote;            /* flag that header has been written */
 static char *SrcHd;             /* ptr for header for source file */
 static char *IBuf;              /* Pointer to buffer containing the Init Data values */
 int LinNum;
-int PgWidth = 80;
 char EaString[200];
 
 /* Comments tree */
@@ -125,7 +124,7 @@ struct modnam ModAtts[] = {
  *
  */
 
-void PrintPsect()
+void PrintPsect(struct options* opt)
 {
     char *ProgType = NULL;
     char *ProgLang = NULL;
@@ -136,40 +135,40 @@ void PrintPsect()
     int pgWdthSave;
 
     Ci.comment = "";
-    strcpy (Ci.mnem, "set");
-    BlankLine();
+    strcpy(Ci.mnem, "set");
+    BlankLine(opt);
 
     /* Module name */
     if (PsectName)
     {
         strcpy(EaString, PsectName);
     }
-    else if (strrchr(ModFile, PATHSEP))
+    else if (strrchr(opt->ModFile, PATHSEP))
     {
-        strcpy (EaString, strrchr(ModFile, PATHSEP) + 1);
+        strcpy(EaString, strrchr(opt->ModFile, PATHSEP) + 1);
     }
     else
     {
-        strcpy (EaString, ModFile);
+        strcpy(EaString, opt->ModFile);
     }
 
-    strcat (EaString, "_a");
+    strcat(EaString, "_a");
 
     /* Type/Language */
     InProg = 0;    /* Inhibit Label Lookup */
-    ProgType = modnam_find (ModTyps, (unsigned char)M_Type)->name;
+    ProgType = modnam_find(ModTyps, (unsigned char)M_Type)->name;
     Ci.cmd_wrd = M_Type;
     Ci.lblname = ProgType;
-    sprintf (Ci.params, "$%x", M_Type);
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0);
+    sprintf(Ci.params, "$%x", M_Type);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     /*hdrvals[0] = M_Type;*/
-    ProgLang = modnam_find (ModLangs, (unsigned char)M_Lang)->name;
+    ProgLang = modnam_find(ModLangs, (unsigned char)M_Lang)->name;
     Ci.lblname = ProgLang;
     Ci.cmd_wrd = M_Lang;
-    sprintf (Ci.params, "$%02x", M_Lang);
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0);
+    sprintf(Ci.params, "$%02x", M_Lang);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     /*hdrvals[1] = M_Lang;*/
-    sprintf (&EaString[strlen(EaString)], ",(%s<<8)|%s", ProgType, ProgLang);
+    sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%s", ProgType, ProgLang);
 
     /* Att/Rev */
     ProgAtts[0] = '\0';
@@ -190,15 +189,15 @@ void PrintPsect()
 
             Ci.lblname = ModAtts[c].name;
             Ci.cmd_wrd = ModAtts[c].val;
-            sprintf (Ci.params, "$%02x",ModAtts[c].val);
-            PrintLine (pseudcmd, &Ci, CNULL, 0, 0); 
+            sprintf(Ci.params, "$%02x",ModAtts[c].val);
+            PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt); 
         }
     }
 
-    sprintf (&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, M_Revs);
-    sprintf (&EaString[strlen(EaString)], ",%d", M_Edit);
-    strcat (EaString, ",0");    /* For the time being, don't add any stack */
-    sprintf (&EaString[strlen(EaString)], ",%s", label_getName(findlbl('L', M_Exec)));
+    sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, M_Revs);
+    sprintf(&EaString[strlen(EaString)], ",%d", M_Edit);
+    strcat(EaString, ",0");    /* For the time being, don't add any stack */
+    sprintf(&EaString[strlen(EaString)], ",%s", label_getName(findlbl('L', M_Exec)));
 
     if (M_Except)
     {
@@ -211,12 +210,12 @@ void PrintPsect()
     strcpy (Ci.mnem, "psect");
     Ci.lblname = "";
     /* Be sure to have enough space to write psect */
-    pgWdthSave = PgWidth;
-    PgWidth = 200;
-    BlankLine();
-    PrintLine (pseudcmd, &Ci, CNULL, 0, 0);
-    BlankLine();
-    PgWidth = pgWdthSave;
+    pgWdthSave = opt->PgWidth;
+    opt->PgWidth = 200;
+    BlankLine(opt);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
+    BlankLine(opt);
+    opt->PgWidth = pgWdthSave;
     InProg = 1;
 }
 
@@ -225,7 +224,7 @@ void PrintPsect()
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine (const char *pfmt, struct cmd_items *ci)
+static void OutputLine(const char *pfmt, struct cmd_items *ci, struct options* opt)
 {
     struct symbol_def *nl;
     char lbl[100];
@@ -238,31 +237,31 @@ static void OutputLine (const char *pfmt, struct cmd_items *ci)
             strcpy(lbl, label_getName(nl));
             ci->lblname = lbl;
 
-            if (IsROF && label_getGlobal(nl))
+            if (opt->IsROF && label_getGlobal(nl))
             {
                 strcat(lbl, ":");
             }
         }
     }
 
-    PrintFormatted (pfmt, ci);
+    PrintFormatted(pfmt, ci, opt);
 
-    if (WrtSrc)
+    if (opt->asmFile)
     {
-        writer_printf(module_writer, "%s %s %s", ci->lblname, ci->mnem, ci->params);
+        writer_printf(opt->asmFile, "%s %s %s", ci->lblname, ci->mnem, ci->params);
 
         if (ci->comment && strlen (ci->comment))
         {
-            writer_printf(module_writer, " %s", ci->comment);
+            writer_printf(opt->asmFile, " %s", ci->comment);
         }
 
-        writer_printf(module_writer, "\n");
+        writer_printf(opt->asmFile, "\n");
     }
 }
 
     /* Straighten/clean up - prepare for next line  */
 
-static void PrintCleanup ()
+static void PrintCleanup()
 {
     PrevEnt = CmdEnt;
 
@@ -270,18 +269,18 @@ static void PrintCleanup ()
     ++LinNum;
 }
 
-static void BlankLine ()                    /* Prints a blank line */
+static void BlankLine (struct options* opt)                    /* Prints a blank line */
 {
-    if (IsUnformatted)
+    if (opt->IsUnformatted)
     {
         return;
     }
 
     writer_printf(stdout_writer, "%5d\n", LinNum++);
 
-    if (WrtSrc)
+    if (opt->asmFile)
     {
-        writer_printf(module_writer, "\n");
+        writer_printf(opt->asmFile, "\n");
     }
 }
 
@@ -304,7 +303,7 @@ static void BlankLine ()                    /* Prints a blank line */
             BlankLine();
         }
 
-        if (IsUnformatted)
+        if (opt->IsUnformatted)
         {
             writer_printf(stdout_writer, " %s\n", str);
             ++LinNum;
@@ -316,7 +315,7 @@ static void BlankLine ()                    /* Prints a blank line */
 
         if (WrtSrc)
         {
-            writer_printf(module_writer, "%s", str);
+            writer_printf(opt->asmFile, "%s", str);
         }
 
         if (postblank)
@@ -392,22 +391,22 @@ char * get_apcomment(char clas, int addr)
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int cmdhi)
+void PrintLine(const char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int cmdhi, struct options* opt)
 {
-    NonBoundsLbl (cClass);            /*Check for non-boundary labels */
+    NonBoundsLbl(cClass, opt);            /*Check for non-boundary labels */
 
     if (cClass)
     {
-        PrintComment (cClass, cmdlow, cmdhi);
+        PrintComment(cClass, cmdlow, cmdhi, opt);
         ci->comment = get_apcomment(cClass, cmdlow);
     }
 
-    OutputLine (pfmt, ci);
+    OutputLine(pfmt, ci, opt);
 
-    PrintCleanup ();
+    PrintCleanup();
 }
 
-static void PrintFormatted(const char *pfmt, struct cmd_items *ci)
+static void PrintFormatted(const char *pfmt, struct cmd_items *ci, struct options* opt)
 {
     int _linlen;
 
@@ -420,39 +419,39 @@ static void PrintFormatted(const char *pfmt, struct cmd_items *ci)
 
     if (pfmt == pseudcmd)
     {
-        if (IsUnformatted)
+        if (opt->IsUnformatted)
         {
-            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, &(pfmt[3]),
+            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]),
                                     CmdEnt, ci->cmd_wrd, ci->lblname,
                                     ci->mnem, ci->params, ci->comment);
         }
         else
         {
-            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, pfmt,
+            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, pfmt,
                                     LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
                                     ci->mnem, ci->params, ci->comment);
         }
     }
     else
     {
-        if (IsUnformatted)
+        if (opt->IsUnformatted)
         {
-            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, &(pfmt[3]),
+            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]),
                                 CmdEnt, ci->cmd_wrd, ci->lblname,
                                 ci->mnem, ci->params, ci->comment);
         }
         else
         {
-            _linlen = snprintf (FmtBuf, (size_t)PgWidth - 2, pfmt,
+            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, pfmt,
                                 LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
                                 ci->mnem, ci->params, ci->comment);
         }
     }
 
-    if ((_linlen >= PgWidth - 2) || (_linlen < 0))
+    if ((_linlen >= opt->PgWidth - 2) || (_linlen < 0))
     {
-        FmtBuf[PgWidth - 3] = '\n';
-        FmtBuf[PgWidth - 2] = '\0';
+        FmtBuf[opt->PgWidth - 3] = '\n';
+        FmtBuf[opt->PgWidth - 2] = '\0';
     }
 
     writer_printf(stdout_writer, "%s", FmtBuf);
@@ -463,9 +462,9 @@ static void PrintFormatted(const char *pfmt, struct cmd_items *ci)
  * Print additional data bytes in line following main line          *
  * **************************************************************** */
 
-void printXtraBytes (char *data)
+void printXtraBytes(char *data)
 {
-    if (strlen (data))
+    if (strlen(data))
     {
         writer_printf(stdout_writer, xtraFmt, data);
         data[0] = '\0';     /* Reset data to empty string */
@@ -477,14 +476,14 @@ void printXtraBytes (char *data)
  *
  */
 
-void PrintComment(char lblcClass, int cmdlow, int cmdhi)
+void PrintComment(char lblcClass, int cmdlow, int cmdhi, struct options* opt)
 {
     register struct comment_tree *me;
     register int x;
 
     for (x = cmdlow; x < cmdhi; x++)
     {
-        me = Comments[strpos (lblorder, lblcClass)];
+        me = Comments[strpos(lblorder, lblcClass)];
 
         while (me)
         {
@@ -506,7 +505,7 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
 
                     for (line = me->commts; line; line = line->nextline)
                     {
-                        if (IsUnformatted)
+                        if (opt->IsUnformatted)
                         {
                             printf(" * %s\n", line->ctxt);
                         }
@@ -515,9 +514,9 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
                             printf("%5d * %s\n", LinNum++, line->ctxt);
                         }
 
-                        if (WrtSrc)
+                        if (opt->asmFile)
                         {
-                            writer_printf(module_writer, "* %s\n", line->ctxt);
+                            writer_printf(opt->asmFile, "* %s\n", line->ctxt);
                         }
 
                     }
@@ -529,7 +528,7 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi)
     }
 }
 
-static void NonBoundsLbl (char cClass)
+static void NonBoundsLbl(char cClass, struct options* opt)
 {
     if (cClass)
     {
@@ -537,7 +536,7 @@ static void NonBoundsLbl (char cClass)
         struct cmd_items Ci;
         register struct symbol_def *nl;
 
-        strcpy (Ci.mnem, "equ");
+        strcpy(Ci.mnem, "equ");
         Ci.comment = "";
 
         for (x = PrevEnt + 1; x < CmdEnt; x++)
@@ -546,25 +545,25 @@ static void NonBoundsLbl (char cClass)
             if (nl)
             {
                 char lbl[100];
-                strcpy (lbl, label_getName(nl));
+                strcpy(lbl, label_getName(nl));
                 Ci.lblname = lbl;
 
-                if (IsROF && label_getGlobal(nl))
+                if (opt->IsROF && label_getGlobal(nl))
                 {
-                    strcat (Ci.lblname, ":");
+                    strcat(Ci.lblname, ":");
                 }
 
                 if (x > CmdEnt)
                 {
-                    sprintf (Ci.params, "*+%d", x - CmdEnt);
+                    sprintf(Ci.params, "*+%d", x - CmdEnt);
                 }
                 else
                 {
-                    sprintf (Ci.params, "*-%d", CmdEnt - x);
+                    sprintf(Ci.params, "*-%d", CmdEnt - x);
                 }
 
                 /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
-                if (IsUnformatted)
+                if (opt->IsUnformatted)
                 {
                     writer_printf(stdout_writer, &(pseudcmd[3]), label_getMyAddr(nl), Ci.cmd_wrd,
                             Ci.lblname, Ci.mnem, Ci.params, "");
@@ -575,9 +574,9 @@ static void NonBoundsLbl (char cClass)
                             Ci.lblname, Ci.mnem, Ci.params, "");
                 }
 
-                if (WrtSrc)
+                if (opt->asmFile)
                 {
-                    writer_printf(module_writer, "%s %s %s\n", Ci.lblname, Ci.mnem,
+                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname, Ci.mnem,
                              Ci.params);
                 }
             }
@@ -594,17 +593,17 @@ static void NonBoundsLbl (char cClass)
 #define OPDCAT(nu) sprintf (ci->params, "%s,%d", pbuf->operand, nu)
 #define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
 
-void ROFPsect (struct rof_header *rptr)
+void ROFPsect (struct rof_header *rptr, struct options* opt)
 {
     struct symbol_def *nl;
     struct cmd_items Ci;
 
-    memset (&Ci, 0, sizeof(struct cmd_items));
-    /*strcpy (Ci.instr, "");*/
-    strcpy (Ci.params, "");
+    memset(&Ci, 0, sizeof(struct cmd_items));
+    /*strcpy(Ci.instr, "");*/
+    strcpy(Ci.params, "");
     Ci.lblname = "";
-    strcpy (Ci.mnem, "psect");
-    sprintf (Ci.params, "%s,$%x,$%x,%d,%d,", rptr->rname,
+    strcpy(Ci.mnem, "psect");
+    sprintf(Ci.params, "%s,$%x,$%x,%d,%d,", rptr->rname,
                                                 rptr->ty_lan >> 8,
                                                 rptr->ty_lan & 0xff,
                                                 rptr->edition,
@@ -632,7 +631,7 @@ void ROFPsect (struct rof_header *rptr)
     CmdEnt = 0;
     PrevEnt = 1;    /* To prevent NonBoundsLbl() output */
     InProg = 0;    /* Inhibit Label Lookup */
-    PrintLine (pseudcmd, &Ci, CNULL, 0, 0); 
+    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt); 
     InProg = 1;
 }
 
@@ -642,36 +641,26 @@ void ROFPsect (struct rof_header *rptr)
  * WrtEnds() - writes the "ends" command line          *
  * *************************************************** */
 
-void
-WrtEnds()
+void WrtEnds(struct options* opt)
 {
     struct cmd_items Ci;
 
-    memset (&Ci, 0, sizeof (Ci));
-    strcpy (Ci.mnem, "ends");
+    memset(&Ci, 0, sizeof (Ci));
+    strcpy(Ci.mnem, "ends");
 
-    BlankLine();
+    BlankLine(opt);
     CmdEnt = PCPos;     /* This should always work */
-    PrintFormatted (pseudcmd, &Ci);
+    PrintFormatted(pseudcmd, &Ci, opt);
 
-    if (WrtSrc)
+    if (opt->asmFile)
     {
-        writer_printf(module_writer, "%s %s %s\n", "", "ends", "");
+        writer_printf(opt->asmFile, "%s %s %s\n", "", "ends", "");
     }
 
-    BlankLine();
+    BlankLine(opt);
 }
 
-/* ******************
- * ireflist structure: Represents an entry in the Initialized Refs
- *       list.
- */
 
-struct ireflist {
-    struct ireflist *Prev;
-    struct ireflist *Next;
-    int dAddr;
-} *IRefs = NULL;
 
 /* *******
  * ParseIRefs() - Parse through the Initialized Refs list for either
@@ -680,20 +669,20 @@ struct ireflist {
  *    IRef table.
  */
 
-void ParseIRefs(char rClass)
+void ParseIRefs(char rClass, struct options* opt)
 {
     register int rCount;  /* The count for this block */
     register int MSB;
 
     /* Get an initial reading */
 
-    if (fseek (ModFP, M_IRefs, SEEK_SET))
+    if (fseek (opt->ModFP, M_IRefs, SEEK_SET))
     {
-        errexit ("Fatal: Failed to seek to Initialized Refs location");
+        errexit("Fatal: Failed to seek to Initialized Refs location");
     }
 
-    MSB = fread_w(ModFP) << 16;
-    rCount = fread_w(ModFP);
+    MSB = fread_w(opt->ModFP) << 16;
+    rCount = fread_w(opt->ModFP);
 
     while (MSB || rCount)   /* This will get All blocks for the Location */
     {
@@ -702,8 +691,8 @@ void ParseIRefs(char rClass)
             struct ireflist *il, *ilpt;
 
             il = (struct ireflist *)mem_alloc (sizeof(struct ireflist));
-            memset (il, 0, sizeof(struct ireflist));
-            il->dAddr = MSB | fread_w(ModFP);
+            memset(il, 0, sizeof(struct ireflist));
+            il->dAddr = MSB | fread_w(opt->ModFP);
 
             if (IRefs)   /* First entry? */
             {
@@ -750,8 +739,8 @@ void ParseIRefs(char rClass)
             }
         }
 
-        MSB = fread_w(ModFP);
-        rCount = fread_w(ModFP);
+        MSB = fread_w(opt->ModFP);
+        rCount = fread_w(opt->ModFP);
     }
 }
 
@@ -761,23 +750,22 @@ void ParseIRefs(char rClass)
  *    of 'D' and 'L'
  */
 
-void
-GetIRefs()
+void GetIRefs(struct options* opt)
 {
-    if (IsROF)
+    if (opt->IsROF)
     {
-        if ((fseek (ModFP, IDataBegin, SEEK_SET) == -1))
+        if ((fseek(opt->ModFP, IDataBegin, SEEK_SET) == -1))
         {
-            errexit ("Failed to seek to begin of Initialized Data Section");
+            errexit("Failed to seek to begin of Initialized Data Section");
         }
            /* Get Init Data*/
         /* Positioned at begin of Initialized Remote Section */
         /* ..... Get Init Remote ......... */
         /* .... Until above is implemented */
-        if (fseek (ModFP, ROFHd.idatsz + ROFHd.remotestatsiz + ROFHd.debugsiz - 2, SEEK_CUR) == -1)
+        if (fseek(opt->ModFP, ROFHd.idatsz + ROFHd.remotestatsiz + ROFHd.debugsiz - 2, SEEK_CUR) == -1)
         {
-            fprintf (stderr, "rofhdr(): Seek error on module\n");
-            exit (errno);
+            fprintf(stderr, "rofhdr(): Seek error on module\n");
+            exit(errno);
         }
 
     }
@@ -786,18 +774,18 @@ GetIRefs()
         if (M_IRefs == 0)
             return;
 
-        ParseIRefs('L');
+        ParseIRefs('L', opt);
     }
 }
 
-static void dataprintHeader(const char *hdr, char klas, int isRemote)
+static void dataprintHeader(const char *hdr, char klas, int isRemote, struct options* opt)
 {
     struct cmd_items Ci;
 
-    BlankLine();
-    memset (&Ci, 0, sizeof (Ci));
+    BlankLine(opt);
+    memset(&Ci, 0, sizeof (Ci));
 
-    if (IsUnformatted)
+    if (opt->IsUnformatted)
     {
         writer_printf(stdout_writer, hdr, klas);
         ++LinNum;
@@ -810,19 +798,19 @@ static void dataprintHeader(const char *hdr, char klas, int isRemote)
         writer_printf(stdout_writer, f_fmt, LinNum++, klas);
     }
 
-    if (WrtSrc)
+    if (opt->asmFile)
     {
-        writer_printf(module_writer, "%c", klas);
+        writer_printf(opt->asmFile, "%c", klas);
     }
 
-    BlankLine ();
+    BlankLine (opt);
 
-    strcpy (Ci.mnem, "vsect");
-    strcpy (Ci.params, isRemote ? "remote" : "");
+    strcpy(Ci.mnem, "vsect");
+    strcpy(Ci.params, isRemote ? "remote" : "");
     Ci.cmd_wrd = 0;
     Ci.comment = "";
     CmdEnt = PrevEnt = 0;
-    PrintLine (pseudcmd, &Ci, 'D', 0, 0);
+    PrintLine(pseudcmd, &Ci, 'D', 0, 0, opt);
 }
 
 // Attempt to match an asci string within a data block.
@@ -830,7 +818,7 @@ static void dataprintHeader(const char *hdr, char klas, int isRemote)
 // This approach is way too greedy. It was completely broken in the oringal and
 // fixing it breaks a ton of other stuff.
 
-int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
+int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass, struct options* opt)
 {
     register int count = bufEnd;
     register const char *ch = buf;
@@ -896,18 +884,18 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
         {
             if (*buf == '"')
             {
-                strcpy (tmpbuf, "\""); // To make the resets work
-                strcpy (ci->params, "'\"");
+                strcpy(tmpbuf, "\""); // To make the resets work
+                strcpy(ci->params, "'\"");
             }
             else
             {
                 // This algorithm is printing non-printable characters!
-                strncpy (tmpbuf, buf, 24);
+                strncpy(tmpbuf, buf, 24);
 
                 if (strlen(tmpbuf) >= 24)
                     tmpbuf[24] = '\0';
 
-                sprintf (ci->params, "\"%s\"", tmpbuf);
+                sprintf(ci->params, "\"%s\"", tmpbuf);
             }
 
 
@@ -916,7 +904,7 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
             count += strlen(tmpbuf);
             PCPos += strlen(tmpbuf);
             strncpy(ci->mnem, "dc.b", MNEM_LEN);
-            PrintLine (pseudcmd, ci, iClass, CmdEnt, CmdEnt);
+            PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
             CmdEnt = PCPos;
             PrevEnt = PCPos;
             ci->lblname = "";
@@ -930,14 +918,14 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
                 break;
             }
 
-            sprintf (tmpbuf, "$%d", *(buf++) & 0xff);
+            sprintf(tmpbuf, "$%d", *(buf++) & 0xff);
             
             if (strlen(ci->params))
             {
-                strcat (ci->params, ",");
+                strcat(ci->params, ",");
             }
 
-            strcat (ci->params, tmpbuf);
+            strcat(ci->params, tmpbuf);
             ++count;
             ++PCPos;
 
@@ -949,8 +937,8 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
 
         if (strlen(ci->params))
         {
-            strcpy (ci->mnem, "dc.b");
-            PrintLine (pseudcmd, ci, iClass, CmdEnt, CmdEnt);
+            strcpy(ci->mnem, "dc.b");
+            PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
             CmdEnt = PCPos;
             PrevEnt = PCPos;
             ci->lblname = "";
@@ -967,7 +955,7 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass)
  *
  */
 
-static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
+static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass, struct options* opt)
 {
     struct cmd_items Ci;
     /*char *hexFmt;*/
@@ -987,28 +975,28 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
         curlbl = addlbl('D', PCPos, "");
     }
 
-    if (fseek(ModFP, 0x40l, SEEK_SET) != -1)
+    if (fseek(opt->ModFP, 0x40l, SEEK_SET) != -1)
     {
         int     idatbegin,
                 idatcount;
 
-        if (fseek(ModFP, (long)fget_l(ModFP), SEEK_SET) == -1)
+        if (fseek(opt->ModFP, (long)fget_l(opt->ModFP), SEEK_SET) == -1)
         {
             fprintf(stderr, "Cannot seek to Init Data Buffer\n");
             return;
         }
 
-        idatbegin = fget_l(ModFP);
-        idatcount = fget_l(ModFP);
+        idatbegin = fget_l(opt->ModFP);
+        idatcount = fget_l(opt->ModFP);
 
         if (idatcount == 0)
         {
             return;
         }
 
-        BlankLine ();
+        BlankLine(opt);
 
-        if (IsUnformatted)
+        if (opt->IsUnformatted)
         {
             writer_printf(stdout_writer, " %s\n", what);
             ++LinNum;
@@ -1018,12 +1006,12 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
             writer_printf(stdout_writer, "%5d %s\n", LinNum++, what);
         }
 
-        if (WrtSrc)
+        if (opt->asmFile)
         {
-            writer_printf(module_writer, "%s\n", what);
+            writer_printf(opt->asmFile, "%s\n", what);
         }
 
-        BlankLine ();
+        BlankLine(opt);
 
         AMode = 0;             /* Mode for Data             */
 
@@ -1055,12 +1043,12 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
 
             CmdEnt = PCPos;     /* Save Entry Point */
             ppos = lblCount;
-            strcpy (lbl, label_getName(ldf));
+            strcpy(lbl, label_getName(ldf));
             Ci.lblname = lbl;
 
-            if (IsROF && label_getGlobal(ldf))
+            if (opt->IsROF && label_getGlobal(ldf))
             {
-                strcat (Ci.lblname, ":");
+                strcat(Ci.lblname, ":");
             }
 
             /* We might ought to provide for longs, but it might
@@ -1068,13 +1056,13 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
             if (lblCount & 1)
             {
                 PBytSiz = 1;
-                strcpy (Ci.mnem, "dc.b");
+                strcpy(Ci.mnem, "dc.b");
                 /*hexFmt = "$%02x";*/
             }
             else
             {
                 PBytSiz = 2;
-                strcpy (Ci.mnem, "dc.w");
+                strcpy(Ci.mnem, "dc.w");
                 /*hexFmt = "$%04x";*/
             }
 
@@ -1099,14 +1087,14 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
 
                     if (strlen(Ci.params))
                     {
-                        OutputLine(pseudcmd, &Ci);
+                        OutputLine(pseudcmd, &Ci, opt);
                         Ci.lblname = "";
-                        PrintCleanup ();
+                        PrintCleanup();
                         CmdEnt = PCPos;
                         Ci.params[0] = '\0';
                     }
 
-                    val = fget_l(ModFP);
+                    val = fget_l(opt->ModFP);
                     PCPos += 4;
                     lblCount -= 4;
                     idatcount -= 4;
@@ -1131,9 +1119,9 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
                         sprintf (&Ci.params[strlen(Ci.params)], "$%04x", val);
                     }
 
-                    strcpy (Ci.mnem, "dc.l");
-                    OutputLine (pseudcmd, &Ci);
-                    printXtraBytes (xtrabytes);
+                    strcpy(Ci.mnem, "dc.l");
+                    OutputLine(pseudcmd, &Ci, opt);
+                    printXtraBytes(xtrabytes);
                     CmdEnt = PCPos;
                     tmpref = IRefs;
                     IRefs = IRefs->Next;
@@ -1142,7 +1130,7 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
                     Ci.params[0] = '\0';
                     /* Reset mnem to original status */
                     strcpy (Ci.mnem, PBytSiz == 1 ? "dc.b" : "dc.w");
-                    PrintCleanup ();
+                    PrintCleanup();
                     ppos -= 4;
                     continue;
                 }
@@ -1151,20 +1139,20 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
                     switch (PBytSiz)
                     {
                     case 1:
-                        sprintf (tmp, "$%02x", (fgetc(ModFP) & 0xff));
+                        sprintf(tmp, "$%02x", (fgetc(opt->ModFP) & 0xff));
                         break;
                     case 2:
-                        val = fget_w(ModFP);
-                        sprintf (tmp, "$%04x", val & 0xffff);
+                        val = fget_w(opt->ModFP);
+                        sprintf(tmp, "$%04x", val & 0xffff);
                         break;
                     }
 
                     if (strlen(Ci.params))
                     {
-                        strcat (Ci.params, ",");
+                        strcat(Ci.params, ",");
                     }
 
-                    strcat (Ci.params, tmp);
+                    strcat(Ci.params, tmp);
                     ppos -= PBytSiz;
                     PCPos += PBytSiz;
                     idatcount -= PBytSiz;
@@ -1172,8 +1160,8 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
 
                     if (strlen(Ci.params) > 24)
                     {
-                        OutputLine (pseudcmd, &Ci);
-                        PrintCleanup ();
+                        OutputLine(pseudcmd, &Ci, opt);
+                        PrintCleanup();
                         CmdEnt = PCPos;
                         Ci.lblname = "";
                         Ci.params[0] = '\0';
@@ -1185,7 +1173,7 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
             if (strlen(Ci.params))   /* Any final cleanup */
             {
                 PrevEnt = PCPos;
-                OutputLine (pseudcmd, &Ci);
+                OutputLine(pseudcmd, &Ci, opt);
                 CmdEnt = PCPos;
                 Ci.wcount = 0;
                 Ci.params[0] = '\0';
@@ -1208,8 +1196,7 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass)
  *          for ROF's                                  *
  * *************************************************** */
 
-void
-ROFDataPrint ()
+void ROFDataPrint(struct options* opt)
 {
     struct symbol_def *srch;
 
@@ -1223,41 +1210,41 @@ ROFDataPrint ()
     srch = labelclass('D') ? labelclass_getFirst(labelclass('D')) : NULL;
     if (srch)
     {
-        dataprintHeader (udat, 'D', FALSE);
+        dataprintHeader(udat, 'D', FALSE, opt);
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        ListData (srch, ROFHd.statstorage, 'D');
-        BlankLine();
-        WrtEnds();
+        ListData(srch, ROFHd.statstorage, 'D', opt);
+        BlankLine(opt);
+        WrtEnds(opt);
     }
 
     if (ROFHd.idatsz)
     {
-        dataprintHeader(idat, '_', FALSE);
+        dataprintHeader(idat, '_', FALSE, opt);
 
         IBuf = (char *)mem_alloc((size_t)ROFHd.idatsz + 1);
 
-        if (fseek (ModFP, IDataBegin, SEEK_SET))
+        if (fseek(opt->ModFP, IDataBegin, SEEK_SET))
         {
-            errexit ("Cannot Seek to begin of Initialized data");
+            errexit("Cannot Seek to begin of Initialized data");
         }
 
-        if (fread(IBuf, ROFHd.idatsz, 1, ModFP) < 1)
+        if (fread(IBuf, ROFHd.idatsz, 1, opt->ModFP) < 1)
         {
-            errexit ("Cannot read Initialized data from file!");
+            errexit("Cannot read Initialized data from file!");
         }
 
         PCPos = 0;
-        srch = labelclass ('_') ? labelclass_getFirst(labelclass('_')) : NULL;
+        srch = labelclass('_') ? labelclass_getFirst(labelclass('_')) : NULL;
 
         if (ROFHd.idatsz)
         {
-            ListInitROF ("", refs_idata, IBuf, ROFHd.idatsz, '_');
+            ListInitROF("", refs_idata, IBuf, ROFHd.idatsz, '_', opt);
         }
 
-        BlankLine();
-        WrtEnds();
+        BlankLine(opt);
+        WrtEnds(opt);
         /*ListInitData (srch, ROFHd.idatsz, '_');*/
         free(IBuf);
         /*ListInitROF (dta, ROFHd.idatsz, '_');*/
@@ -1266,35 +1253,35 @@ ROFDataPrint ()
     srch = labelclass('G') ? labelclass_getFirst(labelclass('G')) : NULL;
     if (srch)
     {
-        dataprintHeader (udat, 'G', TRUE);
+        dataprintHeader(udat, 'G', TRUE, opt);
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
         PCPos = 0;
-        ListData (srch, ROFHd.remotestatsiz, 'G');
-        BlankLine();
-        WrtEnds();
+        ListData(srch, ROFHd.remotestatsiz, 'G', opt);
+        BlankLine(opt);
+        WrtEnds(opt);
     }
 
     if ((ROFHd.remoteidatsiz))
     {
-        dataprintHeader(idat, 'H', TRUE);
+        dataprintHeader(idat, 'H', TRUE, opt);
 
         IBuf = (char *)mem_alloc((size_t)ROFHd.remoteidatsiz + 1);
 
-        if (fread(IBuf, ROFHd.remoteidatsiz, 1, ModFP) < 1)
+        if (fread(IBuf, ROFHd.remoteidatsiz, 1, opt->ModFP) < 1)
         {
-            errexit ("Cannot read Remote Initialized data from file!");
+            errexit("Cannot read Remote Initialized data from file!");
         }
 
         PCPos = 0;
-        srch = labelclass ('H') ? labelclass_getFirst(labelclass('H')) : NULL;
-        ListInitROF ("", refs_iremote,IBuf, ROFHd.remoteidatsiz, 'H');
-        BlankLine();
+        srch = labelclass('H') ? labelclass_getFirst(labelclass('H')) : NULL;
+        ListInitROF("", refs_iremote,IBuf, ROFHd.remoteidatsiz, 'H', opt);
+        BlankLine(opt);
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
         free(IBuf);
-        BlankLine();
-        WrtEnds();
+        BlankLine(opt);
+        WrtEnds(opt);
         /*ListInitROF (dta, ROFHd.idatsz, 'H');*/
     }
 
@@ -1400,13 +1387,12 @@ ROFDataPrint ()
  *
  */
 
-void
-OS9DataPrint ()
+void OS9DataPrint(struct options* opt)
 {
     struct symbol_def *dta, *srch;
     char *what = "* OS9 data area definitions";
     struct cmd_items Ci;
-    long filePos = ftell (ModFP);
+    long filePos = ftell(opt->ModFP);
     
     if (!M_IData)
     {
@@ -1415,14 +1401,14 @@ OS9DataPrint ()
     }
 
     InProg = 0;    /* Stop looking for Inline program labels to substitute */
-    memset (&Ci, 0, sizeof (Ci));
-    dta = labelclass ('D') ? labelclass_getFirst(labelclass('D')) : NULL;
+    memset(&Ci, 0, sizeof (Ci));
+    dta = labelclass('D') ? labelclass_getFirst(labelclass('D')) : NULL;
 
     if (dta)
     {                           /* special tree for OS9 data defs */
-        BlankLine ();
+        BlankLine(opt);
         
-        if (IsUnformatted)
+        if (opt->IsUnformatted)
         {
             writer_printf(stdout_writer, " %22s%s\n", "", what);
             ++LinNum;
@@ -1432,19 +1418,19 @@ OS9DataPrint ()
             writer_printf(stdout_writer, "%5d %22s%s\n", LinNum++, "", what);
         }
 
-        if (WrtSrc)
+        if (opt->asmFile)
         {
-            writer_printf(module_writer, "%s\n", what);
+            writer_printf(opt->asmFile, "%s\n", what);
         }
 
-        BlankLine ();
+        BlankLine(opt);
 
-        strcpy (Ci.mnem, "vsect");
-        strcpy (Ci.params, "");
+        strcpy(Ci.mnem, "vsect");
+        strcpy(Ci.params, "");
         Ci.cmd_wrd = 0;
         Ci.comment = "";
         CmdEnt = PrevEnt = 0;
-        PrintLine (pseudcmd, &Ci, 'D', 0, 0);
+        PrintLine(pseudcmd, &Ci, 'D', 0, 0, opt);
 
         /*first, if first entry is not D000, rmb bytes up to first */
         srch = dta;
@@ -1456,20 +1442,20 @@ OS9DataPrint ()
 
         if (label_getMyAddr(srch))              /* i.e., if not D000 */
         {
-            strcpy (Ci.mnem, "ds.b");
-            sprintf (Ci.params, "%ld", label_getMyAddr(srch));
+            strcpy(Ci.mnem, "ds.b");
+            sprintf(Ci.params, "%ld", label_getMyAddr(srch));
             Ci.lblname = "";
-            PrintLine (pseudcmd, &Ci, 'D', 0, label_getMyAddr(srch));
+            PrintLine(pseudcmd, &Ci, 'D', 0, label_getMyAddr(srch), opt);
         }
 
-        ListData (dta, IDataBegin, 'D');
+        ListData(dta, IDataBegin, 'D', opt);
 
         if (IDataBegin < M_Mem)
         {
             dta = findlbl('D', IDataBegin);
             if (dta)
             {
-                ListInitData (dta, IDataCount, 'D');
+                ListInitData(dta, IDataCount, 'D', opt);
             }
         }
     }
@@ -1479,14 +1465,14 @@ OS9DataPrint ()
     }
 
     strcpy(Ci.mnem, "ends");
-    strcpy (Ci.params, "");
+    strcpy(Ci.params, "");
     Ci.cmd_wrd = 0;
     Ci.comment = "";
-    PrintLine (pseudcmd, &Ci, 'D', CmdEnt, CmdEnt);
-    BlankLine ();
+    PrintLine(pseudcmd, &Ci, 'D', CmdEnt, CmdEnt, opt);
+    BlankLine(opt);
     CmdEnt = PrevEnt = 0;
     InProg = 1;
-    fseek (ModFP, filePos, SEEK_SET);
+    fseek(opt->ModFP, filePos, SEEK_SET);
 }
 
 /* ******************************************************** *
@@ -1497,7 +1483,7 @@ OS9DataPrint ()
  *         Label cClass                                      *
  * ******************************************************** */
 
-void ListData (struct symbol_def *me, int upadr, char cClass)
+void ListData(struct symbol_def *me, int upadr, char cClass, struct options* opt)
 {
     struct cmd_items Ci;
     register int datasize;
@@ -1522,7 +1508,7 @@ void ListData (struct symbol_def *me, int upadr, char cClass)
 
     /*strcpy (pbf->lbnm, me->sname);*/
 
-    if (IsROF && label_getGlobal(me))
+    if (opt->IsROF && label_getGlobal(me))
     {
         char* newName = strdup(label_getName(me));
         strcat (newName, ":");
@@ -1572,12 +1558,12 @@ void ListData (struct symbol_def *me, int upadr, char cClass)
             datasize = upadr - label_getMyAddr(me);
         }
 
-        strcpy (Ci.mnem, "ds.b");
-        sprintf (Ci.params, "%d", datasize);
-        strcpy (lbl, label_getName(me));
+        strcpy(Ci.mnem, "ds.b");
+        sprintf(Ci.params, "%d", datasize);
+        strcpy(lbl, label_getName(me));
         Ci.lblname = lbl;
 
-        if (IsROF && label_getGlobal(me))
+        if (opt->IsROF && label_getGlobal(me))
         {
             strcat(Ci.lblname, ":");
         }
@@ -1589,7 +1575,7 @@ void ListData (struct symbol_def *me, int upadr, char cClass)
         }
         else
         {
-            if (IsROF)
+            if (opt->IsROF)
             {
                 strcpy (Ci.mnem, "ds.b");
                 sprintf (Ci.params, "%d", datasize);
@@ -1603,7 +1589,7 @@ void ListData (struct symbol_def *me, int upadr, char cClass)
 
         CmdEnt = label_getMyAddr(me);
         PrevEnt = CmdEnt;
-        PrintLine (pseudcmd, &Ci, cClass, label_getMyAddr(me), (label_getMyAddr(me) + datasize));
+        PrintLine(pseudcmd, &Ci, cClass, label_getMyAddr(me), (label_getMyAddr(me) + datasize), opt);
         me = label_getNext(me);
 
         /*if (me->RNext && (label_getMyAddr(me) < M_Mem))
@@ -1618,7 +1604,7 @@ void ListData (struct symbol_def *me, int upadr, char cClass)
  * Passed: stdflg - 1 for std labels, 0 for externals *
  * ************************************************** */
 
-void WrtEquates (int stdflg)
+void WrtEquates (int stdflg, struct options* opt)
 {
     char *claspt = "_!^ABCDEFGHIJKMNOPQRSTUVWXYZ;",
         *curnt = claspt,
@@ -1644,7 +1630,7 @@ void WrtEquates (int stdflg)
 
         flg = stdflg;
         strcpy (ClsHd, "%5d %21s");
-        me = labelclass (NowClass) ? labelclass_getFirst(labelclass(NowClass)) : NULL;
+        me = labelclass(NowClass) ? labelclass_getFirst(labelclass(NowClass)) : NULL;
 
         if (me)
         {
@@ -1671,7 +1657,7 @@ void WrtEquates (int stdflg)
 
             /* Don't write vsect data for ROF's */
 
-            if ((IsROF) && stdflg && strchr ("BDGH", NowClass))
+            if ((opt->IsROF) && stdflg && strchr ("BDGH", NowClass))
             {
                 continue;
             }
@@ -1679,17 +1665,17 @@ void WrtEquates (int stdflg)
             switch (NowClass)
             {
                 case '!':
-                    strcat (ClsHd, syshd);
+                    strcat(ClsHd, syshd);
                     SrcHd = syshd;
                     flg = -1;
                     break;
                 case '^':
-                    strcat (ClsHd, aschd);
+                    strcat(ClsHd, aschd);
                     SrcHd = aschd;
                     flg = -1;
                     break;
                 default:
-                    strcat (ClsHd, genhd[flg]);
+                    strcat(ClsHd, genhd[flg]);
                     SrcHd = genhd[flg];
             }
 
@@ -1701,7 +1687,7 @@ void WrtEquates (int stdflg)
 
             minval = 0;     /* Default to "print all" */
 
-            if (IsROF)
+            if (opt->IsROF)
             {
                 /*minval = rof_datasize (NowClass);*/
 
@@ -1730,7 +1716,7 @@ void WrtEquates (int stdflg)
                 }
             }
 
-            TellLabels (me, flg, NowClass, minval);
+            TellLabels(me, flg, NowClass, minval, opt);
         }
     }
 
@@ -1739,12 +1725,12 @@ void WrtEquates (int stdflg)
 
 /* TellLabels(me) - Print out the labels for cClass in "me" tree */
 
-static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval)
+static void TellLabels(struct symbol_def *me, int flg, char cClass, int minval, struct options* opt)
 {
     struct cmd_items Ci;
 
-    memset (&Ci, 0, sizeof (Ci));
-    strcpy (Ci.mnem, "equ");
+    memset(&Ci, 0, sizeof (Ci));
+    strcpy(Ci.mnem, "equ");
    /* if (me->LNext)
     {
         TellLabels (me->LNext, flg, cClass, minval);
@@ -1762,9 +1748,9 @@ static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval)
             {
                 if ( ! HadWrote)
                 {
-                    BlankLine ();
+                    BlankLine(opt);
 
-                    if (IsUnformatted)
+                    if (opt->IsUnformatted)
                     {
                         writer_printf(stdout_writer, &(ClsHd[3]), "", cClass);
                         ++LinNum;
@@ -1774,35 +1760,35 @@ static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval)
                         writer_printf(stdout_writer, ClsHd, LinNum++, "", cClass);
                     }
 
-                    if (module_writer)
+                    if (opt->asmFile)
                     {
-                        writer_printf(module_writer, SrcHd, cClass);
+                        writer_printf(opt->asmFile, SrcHd, cClass);
                     }
 
                     HadWrote = 1;
-                    BlankLine ();
+                    BlankLine(opt);
                 }
 
                 strcpy (lbl, label_getName(me));
                 Ci.lblname = lbl;
                 Ci.cmd_wrd = label_getMyAddr(me);
 
-                if (IsROF && label_getGlobal(me))
+                if (opt->IsROF && label_getGlobal(me))
                 {
                     strcat (Ci.lblname, ":");
                 }
 
-                if (strchr ("!^", cClass))
+                if (strchr("!^", cClass))
                 {
-                    sprintf (Ci.params, "$%02lx", label_getMyAddr(me));
+                    sprintf(Ci.params, "$%02lx", label_getMyAddr(me));
                 }
                 else
                 {
-                    sprintf (Ci.params, "$%05lx", label_getMyAddr(me));
+                    sprintf(Ci.params, "$%05lx", label_getMyAddr(me));
                 }
 
                 CmdEnt = PrevEnt = label_getMyAddr(me);
-                PrintLine (pseudcmd, &Ci, cClass, label_getMyAddr(me), label_getMyAddr(me) + 1);
+                PrintLine(pseudcmd, &Ci, cClass, label_getMyAddr(me), label_getMyAddr(me) + 1, opt);
             }
         }
 

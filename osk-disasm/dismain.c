@@ -56,8 +56,6 @@ void reflst();
 #endif
 
 /* Some variables that are only used in one or two modules */
-int LblFilz;
-char *LblFNam[MAX_LBFIL];
 int error;
 /*static int HdrLen;*/
 int CodeEnd;
@@ -78,7 +76,7 @@ int AMode;
 int NowClass;
 int PBytSiz;
 
-static int get_asmcmd(void);
+static int get_asmcmd(struct parse_state* state);
 
 static const char *DrvrJmps[] = {
     "Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL
@@ -93,7 +91,7 @@ static const char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete",
  *    label names.
  */
 // NOT ACTIVELY MAINTAINED.
-static void get_drvr_jmps(int mty)
+static void get_drvr_jmps(int mty, FILE* ModFP)
 {
     register const char **pt;
     register int jmpdst;
@@ -134,11 +132,11 @@ static void get_drvr_jmps(int mty)
  * Get the module header.  We will do this only in Pass 1 *
  * ****************************************************** */
 
-static int get_modhead()
+static int get_modhead(struct options* opt)
 {
     /* Get standard (common to all modules) header fields */
 
-    M_ID = fread_w(ModFP) & 0xffff;
+    M_ID = fread_w(opt->ModFP) & 0xffff;
 
     M_SysRev = 0;
     M_Size = 0;
@@ -165,26 +163,26 @@ static int get_modhead()
     switch (M_ID)
     {
     case 0x4afc:
-        M_SysRev = fread_w(ModFP);
-        M_Size = fread_l( ModFP);
-        M_Owner = fread_l(ModFP);
-        M_Name = fread_l(ModFP);
-        M_Accs = fread_w(ModFP);
-        M_Type = fread_b(ModFP);
-        M_Lang = fread_b(ModFP);
-        M_Attr = fread_b(ModFP);
-        M_Revs = fread_b(ModFP);
-        M_Edit = fread_w(ModFP);
-        M_Usage = fread_l(ModFP);
-        M_Symbol = fread_l(ModFP);
+        M_SysRev = fread_w(opt->ModFP);
+        M_Size = fread_l(opt->ModFP);
+        M_Owner = fread_l(opt->ModFP);
+        M_Name = fread_l(opt->ModFP);
+        M_Accs = fread_w(opt->ModFP);
+        M_Type = fread_b(opt->ModFP);
+        M_Lang = fread_b(opt->ModFP);
+        M_Attr = fread_b(opt->ModFP);
+        M_Revs = fread_b(opt->ModFP);
+        M_Edit = fread_w(opt->ModFP);
+        M_Usage = fread_l(opt->ModFP);
+        M_Symbol = fread_l(opt->ModFP);
 
         /* We have 14 bytes that are not used */
-        if (fseek(ModFP, 14, SEEK_CUR) != 0)
+        if (fseek(opt->ModFP, 14, SEEK_CUR) != 0)
         {
             errexit("Cannot Seek to file location");
         }
 
-        M_Parity = fread_w(ModFP);
+        M_Parity = fread_w(opt->ModFP);
 
         /* Now get any further Mod-type specific headers */
 
@@ -196,11 +194,11 @@ static int get_modhead()
         case MT_TRAPLIB:
         case MT_FILEMAN:
         case MT_DEVDRVR:
-            M_Exec = fread_l(ModFP);
+            M_Exec = fread_l(opt->ModFP);
             
             /* Add label for Exception Handler, if applicable */
             /* Only for specific Module Types??? */
-            M_Except = fread_l(ModFP);
+            M_Except = fread_l(opt->ModFP);
             if (M_Except)
             {
                 addlbl('L', M_Except, "");
@@ -210,39 +208,39 @@ static int get_modhead()
             /* applicable for only specific Moule Types??? */
             addlbl ('L', 0, "btext");
 
-            HdrEnd = ftell(ModFP); /* We'll keep changing it if necessary */
+            HdrEnd = ftell(opt->ModFP); /* We'll keep changing it if necessary */
 
             if ((M_Type != MT_SYSTEM) && (M_Type != MT_FILEMAN))
             {
-                M_Mem = fread_l(ModFP);
+                M_Mem = fread_l(opt->ModFP);
 
                 if (M_Type != MT_DEVDRVR)
                 {
-                    M_Stack = fread_l(ModFP);
-                    M_IData = fread_l(ModFP);
-                    M_IRefs = fread_l( ModFP);
+                    M_Stack = fread_l(opt->ModFP);
+                    M_IData = fread_l(opt->ModFP);
+                    M_IRefs = fread_l(opt->ModFP);
 
                     if (M_Type == MT_TRAPLIB)
                     {
-                        M_Init = fread_l(ModFP);
-                        M_Term = fread_l(ModFP);
+                        M_Init = fread_l(opt->ModFP);
+                        M_Term = fread_l(opt->ModFP);
                     }
                 }
 
-                HdrEnd = ftell(ModFP);  /* The final change.. */
+                HdrEnd = ftell(opt->ModFP);  /* The final change.. */
             }
 
             if ((M_Type == MT_DEVDRVR) || (M_Type == MT_FILEMAN))
             {
-                fseek (ModFP, M_Exec, SEEK_SET);
-                get_drvr_jmps (M_Type);
+                fseek(opt->ModFP, M_Exec, SEEK_SET);
+                get_drvr_jmps (M_Type, opt->ModFP);
             }
 
            if (M_IData)
             {
-                fseek (ModFP, M_IData, SEEK_SET);
-                IDataBegin = fread_l (ModFP);
-                IDataCount = fread_l (ModFP);
+                fseek(opt->ModFP, M_IData, SEEK_SET);
+                IDataBegin = fread_l(opt->ModFP);
+                IDataCount = fread_l(opt->ModFP);
                 /* Insure we have an entry for the first Initialized Data */
                 addlbl ('D', IDataBegin, "");
                 CodeEnd = M_IData;
@@ -254,16 +252,16 @@ static int get_modhead()
            }
         }
 
-        fseek (ModFP, 0, SEEK_END);
+        fseek(opt->ModFP, 0, SEEK_END);
 
-        if (ftell(ModFP) < M_Size)
+        if (ftell(opt->ModFP) < M_Size)
         {
             errexit ("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
         }
 
         break;
     case 0xdead:
-        getRofHdr(ModFP);
+        getRofHdr(opt->ModFP, opt);
         /*errexit("Disassembly of ROF files is not yet implemented.");*/
         break;
     default:
@@ -357,7 +355,7 @@ static void RdLblFile (FILE *inpath)
  *      any files specified by the '-s' option.             *
  * ******************************************************** */
 
-static void GetLabels ()                    /* Read the labelfiles */
+static void GetLabels (struct options* opt)                    /* Read the labelfiles */
 {
     register int x;
 
@@ -395,20 +393,20 @@ static void GetLabels ()                    /* Read the labelfiles */
 
     /* Now read in label files specified on the command line */
 
-    for (x = 0; x < LblFilz; x++)
+    for (x = 0; x < opt->LblFilz; x++)
     {
         register FILE *inpath;
 
-        inpath = build_path(LblFNam[x], BINREAD);
+        inpath = build_path(opt->LblFNam[x], BINREAD, opt);
         if (inpath)
         {
-            RdLblFile (inpath);
+            RdLblFile(inpath);
             fclose (inpath);
         }
         else
         {
             fprintf (stderr, "ERROR! cannot open Label File %s for read\n",
-                     LblFNam[x]);
+                opt->LblFNam[x]);
         }
     }
 }
@@ -421,23 +419,29 @@ static void GetLabels ()                    /* Read the labelfiles */
  *      done, if either or both is desired.
  */
 
-int dopass(int mypass)
+int dopass(int mypass, struct options* opt)
 {
     /*int sval = 0;
     int lval = 0;
     int wval = 0;*/
 
+
+
     if (Pass == 1)
     {
-        ModFP = fopen(ModFile, BINREAD);
-        if (!ModFP)
+        if (opt->ModFP)
+        {
+            fclose(opt->ModFP);
+        }
+        opt->ModFP = fopen(opt->ModFile, BINREAD);
+        if (!opt->ModFP)
         {
             errexit("Cannot open Module file for read");
         }
 
         PCPos = 0;
-        get_modhead();
-        PCPos = ftell(ModFP);
+        get_modhead(opt);
+        PCPos = ftell(opt->ModFP);
         /*process_label(&Instruction, 'L', M_Exec);*/
         addlbl ('L', M_Exec, NULL);
         
@@ -446,7 +450,7 @@ int dopass(int mypass)
         {
         case MT_PROGRAM:
             //strcpy(DfltLbls, "&&&&&&D&&&&L");
-            strcpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
+            strncpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
             break;
         case MT_DEVDRVR:
             /*  Init/Term:
@@ -466,51 +470,51 @@ int dopass(int mypass)
             strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
         }
 
-        GetIRefs();
-        do_cmd_file();
+        GetIRefs(opt);
+        do_cmd_file(opt);
 
         setROFPass();
     }
     else   /* Do Pass 2 Setup */
     {
         /*parsetree ('A');*/
-        GetLabels();
+        GetLabels(opt);
 
         /* We do this here so that we can rename labels
          * to proper names defined in the ROF file
          */
-        if (IsROF)
+        if (opt->IsROF)
         {
             setROFPass();
             RofLoadInitData();
         }
 
-        WrtEquates (1);
-        WrtEquates (0);
+        WrtEquates(1, opt);
+        WrtEquates(0, opt);
         /*showem();*/
         CmdEnt = 0;
 
-        if (IsROF)
+        if (opt->IsROF)
         {
-            ROFPsect(&ROFHd);
-            ROFDataPrint();
+            ROFPsect(&ROFHd, opt);
+            ROFDataPrint(opt);
         }
         else
         {
-            PrintPsect();
-            OS9DataPrint();
+            PrintPsect(opt);
+            OS9DataPrint(opt);
         }
     }
 
     /* NOTE: This is just a temporary kludge The begin _SHOULD_ be
              the first byte past the end of the header, but until
              we get bounds working, we'll do  this. */
-    if (fseek(ModFP, HdrEnd, SEEK_SET) != 0)
+    if (fseek(opt->ModFP, HdrEnd, SEEK_SET) != 0)
     {
         errexit("FIle Seek Error");
     }
 
-    if (IsROF)
+    if (opt->IsROF)
     {
         PCPos = 0;
     }
@@ -518,6 +522,11 @@ int dopass(int mypass)
     {
         PCPos = HdrEnd;
     }
+
+    struct parse_state parseState;
+    parseState.cpu = opt->cpu;
+    parseState.ModFP = opt->ModFP;
+    parseState.opt = opt;
 
     int instrNum = -1;
     while (PCPos < CodeEnd)
@@ -534,22 +543,22 @@ int dopass(int mypass)
          */
         for (bp = ClasHere (dbounds, PCPos); bp; bp = ClasHere(dbounds, PCPos))
         {
-            NsrtBnds (bp);
+            NsrtBnds (bp, &parseState);
             CmdEnt = PCPos;
         }
 
         if (CmdEnt >= CodeEnd) continue;
        
-        if (get_asmcmd())
+        if (get_asmcmd(&parseState))
         {
             if (Pass == 2)
             {
                 /*PrintComment('L', CmdEnt, PCPos);*/
-                Instruction.comment = get_apcomment ('L', CmdEnt);
+                Instruction.comment = get_apcomment('L', CmdEnt);
                 /*list_print (&Instruction, CmdEnt, NULL);*/
-                PrintLine (pseudcmd, &Instruction, 'L', CmdEnt, PCPos);
+                PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
 
-                if (PrintAllCode && Instruction.wcount)
+                if (opt->PrintAllCode && Instruction.wcount)
                 {
                     int count = Instruction.wcount;
                     char codbuf[50];
@@ -588,10 +597,10 @@ int dopass(int mypass)
         {
             if (Pass == 2)
             {
-                strcpy (Instruction.mnem, "dc.w");
-                sprintf (Instruction.params, "$%x",
+                strcpy(Instruction.mnem, "dc.w");
+                sprintf(Instruction.params, "$%x",
                         Instruction.cmd_wrd & 0xffff);
-                PrintLine (pseudcmd, &Instruction, 'L', CmdEnt, PCPos);
+                PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
                 CmdEnt = PCPos;
                 /*list_print (&Instruction, CmdEnt, NULL);*/
             }
@@ -600,7 +609,7 @@ int dopass(int mypass)
 
     if (Pass == 2)
     {
-        WrtEnds();
+        WrtEnds(opt);
     }
 
     /*reflst();*/
@@ -633,7 +642,7 @@ int showem()
  *       that do not yet have handler functions
  */
 
-int notimplemented(struct cmd_items *ci, int tblno, const OPSTRUCTURE *op)
+int notimplemented(struct cmd_items *ci, int tblno, const OPSTRUCTURE *op, struct parse_state* state)
 {
     return 0;
 }
@@ -660,7 +669,7 @@ const OPSTRUCTURE *opmains[] =
     NULL
 };
 
-static int get_asmcmd()
+static int get_asmcmd(struct parse_state* state)
 {
     /*extern OPSTRUCTURE syntax1[];
     extern COPROCSTRUCTURE syntax2[];*/
@@ -673,7 +682,7 @@ static int get_asmcmd()
 
     /*size = 0;*/
     Instruction.wcount = 0;
-    opword = getnext_w (&Instruction);
+    opword = getnext_w (&Instruction, state);
     /* Make adjustments for this being the command word */
     Instruction.cmd_wrd = Instruction.code[0] & 0xffff;
     Instruction.wcount = 0; /* Set it back again */
@@ -705,22 +714,22 @@ static int get_asmcmd()
          * is sorted in ascending order.  Therefore, if a "cpulvl"
          * higher than "cpu" is encountered we can abort the search.
          */
-        if (curop->cpulvl > cpu)
+        if (curop->cpulvl > state->cpu)
         {
             return 0;
         }
 
         if (!error)
         {
-            if (curop->opfunc(&Instruction, curop->id, curop))
+            if (curop->opfunc(&Instruction, curop->id, curop, state))
             {
                 return 1;
             }
             else
             {
-                if (ftell(ModFP) != RealEnt() + 2)
+                if (ftell(state->ModFP) != RealEnt(state->opt) + 2)
                 {
-                    fseek(ModFP, RealEnt() + 2, SEEK_SET);
+                    fseek(state->ModFP, RealEnt(state->opt) + 2, SEEK_SET);
                     PCPos = CmdEnt + 2;
                     initcmditems(&Instruction);
                 }
@@ -760,7 +769,7 @@ static int get_asmcmd()
  *          printing if in pass 2).                                     *
  * ******************************************************************** */
 
-void MovBytes (struct data_bounds *db)
+void MovBytes (struct data_bounds *db, struct parse_state* state)
 {
     struct cmd_items Ci;
     char tmps[20];
@@ -823,13 +832,13 @@ void MovBytes (struct data_bounds *db)
         switch (PBytSiz)
         {
         case 1:
-            valu = fread_b(ModFP);
+            valu = fread_b(state->ModFP);
             break;
         case 2:
-            valu = fread_w (ModFP);
+            valu = fread_w(state->ModFP);
             break;
         case 4:
-            valu = fread_l (ModFP);
+            valu = fread_l(state->ModFP);
             break;
         default:
             errexit("Unexpected byte size");
@@ -841,7 +850,7 @@ void MovBytes (struct data_bounds *db)
         /*process_label (&Ci, AMode, valu);*/
 
 
-        LblCalc (tmps, valu, AMode, PCPos - db->b_siz);
+        LblCalc (tmps, valu, AMode, PCPos - db->b_siz, state->opt->IsROF);
 
         if (Pass == 2)
         {
@@ -874,11 +883,11 @@ void MovBytes (struct data_bounds *db)
 
             if ( (strlen (Ci.params) > 22) || findlbl ('L', PCPos))
             {
-                PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos);
+                PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
 
                 if (strlen(xtrabytes))
                 {
-                    printXtraBytes (xtrabytes);
+                    printXtraBytes(xtrabytes);
                 }
 
                 Ci.params[0] = '\0';
@@ -896,7 +905,7 @@ void MovBytes (struct data_bounds *db)
 
     if ((Pass == 2) && strlen (Ci.params))
     {
-        PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos);
+        PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
 
         if (strlen(xtrabytes))
         {
@@ -910,7 +919,7 @@ void MovBytes (struct data_bounds *db)
  * MovAsc() - Move nb byes fordcb" statement
  */
 // TODO: Not sure how to trigger this code for testing?
-void MovASC (int nb, char aclass)
+void MovASC(int nb, char aclass, struct parse_state *state)
 {
     char oper_tmp[30];
     struct cmd_items Ci;
@@ -932,8 +941,8 @@ void MovASC (int nb, char aclass)
             (strlen (oper_tmp) && findlbl (aclass, PCPos)))
             /*(strlen (oper_tmp) && findlbl (ListRoot (aclass), PCPos + 1)))*/
         {
-            sprintf (Ci.params, "\"%s\"", oper_tmp);
-            PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos);
+            sprintf(Ci.params, "\"%s\"", oper_tmp);
+            PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
             oper_tmp[0] = '\0';
             CmdEnt = PCPos;
             Ci.lblname = "";
@@ -942,7 +951,7 @@ void MovASC (int nb, char aclass)
             cCount = 0;
         }
 
-        x = fgetc (ModFP);
+        x = fgetc(state->ModFP);
         ++cCount;
         ++PCPos;
 
@@ -982,7 +991,7 @@ void MovASC (int nb, char aclass)
                 if (strlen (oper_tmp))
                 {
                     sprintf (Ci.params, "\"%s\"", oper_tmp);
-                    PrintLine (pseudcmd, &Ci, aclass, CmdEnt, CmdEnt);
+                    PrintLine (pseudcmd, &Ci, aclass, CmdEnt, CmdEnt, state->opt);
                     Ci.params[0] = '\0';
                     Ci.cmd_wrd = 0;
                     Ci.lblname = "";
@@ -1001,7 +1010,7 @@ void MovASC (int nb, char aclass)
                 }
 
                 Ci.cmd_wrd = x;
-                PrintLine (pseudcmd, &Ci, aclass, CmdEnt, PCPos);
+                PrintLine (pseudcmd, &Ci, aclass, CmdEnt, PCPos, state->opt);
                 Ci.lblname = "";
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
@@ -1016,7 +1025,7 @@ void MovASC (int nb, char aclass)
     {
         sprintf (Ci.params, "\"%s\"", oper_tmp);
         /*list_print (&Ci, CmdEnt, NULL);*/
-        PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos);
+        PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
         Ci.lblname = "";
         *oper_tmp = '\0';
     }
@@ -1028,7 +1037,7 @@ void MovASC (int nb, char aclass)
  * NsertBnds():	Insert boundary area *
  * ********************************* */
 
-void NsrtBnds (struct data_bounds *bp)
+void NsrtBnds (struct data_bounds *bp, struct parse_state* state)
 {
     /*memset (pbuf, 0, sizeof (struct printbuf));*/
     AMode = 0;                  /* To prevent LblCalc from defining class */
@@ -1041,19 +1050,19 @@ void NsrtBnds (struct data_bounds *bp)
             /* Bugfix?  Pc was bp->b_lo...  that setup allowed going past
              * the end if the lower bound was not right. */
 
-            MovASC ((bp->b_hi) - PCPos + 1, 'L');
+            MovASC ((bp->b_hi) - PCPos + 1, 'L', state);
             break;                  /* bump PC  */
         case 6:                     /* Word */
             PBytSiz = 2;            /* Takes care of both Word & Long */
-            MovBytes(bp);
+            MovBytes(bp, state);
             break;
         case 4:                     /* Long */
             PBytSiz = 4;            /* Takes care of both Word & Long */
-            MovBytes(bp);
+            MovBytes(bp, state);
             break;
         case 2:                     /* Byte */
         case 5:                     /* Short */
-            MovBytes (bp);
+            MovBytes (bp, state);
             break;
         case 3:                    /* "C"ode .. not implememted yet */
             break;
@@ -1063,58 +1072,3 @@ void NsrtBnds (struct data_bounds *bp)
 
     NowClass = 0;
 }
-
-#ifdef DoIsCmd
-/* ******************************************************************** *
- * IsCmd() - Checks to see if code pointed to by p is valid code.       *
- *      On entry, we are poised at the first byte of prospective code.  *
- * Returns: pointer to valid lkuptable entry or 0 on fail               *
- * ******************************************************************** */
-
-static struct lkuptbl *
-IsCmd (int *fbyte, int *csiz)
-{
-    struct lkuptbl *T;          /* pointer to appropriate tbl   */
-    register int sz;            /* # entries in this table      */
-    int c = fgetc (progpath);
-
-    *csiz = 2;
-
-    switch (*fbyte = c)
-    {
-        case '\x10':
-            T = Pre10;
-            c = fgetc (progpath);
-            *fbyte =(*fbyte <<8) + c;
-            sz = sizeof (Pre10) / sizeof (Pre10[0]);
-            break;
-        case '\x11':
-            T = Pre11;
-            c = fgetc (progpath);
-            *fbyte =(*fbyte <<8) + c;
-            sz = sizeof (Pre11) / sizeof (Pre11[0]);
-            break;
-        default:
-            *csiz = 1;
-            T = Byte1;
-            sz = sizeof (Byte1) / sizeof (struct lkuptbl);
-            break;
-    }
-
-    while ((T->cod != c))
-    {
-        if (--sz == 0)
-        {
-            return 0;
-        }
-
-        ++T;
-    }
-
-    AMode = T->amode;
-
-    return ((T->cod == c) && (T->t_cpu <= CpuTyp)) ? T : 0;
-}
-
-#endif           /* ifdef IsCmd */
-
