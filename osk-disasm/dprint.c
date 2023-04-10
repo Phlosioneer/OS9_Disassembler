@@ -156,18 +156,22 @@ void PrintPsect(struct options* opt)
 
     /* Type/Language */
     InProg = 0;    /* Inhibit Label Lookup */
-    ProgType = modnam_find(ModTyps, (unsigned char)M_Type)->name;
-    Ci.cmd_wrd = M_Type;
+    int type = modHeader ? modHeader->type : 0;
+    ProgType = modnam_find(ModTyps, (unsigned char)type)->name;
+    Ci.cmd_wrd = type;
     Ci.lblname = ProgType;
-    sprintf(Ci.params, "$%x", M_Type);
+    sprintf(Ci.params, "$%x", type);
     PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     /*hdrvals[0] = M_Type;*/
-    ProgLang = modnam_find(ModLangs, (unsigned char)M_Lang)->name;
+
+    int lang = modHeader ? modHeader->lang : 0;
+    ProgLang = modnam_find(ModLangs, (unsigned char)lang)->name;
     Ci.lblname = ProgLang;
-    Ci.cmd_wrd = M_Lang;
-    sprintf(Ci.params, "$%02x", M_Lang);
+    Ci.cmd_wrd = lang;
+    sprintf(Ci.params, "$%02x", lang);
     PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     /*hdrvals[1] = M_Lang;*/
+
     sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%s", ProgType, ProgLang);
 
     /* Att/Rev */
@@ -175,7 +179,7 @@ void PrintPsect(struct options* opt)
 
     for (c = 0; ModAtts[c].val; c++)
     {
-        if ((M_Attr & 0xff) & ModAtts[c].val)
+        if (modHeader && (modHeader->attributes & 0xff) & ModAtts[c].val)
         {
             if (strlen(ProgAtts))
             {
@@ -194,14 +198,17 @@ void PrintPsect(struct options* opt)
         }
     }
 
-    sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, M_Revs);
-    sprintf(&EaString[strlen(EaString)], ",%d", M_Edit);
+    int revision = modHeader ? modHeader->revision : 0;
+    int edition = modHeader ? modHeader->edition : 0;
+    int execOffset = modHeader ? modHeader->execOffset : 0;
+    sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, revision);
+    sprintf(&EaString[strlen(EaString)], ",%d", edition);
     strcat(EaString, ",0");    /* For the time being, don't add any stack */
-    sprintf(&EaString[strlen(EaString)], ",%s", label_getName(findlbl('L', M_Exec)));
+    sprintf(&EaString[strlen(EaString)], ",%s", label_getName(findlbl('L', execOffset)));
 
-    if (M_Except)
+    if (modHeader && modHeader->exceptionOffset)
     {
-        struct symbol_def *excep = findlbl('L', M_Except);
+        struct symbol_def *excep = findlbl('L', modHeader->exceptionOffset);
         strcat(EaString, ",");
         strcat(EaString, label_getName(excep));
     }
@@ -676,7 +683,7 @@ void ParseIRefs(char rClass, struct options* opt)
 
     /* Get an initial reading */
 
-    if (fseek (opt->ModFP, M_IRefs, SEEK_SET))
+    if (fseek (opt->ModFP, modHeader->refTableOffset, SEEK_SET))
     {
         errexit("Fatal: Failed to seek to Initialized Refs location");
     }
@@ -771,7 +778,7 @@ void GetIRefs(struct options* opt)
     }
     else
     {
-        if (M_IRefs == 0)
+        if (modHeader->refTableOffset == 0)
             return;
 
         ParseIRefs('L', opt);
@@ -1394,9 +1401,9 @@ void OS9DataPrint(struct options* opt)
     struct cmd_items Ci;
     long filePos = ftell(opt->ModFP);
     
-    if (!M_IData)
+    if (!modHeader->initDataHeaderOffset)
     {
-        IDataBegin = M_Mem;
+        IDataBegin = modHeader->memorySize;
         IDataCount = 0;
     }
 
@@ -1450,7 +1457,8 @@ void OS9DataPrint(struct options* opt)
 
         ListData(dta, IDataBegin, 'D', opt);
 
-        if (IDataBegin < M_Mem)
+        // If this is a roff, treat memorySize as infinite.
+        if (modHeader == NULL || IDataBegin < modHeader->memorySize)
         {
             dta = findlbl('D', IDataBegin);
             if (dta)
@@ -1648,8 +1656,15 @@ void WrtEquates (int stdflg, struct options* opt)
                  * last real data element*/
 
                /* if (!(me = FindLbl (me, M_Mem)))*/
-                me = findlbl(NowClass, M_Mem);
-                if (! me)
+                if (modHeader)
+                {
+                    me = findlbl(NowClass, modHeader->memorySize);
+                    if (!me)
+                    {
+                        continue;
+                    }
+                }
+                else
                 {
                     continue;
                 }
@@ -1687,7 +1702,8 @@ void WrtEquates (int stdflg, struct options* opt)
 
             minval = 0;     /* Default to "print all" */
 
-            if (opt->IsROF)
+            // Added OR to satisfy VS null checker.
+            if (opt->IsROF || !modHeader)
             {
                 /*minval = rof_datasize (NowClass);*/
 
@@ -1706,12 +1722,12 @@ void WrtEquates (int stdflg, struct options* opt)
             {
                 if (NowClass == 'D')
                 {
-                    minval = M_Mem + 1;
+                    minval = modHeader->memorySize + 1;
                 }
                 else {
                     if (NowClass == 'L')
                     {
-                        minval = M_Size + 1;
+                        minval = modHeader->size + 1;
                     }
                 }
             }

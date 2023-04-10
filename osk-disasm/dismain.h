@@ -11,6 +11,43 @@ struct modnam;
 struct cmd_items;
 struct options;
 
+struct module_header {
+	unsigned int id;
+	unsigned int sysRev;
+	long size;
+	long owner;
+	long nameOffset;
+	int access;
+	char type;
+	char lang;
+	char attributes;
+	char revision;
+	int edition;
+	int usageOffset;
+	int symbolTableOffset;
+	int parity;
+
+	/* These fields are used for:
+	 * MT_PROGRAM, MT_SYSTEM, MT_TRAPLIB, MT_FILEMAN, MT_DEVDRVR 
+	 */
+	int execOffset;
+	int exceptionOffset;
+
+	/* This field is used for:
+	 * MT_PROGRAM, MT_TRAPLIB, MT_DEVDRVR
+	 */
+	int memorySize;
+
+	/* These fields are used for: MT_PROGRAM, MT_TRAPLIB */
+	int stackSize;
+	int initDataHeaderOffset;
+	int refTableOffset;
+
+	/* These fields are used for: MT_TRAPLIB */
+	int initRoutineOffset;
+	int terminationRoutineOffset;
+};
+
 cfunc struct modnam* modnam_find(struct modnam* pt, int desired);
 cfunc int dopass(int mypass, struct options* opt);
 cfunc int showem(void);
@@ -19,17 +56,13 @@ cfunc void MovBytes(struct data_bounds* db, struct parse_state* state);
 cfunc void MovASC(int nb, char aclass, struct parse_state* state);
 cfunc void NsrtBnds(struct data_bounds* bp, struct parse_state* state); \
 
+cfunc struct module_header* module_new();
+cfunc void module_destroy(struct module_header* module_);
+
 cglobal int error;
 cglobal int CodeEnd;
 
-/* Module header variables */
-cglobal unsigned int M_ID, M_SysRev;
-cglobal long M_Size, M_Owner, M_Name;
-cglobal int M_Accs;
-cglobal char M_Type, M_Lang, M_Attr, M_Revs;
-cglobal int M_Edit, M_Usage, M_Symbol, M_Parity,
-	M_Exec, M_Except, M_Mem, M_Stack, M_IData,
-	M_IRefs, M_Init, M_Term;
+cglobal struct module_header *modHeader;
 cglobal int IDataBegin;
 cglobal int IDataCount;
 cglobal int HdrEnd;   /* The first byte past end of header, usefull for begin of Pass 2 */

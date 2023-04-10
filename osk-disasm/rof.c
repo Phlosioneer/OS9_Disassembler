@@ -44,7 +44,6 @@
 
 
 struct rof_header ROFHd;
-char  rname[100];
 static struct asc_data* data_ascii;
 struct rof_extrn* refs_data,
     * refs_idata,
@@ -57,29 +56,6 @@ struct rof_extrn* refs_data,
 /*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer, FILE* ModFP);
 
-/* DEBUGGING function */
-void reflst (void)
-{
-    struct rof_extrn * meme = refs_code;
-
-    while (meme)
-    {
-        fprintf (stderr, "%05x : %-20s (%s)\n", meme->Ofst, 
-            meme->Extrn ? meme->EName.nam : label_getName(meme->EName.lbl), meme->Extrn ? "Extern" : "Local");
-        meme = meme->ENext;
-    }
-    /*if (cl->LNext)
-    {
-        reflst (cl->LNext);
-    }
-
-    writer_printf(stdout_writer, "   >>>   %04x    %d\n",cl->start,cl->length);
-
-    if (cl->RNext)
-    {
-        reflst (cl->RNext);
-    }*/
-}
 
 /* **************************************************************** *
  * RealPos() - Returns the correct file position.  Returns CmdEnt   *
@@ -187,7 +163,7 @@ void getRofHdr (FILE *progpath, struct options* opt)
      * won't do it's thing...
      */
 
-    M_Mem = 0x10000;
+    //modHeader->memorySize = 0x10000;
     /*ModData = 0x7fff;*/
 
     /* ************************************************ *

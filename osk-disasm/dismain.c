@@ -46,7 +46,7 @@
 #include "label.h"
 #include "command_items.h"
 
-void reflst();
+
 #ifdef _WIN32
 #   define strcasecmp _stricmp
 #endif
@@ -60,17 +60,10 @@ int error;
 /*static int HdrLen;*/
 int CodeEnd;
 
-/* Module header variables */
-unsigned int M_ID, M_SysRev;
-long M_Size, M_Owner, M_Name;
-int M_Accs;
-char M_Type, M_Lang, M_Attr, M_Revs;
-int M_Edit, M_Usage, M_Symbol, M_Parity,
-    M_Exec, M_Except, M_Mem, M_Stack, M_IData,
-    M_IRefs, M_Init, M_Term;
+struct module_header* modHeader = NULL;
 int IDataBegin;
 int IDataCount;
-int HdrEnd;   /* The first byte past end of header, usefull for begin of Pass 2 */
+int HdrEnd;
 
 int AMode;
 int NowClass;
@@ -84,6 +77,22 @@ static const char *DrvrJmps[] = {
 
 static const char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete", "Seek",
         "Read", "Write", "Readln", "Writeln", "Getstat", "Setstat", "Close", NULL};
+
+struct module_header* module_new()
+{
+    struct module_header* ret = malloc(sizeof(struct module_header));
+    if (!ret)
+    {
+        errexit("OoM");
+    }
+    memset(ret, 0, sizeof(struct module_header));
+    return ret;
+}
+
+void module_destroy(struct module_header* module_)
+{
+    free(module_);
+}
 
 /* ***********************
  * get_drvr_jmps()
@@ -136,45 +145,25 @@ static int get_modhead(struct options* opt)
 {
     /* Get standard (common to all modules) header fields */
 
-    M_ID = fread_w(opt->ModFP) & 0xffff;
+    struct module_header* mod = module_new();
 
-    M_SysRev = 0;
-    M_Size = 0;
-    M_Owner = 0;
-    M_Name = 0;
-    M_Accs = 0;
-    M_Type = 0;
-    M_Lang = 0;
-    M_Attr = 0;
-    M_Revs = 0;
-    M_Edit = 0;
-    M_Usage = 0;
-    M_Symbol = 0;
-    M_Exec = 0;
-    M_Except = 0;
-    HdrEnd = 0;
-    M_Mem = 0;
-    M_Stack = 0;
-    M_IData = 0;
-    M_IRefs = 0;
-    M_Init = 0;
-    M_Term = 0;
-
-    switch (M_ID)
+    // Need to be careful to avoid sign-extension.
+    mod->id = (unsigned short)fread_w(opt->ModFP);
+    switch (mod->id)
     {
     case 0x4afc:
-        M_SysRev = fread_w(opt->ModFP);
-        M_Size = fread_l(opt->ModFP);
-        M_Owner = fread_l(opt->ModFP);
-        M_Name = fread_l(opt->ModFP);
-        M_Accs = fread_w(opt->ModFP);
-        M_Type = fread_b(opt->ModFP);
-        M_Lang = fread_b(opt->ModFP);
-        M_Attr = fread_b(opt->ModFP);
-        M_Revs = fread_b(opt->ModFP);
-        M_Edit = fread_w(opt->ModFP);
-        M_Usage = fread_l(opt->ModFP);
-        M_Symbol = fread_l(opt->ModFP);
+        mod->sysRev = fread_w(opt->ModFP);
+        mod->size = fread_l(opt->ModFP);
+        mod->owner = fread_l(opt->ModFP);
+        mod->nameOffset = fread_l(opt->ModFP);
+        mod->access = fread_w(opt->ModFP);
+        mod->type = fread_b(opt->ModFP);
+        mod->lang = fread_b(opt->ModFP);
+        mod->attributes = fread_b(opt->ModFP);
+        mod->revision = fread_b(opt->ModFP);
+        mod->edition = fread_w(opt->ModFP);
+        mod->usageOffset = fread_l(opt->ModFP);
+        mod->symbolTableOffset = fread_l(opt->ModFP);
 
         /* We have 14 bytes that are not used */
         if (fseek(opt->ModFP, 14, SEEK_CUR) != 0)
@@ -182,87 +171,86 @@ static int get_modhead(struct options* opt)
             errexit("Cannot Seek to file location");
         }
 
-        M_Parity = fread_w(opt->ModFP);
+        mod->parity = fread_w(opt->ModFP);
 
         /* Now get any further Mod-type specific headers */
-
-        
-        switch (M_Type)
+        switch (mod->type)
         {
         case MT_PROGRAM:
         case MT_SYSTEM:
         case MT_TRAPLIB:
         case MT_FILEMAN:
         case MT_DEVDRVR:
-            M_Exec = fread_l(opt->ModFP);
+            mod->execOffset = fread_l(opt->ModFP);
             
             /* Add label for Exception Handler, if applicable */
             /* Only for specific Module Types??? */
-            M_Except = fread_l(opt->ModFP);
-            if (M_Except)
+            mod->exceptionOffset = fread_l(opt->ModFP);
+            if (mod->exceptionOffset)
             {
-                addlbl('L', M_Except, "");
+                addlbl('L', mod->exceptionOffset, "");
             }
 
             /* Add btext */
             /* applicable for only specific Moule Types??? */
             addlbl ('L', 0, "btext");
 
-            HdrEnd = ftell(opt->ModFP); /* We'll keep changing it if necessary */
-
-            if ((M_Type != MT_SYSTEM) && (M_Type != MT_FILEMAN))
+            if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
             {
-                M_Mem = fread_l(opt->ModFP);
+                mod->memorySize = fread_l(opt->ModFP);
 
-                if (M_Type != MT_DEVDRVR)
+                if (mod->type == MT_TRAPLIB || mod->type == MT_PROGRAM)
                 {
-                    M_Stack = fread_l(opt->ModFP);
-                    M_IData = fread_l(opt->ModFP);
-                    M_IRefs = fread_l(opt->ModFP);
+                    mod->stackSize = fread_l(opt->ModFP);
+                    mod->initDataHeaderOffset = fread_l(opt->ModFP);
+                    mod->refTableOffset = fread_l(opt->ModFP);
 
-                    if (M_Type == MT_TRAPLIB)
+                    if (mod->type == MT_TRAPLIB)
                     {
-                        M_Init = fread_l(opt->ModFP);
-                        M_Term = fread_l(opt->ModFP);
+                        mod->initRoutineOffset = fread_l(opt->ModFP);
+                        mod->terminationRoutineOffset = fread_l(opt->ModFP);
                     }
                 }
-
-                HdrEnd = ftell(opt->ModFP);  /* The final change.. */
             }
 
-            if ((M_Type == MT_DEVDRVR) || (M_Type == MT_FILEMAN))
+            HdrEnd = ftell(opt->ModFP);
+
+            if ((mod->type == MT_DEVDRVR) || (mod->type == MT_FILEMAN))
             {
-                fseek(opt->ModFP, M_Exec, SEEK_SET);
-                get_drvr_jmps (M_Type, opt->ModFP);
+                fseek(opt->ModFP, mod->execOffset, SEEK_SET);
+                get_drvr_jmps(mod->type, opt->ModFP);
             }
 
-           if (M_IData)
+            if (mod->initDataHeaderOffset)
             {
-                fseek(opt->ModFP, M_IData, SEEK_SET);
+                // Read the init data header.
+                fseek(opt->ModFP, mod->initDataHeaderOffset, SEEK_SET);
                 IDataBegin = fread_l(opt->ModFP);
                 IDataCount = fread_l(opt->ModFP);
                 /* Insure we have an entry for the first Initialized Data */
                 addlbl ('D', IDataBegin, "");
-                CodeEnd = M_IData;
+                CodeEnd = mod->initDataHeaderOffset;
             }
-           else
-           {
-               /* This may be incorrect */
-               CodeEnd = M_Size - 3;
-           }
+            else
+            {
+                /* This may be incorrect */
+                CodeEnd = mod->size - 3;
+            }
         }
 
+        // Check if the file is complete.
         fseek(opt->ModFP, 0, SEEK_END);
-
-        if (ftell(opt->ModFP) < M_Size)
+        if (ftell(opt->ModFP) < mod->size)
         {
             errexit ("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
         }
+        modHeader = mod;
 
         break;
     case 0xdead:
+        module_destroy(mod);
+        modHeader = NULL;
         getRofHdr(opt->ModFP, opt);
-        /*errexit("Disassembly of ROF files is not yet implemented.");*/
         break;
     default:
         errexit("Unknown module type");
@@ -442,32 +430,37 @@ int dopass(int mypass, struct options* opt)
         PCPos = 0;
         get_modhead(opt);
         PCPos = ftell(opt->ModFP);
-        /*process_label(&Instruction, 'L', M_Exec);*/
-        addlbl ('L', M_Exec, NULL);
-        
-        /* Set Default Addressing Modes according to Module Type */
-        switch (M_Type)
+        strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
+        if (modHeader)
         {
-        case MT_PROGRAM:
-            //strcpy(DfltLbls, "&&&&&&D&&&&L");
-            strncpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
-            break;
-        case MT_DEVDRVR:
-            /*  Init/Term:
-                 (a1)=Device Dscr
-                Read/Write,Get/SetStat:
-                 (a1)=Path Dscr, (a5)=Caller's Register Stack
-                All:
-                 (a1)=Path Dscr
-                 (a2)=Static Storage, (a4)=Process Dscr, (a6)=System Globals
+            addlbl('L', modHeader->execOffset, NULL);
 
-               (a1) & (a5) default to Read/Write, etc.  For Init/Term, specify
-               AModes for these with Boundary Defs*/
-            //strcpy (DfltLbls, "&ZD&PG&&&&&L");
-            strncpy(defaultLabelClasses, driverDefaultLabelClasses, AM_MAXMODES);
-            break;
-        default:
-            strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
+            /* Set Default Addressing Modes according to Module Type */
+            if (modHeader->type == MT_PROGRAM)
+            {
+                //strcpy(DfltLbls, "&&&&&&D&&&&L");
+                strncpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
+            }
+            else if (modHeader->type == MT_DEVDRVR)
+            {
+                /*  Init/Term:
+                     (a1)=Device Dscr
+                    Read/Write,Get/SetStat:
+                     (a1)=Path Dscr, (a5)=Caller's Register Stack
+                    All:
+                     (a1)=Path Dscr
+                     (a2)=Static Storage, (a4)=Process Dscr, (a6)=System Globals
+
+                   (a1) & (a5) default to Read/Write, etc.  For Init/Term, specify
+                   AModes for these with Boundary Defs*/
+                //strcpy (DfltLbls, "&ZD&PG&&&&&L");
+                strncpy(defaultLabelClasses, driverDefaultLabelClasses, AM_MAXMODES);
+            }
+        }
+        else
+        {
+            // TODO: The label in a ROF psect is broken in pass 1. This line shouldn't be necessary.
+            addlbl('L', 0, NULL);
         }
 
         GetIRefs(opt);
@@ -548,7 +541,7 @@ int dopass(int mypass, struct options* opt)
         }
 
         if (CmdEnt >= CodeEnd) continue;
-       
+
         if (get_asmcmd(&parseState))
         {
             if (Pass == 2)

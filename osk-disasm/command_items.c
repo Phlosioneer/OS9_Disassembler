@@ -531,15 +531,8 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
          * so compensate
          */
 
-        if (reg == 6) {
-            switch (M_Type)
-            {
-            case MT_PROGRAM:
-                ext1 += 0x8000;
-                break;
-            default:
-                break;
-            }
+        if (reg == 6 && modHeader && modHeader->type == MT_PROGRAM) {
+            ext1 += 0x8000;
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */

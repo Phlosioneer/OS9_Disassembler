@@ -20,6 +20,10 @@ void reset()
 	dbounds = nullptr;
 
 	// dismain.c
+	if (modHeader) {
+		module_destroy(modHeader);
+	}
+	modHeader = nullptr;
 	error = 0;
 	CodeEnd = 0;
 
