@@ -222,7 +222,7 @@ void getRofHdr (FILE *progpath, struct options* opt)
      *    External References Section     *
      * ********************************** */
 
-    if (fseek (progpath, IDataBegin + ROFHd.idatsz + ROFHd.remotestatsiz + ROFHd.debugsiz, SEEK_SET) == -1)
+    if (fseek (progpath, IDataBegin + ROFHd.idatsz + ROFHd.remoteidatsiz + ROFHd.debugsiz, SEEK_SET) == -1)
     {
         fprintf (stderr, "rofhdr(): Seek error on module\n");
         exit (errno);

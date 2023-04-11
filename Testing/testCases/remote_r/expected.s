@@ -2337,8 +2337,7 @@ loremIpsum: dc.l $4c6f7265
 main: link.w A5,#0
  movem.l a0/d0-d1/d4,-(sp)
  move.l #-68,d0
- dc.w $6100
- dc.w $0
+ bsr.w _stkcheck
  moveq #0,d4
  bra.s L00028
 L00016 move.l d4,d0
@@ -2354,8 +2353,7 @@ L00028 cmpi.l #10000,d4
  move.l a0,d1
  lea.l L0004e(pc),a0
  move.l a0,d0
- dc.w $6100
- dc.w $0
+ bsr.w printf
  movem.l -12(a5),a0/d1/d4
  unlk A5
  rts 
