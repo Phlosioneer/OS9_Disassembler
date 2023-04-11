@@ -5,16 +5,6 @@
 #include "externc.h"
 
 #ifdef __cplusplus
-
-// This class handles all file reading, to allow integration test hooks.
-// It's temporary while I convert the codebase from C to C++.
-
-#include <cstdio>
-#include <cstdarg>
-#include <string>
-#include <sstream>
-
-#ifdef __cplusplus
 class Writer;
 
 struct writer_handle {
@@ -25,6 +15,17 @@ struct writer_handle {
 	void* inner;
 };
 #endif
+
+
+#ifdef __cplusplus
+
+// This class handles all file reading, to allow integration test hooks.
+// It's temporary while I convert the codebase from C to C++.
+
+#include <cstdio>
+#include <cstdarg>
+#include <string>
+#include <sstream>
 
 class Writer {
 public:
