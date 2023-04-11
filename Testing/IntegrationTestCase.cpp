@@ -93,12 +93,12 @@ void IntegrationTestCase::run()
 	options_destroy(opt);
 
 	std::string temp1 = moduleOutput.result();
-	Logger::WriteMessage(temp1.c_str());
+	//Logger::WriteMessage(temp1.c_str());
 	std::istringstream actualOutputFile(temp1);
 	assertStreamsEqual(expectedOutputFile, actualOutputFile, "Output File");
 
 	std::string temp2 = standardOutput.result();
-	Logger::WriteMessage(temp2.c_str());
+	//Logger::WriteMessage(temp2.c_str());
 	std::istringstream actualStdOut(temp2);
 	assertStreamsEqual(expectedStdOutFile, actualStdOut, "Standard Output");
 }

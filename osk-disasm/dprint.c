@@ -987,14 +987,14 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass, struc
         int     idatbegin,
                 idatcount;
 
-        if (fseek(opt->ModFP, (long)fget_l(opt->ModFP), SEEK_SET) == -1)
+        if (fseek(opt->ModFP, (long)fread_l(opt->ModFP), SEEK_SET) == -1)
         {
             fprintf(stderr, "Cannot seek to Init Data Buffer\n");
             return;
         }
 
-        idatbegin = fget_l(opt->ModFP);
-        idatcount = fget_l(opt->ModFP);
+        idatbegin = fread_l(opt->ModFP);
+        idatcount = fread_l(opt->ModFP);
 
         if (idatcount == 0)
         {
@@ -1101,7 +1101,7 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass, struc
                         Ci.params[0] = '\0';
                     }
 
-                    val = fget_l(opt->ModFP);
+                    val = fread_l(opt->ModFP);
                     PCPos += 4;
                     lblCount -= 4;
                     idatcount -= 4;
@@ -1149,7 +1149,7 @@ static void ListInitData (struct symbol_def *ldf, int nBytes, char lclass, struc
                         sprintf(tmp, "$%02x", (fgetc(opt->ModFP) & 0xff));
                         break;
                     case 2:
-                        val = fget_w(opt->ModFP);
+                        val = fread_w(opt->ModFP);
                         sprintf(tmp, "$%04x", val & 0xffff);
                         break;
                     }

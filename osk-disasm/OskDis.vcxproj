@@ -110,7 +110,7 @@
   <ItemGroup>
     <ClCompile Include="cmdfile.c" />
     <ClCompile Include="command_items.c" />
-    <ClCompile Include="commonsubs.c" />
+    <ClCompile Include="commonsubs.cpp" />
     <ClCompile Include="def68def.c" />
     <ClCompile Include="main_support.c" />
     <ClCompile Include="dismain.c" />
