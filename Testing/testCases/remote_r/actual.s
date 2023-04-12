@@ -409,7 +409,8 @@ loremIpsum: dc.b "Lorem ipsum dolor sit am"
  dc.b "m ut.",$13,$13,"Aliquam "
  dc.b "viverra pellentesque ips"
  dc.b "um posuere elementum.",$0
- dc.b $0
+ dc.b $0,$205,$253,$253,$253
+ dc.b $253
 
 
 

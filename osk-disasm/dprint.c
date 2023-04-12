@@ -57,6 +57,7 @@
 #   define snprintf _snprintf
 #endif
 
+#define MAX_ASCII_LINE_LEN 26
 
 #define CNULL '\0'
 struct ireflist* IRefs = NULL;
@@ -855,10 +856,7 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass,
 
         c = *(ch++);
 
-        // This condition is always true.
-        if ( !(isprint (c)) || !(isspace(c)) || (c != '\0'))
-        // This is the correct conditional.
-        //if (!isprint(c) && !isspace(c) && c != '\0')
+        if (!isprint(c) && !isspace(c) && c != '\0')
         {
             return 0;
         }
@@ -882,75 +880,108 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass,
     }
 
     count = 0;
-
-    while (PCPos < bufEnd)
+    int consumedThisLine = 0;
+    int consumedByGroup = 0;
+    char group[MAX_ASCII_LINE_LEN + 5];
+    while (PCPos + consumedThisLine < bufEnd)
     {
-        char tmpbuf[30];       
-
-        while (isprint(*buf))
+        // The way this is written is kinda odd for C, but it translates well
+        // into C++
+        group[0] = '\0';
+        if (*buf == '\"')
         {
-            if (*buf == '"')
+            strcpy(group, "'\"'");
+            consumedByGroup = 1;
+            buf++;
+        }
+        else if (isprint((unsigned char)*buf))
+        {
+            // Compute how many characters we can use for this group.
+            int maxGroupLen;
+            if (consumedThisLine == 0)
             {
-                strcpy(tmpbuf, "\""); // To make the resets work
-                strcpy(ci->params, "'\"");
+                // We can use the entire line, minus the two quotes.
+                maxGroupLen = MAX_ASCII_LINE_LEN - 2;
+            }
+            else if (strlen(ci->params) > MAX_ASCII_LINE_LEN - 4)
+            {
+                // Need at least 4 characters to do anything meaningful
+                // (comma, quote, print character, quote) so we must force
+                // a new line.
+                maxGroupLen = MAX_ASCII_LINE_LEN - 2;
             }
             else
             {
-                // This algorithm is printing non-printable characters!
-                strncpy(tmpbuf, buf, 24);
-
-                if (strlen(tmpbuf) >= 24)
-                    tmpbuf[24] = '\0';
-
-                sprintf(ci->params, "\"%s\"", tmpbuf);
+                maxGroupLen = MAX_ASCII_LINE_LEN - 3 - strlen(ci->params);
             }
 
+            strcpy(group, "\"");
+            consumedByGroup = 0;
+            while (isprint((unsigned char)*buf) && *buf != '\"' && consumedByGroup < maxGroupLen)
+            {
+                group[consumedByGroup + 1] = *buf;
+                buf++;
+                consumedByGroup++;
+                
+                // Note: we have already checked that the string is null-terminated,
+                // so the block cannot end in the middle of a group of printable
+                // characters. Therefore we don't need to check `PCPos + consumedThisLine < bufEnd`
+                // during this loop.
+            }
+            group[consumedByGroup + 1] = '\"';
+            group[consumedByGroup + 2] = '\0';
+        }
+        else
+        {
+            snprintf(group, 10, "$%d", (unsigned char)*buf);
+            group[11] = '\0';
+            consumedByGroup = 1;
+            buf++;
+        }
 
-            buf += strlen(tmpbuf);
-            //siz -= strlen(tmpbuf);
-            count += strlen(tmpbuf);
-            PCPos += strlen(tmpbuf);
+        // Special case: if this is the first group this line, always append it,
+        // without a comma.
+        if (consumedThisLine == 0)
+        {
+            strcpy(ci->params, group);
+            consumedThisLine = consumedByGroup;
+        }
+        // Check if the group fits, accounting for a comma with +1.
+        else if (strlen(ci->params) + 1 + strlen(group) <= MAX_ASCII_LINE_LEN)
+        {
+            strcat(ci->params, ",");
+            strcat(ci->params, group);
+            consumedThisLine += consumedByGroup;
+        }
+        else
+        {
+            // Output the line first.
+            count += consumedThisLine;
+            PCPos += consumedThisLine;
             strncpy(ci->mnem, "dc.b", MNEM_LEN);
             PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
             CmdEnt = PCPos;
             PrevEnt = PCPos;
             ci->lblname = "";
             ci->params[0] = '\0';
+
+            // Then copy the whole group to the start of the next line.
+            strcpy(ci->params, group);
+            consumedThisLine = consumedByGroup;
         }
+    }
 
-        while (((*buf >= 9) && (*buf <= 0x0d)) || (*buf == '\0'))
-        {
-            if (strlen (ci->params) >= 24)
-            {
-                break;
-            }
-
-            sprintf(tmpbuf, "$%d", *(buf++) & 0xff);
-            
-            if (strlen(ci->params))
-            {
-                strcat(ci->params, ",");
-            }
-
-            strcat(ci->params, tmpbuf);
-            ++count;
-            ++PCPos;
-
-            if (PCPos >= bufEnd)
-            {
-                break;
-            }
-        }
-
-        if (strlen(ci->params))
-        {
-            strcpy(ci->mnem, "dc.b");
-            PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
-            CmdEnt = PCPos;
-            PrevEnt = PCPos;
-            ci->lblname = "";
-            ci->params[0] = '\0';
-        }
+    // Output whatever is leftover.
+    if (strlen(ci->params))
+    {
+        count += consumedThisLine;
+        PCPos += consumedThisLine;
+        strncpy(ci->mnem, "dc.b", MNEM_LEN);
+        PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
+        CmdEnt = PCPos;
+        PrevEnt = PCPos;
+        ci->lblname = "";
+        ci->params[0] = '\0';
     }
 
     return count;
