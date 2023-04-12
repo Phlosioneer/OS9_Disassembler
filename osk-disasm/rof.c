@@ -44,7 +44,6 @@
 
 
 struct rof_header ROFHd;
-static struct asc_data* data_ascii;
 struct rof_extrn* refs_data,
     * refs_idata,
     * refs_code,
@@ -271,8 +270,6 @@ void getRofHdr (FILE *progpath, struct options* opt)
     /* Position to begin of Code section */
     fseek (progpath, HdrEnd, SEEK_SET);
     PCPos = 0;
-
-   /* rofdis();*/
 }
 
 void RofLoadInitData (void)
@@ -751,7 +748,7 @@ int rof_datasize (char cclass)
  * ******************************************************************** */
 
 static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblList, char *iBuf, int blkEnd,
-             struct asc_data *ascdat, char cclass, struct options* opt)
+             char cclass, struct options* opt)
 {
     /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
@@ -909,25 +906,6 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
                 
                 Ci.mnem[0] = '\0';
             }
-
-            /* Check for ASCII definition, and print it out if so */
-
-        /*    mydat = rof_find_asc (ascdat, CmdEnt);
-
-            if (mydat)
-            {
-                PCPos = CmdEnt;*/    /* MovASC sets CmdEnt = Pc */
-        /*        MovASC (mydat->length, cclass);
-                CmdEnt += mydat->length;
-                PrevEnt = CmdEnt;
-                blkEnd -= mydat->length;
-                continue;
-            }
-
-            my_val = fgetc (ModFP);
-            bump = 1;
-            strcpy (Ci.mnem, "dc.b");
-            sprintf (Ci.params, "$%02x", my_val);*/
         }
 
         /*PrintLine (realcmd, &Ci, cclass, CmdEnt, CmdEnt + blkEnd);
@@ -952,10 +930,8 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
 
 void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass, struct options* opt)
 {
-    struct asc_data *ascdat;
     struct symbol_def *lblList = labelclass(iClass) ? labelclass_getFirst(labelclass(iClass)) : NULL;
 
-    ascdat = data_ascii;
     PCPos = 0;
     /*{
         struct symbol_def *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
@@ -975,100 +951,7 @@ void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, 
             }
         }
 
-        iBuf = DataDoBlock (&refsList, &lblList, iBuf, blkEnd, ascdat, iClass, opt);
-    }
-}
-
-/* ******************************************************************* *
- * rof_ascii() - set up ASCII specification for initialized data from  *
- *                 the command file.                                   *
- *                                                                     *
- * Passed: ptr - pointer to command line position, Positioned to the   *
- *                  first character of the specification               *
- *                  line, past the "=" command file specifier          *
- *         Format for cmdline is "= d|n <start> - <end> or             *
- *                                      <start>/<length>               *
- * ******************************************************************* */
-
-void rof_ascii ( char *cmdline)
-{
-    struct asc_data *me,
-                    **tree = NULL;
-    char oneline[80];
-
-    for (cmdline = cmdsplit(oneline, cmdline); cmdline; cmdline = cmdsplit(oneline, cmdline))
-    {
-        char vsct,      /* vsect type, d=dp, b=bss */
-             *ptr;
-        int start,
-            end;
-
-        ptr = oneline;
-        vsct = *ptr;
-        ptr = skipblank (++ptr);
-
-        getrange (ptr, &start, &end, 1, 0, FALSE);
-
-        if (end > 0)
-        {
-            me = (struct asc_data *)mem_alloc (sizeof (struct asc_data));
-            memset (me, 0, sizeof(struct asc_data));
-
-            me->start = start;
-            me->length = end - start + 1;
-
-            tree = &data_ascii;
-
-            if ( ! (*tree))       /* If this tree has not been yet started */
-            {
-                *tree = me;
-            }
-            else
-            {
-                struct asc_data *srch;
-
-                srch = *tree;
-
-                while (1)
-                {
-                    if (start < srch->start)
-                    {
-                        if (srch->LNext)
-                        {
-                            srch = srch->LNext;
-                        }
-                        else
-                        {
-                            srch->LNext = me;
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if (start > srch->start)
-                        {
-                            if (srch->RNext)
-                            {
-                                srch = srch->RNext;
-                            }
-                            else
-                            {
-                                srch->RNext = me;
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            fprintf (stderr,
-                                     "Address %04x for vsect %c already defined\n",
-                                     start, vsct
-                                    );
-                            return;
-                        }
-                    }
-                }
-            }
-        }
+        iBuf = DataDoBlock (&refsList, &lblList, iBuf, blkEnd, iClass, opt);
     }
 }
 

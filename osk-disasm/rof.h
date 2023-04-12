@@ -103,13 +103,6 @@ enum {
     REFLOCAL
 };
 
-struct asc_data {
-    int start,
-        length;
-    struct asc_data *LNext,
-                    *RNext;
-};
-
 
 /*struct rof_extrn *xtrn_data = 0,
                  *xtrn_idata,
@@ -137,7 +130,6 @@ cglobal struct rof_extrn *refs_data,
                *rofptr = &ROF_hd;*/
 cglobal struct rof_header ROFHd;
 
-cfunc void reflst(void);
 cfunc int RealEnt(struct options* opt);
 cfunc void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP);
 cfunc void getRofHdr(FILE* progpath, struct options* opt);
