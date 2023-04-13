@@ -42,8 +42,49 @@
 #include "dismain.h"
 #include "main_support.h"
 
+ /* ************************* *
+  *  External references      *
+  *  -------------------      *
+  *  We will attempt to place *
+  *  all in one set           *
+  * ************************* */
+struct rof_header {
+    int   sync;
+    short ty_lan,        /* Type/Language */
+        att_rev,       /* Attribute/Revision word */
+        valid,         /* Nonzero if valid */
+        series;        /* Assembler version used to compile */
+    char  rdate[6];
+    short edition;
+    int   statstorage,   /* Size of static variable storage */
+        idatsz,        /* Size of initialized data */
+        codsz,         /* Size of the object code  */
+        stksz,         /* Size of stack required   */
+        code_begin,    /* Offset to entry point of object code   */
+        utrap,         /* Offset to unitialized trap entry point */
+        remotestatsiz, /* Size of remote static storage   */
+        remoteidatsiz, /* Size of remote initialized data */
+        debugsiz;      /* Size of the debug   */
+    char* rname;         /* Ptr to module name  */
+};
 
-struct rof_header ROFHd;
+struct rof_extrn {
+    int hasName;
+    union {
+        char* nam;
+        struct symbol_def* lbl;
+    } EName;
+    /*  void *EName;*/              /* External name                    */
+    char  dstClass;             /* Class for referenced item NUll if extern */
+    int   Type;                 /* Type Flag                        */
+    int   Ofst;                 /* Offset into code                 */
+    int   Extrn;                /* Flag that it's an external ref   */
+    struct rof_extrn* EUp,      /* Previous Ref for entire list     */
+        * ENext,                 /* Next Reference for All externs   */
+        * MyNext;                /* Next ref for this name.  If NULL, we can free EName */
+};
+
+
 struct rof_extrn* refs_data,
     * refs_idata,
     * refs_code,
@@ -51,9 +92,75 @@ struct rof_extrn* refs_data,
     * refs_iremote,
     * extrns,                   /* Generic external pointer */
     * codeRefs_sav;
+struct rof_header* ROFHd = NULL;
 
 /*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
 static void get_refs(char *vname, int count, int ref_typ, char *codebuffer, FILE* ModFP);
+
+void extern_def_destroy(struct rof_extrn* handle)
+{
+    if (handle->hasName)
+    {
+        free(handle->EName.nam);
+    }
+    free(handle);
+}
+
+const char* extern_def_name(struct rof_extrn* handle)
+{
+    if (!handle->hasName)
+    {
+        errexit("Cannot access name of label; not implemented yet");
+    }
+    return handle->EName.nam;
+}
+
+void rof_header_destroy(struct rof_header* handle)
+{
+    if (handle->rname)
+    {
+        free(handle->rname);
+    }
+    free(handle);
+}
+
+int rof_header_getCodeAddress(struct rof_header* handle)
+{
+    return handle->code_begin;
+}
+
+int rof_header_getUninitDataSize(struct rof_header* handle)
+{
+    return handle->statstorage;
+}
+
+int rof_header_getInitDataSize(struct rof_header* handle)
+{
+    return handle->idatsz;
+}
+
+int rof_header_getRemoteUninitDataSize(struct rof_header* handle)
+{
+    return handle->remotestatsiz;
+}
+
+int rof_header_getRemoteInitDataSize(struct rof_header* handle)
+{
+    return handle->remoteidatsiz;
+}
+
+char* rof_header_getPsectParams(struct rof_header* handle)
+{
+    char* ret = malloc(100 * sizeof(char));
+    if (!ret) errexit("OoM");
+    snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname,
+        handle->ty_lan >> 8,
+        handle->ty_lan & 0xff,
+        handle->edition,
+        handle->stksz);
+    ret[99] = '\0';
+    return ret;
+}
 
 
 /* **************************************************************** *
@@ -107,7 +214,7 @@ void AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas, FILE* ModFP)
                 /*refVal = fread_l(ModFP);*/
                 dataSiz -= 4;
             }
-
+            tbl->hasName = FALSE;
             tbl->EName.lbl = addlbl(tbl->dstClass, refVal, "");
         }
 
@@ -131,32 +238,37 @@ void getRofHdr (FILE *progpath, struct options* opt)
     fseek(progpath, 0, SEEK_SET);   /* Start all over */
 
     /* get header data */
-
-        /*ROFHd.sync = (M_ID << 16) | (fread_w(ModFP) & 0xffff); */
-        ROFHd.sync = fread_l(progpath);
+    ROFHd = malloc(sizeof(struct rof_header));
+    if (!ROFHd)
+    {
+        errexit("OoM");
+    }
+    memset(ROFHd, 0, sizeof(struct rof_header));
+    /*ROFHd->sync = (M_ID << 16) | (fread_w(ModFP) & 0xffff); */
+    ROFHd->sync = fread_l(progpath);
         
-        if (ROFHd.sync != 0xdeadface)
-        {
-            errexit ("Illegal ROF Module sync bytes");
-        }
+    if (ROFHd->sync != 0xdeadface)
+    {
+        errexit ("Illegal ROF Module sync bytes");
+    }
 
-        ROFHd.ty_lan = fread_w(progpath);
-        ROFHd.att_rev = fread_w (progpath);       /* Attribute/Revision word */
-        ROFHd.valid = fread_w (progpath);         /* Nonzero if valid */
-        ROFHd.series = fread_w (progpath);        /* Assembler version used to compile */
-        fread(ROFHd.rdate, sizeof(ROFHd.rdate), 1, progpath);
-        ROFHd.edition = fread_w(progpath);;
-        ROFHd.statstorage = fread_l (progpath);   /* Size of static variable storage */
-        ROFHd.idatsz = fread_l (progpath);        /* Size of initialized data */
-        ROFHd.codsz = fread_l (progpath);         /* Size of the object code  */
-        ROFHd.stksz = fread_l (progpath);         /* Size of stack required   */
-        ROFHd.code_begin = fread_l (progpath);    /* Offset to entry point of object code   */
-        ROFHd.utrap = fread_l (progpath);         /* Offset to unitialized trap entry point */
-        ROFHd.remotestatsiz = fread_l (progpath); /* Size of remote static storage   */
-        ROFHd.remoteidatsiz = fread_l (progpath); /* Size of remote initialized data */
-        ROFHd.debugsiz = fread_l (progpath);      /* Size of the debug   */
+    ROFHd->ty_lan = fread_w(progpath);
+    ROFHd->att_rev = fread_w (progpath);       /* Attribute/Revision word */
+    ROFHd->valid = fread_w (progpath);         /* Nonzero if valid */
+    ROFHd->series = fread_w (progpath);        /* Assembler version used to compile */
+    fread(ROFHd->rdate, sizeof(ROFHd->rdate), 1, progpath);
+    ROFHd->edition = fread_w(progpath);;
+    ROFHd->statstorage = fread_l (progpath);   /* Size of static variable storage */
+    ROFHd->idatsz = fread_l (progpath);        /* Size of initialized data */
+    ROFHd->codsz = fread_l (progpath);         /* Size of the object code  */
+    ROFHd->stksz = fread_l (progpath);         /* Size of stack required   */
+    ROFHd->code_begin = fread_l (progpath);    /* Offset to entry point of object code   */
+    ROFHd->utrap = fread_l (progpath);         /* Offset to unitialized trap entry point */
+    ROFHd->remotestatsiz = fread_l (progpath); /* Size of remote static storage   */
+    ROFHd->remoteidatsiz = fread_l (progpath); /* Size of remote initialized data */
+    ROFHd->debugsiz = fread_l (progpath);      /* Size of the debug   */
 
-        ROFHd.rname = freadString(progpath);
+    ROFHd->rname = freadString(progpath);
 
     /* Set ModData to an unreasonable high number so ListData
      * won't do it's thing...
@@ -190,13 +302,13 @@ void getRofHdr (FILE *progpath, struct options* opt)
 
     /* Code section... read, or save file position   */
     HdrEnd = ftell (progpath);
-    CodeEnd = ROFHd.codsz;
+    CodeEnd = ROFHd->codsz;
 
     /* Read code into buffer for get_refs() while we're here */
 
 
-    codeBuf = (char*)mem_alloc((size_t)ROFHd.codsz + 1);
-    if (fread (codeBuf, ROFHd.codsz, 1, progpath) == -1)
+    codeBuf = (char*)mem_alloc((size_t)ROFHd->codsz + 1);
+    if (fread (codeBuf, ROFHd->codsz, 1, progpath) == -1)
     {
         fprintf (stderr, "Failed to read code buffer\n");
     }
@@ -204,7 +316,7 @@ void getRofHdr (FILE *progpath, struct options* opt)
     /*idp_begin = code_begin + rofptr->codsz;
     indp_begin = idp_begin + rofptr->idpsz;*/
 
-    /*if (fseek (progpath, ROFHd.codsz, SEEK_CUR) == -1)
+    /*if (fseek (progpath, ROFHd->codsz, SEEK_CUR) == -1)
     {
         fprintf (stderr, "rofhdr(): Seek error on module\n");
         exit (errno);
@@ -214,14 +326,14 @@ void getRofHdr (FILE *progpath, struct options* opt)
      *    Initialized data Section        *
      * ********************************** */
 
-    IDataCount = ROFHd.idatsz;
+    IDataCount = ROFHd->idatsz;
     IDataBegin = ftell(progpath);
 
     /* ********************************** *
      *    External References Section     *
      * ********************************** */
 
-    if (fseek (progpath, IDataBegin + ROFHd.idatsz + ROFHd.remoteidatsiz + ROFHd.debugsiz, SEEK_SET) == -1)
+    if (fseek (progpath, IDataBegin + ROFHd->idatsz + ROFHd->remoteidatsiz + ROFHd->debugsiz, SEEK_SET) == -1)
     {
         fprintf (stderr, "rofhdr(): Seek error on module\n");
         exit (errno);
@@ -262,8 +374,8 @@ void getRofHdr (FILE *progpath, struct options* opt)
         errexit ("RofLoadInitData() : Failed to seek to begin of Init Data");
     }
 
-    AddInitLbls (refs_idata, ROFHd.idatsz, '_', opt->ModFP);
-    AddInitLbls (refs_iremote, ROFHd.idatsz, 'H', opt->ModFP);
+    AddInitLbls (refs_idata, ROFHd->idatsz, '_', opt->ModFP);
+    AddInitLbls (refs_iremote, ROFHd->idatsz, 'H', opt->ModFP);
 
     /* Now we're ready to disassemble the code */
 
@@ -546,7 +658,9 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
 
             if (new_ref->Extrn)
             {
+                new_ref->hasName = TRUE;
                 new_ref->EName.nam = vname;
+                new_ref->hasName = TRUE;
             }
             else
             {
@@ -568,7 +682,7 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
                     default:
                         dstVal = bufReadL(&pt);
                     }
-
+                    new_ref->hasName = FALSE;
                     new_ref->EName.lbl = addlbl(new_ref->dstClass, dstVal, "");
                 }
             }
@@ -581,7 +695,7 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
  * Passed : (1) xtrn - starting extrn ref             *
  *          (2) adrs - Address to match               *
  * ************************************************** */
-
+// Pure function.
 struct rof_extrn * find_extrn ( struct rof_extrn *xtrn, int adrs)
 {
     /*int found = 0;*/
@@ -606,6 +720,7 @@ struct rof_extrn * find_extrn ( struct rof_extrn *xtrn, int adrs)
  *          If not a data area, returns 0                   *
  * ******************************************************** */
 
+// Unused, but useful as documentation
 int rof_datasize (char cclass)
 {
     int dsize;
@@ -613,16 +728,16 @@ int rof_datasize (char cclass)
     switch (cclass)
     {
         case 'D':
-            dsize = ROFHd.statstorage;
+            dsize = ROFHd->statstorage;
             break;
         case 'H':
-            dsize = ROFHd.remoteidatsiz;  
+            dsize = ROFHd->remoteidatsiz;  
             break;
         case 'G':
-            dsize = ROFHd.remotestatsiz;
+            dsize = ROFHd->remotestatsiz;
             break;
         case '_':
-            dsize = ROFHd.idatsz;
+            dsize = ROFHd->idatsz;
             break;
         default:
             dsize = 0;

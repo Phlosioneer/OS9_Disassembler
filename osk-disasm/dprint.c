@@ -66,9 +66,6 @@ static void PrintFormatted (const char *pfmt, struct cmd_items *ci, struct optio
 static void NonBoundsLbl (char cClass, struct options* opt);
 static void TellLabels (struct symbol_def *me, int flg, char cClass, int minval, struct options* opt);
 
-/*extern struct printbuf *pbuf;*/
-extern struct rof_header ROFHd;
-
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 const char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
 static const char *xtraFmt = "             %s\n";
@@ -611,17 +608,23 @@ void ROFPsect (struct rof_header *rptr, struct options* opt)
     strcpy(Ci.params, "");
     Ci.lblname = "";
     strcpy(Ci.mnem, "psect");
-    sprintf(Ci.params, "%s,$%x,$%x,%d,%d,", rptr->rname,
+    /*sprintf(Ci.params, "%s,$%x,$%x,%d,%d,", rptr->rname,
                                                 rptr->ty_lan >> 8,
                                                 rptr->ty_lan & 0xff,
                                                 rptr->edition,
                                                 rptr->stksz
             );
+    */
+    char* params = rof_header_getPsectParams(rptr);
+    strcpy(Ci.params, params);
+    free(params);
+
 /*#define OPSCAT(str) sprintf (ci->params, "%s,%s", pbuf->operand, str)
 #define OPDCAT(nu) sprintf (ci->params, "%s,%d", pbuf->operand, nu)
 #define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
 
-    nl = findlbl('L', rptr->code_begin);
+    //nl = findlbl('L', rptr->code_begin);
+    nl = findlbl('L', rof_header_getCodeAddress(rptr));
     if (nl)
     {
         strcat(Ci.params, label_getName(nl));
@@ -631,7 +634,7 @@ void ROFPsect (struct rof_header *rptr, struct options* opt)
     {
         char oc[10];
 
-        sprintf(oc, "$%04x", rptr->code_begin);
+        sprintf(oc, "$%04x", rof_header_getCodeAddress(rptr));
         strcat(Ci.params, oc);
         /*OPHCAT ((int)(rptr->modent));*/
     }
@@ -760,24 +763,7 @@ void ParseIRefs(char rClass, struct options* opt)
 
 void GetIRefs(struct options* opt)
 {
-    if (opt->IsROF)
-    {
-        if ((fseek(opt->ModFP, IDataBegin, SEEK_SET) == -1))
-        {
-            errexit("Failed to seek to begin of Initialized Data Section");
-        }
-           /* Get Init Data*/
-        /* Positioned at begin of Initialized Remote Section */
-        /* ..... Get Init Remote ......... */
-        /* .... Until above is implemented */
-        if (fseek(opt->ModFP, ROFHd.idatsz + ROFHd.remotestatsiz + ROFHd.debugsiz - 2, SEEK_CUR) == -1)
-        {
-            fprintf(stderr, "rofhdr(): Seek error on module\n");
-            exit(errno);
-        }
-
-    }
-    else
+    if (!opt->IsROF)
     {
         if (modHeader->refTableOffset == 0)
             return;
@@ -1252,23 +1238,23 @@ void ROFDataPrint(struct options* opt)
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        ListData(srch, ROFHd.statstorage, 'D', opt);
+        ListData(srch, rof_header_getUninitDataSize(ROFHd), 'D', opt);
         BlankLine(opt);
         WrtEnds(opt);
     }
 
-    if (ROFHd.idatsz)
+    if (rof_header_getInitDataSize(ROFHd))
     {
         dataprintHeader(idat, '_', FALSE, opt);
 
-        IBuf = (char *)mem_alloc((size_t)ROFHd.idatsz + 1);
+        IBuf = (char *)mem_alloc((size_t)rof_header_getInitDataSize(ROFHd) + 1);
 
         if (fseek(opt->ModFP, IDataBegin, SEEK_SET))
         {
             errexit("Cannot Seek to begin of Initialized data");
         }
 
-        if (fread(IBuf, ROFHd.idatsz, 1, opt->ModFP) < 1)
+        if (fread(IBuf, rof_header_getInitDataSize(ROFHd), 1, opt->ModFP) < 1)
         {
             errexit("Cannot read Initialized data from file!");
         }
@@ -1276,9 +1262,9 @@ void ROFDataPrint(struct options* opt)
         PCPos = 0;
         srch = labelclass('_') ? labelclass_getFirst(labelclass('_')) : NULL;
 
-        if (ROFHd.idatsz)
+        if (rof_header_getInitDataSize(ROFHd))
         {
-            ListInitROF("", refs_idata, IBuf, ROFHd.idatsz, '_', opt);
+            ListInitROF("", refs_idata, IBuf, rof_header_getInitDataSize(ROFHd), '_', opt);
         }
 
         BlankLine(opt);
@@ -1296,25 +1282,26 @@ void ROFDataPrint(struct options* opt)
         /*first, if first entry is not D000, rmb bytes up to first */
 
         PCPos = 0;
-        ListData(srch, ROFHd.remotestatsiz, 'G', opt);
+        ListData(srch, rof_header_getRemoteUninitDataSize(ROFHd), 'G', opt);
         BlankLine(opt);
         WrtEnds(opt);
     }
 
-    if ((ROFHd.remoteidatsiz))
+    if (rof_header_getRemoteInitDataSize(ROFHd))
     {
+        int size = rof_header_getRemoteInitDataSize(ROFHd);
         dataprintHeader(idat, 'H', TRUE, opt);
 
-        IBuf = (char *)mem_alloc((size_t)ROFHd.remoteidatsiz + 1);
+        IBuf = (char *)mem_alloc((size_t)size + 1);
 
-        if (fread(IBuf, ROFHd.remoteidatsiz, 1, opt->ModFP) < 1)
+        if (fread(IBuf, size, 1, opt->ModFP) < 1)
         {
             errexit("Cannot read Remote Initialized data from file!");
         }
 
         PCPos = 0;
         srch = labelclass('H') ? labelclass_getFirst(labelclass('H')) : NULL;
-        ListInitROF("", refs_iremote,IBuf, ROFHd.remoteidatsiz, 'H', opt);
+        ListInitROF("", refs_iremote,IBuf, size, 'H', opt);
         BlankLine(opt);
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
         free(IBuf);
@@ -1325,99 +1312,6 @@ void ROFDataPrint(struct options* opt)
 
     InProg = 1;
     return;
-
-    /* We compute dattyp for flexibility.  If we change the label type
-     * specification all we have to do is change it in rof_class() and it
-     * should work here automatically rather than hard-coding the classes
-     */
-
-    /*dattyp[2] = '\0';
-
-    //for (vs = 0; vs < 2; vs++)
-    //{
-    //    dattyp[vs] = rof_class (reftyp[vs], 1);
-    //}
-
-    //if ((sizes[0]) || sizes[1])
-    //{
-    //    strcpy (Ci.mnem, "vsect");
-    //    BlankLine();
-    //    PrintLine (realcmd, &Ci, dattyp[vs], 0, 0);
-    //    BlankLine();
-
-    ////     Process each of un-init, init
-
-    //    for (isinit = 0; isinit <= 1; isinit++)
-    //    {
-    //        dta = labelclass (dattyp[isinit]);
-
-    //        sprintf (mytmp, dptell[isinit], dattyp[isinit]);
-
-    //        if (isinit)
-    //        {
-    //            if (thissz[isinit])
-    //            {
-    //                PrintNonCmd (mytmp, 0, 1);
-    //            }
-
-    //            ListInitROF (" * Initialized data (Class %c)" ROFHd.idatsz, '_');
-    //        }
-    //        else
-    //        {
-    //            if (dta)
-    //            {
-    ////                 for PrintNonCmd(), send isinit so that a pre-blank
-    ////                    * line is not printed, since it is provided by
-    ////                    * PrinLine above
-
-    //                if (thissz[isinit])
-    //                {
-    //                    PrintNonCmd (mytmp, isinit, 1);
-    //                }
-
-    //                srch = dta->cEnt;
-
-    //                //while (srch->Next)
-    //                {
-    //                    srch = srch->Next;
-    //                }
-
-    //                if (srch->myaddr)
-    //                {                       // i.e., if not D000
-    //                    strcpy (Ci.mnem, isinit ? "dc" : "ds");
-    //                    sprintf (Ci.params, "%d", srch->myaddr);
-    //                    CmdEnt = PrevEnt = 0;
-    //                    PrintLine (realcmd, &Ci, dattyp[isinit], 0,
-    //                                                srch->myaddr);
-    //                }
-
-    //                M_Mem = sizes[isinit];
-    //                ListData (dta->cEnt, sizes[isinit], dattyp[isinit]);
-    //            }          // end "if (dta)"
-    //            else        // else no labels.. check to see
-    //            {           // if any "hidden" variables
-    //                if (sizes[isinit])
-    //                {
-    //                    PrintNonCmd (mytmp, isinit, 1);
-    //                    strcpy (Ci.mnem, "rmb");
-    //                    sprintf (Ci.params, "%d", thissz[isinit]);
-    //                    PrintLine (realcmd, &Ci, dattyp[isinit], 0,
-    //                                                0);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //
-
-    //    WrtEnds();
-    //}
-
-    //dattyp += 2;
-    ////thissz += 2;
-
-    //BlankLine ();
-    //InProg = 1;*/
 }
 
 /* ************

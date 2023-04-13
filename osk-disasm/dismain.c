@@ -490,7 +490,7 @@ int dopass(int mypass, struct options* opt)
 
         if (opt->IsROF)
         {
-            ROFPsect(&ROFHd, opt);
+            ROFPsect(ROFHd, opt);
             ROFDataPrint(opt);
         }
         else
@@ -607,27 +607,6 @@ int dopass(int mypass, struct options* opt)
     }
 
     /*reflst();*/
-    return 0;
-}
-
-// Debugging function?
-// NOT ACTIVELY MAINTAINED.
-int showem()
-{
-    /*char c = '_';*/
-    struct rof_extrn *rf = refs_code;
-    /*LABEL_CLASS *l = labelclass(c);*/
-
-    if (!rf)
-        fprintf(stderr, "No Code refs found!\n");
-    while (rf)
-    {
-        fprintf (stderr, "%04x: -> (%03x '%c') \"%-14s\" (%s)\n", rf->Ofst, rf->Type,
-            rf->dstClass ? rf->dstClass : ' ', rf->Extrn ? rf->EName.nam : label_getName(rf->EName.lbl),
-            rf->Extrn ? "Extern" : "Local");
-        rf = rf->ENext;
-    }
-
     return 0;
 }
 

@@ -1305,13 +1305,14 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
             {
                 struct rof_extrn *vec_ref = find_extrn (refs_code, CmdEnt + 1);
                 struct rof_extrn *call_ref = find_extrn (refs_code, CmdEnt + 2);
-                char *callName = NULL;
+                const char *callName = NULL;
 
                 if (call_ref != NULL)
                 {
                     register int x;
 
-                    callName = call_ref->EName.nam;
+                    //callName = call_ref->EName.nam;
+                    callName = extern_def_name(call_ref);
 
                     for (x = 0; x < sysCallCount; x++)
                     {
@@ -1327,7 +1328,8 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
 
                 if (vec_ref)
                 {
-                    register char *vN = vec_ref->EName.nam;
+                    //register char *vN = vec_ref->EName.nam;
+                    const char* vN = extern_def_name(vec_ref);
                     register int x;
 
                     for (x = 0; x < mathCallCount; x++)

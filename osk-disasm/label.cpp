@@ -532,7 +532,7 @@ static void PrintLbl(std::ostream &dest, char clas, int adr, struct symbol_def* 
  *          (2) Address to check for                                *
  * Returns: Ptr to Boundary definition if found,  NULL if no match. *
  * **************************************************************** */
-
+// Pure function.
 extern "C" struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
 {
     register struct data_bounds *pt;
