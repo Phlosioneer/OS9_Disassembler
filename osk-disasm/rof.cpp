@@ -72,7 +72,7 @@ struct rof_extrn {
     int hasName;
     union {
         char* nam;
-        struct symbol_def* lbl;
+        Label* lbl;
     } EName;
     /*  void *EName;*/              /* External name                    */
     char  dstClass;             /* Class for referenced item NUll if extern */
@@ -285,7 +285,7 @@ void getRofHdr (FILE *progpath, struct options* opt)
     while (count--)
     {
         char *name;
-        struct symbol_def *me;
+        Label *me;
         int adrs;
         int typ;
 
@@ -296,7 +296,7 @@ void getRofHdr (FILE *progpath, struct options* opt)
         me = addlbl(rof_class(typ, REFGLBL), adrs, name);
         if (me)
         {
-            label_setGlobal(me, 1);
+            me->setGlobal(true);
         }
     }
 
@@ -505,7 +505,7 @@ char rof_class (int typ, int refTy)
 
 /*void rof_addlbl (int adrs, struct rof_extrn *ref)
 {
-    struct symbol_def *nl;
+    Label *nl;
 
     // The following may be a kludge.  The problem is that Relative
      * external references get added to class C.
@@ -754,7 +754,7 @@ int rof_datasize (char cclass)
  *          (3) char class - the label class (D or C)                   *
  * ******************************************************************** */
 
-static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblList, char *iBuf, int blkEnd,
+static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *iBuf, int blkEnd,
              char cclass, struct options* opt)
 {
     /*struct rof_extrn *srch;*/
@@ -765,12 +765,12 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
 
     /* Insert Label if applicable */
 
-    if (label_getMyAddr(*lblList) == CmdEnt)
+    if ((*lblList)->myAddr == CmdEnt)
     {
-        strcpy (lblString, label_getName(*lblList));
+        strcpy (lblString, (*lblList)->name());
         Ci.lblname = lblString;
 
-        if (label_getGlobal(*lblList))
+        if ((*lblList)->global())
         {
             strcat (Ci.lblname, ":");
         }
@@ -821,7 +821,7 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
             }
             else
             {
-                strcpy (Ci.params, label_getName((*refsList)->EName.lbl));
+                strcpy (Ci.params, (*refsList)->EName.lbl->name());
             }
 
             PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt, opt);
@@ -937,12 +937,10 @@ static char * DataDoBlock (struct rof_extrn **refsList, struct symbol_def **lblL
 
 void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass, struct options* opt)
 {
-    struct symbol_def *lblList = labelclass(iClass) ? labelclass_getFirst(labelclass(iClass)) : NULL;
+    auto category = labelManager->getCategory(iClass);
+    Label *lblList = category ? category->getFirst() : NULL;
 
     PCPos = 0;
-    /*{
-        struct symbol_def *lbls = labelclass(iClass) ? labelclass(iClass)->cEnt : NULL;
-    }*/
 
     while (PCPos < (isize))
     {
@@ -954,7 +952,7 @@ void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, 
         {
             if (label_getNext(lblList))
             {
-                blkEnd = label_getMyAddr(label_getNext(lblList));
+                blkEnd = label_getNext(lblList)->myAddr;
             }
         }
 
@@ -1053,7 +1051,7 @@ char * IsRef(char *dst, int curloc, int ival)
             }   /* Else leave retVal=NULL - for local refs, let calling process handle it */
             else
             {
-                strcat(dst, label_getName(refs_code->EName.lbl));
+                strcat(dst, refs_code->EName.lbl->name());
                 retVal = dst;
             }
 

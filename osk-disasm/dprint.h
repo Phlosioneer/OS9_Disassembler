@@ -3,7 +3,7 @@
 #define DPRINT_H
 
 #include "userdef.h"
-
+#include "label.h"
 
 struct cmd_items;
 
@@ -30,7 +30,7 @@ void GetIRefs(struct options* opt);
 int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct options* opt);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
-void ListData(struct symbol_def* me, int upadr, char cClass, struct options* opt);
+void ListData(Label* me, int upadr, char cClass, struct options* opt);
 void WrtEquates(int stdflg, struct options* opt);
 
 extern const char pseudcmd[80];

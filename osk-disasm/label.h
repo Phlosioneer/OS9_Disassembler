@@ -8,36 +8,6 @@
 
 struct cmd_items;
 
-/* Defines a Label */
-
-struct symbol_def;
-struct label_class;
-
-
-
-    const char* label_getName(struct symbol_def* handle);
-    void label_setName(struct symbol_def* handle, const char* name);
-    long label_getMyAddr(struct symbol_def* handle);
-    int label_getStdName(struct symbol_def* handle);
-    void label_setStdName(struct symbol_def* handle, int isStdName);
-    int label_getGlobal(struct symbol_def* handle);
-    void label_setGlobal(struct symbol_def* handle, int isGlobal);
-    struct symbol_def* label_getNext(struct symbol_def* handle);
-
-    /* Formerly the field named "cEnt" */
-    struct symbol_def* labelclass_getFirst(struct label_class* handle);
-
-    struct label_class* labelclass(char lblclass);
-    struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
-    struct symbol_def* findlbl(char lblclass, int lblval);
-    char* lblstr(char lblclass, int lblval);
-    struct symbol_def* addlbl(char lblclass, int val, const char* newname);
-    void process_label(struct cmd_items* ci, char lblclass, int addr);
-    void parsetree(char c);
-    int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof);
-
-
-#ifdef __cplusplus
 
 #include <vector>
 #include <memory>
@@ -47,7 +17,6 @@ struct label_class;
 class Label {
 public:
     Label(char category, int value, const char* name);
-    ~Label();
 
     const char category;
     const long myAddr;
@@ -57,7 +26,6 @@ public:
     inline void setStdName(bool isStdName) { _stdName = isStdName; }
     inline bool global() { return _global; }
     inline void setGlobal(bool isGlobal) { _global = isGlobal; }
-    inline symbol_def* handle() { return _handle; }
 
     void setName(const char* newName);
 
@@ -66,12 +34,6 @@ private:
     
     bool _stdName;
     bool _global;
-    symbol_def* _handle;
-
-    // Because of _handle, need to ensure it is always allocated/freed correctly.
-    Label(Label const&) = delete;
-    Label& operator=(Label const&) = delete;
-    Label& operator=(Label&&) = delete;
 };
 
 class LabelCategory {
@@ -83,7 +45,6 @@ public:
     
     const char code;
     
-    inline label_class* handle() { return _handle; }
     inline iterator begin() { return _labels.begin(); }
     inline iterator end() { return _labels.end(); }
     Label* add(long value, const char* newName);
@@ -95,7 +56,6 @@ public:
 private:
     // This list is always sorted by address / value.
     std::vector<Label*> _labels;
-    label_class* _handle;
     std::map<long, Label*> _labelsByValue;
 
     // Because of _handle, need to ensure it is always allocated/freed correctly.
@@ -123,34 +83,21 @@ private:
     LabelManager& operator=(LabelManager&&) = delete;
 };
 
+Label* label_getNext(Label* handle);
+Label* labelclass_getFirst(LabelCategory* handle);
+
+struct label_class* labelclass(char lblclass);
+struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
+Label* findlbl(char lblclass, int lblval);
+char* lblstr(char lblclass, int lblval);
+Label* addlbl(char lblclass, int val, const char* newname);
+void process_label(struct cmd_items* ci, char lblclass, int addr);
+void parsetree(char c);
+int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof);
+
+
+
 extern LabelManager *labelManager;
-
-#endif // __cplusplus
-
-
-
-
-#ifdef __cplusplus
-
-struct symbol_def {
-    Label* inner;
-};
-
-struct label_class {
-    LabelCategory* inner;
-};
-
-#else // __cplusplus
-
-struct symbol_def {
-    void* inner;
-};
-
-struct label_class {
-    void* inner;
-};
-
-#endif // __cplusplus
 
 extern const char lblorder[];
 

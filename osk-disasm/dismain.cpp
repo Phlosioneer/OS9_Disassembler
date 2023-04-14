@@ -295,7 +295,7 @@ static void RdLblFile (FILE *inpath)
          strval[15],
         *lbegin;
     int address;
-    struct symbol_def *nl;
+    Label *nl;
 
     while ( ! feof (inpath))
     {
@@ -330,8 +330,8 @@ static void RdLblFile (FILE *inpath)
 
                 if (nl)
                 {
-                    label_setName(nl, labelname);
-                    label_setStdName(nl, 1);
+                    nl->setName(labelname);
+                    nl->setStdName(true);
                 }
             }
         }
