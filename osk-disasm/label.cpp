@@ -55,7 +55,7 @@ static_assert(sizeof(defaultDefaultLabelClasses) == AM_MAXMODES, "Wrong number o
 static_assert(sizeof(programDefaultLabelClasses) == AM_MAXMODES, "Wrong number of program labels");
 static_assert(sizeof(driverDefaultLabelClasses) == AM_MAXMODES, "Wrong number of driver labels");
 
-extern "C" {
+
     const char* label_getName(struct symbol_def* handle) {
         return handle->inner->name();
     }
@@ -178,7 +178,7 @@ extern "C" {
         }
     }
 
-}
+
 
 /* ******************************************************************** *
 * singleCharData() - Append a char in the desired printable format onto dst    *
@@ -533,7 +533,7 @@ static void PrintLbl(std::ostream &dest, char clas, int adr, struct symbol_def* 
  * Returns: Ptr to Boundary definition if found,  NULL if no match. *
  * **************************************************************** */
 // Pure function.
-extern "C" struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
+struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
 {
     register struct data_bounds *pt;
     register int h = (int) adrs;
@@ -581,7 +581,7 @@ extern "C" struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
  *          (3) amod - the AMode desired
  */
 // This is NOT SAFE AT ALL.
-extern "C" int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
+int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
 {
 
     int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
@@ -781,7 +781,7 @@ cleanup:
 }
 
 /* For debugging. Prints out all labels organized by class. */
-extern "C" void parsetree(char c)
+void parsetree(char c)
 {
     if (Pass == 1)
         return;

@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <stdexcept>
 #include "main_support.h"
 
 /* ***************************************************************************** *
@@ -19,21 +20,15 @@ void errexit(char* pmpt)
     {
         fprintf(stderr, "%s\n", pmpt);
     }
-    exit(errno ? errno : 1);
+    //exit(errno ? errno : 1);
+    throw std::exception();
 }
 
 /* *******************************
  * Exit on File Read error...
  * ******************************* */
 
-void filereadexit(struct options* opt)
+void filereadexit()
 {
-    if (feof(opt->ModFP))
-    {
-        errexit("End of file reached prematurely\n");
-    }
-    else
-    {
-        errexit("Error reading file...\nAborting");
-    }
+    errexit("Error reading file...\nAborting");
 }

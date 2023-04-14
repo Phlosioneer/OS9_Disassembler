@@ -116,7 +116,6 @@ bool StringWriter::openedSuccessfully()
 
 void StringWriter::flush() {}
 
-extern "C" {
 	
 	writer_handle* file_writer_fopen(char* name) {
 		FileWriter* ret = new FileWriter(name);
@@ -150,4 +149,4 @@ extern "C" {
 	void writer_flush(writer_handle* handle) {
 		handle->inner->flush();
 	}
-}
+

@@ -1,7 +1,7 @@
 
 #include "textdef.h"
 
-extern "C" const SIZETYPES sizefield[] =
+extern const SIZETYPES sizefield[] =
 {
 	{"bwl~~~~"}, /* entry 0  */
 	{"b~~~~~~"}, /* entry 1  */
@@ -29,7 +29,7 @@ extern "C" const SIZETYPES sizefield[] =
 	{"lsx~wdb"}   /* entry 19  */
 };
 
-extern "C" const CONDITIONALS typecondition[] =
+extern const CONDITIONALS typecondition[] =
 {
 	{"t"},/* entry 0  */
 	{"f"},/* entry 1  */
@@ -50,7 +50,7 @@ extern "C" const CONDITIONALS typecondition[] =
 };
 
 
-extern "C" const EAALLOWED_TYPE EAtype[] =
+extern const EAALLOWED_TYPE EAtype[] =
 {
 	{0xbf8},	/* entry 0 */
 	{0xbfe},	/* entry 1 */
@@ -109,6 +109,9 @@ extern "C" const EAALLOWED_TYPE EAtype[] =
 	{0x1a000} 	/* entry 54 'O' Fpcr list	*/
 };
 
+/* where SorD will be either TRUE or FALSE and be used to
+           determine which is being used ie. EA[SorD]		*/
+EASPEC EA[2];
 
 /* The DEVICE that the target system uses will determine which OPSTRUCTURE
    will be compiled into the monitor */
@@ -116,7 +119,7 @@ extern "C" const EAALLOWED_TYPE EAtype[] =
 /* NOTE: FOR INSTRUCTION ENTRIES OF THE SAME TYPE THE LONGEST SIZE OPTION
 	 SHOULD BE ENTERED FIRST!!!!!!!!!!!!!				*/
 
-extern "C" const OPSTRUCTURE instr00[]=
+extern const OPSTRUCTURE instr00[]=
 /* ******************************************************************** */
 /* **************************68000 INSTRUCTIONS************************ */
 /* ******************************************************************** */
@@ -165,14 +168,14 @@ extern "C" const OPSTRUCTURE instr00[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr01[]=
+extern const OPSTRUCTURE instr01[]=
 {
 /* MOVE BYTE */ 
     {"move.",    1,2,0,     "0001xxxxxxxxxxxx",15,15,MC68000, 25,  move_instr},
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr02[]=
+extern const OPSTRUCTURE instr02[]=
 {
 /* MOVE LONG */ 
     {"move.",    5,10,0,    "0010xxxxxxxxxxxx",15,15, MC68000, 23,  move_instr},
@@ -181,7 +184,7 @@ extern "C" const OPSTRUCTURE instr02[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr03[]=
+extern const OPSTRUCTURE instr03[]=
 {
 /* MOVEA WORD */ 
     {"movea.",   2,10,3,    "0011xxx001xxxxxx",15,15, MC68000, 26,  move_instr},
@@ -190,7 +193,7 @@ extern "C" const OPSTRUCTURE instr03[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr04[]=
+extern const OPSTRUCTURE instr04[]=
 {
 /* MOVE from SR */ 
     {"move.",    2,18,0,    "0100000011xxxxxx",8,8, MC68000,   28,  move_ccr_sr},
@@ -266,7 +269,7 @@ extern "C" const OPSTRUCTURE instr04[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr05[]=
+extern const OPSTRUCTURE instr05[]=
 {
 /* DBcc */ 
     {"db~~.",    2,4,23,    "0101xxxx11001xxx",4,4, MC68000,   59,  cmd_dbcc},
@@ -284,7 +287,7 @@ extern "C" const OPSTRUCTURE instr05[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr06[]=
+extern const OPSTRUCTURE instr06[]=
 {
     {"bra.",     0,23,21,   "01100000xxxxxxxx",10,10, MC68000, 64,  bra_bsr},
     {"bsr.",     0,23,21,   "01100001xxxxxxxx",10,10, MC68000, 65,  bra_bsr},
@@ -293,13 +296,13 @@ extern "C" const OPSTRUCTURE instr06[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr07[]=
+extern const OPSTRUCTURE instr07[]=
 {
     {"moveq.",   5,8,4,     "0111xxx0xxxxxxxx",8,8,  MC68000,  67,  moveq},
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr08[]=
+extern const OPSTRUCTURE instr08[]=
 {
 /* SBCD */
      {"sbcd.",    1,4,4,     "1000xxx100000xxx",4,4,  MC68000,  68,  abcd_sbcd},
@@ -320,7 +323,7 @@ extern "C" const OPSTRUCTURE instr08[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr09[]=
+extern const OPSTRUCTURE instr09[]=
 {
 /* SUBA */ 
     {"suba.",    9,10,3,    "1001xxxx11xxxxxx",8,7, MC68000,   72,  add_sub},
@@ -335,7 +338,7 @@ extern "C" const OPSTRUCTURE instr09[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr11[]=
+extern const OPSTRUCTURE instr11[]=
 {
     {"cmpa.",    9,10,3,    "1011xxxx11xxxxxx",8,7,  MC68000,  75,  cmp_cmpa},
     {"cmp.",     0,10,4,    "1011xxx0xxxxxxxx",7,6,  MC68000,  76,  cmp_cmpa},
@@ -344,7 +347,7 @@ extern "C" const OPSTRUCTURE instr11[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr12[]=
+extern const OPSTRUCTURE instr12[]=
 {
 /* MULU WORD */ 
     {"mulu.",    2,2,4,     "1100xxx011xxxxxx",8,8,  MC68000,  79,  reg_ea},
@@ -365,7 +368,7 @@ extern "C" const OPSTRUCTURE instr12[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr13[]=
+extern const OPSTRUCTURE instr13[]=
 {
 /* ADDA */ 
     {"adda.",    9,10,3,    "1101xxxx11xxxxxx",8,7, MC68000,   88,  add_sub},
@@ -379,7 +382,7 @@ extern "C" const OPSTRUCTURE instr13[]=
     {NULL,0,0,0,NULL,0,0,0,0,NULL}
 };
 
-extern "C" const OPSTRUCTURE instr14[]=
+extern const OPSTRUCTURE instr14[]=
 {
 /* SHIFT ROTATE memory */ 
     {"rol.",     11,12,21,  "1110011111xxxxxx",7,6, MC68000,   94,  bit_rotate_mem},
@@ -684,27 +687,27 @@ change them here. To add or delete the startup symbols, add or delete
 from here and in doinit under main.c .
 */
 
-extern "C" const char ROMSYMB[] = "/rom";
+extern const char ROMSYMB[] = "/rom";
 
 /*
 these are the miscellanous messages that are needed in different parts
 of the program.
 */
 
-extern "C" const char PROMPT[] = "\nMOTOROLA> ";
-extern "C" const char WHICHREGMSG[] = "Which register? ";
-extern "C" const char BRKMSG[] = "Break Point:\n";
-extern "C" const char SYMBMSG[] = "Known Symbols:\n";
-extern "C" const char UNKNOWNMSG[] = "UNKNOWN\t\t\t?";
-extern "C" const char HITKEYMSG[] = "Hit any key to continue ...\n";
-extern "C" const char MMASHELPMSG[] = "\nDirectives.\nBackup -[<number>], Advance +[<number>], Help '?', Quit 'q' or '.'\n\n";
+extern const char PROMPT[] = "\nMOTOROLA> ";
+extern const char WHICHREGMSG[] = "Which register? ";
+extern const char BRKMSG[] = "Break Point:\n";
+extern const char SYMBMSG[] = "Known Symbols:\n";
+extern const char UNKNOWNMSG[] = "UNKNOWN\t\t\t?";
+extern const char HITKEYMSG[] = "Hit any key to continue ...\n";
+extern const char MMASHELPMSG[] = "\nDirectives.\nBackup -[<number>], Advance +[<number>], Help '?', Quit 'q' or '.'\n\n";
 
 
 /*
 these are the ports known by the monitor. To add ports, add them here
 */
 
-extern "C" const struct port_element p[] =
+extern const struct port_element p[] =
 {
     {"term ",TERMINAL,8},
     {"host ",HOST,8},

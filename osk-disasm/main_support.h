@@ -3,7 +3,7 @@
 #define DIS_68_H
 
 #include <stdio.h>
-#include "externc.h"
+
 
 #define MAX_LBFIL 32
 struct options {
@@ -24,20 +24,20 @@ struct options {
 	FILE* ModFP;
 };
 
-cfunc void usage(void);
-cfunc struct options* getoptions(int argc, char** argv);
-cfunc FILE* build_path(char* p, char* faccs, struct options *opt);
-cfunc void do_opt(char* c, struct options *opt);
-cfunc char* pass_eq(char* p);
+void usage(void);
+struct options* getoptions(int argc, char** argv);
+FILE* build_path(char* p, char* faccs, struct options *opt);
+void do_opt(char* c, struct options *opt);
+char* pass_eq(char* p);
 
-cfunc struct options* options_new();
-cfunc void options_destroy(struct options* opt);
-cfunc void options_addLabelFile(struct options* opt, const char* name);
+struct options* options_new();
+void options_destroy(struct options* opt);
+void options_addLabelFile(struct options* opt, const char* name);
 
-cglobal char* PsectName;
-cglobal int Pass;    /* The disassembler is a two-pass assembler */
-cglobal int PCPos;
-cglobal int CmdEnt;   /* The Entry Point for the Command */
-cglobal int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
+extern char* PsectName;
+extern int Pass;    /* The disassembler is a two-pass assembler */
+extern int PCPos;
+extern int CmdEnt;   /* The Entry Point for the Command */
+extern int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
 
 #endif

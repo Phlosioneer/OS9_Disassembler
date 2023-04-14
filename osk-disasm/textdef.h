@@ -32,27 +32,26 @@ of every command, general, print, getline,main, and assembley routine.
 #include "opcodes020.h"
 #include "command_items.h"
 
-cglobal const SIZETYPES sizefield[];
-cglobal const CONDITIONALS typecondition[];
-cglobal const EAALLOWED_TYPE EAtype[];
+extern const SIZETYPES sizefield[];
+extern const CONDITIONALS typecondition[];
+extern const EAALLOWED_TYPE EAtype[];
 
-EASPEC EA[2];	/* where SorD will be either TRUE or FALSE and be used to
-		   determine which is being used ie. EA[SorD]		*/
+extern EASPEC EA[2];	
 
-cglobal const OPSTRUCTURE instr00[];
-cglobal const OPSTRUCTURE instr01[];
-cglobal const OPSTRUCTURE instr02[];
-cglobal const OPSTRUCTURE instr03[];
-cglobal const OPSTRUCTURE instr04[];
-cglobal const OPSTRUCTURE instr05[];
-cglobal const OPSTRUCTURE instr06[];
-cglobal const OPSTRUCTURE instr07[];
-cglobal const OPSTRUCTURE instr08[];
-cglobal const OPSTRUCTURE instr09[];
-cglobal const OPSTRUCTURE instr11[];
-cglobal const OPSTRUCTURE instr12[];
-cglobal const OPSTRUCTURE instr13[];
-cglobal const OPSTRUCTURE instr14[];
+extern const OPSTRUCTURE instr00[];
+extern const OPSTRUCTURE instr01[];
+extern const OPSTRUCTURE instr02[];
+extern const OPSTRUCTURE instr03[];
+extern const OPSTRUCTURE instr04[];
+extern const OPSTRUCTURE instr05[];
+extern const OPSTRUCTURE instr06[];
+extern const OPSTRUCTURE instr07[];
+extern const OPSTRUCTURE instr08[];
+extern const OPSTRUCTURE instr09[];
+extern const OPSTRUCTURE instr11[];
+extern const OPSTRUCTURE instr12[];
+extern const OPSTRUCTURE instr13[];
+extern const OPSTRUCTURE instr14[];
 
 /* ****************ADDITIONS*********************** */
 
@@ -63,26 +62,26 @@ change them here. To add or delete the startup symbols, add or delete
 from here and in doinit under main.c .
 */
 
-cglobal const char ROMSYMB[];
+extern const char ROMSYMB[];
 
 /*
 these are the miscellanous messages that are needed in different parts
 of the program.
 */
 
-cglobal const char PROMPT[];
-cglobal const char WHICHREGMSG[];
-cglobal const char BRKMSG[];
-cglobal const char SYMBMSG[];
-cglobal const char UNKNOWNMSG[];
-cglobal const char HITKEYMSG[];
-cglobal const char MMASHELPMSG[];
+extern const char PROMPT[];
+extern const char WHICHREGMSG[];
+extern const char BRKMSG[];
+extern const char SYMBMSG[];
+extern const char UNKNOWNMSG[];
+extern const char HITKEYMSG[];
+extern const char MMASHELPMSG[];
 
 /*
 these are the ports known by the monitor. To add ports, add them here
 */
 
-cglobal const struct port_element p[];
+extern const struct port_element p[];
 
 
 /* ***************************************************************** */

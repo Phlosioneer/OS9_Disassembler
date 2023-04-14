@@ -54,7 +54,7 @@ int ExtBegin; /* The position of the begin of the extended list (for PC-Relative
 
 struct options* options_new()
 {
-    struct options* ret = malloc(sizeof(struct options));
+    struct options* ret = (struct options*)malloc(sizeof(struct options));
     if (ret == 0)
     {
         errexit("OoM");

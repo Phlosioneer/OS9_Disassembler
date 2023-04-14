@@ -41,7 +41,7 @@
 
 // Returns the index of a character in a string, or -1 if not found.
 // Pure function
-extern "C" int strpos(const char* s, char c)
+int strpos(const char* s, char c)
 {
     const char* p = strchr(s, c);
     return (p ? (p - s) : -1);
@@ -49,7 +49,7 @@ extern "C" int strpos(const char* s, char c)
 
 // Advances past any space, tab, or any newline character in the string.
 // Pure function
-extern "C" char* skipblank(char* p)
+char* skipblank(char* p)
 {
     if (p)
     {
@@ -64,7 +64,7 @@ extern "C" char* skipblank(char* p)
 
 // Reverses the bit order for a value. `Length` is given in bits.
 // Pure function
-extern "C" unsigned int revbits(unsigned int num, int length)
+unsigned int revbits(unsigned int num, int length)
 {
     int n2 = 0;
     int c, i;
@@ -81,7 +81,7 @@ extern "C" unsigned int revbits(unsigned int num, int length)
 }
 
 // Read one byte. If the read fails, the program is immediately exited.
-extern "C" unsigned char fread_b(FILE * fp)
+unsigned char fread_b(FILE * fp)
 {
     unsigned char b;
 
@@ -95,19 +95,19 @@ extern "C" unsigned char fread_b(FILE * fp)
 
 // Sidestep any endian-ness issues by reading one byte at a time. Not a
 // good strategy, but it's only temporary while transitioning to C++ streams.
-extern "C" unsigned short fread_w(FILE* fp)
+unsigned short fread_w(FILE* fp)
 {
     return (fread_b(fp) << 8) | fread_b(fp);
 }
 
-extern "C" unsigned int fread_l(FILE * fp)
+unsigned int fread_l(FILE * fp)
 {
     return (fread_w(fp) << 16) | fread_w(fp);
 }
 
 
 // Returns the word value stored at pos pt in a buffer
-extern "C" unsigned short bufReadW(char **pt)
+unsigned short bufReadW(char **pt)
 {
     unsigned int val = 0;
 
@@ -118,7 +118,7 @@ extern "C" unsigned short bufReadW(char **pt)
 }
 
 // Returns the long value stored at pos pt in a buffer
-extern "C" unsigned int bufReadL(char **pt)
+unsigned int bufReadL(char **pt)
 {
     unsigned int byteCnt;
     unsigned int val = 0;
@@ -133,7 +133,7 @@ extern "C" unsigned int bufReadL(char **pt)
 
 // Read a null-terminated string from the file, allocate memory for that
 // string, and store it there.
-extern "C" char* freadString(FILE * fp)
+char* freadString(FILE * fp)
 {
     std::ostringstream buffer;
     
@@ -152,7 +152,7 @@ extern "C" char* freadString(FILE * fp)
 }
 
 // Cannot return null.
-extern "C" void* mem_alloc(size_t size)
+void* mem_alloc(size_t size)
 {
     void* addr;
 

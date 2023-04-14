@@ -19,7 +19,7 @@
 #define COMMENT_LEN 200
 
 
-cglobal const char dispRegNam[] = { 'd','a' };
+extern const char dispRegNam[] = { 'd','a' };
 
 /*
 struct cmd_items_inner {

@@ -81,7 +81,7 @@ static const char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete",
 
 struct module_header* module_new()
 {
-    struct module_header* ret = malloc(sizeof(struct module_header));
+    struct module_header* ret = (module_header*)malloc(sizeof(struct module_header));
     if (!ret)
     {
         errexit("OoM");

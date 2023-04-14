@@ -1,7 +1,7 @@
 
 #ifndef LABEL_H
 #define LABEL_H
-#include "externc.h"
+
 #include "disglobs.h"
 
 #define LBLLEN 40
@@ -14,9 +14,6 @@ struct symbol_def;
 struct label_class;
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
     const char* label_getName(struct symbol_def* handle);
     void label_setName(struct symbol_def* handle, const char* name);
@@ -38,10 +35,6 @@ extern "C" {
     void process_label(struct cmd_items* ci, char lblclass, int addr);
     void parsetree(char c);
     int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof);
-
-#ifdef __cplusplus
-}
-#endif
 
 
 #ifdef __cplusplus
@@ -159,11 +152,11 @@ struct label_class {
 
 #endif // __cplusplus
 
-cglobal const char lblorder[];
+extern const char lblorder[];
 
-cglobal const char defaultDefaultLabelClasses[];
-cglobal const char programDefaultLabelClasses[];
-cglobal const char driverDefaultLabelClasses[];
-cglobal char defaultLabelClasses[AM_MAXMODES];
+extern const char defaultDefaultLabelClasses[];
+extern const char programDefaultLabelClasses[];
+extern const char driverDefaultLabelClasses[];
+extern char defaultLabelClasses[AM_MAXMODES];
 
 #endif // LABEL_H

@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "userdef.h"
-#include "externc.h"
+
 
 struct modnam;
 struct cmd_items;
@@ -48,28 +48,28 @@ struct module_header {
 	int terminationRoutineOffset;
 };
 
-cfunc struct modnam* modnam_find(struct modnam* pt, int desired);
-cfunc int dopass(int mypass, struct options* opt);
-cfunc int showem(void);
-cfunc int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
-cfunc void MovBytes(struct data_bounds* db, struct parse_state* state);
-cfunc void MovASC(int nb, char aclass, struct parse_state* state);
-cfunc void NsrtBnds(struct data_bounds* bp, struct parse_state* state); \
+struct modnam* modnam_find(struct modnam* pt, int desired);
+int dopass(int mypass, struct options* opt);
+int showem(void);
+int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
+void MovBytes(struct data_bounds* db, struct parse_state* state);
+void MovASC(int nb, char aclass, struct parse_state* state);
+void NsrtBnds(struct data_bounds* bp, struct parse_state* state); \
 
-cfunc struct module_header* module_new();
-cfunc void module_destroy(struct module_header* module_);
+struct module_header* module_new();
+void module_destroy(struct module_header* module_);
 
-cglobal int error;
-cglobal int CodeEnd;
+extern int error;
+extern int CodeEnd;
 
-cglobal struct module_header *modHeader;
-cglobal int IDataBegin;
-cglobal int IDataCount;
-cglobal int HdrEnd;   /* The first byte past end of header, usefull for begin of Pass 2 */
+extern struct module_header *modHeader;
+extern int IDataBegin;
+extern int IDataCount;
+extern int HdrEnd;   /* The first byte past end of header, usefull for begin of Pass 2 */
 
-cglobal int AMode;
-cglobal int AMode_cmdfile;
-cglobal int NowClass;
-cglobal int PBytSiz;
+extern int AMode;
+extern int AMode_cmdfile;
+extern int NowClass;
+extern int PBytSiz;
 
 #endif

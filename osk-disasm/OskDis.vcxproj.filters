@@ -1,43 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="cmdfile.c">
+    <ClCompile Include="cmdfile.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="command_items.c">
+    <ClCompile Include="command_items.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="commonsubs.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="def68def.c">
+    <ClCompile Include="def68def.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="main_support.c">
+    <ClCompile Include="main_support.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="dismain.c">
+    <ClCompile Include="dismain.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="dprint.c">
+    <ClCompile Include="dprint.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="opcode00.c">
+    <ClCompile Include="opcode00.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="opcodes020.c">
+    <ClCompile Include="opcodes020.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="rof.c">
+    <ClCompile Include="rof.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="label.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="exit.c">
+    <ClCompile Include="exit.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="main.c">
+    <ClCompile Include="main.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="writer.cpp">

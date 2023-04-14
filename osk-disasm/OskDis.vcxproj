@@ -108,22 +108,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cmdfile.c" />
-    <ClCompile Include="command_items.c" />
+    <ClCompile Include="cmdfile.cpp" />
+    <ClCompile Include="command_items.cpp" />
     <ClCompile Include="commonsubs.cpp" />
-    <ClCompile Include="def68def.c" />
-    <ClCompile Include="main_support.c" />
-    <ClCompile Include="dismain.c" />
-    <ClCompile Include="dprint.c" />
-    <ClCompile Include="exit.c" />
+    <ClCompile Include="def68def.cpp" />
+    <ClCompile Include="main_support.cpp" />
+    <ClCompile Include="dismain.cpp" />
+    <ClCompile Include="dprint.cpp" />
+    <ClCompile Include="exit.cpp" />
     <ClCompile Include="label.cpp" />
-    <ClCompile Include="main.c" />
-    <ClCompile Include="opcode00.c" />
-    <ClCompile Include="opcodes020.c" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="opcode00.cpp" />
+    <ClCompile Include="opcodes020.cpp" />
     <ClCompile Include="reset.cpp" />
     <ClCompile Include="textdef.cpp" />
     <ClCompile Include="writer.cpp" />
-    <ClCompile Include="rof.c" />
+    <ClCompile Include="rof.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h" />

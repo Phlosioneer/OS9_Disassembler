@@ -2,7 +2,7 @@
 #ifndef READER_H
 #define READER_H
 
-#include "externc.h"
+
 
 #ifdef __cplusplus
 class Writer;
@@ -93,16 +93,16 @@ private:
 
 
 // Creates a new writer.
-cfunc struct writer_handle* file_writer_fopen(char* name);
-cfunc struct writer_handle* stdout_writer_open(void);
+struct writer_handle* file_writer_fopen(char* name);
+struct writer_handle* stdout_writer_open(void);
 
 // Deletes the writer.
-cfunc void writer_close(struct writer_handle* handle);
-cfunc int writer_opened_successfully(struct writer_handle* handle);
-cfunc size_t writer_printf(struct writer_handle* handle, const char* format, ...);
-cfunc void writer_flush(struct writer_handle* handle);
+void writer_close(struct writer_handle* handle);
+int writer_opened_successfully(struct writer_handle* handle);
+size_t writer_printf(struct writer_handle* handle, const char* format, ...);
+void writer_flush(struct writer_handle* handle);
 
-//cglobal struct writer_handle* module_writer;
-cglobal struct writer_handle* stdout_writer;
+//extern struct writer_handle* module_writer;
+extern struct writer_handle* stdout_writer;
 
 #endif

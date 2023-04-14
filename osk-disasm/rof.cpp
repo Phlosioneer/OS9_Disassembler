@@ -151,7 +151,7 @@ int rof_header_getRemoteInitDataSize(struct rof_header* handle)
 
 char* rof_header_getPsectParams(struct rof_header* handle)
 {
-    char* ret = malloc(100 * sizeof(char));
+    char* ret = (char*)calloc(100, sizeof(char));
     if (!ret) errexit("OoM");
     snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname,
         handle->ty_lan >> 8,
@@ -238,7 +238,7 @@ void getRofHdr (FILE *progpath, struct options* opt)
     fseek(progpath, 0, SEEK_SET);   /* Start all over */
 
     /* get header data */
-    ROFHd = malloc(sizeof(struct rof_header));
+    ROFHd = (rof_header*)malloc(sizeof(struct rof_header));
     if (!ROFHd)
     {
         errexit("OoM");

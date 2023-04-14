@@ -48,7 +48,7 @@
 /* ROF header structure */
 
 #include "label.h"
-#include "externc.h"
+
 #include <stdio.h>
 
 struct cmd_items;
@@ -64,7 +64,7 @@ enum {
     REFLOCAL
 };
 
-cglobal struct rof_extrn *refs_data,
+extern struct rof_extrn *refs_data,
                  *refs_idata,
                  *refs_code,
                  *refs_remote,
@@ -72,33 +72,33 @@ cglobal struct rof_extrn *refs_data,
                  *extrns,                   /* Generic external pointer */
                  *codeRefs_sav;
 
-cglobal struct rof_header* ROFHd;
+extern struct rof_header* ROFHd;
 
-cfunc int RealEnt(struct options* opt);
-cfunc void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP);
-cfunc void getRofHdr(FILE* progpath, struct options* opt);
-cfunc void RofLoadInitData(void);
-cfunc char rof_class(int typ, int refTy);
-cfunc struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
-cfunc int rof_datasize(char cclass);
-cfunc void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct options* opt);
-cfunc void setROFPass(void);
-cfunc int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
-cfunc char* IsRef(char* dst, int curloc, int ival);
+int RealEnt(struct options* opt);
+void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP);
+void getRofHdr(FILE* progpath, struct options* opt);
+void RofLoadInitData(void);
+char rof_class(int typ, int refTy);
+struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
+int rof_datasize(char cclass);
+void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct options* opt);
+void setROFPass(void);
+int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
+char* IsRef(char* dst, int curloc, int ival);
 
-cfunc void extern_def_destroy(struct rof_extrn* handle);
-cfunc const char* extern_def_name(struct rof_extrn* handle);
+void extern_def_destroy(struct rof_extrn* handle);
+const char* extern_def_name(struct rof_extrn* handle);
 
-cfunc void rof_header_destroy(struct rof_header* handle);
-cfunc int rof_header_getCodeAddress(struct rof_header* handle);
-cfunc int rof_header_getUninitDataSize(struct rof_header* handle);
-cfunc int rof_header_getInitDataSize(struct rof_header* handle);
-cfunc int rof_header_getRemoteUninitDataSize(struct rof_header* handle);
-cfunc int rof_header_getRemoteInitDataSize(struct rof_header* handle);
-cfunc char* rof_header_getPsectParams(struct rof_header* handle);
-//cfunc size_t rof
+void rof_header_destroy(struct rof_header* handle);
+int rof_header_getCodeAddress(struct rof_header* handle);
+int rof_header_getUninitDataSize(struct rof_header* handle);
+int rof_header_getInitDataSize(struct rof_header* handle);
+int rof_header_getRemoteUninitDataSize(struct rof_header* handle);
+int rof_header_getRemoteInitDataSize(struct rof_header* handle);
+char* rof_header_getPsectParams(struct rof_header* handle);
+//size_t rof
 
 // Unused
-cfunc struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value, struct parse_state* state);
+struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value, struct parse_state* state);
 
 #endif // ROF_H
