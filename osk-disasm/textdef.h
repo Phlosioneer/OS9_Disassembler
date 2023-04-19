@@ -18,25 +18,24 @@
 userdef.h contains the define fields. It will be included at the start
 of every command, general, print, getline,main, and assembley routine.
 */
- 
+
 #include "userdef.h"
- 
+
 /*
  * proto.h includes defs for the jump routines in the tables
-*/
+ */
 
-
+#include "command_items.h"
 #include "commonsubs.h"
 #include "dismain.h"
 #include "opcode00.h"
 #include "opcodes020.h"
-#include "command_items.h"
 
 extern const SIZETYPES sizefield[];
 extern const CONDITIONALS typecondition[];
 extern const EAALLOWED_TYPE EAtype[];
 
-extern EASPEC EA[2];	
+extern EASPEC EA[2];
 
 extern const OPSTRUCTURE instr00[];
 extern const OPSTRUCTURE instr01[];
@@ -82,7 +81,6 @@ these are the ports known by the monitor. To add ports, add them here
 */
 
 extern const struct port_element p[];
-
 
 /* ***************************************************************** */
 #endif

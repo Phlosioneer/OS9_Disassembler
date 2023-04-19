@@ -23,31 +23,32 @@
  *                                                                      *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 
-#include <ctype.h>
-#include <string.h>
 #ifdef _WIN32
-#   include <io.h>
+#include <io.h>
 #endif
+
 #include "disglobs.h"
 #include "userdef.h"
+#include <ctype.h>
+#include <string.h>
 
-#include "commonsubs.h"
-#include "main_support.h"
-#include "exit.h"
-#include "dismain.h"
-#include "writer.h"
 #include "cmdfile.h"
+#include "commonsubs.h"
+#include "dismain.h"
 #include "dprint.h"
+#include "exit.h"
+#include "main_support.h"
 #include "rof.h"
+#include "writer.h"
 
 #ifdef _WIN32
-#   define strdup _strdup
-#   define access _access
-#   define R_OK 4
+#define strdup _strdup
+#define access _access
+#define R_OK 4
 #endif
 
 char* PsectName = NULL;
-int Pass;    /* The disassembler is a two-pass assembler */
+int Pass; /* The disassembler is a two-pass assembler */
 int PCPos;
 int CmdEnt;   /* The Entry Point for the Command */
 int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
@@ -62,18 +63,18 @@ struct options* options_new()
     memset(ret, 0, sizeof(struct options));
 
     ret->PgWidth = 80;
-    
+
     return ret;
 }
 
 void options_destroy(struct options* opt)
 {
-    if (opt->CmdFileName)   free(opt->CmdFileName);
-    if (opt->CmdFP)         fclose(opt->CmdFP);
-    if (opt->asmFile)       writer_close(opt->asmFile);
-    if (opt->DefDir)        free(opt->DefDir);
-    if (opt->ModFile)       free(opt->ModFile);
-    if (opt->ModFP)         fclose(opt->ModFP);
+    if (opt->CmdFileName) free(opt->CmdFileName);
+    if (opt->CmdFP) fclose(opt->CmdFP);
+    if (opt->asmFile) writer_close(opt->asmFile);
+    if (opt->DefDir) free(opt->DefDir);
+    if (opt->ModFile) free(opt->ModFile);
+    if (opt->ModFP) fclose(opt->ModFP);
     for (int i = 0; i < opt->LblFilz; i++)
     {
         free(opt->LblFNam[i]);
@@ -91,41 +92,33 @@ void options_addLabelFile(struct options* opt, const char* name)
     opt->LblFNam[opt->LblFilz++] = _strdup(name);
 }
 
-/* **********************
- * usage() - Print Help message
- *
- * ***** */
-
+/*
+ * Print Help message
+ */
 void usage(void)
 {
-    char *tab = "    ";
-    fprintf (stderr, "\nOSKDis: Disassemble an OS9-68K Module\n");
-    fprintf (stderr, "  Options:\n");
-    fprintf (stderr,
-            "%s-a%sPrint All code data (Default: print first 4 bytes)\n",
-            tab, tab);
-    fprintf (stderr, "%s-c%sSpecify the command file\n\n", tab, tab);
-    fprintf (stderr, "%s-m=<x>%sSpecify CPU\n", tab, tab);
-    fprintf (stderr, "%s%sx = 0 - 68000 (default)\n", tab, tab);
-    fprintf (stderr, "%s%s    8 - 68008\n", tab, tab);
-    fprintf (stderr, "%s%s   20 - 68020\n", tab, tab);
-    fprintf (stderr, "\n%s-o=<filename>%sWrite an assembler source file\n",
-            tab, tab);
-    fprintf (stderr,
-        "%s-s      Specify a label file (%d allowed)\n", tab, MAX_LBFIL);
-    fprintf (stderr,
-        "%s-u      print unformatted listing (without line #, headers or blank lines\n", tab);
-    fprintf (stderr, "%s-?, -h  Show this help\n", tab);
+    char* tab = "    ";
+    fprintf(stderr, "\nOSKDis: Disassemble an OS9-68K Module\n");
+    fprintf(stderr, "  Options:\n");
+    fprintf(stderr, "%s-a%sPrint All code data (Default: print first 4 bytes)\n", tab, tab);
+    fprintf(stderr, "%s-c%sSpecify the command file\n\n", tab, tab);
+    fprintf(stderr, "%s-m=<x>%sSpecify CPU\n", tab, tab);
+    fprintf(stderr, "%s%sx = 0 - 68000 (default)\n", tab, tab);
+    fprintf(stderr, "%s%s    8 - 68008\n", tab, tab);
+    fprintf(stderr, "%s%s   20 - 68020\n", tab, tab);
+    fprintf(stderr, "\n%s-o=<filename>%sWrite an assembler source file\n", tab, tab);
+    fprintf(stderr, "%s-s      Specify a label file (%d allowed)\n", tab, MAX_LBFIL);
+    fprintf(stderr, "%s-u      print unformatted listing (without line #, headers or blank lines\n", tab);
+    fprintf(stderr, "%s-?, -h  Show this help\n", tab);
 }
 
-/* **************************************************************** *
- * getoptions() - Parse the arguments list and process them         *
- *        We could have used getopt() in OSK or linux, but it       *
- *        doesn't seem to be available in Windows, so we'll do it   *
- *        the old-fashioned way.                                    *
- * **************************************************************** *
+/*
+ * Parse the arguments list and process them
+ *        We could have used getopt() in OSK or linux, but it
+ *        doesn't seem to be available in Windows, so we'll do it
+ *        the old-fashioned way.
  */
-struct options* getoptions(int argc, char **argv)
+struct options* getoptions(int argc, char** argv)
 {
     register int count;
     struct options* ret = options_new();
@@ -133,8 +126,8 @@ struct options* getoptions(int argc, char **argv)
     for (count = 1; count < argc; count++)
     {
         if (argv[count][0] == '-')
-        {    /* It's an option */
-            do_opt (&argv[count][1], ret);
+        { /* It's an option */
+            do_opt(&argv[count][1], ret);
         }
         else
         {
@@ -152,17 +145,15 @@ struct options* getoptions(int argc, char **argv)
     return ret;
 }
 
-
-/* *************************
- * build_path() - Verify that the path is a valid path.
+/*
+ * Verify that the path is a valid path.
  *    If the path is not valid, try some alternatives.
- * ***** */
-
-FILE * build_path (char *p, char *faccs, struct options *opt)
+ */
+FILE* build_path(char* p, char* faccs, struct options* opt)
 {
     char tmpnam[100];
-    char *c;
-    FILE *fp;
+    char* c;
+    FILE* fp;
 
     fp = fopen(p, faccs);
     if (fp)
@@ -173,12 +164,12 @@ FILE * build_path (char *p, char *faccs, struct options *opt)
     if (p[0] == '~')
     {
         c = getenv("HOME");
-        if (c)   /* Try the HOME env variable */
+        if (c) /* Try the HOME env variable */
         {
             /* We will make some assumptions here..
              * We will assume the path is in the form "~/..."*/
-            sprintf (tmpnam, "%s%s", c, &p[1]);
-            
+            sprintf(tmpnam, "%s%s", c, &p[1]);
+
             fp = fopen(tmpnam, faccs);
             if (fp)
             {
@@ -193,7 +184,7 @@ FILE * build_path (char *p, char *faccs, struct options *opt)
 
     if (opt->DefDir)
     {
-        sprintf (tmpnam, "%s/%s", opt->DefDir, p);
+        sprintf(tmpnam, "%s/%s", opt->DefDir, p);
 
         fp = fopen(tmpnam, faccs);
         if (fp)
@@ -232,52 +223,48 @@ FILE * build_path (char *p, char *faccs, struct options *opt)
         }
     }
 
-    return NULL;         /* Everything failed */
+    return NULL; /* Everything failed */
 }
- 
 
-/* **************************************************************** *
- * do_opt() - Searches for match of char pointed to by c and does   *
- *      whatever setup processing is needed.                        *
- *      This is used for both command-line opts and  opts found in  *
- *      the command file.                                           *
- * **************************************************************** */
-
-void do_opt (char *c, struct options *opt)
+/*
+ * Searches for match of char pointed to by c and does
+ *      whatever setup processing is needed.
+ *      This is used for both command-line opts and  opts found in
+ *      the command file.
+ */
+void do_opt(char* c, struct options* opt)
 {
-    char *pt = c;
-    char *AsmFile;
+    char* pt = c;
+    char* AsmFile;
     int v;
 
-    switch (tolower (*(pt++)))
+    switch (tolower(*(pt++)))
     {
     case 'a':
-        opt->PrintAllCode = 1;   /* Print all code words */
+        opt->PrintAllCode = 1; /* Print all code words */
         break;
-    case 'c':                  /* Specify Command file */
+    case 'c': /* Specify Command file */
         if (opt->CmdFileName)
         {
-            fprintf (stderr, "Command file already defined\n");
-            fprintf (stderr, "Ignoring %s\n", pass_eq (pt));
+            fprintf(stderr, "Command file already defined\n");
+            fprintf(stderr, "Ignoring %s\n", pass_eq(pt));
         }
         else
         {
-            opt->CmdFileName = strdup(pass_eq (pt));
+            opt->CmdFileName = strdup(pass_eq(pt));
 
             opt->CmdFP = build_path(opt->CmdFileName, BINREAD, opt);
             if (!opt->CmdFP)
             {
-                fprintf (stderr, "*** Failed to open Command file %s***\n",
-                    opt->CmdFileName);
-                fprintf (stderr,
-                        "Continuing without using the Command file\n");
+                fprintf(stderr, "*** Failed to open Command file %s***\n", opt->CmdFileName);
+                fprintf(stderr, "Continuing without using the Command file\n");
             }
         }
 
         break;
-    case 'm':      /* Target CPU */
+    case 'm': /* Target CPU */
         pt = pass_eq(pt);
-        
+
         switch (v = strtol(pt, &pt, 10))
         {
         case 68000:
@@ -293,19 +280,20 @@ void do_opt (char *c, struct options *opt)
             opt->cpu = v;
             break;
         default:
-            fprintf (stderr, "Error: %d is not a valid CPU... Ignoring\n", v);
+            fprintf(stderr, "Error: %d is not a valid CPU... Ignoring\n", v);
             break;
         }
 
         break;
-    case 'o':                  /* output asm src file */
+    case 'o': /* output asm src file */
         AsmFile = pass_eq(pt);
 
-        //AsmPath = fopen(AsmFile, BINWRITE);
+        // AsmPath = fopen(AsmFile, BINWRITE);
         opt->asmFile = file_writer_fopen(AsmFile);
-        if ( ! writer_opened_successfully(opt->asmFile))
+        if (!writer_opened_successfully(opt->asmFile))
         {
-            if (strlen(AsmFile) == 0) {
+            if (strlen(AsmFile) == 0)
+            {
                 errexit("Error: no output file path after -o. Are you missing an = after -o? ");
             }
             else
@@ -313,8 +301,8 @@ void do_opt (char *c, struct options *opt)
                 errexit("Cannot open output file (are you missing an = after -o?)");
             }
         }
-        
-        //WrtSrc = 1;
+
+        // WrtSrc = 1;
         break;
     /*case 'x':
         pt = pass_eq(pt);
@@ -332,13 +320,13 @@ void do_opt (char *c, struct options *opt)
         }
 
         break;*/
-    case 'r':           /* File is an ROF file */
+    case 'r': /* File is an ROF file */
         opt->IsROF = 1;
         break;
-    case 's':                  /* Label file name       */
+    case 's': /* Label file name       */
         if (opt->LblFilz < MAX_LBFIL)
         {
-            pt = pass_eq (pt);
+            pt = pass_eq(pt);
 
             if (*pt)
             {
@@ -350,61 +338,57 @@ void do_opt (char *c, struct options *opt)
         }
         else
         {
-            fprintf (stderr, "Max label files allotted -- Ignoring \'%s\'\n",
-                     pass_eq (pt));
+            fprintf(stderr, "Max label files allotted -- Ignoring \'%s\'\n", pass_eq(pt));
         }
         break;
-    case 'g':                 /* tabs (g-print-capable) */
+    case 'g': /* tabs (g-print-capable) */
         /*tabinit ();*/
         break;
-    case 'p':                  /* Page width/depth */
-        switch (tolower (*(pt++)))
+    case 'p': /* Page width/depth */
+        switch (tolower(*(pt++)))
         {
         case 'w':
-            opt->PgWidth = atoi (pass_eq (pt));
+            opt->PgWidth = atoi(pass_eq(pt));
             break;
         case 'd':
-            //PgDepth = atoi (pass_eq (pt));
+            // PgDepth = atoi (pass_eq (pt));
             break;
         default:
-            usage ();
-            exit (1);
+            usage();
+            exit(1);
             break;
         }
 
         break;
-    case 'u':                  /* Translate to upper-case */
+    case 'u': /* Translate to upper-case */
         opt->IsUnformatted = 1;
         /*UpCase = 1;*/
         break;
     case 'd':
-        pt = pass_eq (pt);
+        pt = pass_eq(pt);
 
         opt->DefDir = strdup(pt);
-        if ( !opt->DefDir)
+        if (!opt->DefDir)
         {
-            fprintf (stderr, "Cannot allocate memory for Defs dirname\n");
-            exit (1);
+            fprintf(stderr, "Cannot allocate memory for Defs dirname\n");
+            exit(1);
         }
 
         break;
     /*case 'z':
         dozeros = 1;
         break;*/
-    default:                   /* Unknown Option */
-        usage ();
-        exit (1);
+    default: /* Unknown Option */
+        usage();
+        exit(1);
     }
 }
 
-
-
 /*
- * pass_eq() - Skip past the '=' of an assignment, and also skip
+ * Skip past the '=' of an assignment, and also skip
  *      blanks so that on return, the pointer will be positioned
  *      at the begin of the next string.
  */
-
 char* pass_eq(char* p)
 {
     while ((*p) && (strchr("= \t\r\f\n", *p)))

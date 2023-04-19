@@ -29,21 +29,21 @@
 #define ROF_H
 
 /* location flags for Global Refs and Local dests */
-#define REFCOMN     0x100       /* Reference is COMMON      */
-#define EREFREMOTE  0x100       /* External Ref is Remote   */
+#define REFCOMN 0x100    /* Reference is COMMON      */
+#define EREFREMOTE 0x100 /* External Ref is Remote   */
 
-#define DATREMOTE   0x02        /* Data is REMOTE           */
-#define CODEEQU     0x02        /* Code/Equ is EQU          */
+#define DATREMOTE 0x02 /* Data is REMOTE           */
+#define CODEEQU 0x02   /* Code/Equ is EQU          */
 
-#define REFINIT     0x04        /* DATA is INITIALIZED      */
-#define CODEREF     0x01        /* Reference is in CODE or EQU */
+#define REFINIT 0x04 /* DATA is INITIALIZED      */
+#define CODEREF 0x01 /* Reference is in CODE or EQU */
 
-#define LOCLLOC     0x100       /* Local Ref is Remote      */
-#define LOCLCCODE   0x200       /* Local Ref is in Code     */
+#define LOCLLOC 0x100   /* Local Ref is Remote      */
+#define LOCLCCODE 0x200 /* Local Ref is in Code     */
 
-#define REFSIZ(a)   ((a >> 3) & 3)
-#define REFREL      0x04        /* Ref is relative to loc   */
-#define NEGMSK      0x08        /* Negate the symbol offset */
+#define REFSIZ(a) ((a >> 3) & 3)
+#define REFREL 0x04 /* Ref is relative to loc   */
+#define NEGMSK 0x08 /* Negate the symbol offset */
 
 /* ROF header structure */
 
@@ -55,22 +55,17 @@ struct cmd_items;
 struct rof_header;
 struct rof_extrn;
 
-
-
 /* Define flags for type of reference */
-enum {
+enum
+{
     REFGLBL = 1,
     REFXTRN,
     REFLOCAL
 };
 
-extern struct rof_extrn *refs_data,
-                 *refs_idata,
-                 *refs_code,
-                 *refs_remote,
-                 *refs_iremote,
-                 *extrns,                   /* Generic external pointer */
-                 *codeRefs_sav;
+extern struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremote,
+    *extrns, /* Generic external pointer */
+    *codeRefs_sav;
 
 extern struct rof_header* ROFHd;
 
@@ -96,9 +91,5 @@ int rof_header_getInitDataSize(struct rof_header* handle);
 int rof_header_getRemoteUninitDataSize(struct rof_header* handle);
 int rof_header_getRemoteInitDataSize(struct rof_header* handle);
 char* rof_header_getPsectParams(struct rof_header* handle);
-//size_t rof
-
-// Unused
-struct rof_extrn* rof_lblref(struct cmd_items* ci, int* value, struct parse_state* state);
 
 #endif // ROF_H

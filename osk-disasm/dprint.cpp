@@ -33,28 +33,28 @@
  *                                                                      *
  * ************************************************************************ */
 
-#include <time.h>
+#include "disglobs.h"
+#include "modtypes.h"
+#include "rof.h"
+#include "userdef.h"
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
-#include "disglobs.h"
 #include <string.h>
-#include <ctype.h>
-#include "modtypes.h"
-#include "userdef.h"
-#include "rof.h"
+#include <time.h>
 
+#include "command_items.h"
 #include "commonsubs.h"
-#include "exit.h"
 #include "dismain.h"
 #include "dprint.h"
+#include "exit.h"
 #include "label.h"
-#include "command_items.h"
-#include "writer.h"
 #include "main_support.h"
 #include "rof.h"
+#include "writer.h"
 
 #ifdef _WIN32
-#   define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 #define MAX_ASCII_LINE_LEN 26
@@ -62,22 +62,22 @@
 #define CNULL '\0'
 struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
-static void PrintFormatted (const char *pfmt, struct cmd_items *ci, struct options* opt);
-static void NonBoundsLbl (char cClass, struct options* opt);
-static void TellLabels (Label *me, int flg, char cClass, int minval, struct options* opt);
+static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt);
+static void NonBoundsLbl(char cClass, struct options* opt);
+static void TellLabels(Label* me, int flg, char cClass, int minval, struct options* opt);
 
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
-const char realcmd[80] =  "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
-static const char *xtraFmt = "             %s\n";
+const char realcmd[80] = "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
+static const char* xtraFmt = "             %s\n";
 
-int PrevEnt = 0;                /* Previous CmdEnt - to print non-boundary labels */
-static int InProg;              /* Flag that we're in main program, so that it won't
-                                   munge the label name */
-static char ClsHd[100];         /* header string for label equates */
-static char FmtBuf[200];        /* Buffer to store formatted string */
-static int HadWrote;            /* flag that header has been written */
-static char *SrcHd;             /* ptr for header for source file */
-static char *IBuf;              /* Pointer to buffer containing the Init Data values */
+int PrevEnt = 0;         /* Previous CmdEnt - to print non-boundary labels */
+static int InProg;       /* Flag that we're in main program, so that it won't
+                            munge the label name */
+static char ClsHd[100];  /* header string for label equates */
+static char FmtBuf[200]; /* Buffer to store formatted string */
+static int HadWrote;     /* flag that header has been written */
+static char* SrcHd;      /* ptr for header for source file */
+static char* IBuf;       /* Pointer to buffer containing the Init Data values */
 int LinNum;
 char EaString[200];
 
@@ -86,36 +86,13 @@ char EaString[200];
 struct comment_tree* Comments[33];
 struct append_comment* CmntApnd[33];
 
-struct modnam ModTyps[] = {
-    {"Prgrm", 1},
-    {"Sbrtn", 2},
-    {"Multi", 3},
-    {"Data", 4},
-    {"CSDData", 5},
-    {"TrapLib", 11},
-    {"Systm", 12},
-    {"FlMgr", 13},
-    {"Drivr", 14},
-    {"Devic", 15},
-    {"",0}
-};
+struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
+                           {"Systm", 12}, {"FlMgr", 13}, {"Drivr", 14}, {"Devic", 15}, {"", 0}};
 
-struct modnam ModLangs[] = {
-    {"Objct",    1},
-    {"ICode",    2},
-    {"PCode",    3},
-    {"CCode",    4},
-    {"CblCode",  5},
-    {"FrtnCode", 6},
-    {"", 0}
-};
+struct modnam ModLangs[] = {{"Objct", 1},   {"ICode", 2},    {"PCode", 3}, {"CCode", 4},
+                            {"CblCode", 5}, {"FrtnCode", 6}, {"", 0}};
 
-struct modnam ModAtts[] = {
-    {"SupStat", 0x20},
-    {"Ghost", 0x40},
-    {"ReEnt", 0x80},
-    {"",0}
-};
+struct modnam ModAtts[] = {{"SupStat", 0x20}, {"Ghost", 0x40}, {"ReEnt", 0x80}, {"", 0}};
 
 /* **********
  * PrintPsect() - Set up the Psect for printout
@@ -124,8 +101,8 @@ struct modnam ModAtts[] = {
 
 void PrintPsect(struct options* opt)
 {
-    char *ProgType = NULL;
-    char *ProgLang = NULL;
+    char* ProgType = NULL;
+    char* ProgLang = NULL;
     char ProgAtts[50];
     /*char *StackAddL;*/
     int c;
@@ -153,7 +130,7 @@ void PrintPsect(struct options* opt)
     strcat(EaString, "_a");
 
     /* Type/Language */
-    InProg = 0;    /* Inhibit Label Lookup */
+    InProg = 0; /* Inhibit Label Lookup */
     int type = modHeader ? modHeader->type : 0;
     ProgType = modnam_find(ModTyps, (unsigned char)type)->name;
     Ci.cmd_wrd = type;
@@ -191,8 +168,8 @@ void PrintPsect(struct options* opt)
 
             Ci.lblname = ModAtts[c].name;
             Ci.cmd_wrd = ModAtts[c].val;
-            sprintf(Ci.params, "$%02x",ModAtts[c].val);
-            PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt); 
+            sprintf(Ci.params, "$%02x", ModAtts[c].val);
+            PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
         }
     }
 
@@ -201,12 +178,12 @@ void PrintPsect(struct options* opt)
     int execOffset = modHeader ? modHeader->execOffset : 0;
     sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, revision);
     sprintf(&EaString[strlen(EaString)], ",%d", edition);
-    strcat(EaString, ",0");    /* For the time being, don't add any stack */
+    strcat(EaString, ",0"); /* For the time being, don't add any stack */
     sprintf(&EaString[strlen(EaString)], ",%s", findlbl('L', execOffset)->name());
 
     if (modHeader && modHeader->exceptionOffset)
     {
-        Label *excep = findlbl('L', modHeader->exceptionOffset);
+        Label* excep = findlbl('L', modHeader->exceptionOffset);
         strcat(EaString, ",");
         strcat(EaString, excep->name());
     }
@@ -229,9 +206,9 @@ void PrintPsect(struct options* opt)
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine(const char *pfmt, struct cmd_items *ci, struct options* opt)
+static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt)
 {
-    Label *nl;
+    Label* nl;
     char lbl[100];
 
     if (InProg)
@@ -255,7 +232,7 @@ static void OutputLine(const char *pfmt, struct cmd_items *ci, struct options* o
     {
         writer_printf(opt->asmFile, "%s %s %s", ci->lblname, ci->mnem, ci->params);
 
-        if (ci->comment && strlen (ci->comment))
+        if (ci->comment && strlen(ci->comment))
         {
             writer_printf(opt->asmFile, " %s", ci->comment);
         }
@@ -264,7 +241,7 @@ static void OutputLine(const char *pfmt, struct cmd_items *ci, struct options* o
     }
 }
 
-    /* Straighten/clean up - prepare for next line  */
+/* Straighten/clean up - prepare for next line  */
 
 static void PrintCleanup()
 {
@@ -274,7 +251,7 @@ static void PrintCleanup()
     ++LinNum;
 }
 
-static void BlankLine (struct options* opt)                    /* Prints a blank line */
+static void BlankLine(struct options* opt) /* Prints a blank line */
 {
     if (opt->IsUnformatted)
     {
@@ -289,49 +266,6 @@ static void BlankLine (struct options* opt)                    /* Prints a blank
     }
 }
 
-/* ************************************************************ *
- * PrintNonCmd() - A utility function to print any non-command  *
- *          line (except stored comments).                      *
- *          Prints the line with line number, and updates       *
- *          LinNum                                              *
- * Passed: str - the string to print                            *
- *         preblank - true if blankline before str              *
- *         postblank - true if blankline after str              *
- * ************************************************************ */
-
-/*static void PrintNonCmd (char *str, int preblank, int postblank)
-{
-    if (IsROF)
-    {
-        if (preblank)
-        {
-            BlankLine();
-        }
-
-        if (opt->IsUnformatted)
-        {
-            writer_printf(stdout_writer, " %s\n", str);
-            ++LinNum;
-        }
-        else
-        {
-            writer_printf(stdout_writer, "%5d %s\n", LinNum, str);
-        }
-
-        if (WrtSrc)
-        {
-            writer_printf(opt->asmFile, "%s", str);
-        }
-
-        if (postblank)
-        {
-            BlankLine();
-        }
-    }
-
-    PrintCleanup ();
-}*/
-
 /* ******************************************************** *
  * get_comment() - Checks for append comment for current    *
  *              command line.                               *
@@ -341,11 +275,11 @@ static void BlankLine (struct options* opt)                    /* Prints a blank
  *          ptr to empty string if none                     *
  * ******************************************************** */
 
-char * get_apcomment(char clas, int addr)
+char* get_apcomment(char clas, int addr)
 {
-    struct append_comment *mytree = CmntApnd[strpos (lblorder, clas)];
+    struct append_comment* mytree = CmntApnd[strpos(lblorder, clas)];
 
-    if ( ! clas)
+    if (!clas)
     {
         return NULL;
     }
@@ -389,16 +323,15 @@ char * get_apcomment(char clas, int addr)
     return NULL;
 }
 
-
 /* ******************************************************** *
  * PrintLine () - The generic, global printline function    *
  *                It checks for unlisted boundaries, prints *
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, int cmdhi, struct options* opt)
+void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi, struct options* opt)
 {
-    NonBoundsLbl(cClass, opt);            /*Check for non-boundary labels */
+    NonBoundsLbl(cClass, opt); /*Check for non-boundary labels */
 
     if (cClass)
     {
@@ -411,45 +344,41 @@ void PrintLine(const char *pfmt, struct cmd_items *ci, char cClass, int cmdlow, 
     PrintCleanup();
 }
 
-static void PrintFormatted(const char *pfmt, struct cmd_items *ci, struct options* opt)
+static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt)
 {
     int _linlen;
 
     /* make sure any non-initialized fields don't create Segfault */
 
-    if ( ! ci->lblname)    ci->lblname = "";
+    if (!ci->lblname) ci->lblname = "";
     /*if ( ! ci->mnem)        strcpy(ci->mnem, "");
     if ( ! ci->params)     strcpy(ci->params, "");*/
-    if ( ! ci->comment)     ci->comment = "";
+    if (!ci->comment) ci->comment = "";
 
     if (pfmt == pseudcmd)
     {
         if (opt->IsUnformatted)
         {
-            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]),
-                                    CmdEnt, ci->cmd_wrd, ci->lblname,
-                                    ci->mnem, ci->params, ci->comment);
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname, ci->mnem,
+                               ci->params, ci->comment);
         }
         else
         {
-            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, pfmt,
-                                    LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
-                                    ci->mnem, ci->params, ci->comment);
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
+                               ci->mnem, ci->params, ci->comment);
         }
     }
     else
     {
         if (opt->IsUnformatted)
         {
-            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]),
-                                CmdEnt, ci->cmd_wrd, ci->lblname,
-                                ci->mnem, ci->params, ci->comment);
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname, ci->mnem,
+                               ci->params, ci->comment);
         }
         else
         {
-            _linlen = snprintf (FmtBuf, (size_t)opt->PgWidth - 2, pfmt,
-                                LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
-                                ci->mnem, ci->params, ci->comment);
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
+                               ci->mnem, ci->params, ci->comment);
         }
     }
 
@@ -467,12 +396,12 @@ static void PrintFormatted(const char *pfmt, struct cmd_items *ci, struct option
  * Print additional data bytes in line following main line          *
  * **************************************************************** */
 
-void printXtraBytes(char *data)
+void printXtraBytes(char* data)
 {
     if (strlen(data))
     {
         writer_printf(stdout_writer, xtraFmt, data);
-        data[0] = '\0';     /* Reset data to empty string */
+        data[0] = '\0'; /* Reset data to empty string */
     }
 }
 
@@ -483,7 +412,7 @@ void printXtraBytes(char *data)
 
 void PrintComment(char lblcClass, int cmdlow, int cmdhi, struct options* opt)
 {
-    register struct comment_tree *me;
+    register struct comment_tree* me;
     register int x;
 
     for (x = cmdlow; x < cmdhi; x++)
@@ -502,9 +431,9 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi, struct options* opt)
                 {
                     me = me->cmtRight;
                 }
-                else        /* Assume for now it's equal */
+                else /* Assume for now it's equal */
                 {
-                    struct comment_line *line;
+                    struct comment_line* line;
 
                     line = me->commts;
 
@@ -523,10 +452,9 @@ void PrintComment(char lblcClass, int cmdlow, int cmdhi, struct options* opt)
                         {
                             writer_printf(opt->asmFile, "* %s\n", line->ctxt);
                         }
-
                     }
 
-                    break;  /* This address done, proceed with next x */
+                    break; /* This address done, proceed with next x */
                 }
             }
         }
@@ -539,7 +467,7 @@ static void NonBoundsLbl(char cClass, struct options* opt)
     {
         register int x;
         struct cmd_items Ci;
-        Label *nl;
+        Label* nl;
 
         strcpy(Ci.mnem, "equ");
         Ci.comment = "";
@@ -570,19 +498,18 @@ static void NonBoundsLbl(char cClass, struct options* opt)
                 /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
                 if (opt->IsUnformatted)
                 {
-                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->myAddr, Ci.cmd_wrd,
-                            Ci.lblname, Ci.mnem, Ci.params, "");
+                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->myAddr, Ci.cmd_wrd, Ci.lblname, Ci.mnem, Ci.params,
+                                  "");
                 }
                 else
                 {
-                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->myAddr, Ci.cmd_wrd,
-                            Ci.lblname, Ci.mnem, Ci.params, "");
+                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->myAddr, Ci.cmd_wrd, Ci.lblname, Ci.mnem,
+                                  Ci.params, "");
                 }
 
                 if (opt->asmFile)
                 {
-                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname, Ci.mnem,
-                             Ci.params);
+                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname, Ci.mnem, Ci.params);
                 }
             }
         }
@@ -593,14 +520,9 @@ static void NonBoundsLbl(char cClass, struct options* opt)
  * ROFPsect() - writes out psect                 *
  * Passed: rof_header *rptr                         *
  * ********************************************* */
-
-/*#define OPSCAT(str) sprintf (ci->params, "%s,%s", pbuf->operand, str)
-#define OPDCAT(nu) sprintf (ci->params, "%s,%d", pbuf->operand, nu)
-#define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
-
-void ROFPsect (struct rof_header *rptr, struct options* opt)
+void ROFPsect(struct rof_header* rptr, struct options* opt)
 {
-    Label *nl;
+    Label* nl;
     struct cmd_items Ci;
 
     memset(&Ci, 0, sizeof(struct cmd_items));
@@ -619,11 +541,7 @@ void ROFPsect (struct rof_header *rptr, struct options* opt)
     strcpy(Ci.params, params);
     free(params);
 
-/*#define OPSCAT(str) sprintf (ci->params, "%s,%s", pbuf->operand, str)
-#define OPDCAT(nu) sprintf (ci->params, "%s,%d", pbuf->operand, nu)
-#define OPHCAT(nu) sprintf (pbuf->operand, "%s,%04x", pbuf->operand, nu)*/
-
-    //nl = findlbl('L', rptr->code_begin);
+    // nl = findlbl('L', rptr->code_begin);
     nl = findlbl('L', rof_header_getCodeAddress(rptr));
     if (nl)
     {
@@ -640,13 +558,11 @@ void ROFPsect (struct rof_header *rptr, struct options* opt)
     }
 
     CmdEnt = 0;
-    PrevEnt = 1;    /* To prevent NonBoundsLbl() output */
-    InProg = 0;    /* Inhibit Label Lookup */
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt); 
+    PrevEnt = 1; /* To prevent NonBoundsLbl() output */
+    InProg = 0;  /* Inhibit Label Lookup */
+    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     InProg = 1;
 }
-
-
 
 /* *************************************************** *
  * WrtEnds() - writes the "ends" command line          *
@@ -656,11 +572,11 @@ void WrtEnds(struct options* opt)
 {
     struct cmd_items Ci;
 
-    memset(&Ci, 0, sizeof (Ci));
+    memset(&Ci, 0, sizeof(Ci));
     strcpy(Ci.mnem, "ends");
 
     BlankLine(opt);
-    CmdEnt = PCPos;     /* This should always work */
+    CmdEnt = PCPos; /* This should always work */
     PrintFormatted(pseudcmd, &Ci, opt);
 
     if (opt->asmFile)
@@ -671,8 +587,6 @@ void WrtEnds(struct options* opt)
     BlankLine(opt);
 }
 
-
-
 /* *******
  * ParseIRefs() - Parse through the Initialized Refs list for either
  *    class 'D' or 'L'.
@@ -682,12 +596,12 @@ void WrtEnds(struct options* opt)
 
 void ParseIRefs(char rClass, struct options* opt)
 {
-    register int rCount;  /* The count for this block */
+    register int rCount; /* The count for this block */
     register int MSB;
 
     /* Get an initial reading */
 
-    if (fseek (opt->ModFP, modHeader->refTableOffset, SEEK_SET))
+    if (fseek(opt->ModFP, modHeader->refTableOffset, SEEK_SET))
     {
         errexit("Fatal: Failed to seek to Initialized Refs location");
     }
@@ -695,17 +609,17 @@ void ParseIRefs(char rClass, struct options* opt)
     MSB = fread_w(opt->ModFP) << 16;
     rCount = fread_w(opt->ModFP);
 
-    while (MSB || rCount)   /* This will get All blocks for the Location */
+    while (MSB || rCount) /* This will get All blocks for the Location */
     {
         while (rCount--)
         {
             struct ireflist *il, *ilpt;
 
-            il = (struct ireflist *)mem_alloc (sizeof(struct ireflist));
+            il = (struct ireflist*)mem_alloc(sizeof(struct ireflist));
             memset(il, 0, sizeof(struct ireflist));
             il->dAddr = MSB | fread_w(opt->ModFP);
 
-            if (IRefs)   /* First entry? */
+            if (IRefs) /* First entry? */
             {
                 ilpt = IRefs;
 
@@ -717,13 +631,12 @@ void ParseIRefs(char rClass, struct options* opt)
                 }
                 else
                 {
-                        /* Find iref PRECEDING this entry */
+                    /* Find iref PRECEDING this entry */
                     while (ilpt->Next && (il->dAddr >= ilpt->Next->dAddr))
                     {
-                        if ((il->dAddr == ilpt->dAddr) ||
-                                (il->dAddr == ilpt->Next->dAddr))
+                        if ((il->dAddr == ilpt->dAddr) || (il->dAddr == ilpt->Next->dAddr))
                         {
-                            free(il);   /* We don't need this one */
+                            free(il); /* We don't need this one */
                             il = NULL;
                             break;
                         }
@@ -740,7 +653,7 @@ void ParseIRefs(char rClass, struct options* opt)
 
                         il->Next = ilpt->Next;
                         il->Prev = ilpt;
-                        ilpt->Next = il;             
+                        ilpt->Next = il;
                     }
                 }
             }
@@ -765,19 +678,18 @@ void GetIRefs(struct options* opt)
 {
     if (!opt->IsROF)
     {
-        if (modHeader->refTableOffset == 0)
-            return;
+        if (modHeader->refTableOffset == 0) return;
 
         ParseIRefs('L', opt);
     }
 }
 
-static void dataprintHeader(const char *hdr, char klas, int isRemote, struct options* opt)
+static void dataprintHeader(const char* hdr, char klas, int isRemote, struct options* opt)
 {
     struct cmd_items Ci;
 
     BlankLine(opt);
-    memset(&Ci, 0, sizeof (Ci));
+    memset(&Ci, 0, sizeof(Ci));
 
     if (opt->IsUnformatted)
     {
@@ -788,7 +700,7 @@ static void dataprintHeader(const char *hdr, char klas, int isRemote, struct opt
     {
         char f_fmt[100];
 
-        sprintf (f_fmt, "%%5d %s", hdr);
+        sprintf(f_fmt, "%%5d %s", hdr);
         writer_printf(stdout_writer, f_fmt, LinNum++, klas);
     }
 
@@ -797,7 +709,7 @@ static void dataprintHeader(const char *hdr, char klas, int isRemote, struct opt
         writer_printf(opt->asmFile, "%c", klas);
     }
 
-    BlankLine (opt);
+    BlankLine(opt);
 
     strcpy(Ci.mnem, "vsect");
     strcpy(Ci.params, isRemote ? "remote" : "");
@@ -812,10 +724,10 @@ static void dataprintHeader(const char *hdr, char klas, int isRemote, struct opt
 // This approach is way too greedy. It was completely broken in the oringal and
 // fixing it breaks a ton of other stuff.
 
-int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass, struct options* opt)
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct options* opt)
 {
     register int count = bufEnd;
-    register const char *ch = buf;
+    register const char* ch = buf;
     int hasAscii = 0;
 
     // It seems improbable that a string would begin with NULL
@@ -853,7 +765,7 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass,
         }
     }
 
-    if (! hasAscii)
+    if (!hasAscii)
     {
         return 0;
     }
@@ -908,7 +820,7 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass,
                 group[consumedByGroup + 1] = *buf;
                 buf++;
                 consumedByGroup++;
-                
+
                 // Note: we have already checked that the string is null-terminated,
                 // so the block cannot end in the middle of a group of printable
                 // characters. Therefore we don't need to check `PCPos + consumedThisLine < bufEnd`
@@ -973,24 +885,23 @@ int DoAsciiBlock(struct cmd_items *ci, const char *buf, int bufEnd, char iClass,
     return count;
 }
 
-
 /* *************
  * ListInitData ()
  *
  */
 
-static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* opt)
+static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* opt)
 {
     struct cmd_items Ci;
     /*char *hexFmt;*/
-    char *what = "* Initialized Data Definitions";
+    char* what = "* Initialized Data Definitions";
     Label *curlbl, *prevlbl;
 
     Ci.cmd_wrd = Ci.wcount = 0;
     Ci.comment = Ci.lblname = "";
-    Ci.mnem[0] =  Ci.params[0] = '\0';
+    Ci.mnem[0] = Ci.params[0] = '\0';
     NowClass = 'D';
-    PCPos = IDataBegin;        /* MovBytes/MovASC use PCPos */
+    PCPos = IDataBegin; /* MovBytes/MovASC use PCPos */
     CmdEnt = PCPos;
 
     curlbl = findlbl('D', PCPos);
@@ -1001,8 +912,7 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
 
     if (fseek(opt->ModFP, 0x40l, SEEK_SET) != -1)
     {
-        int     idatbegin,
-                idatcount;
+        int idatbegin, idatcount;
 
         if (fseek(opt->ModFP, (long)fread_l(opt->ModFP), SEEK_SET) == -1)
         {
@@ -1037,15 +947,14 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
 
         BlankLine(opt);
 
-        AMode = 0;             /* Mode for Data             */
+        AMode = 0; /* Mode for Data             */
 
         curlbl = findlbl('D', idatbegin);
 
         while (idatcount > 0)
         {
-            register int lblCount,
-                         ppos;
-            char         lbl[100];
+            register int lblCount, ppos;
+            char lbl[100];
 
             /* Get byte count for this label */
             if (!curlbl)
@@ -1062,10 +971,10 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
 
             if (lblCount > idatcount)
             {
-                lblCount = idatcount;  /* Don't go past the end of data */
+                lblCount = idatcount; /* Don't go past the end of data */
             }
 
-            CmdEnt = PCPos;     /* Save Entry Point */
+            CmdEnt = PCPos; /* Save Entry Point */
             ppos = lblCount;
             strcpy(lbl, ldf->name());
             Ci.lblname = lbl;
@@ -1076,7 +985,7 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
             }
 
             /* We might ought to provide for longs, but it might
-            * be more confusing */
+             * be more confusing */
             if (lblCount & 1)
             {
                 PBytSiz = 1;
@@ -1101,8 +1010,8 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
 
                 if ((IRefs) && (PCPos == IRefs->dAddr))
                 {
-                    Label *mylbl;
-                    struct ireflist *tmpref;
+                    Label* mylbl;
+                    struct ireflist* tmpref;
                     char xtrabytes[10];
                     val = 0;
                     tmp[0] = '\0';
@@ -1136,11 +1045,11 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
                     mylbl = findlbl('L', val);
                     if (mylbl)
                     {
-                        strcat (Ci.params, mylbl->name());
+                        strcat(Ci.params, mylbl->name());
                     }
                     else
                     {
-                        sprintf (&Ci.params[strlen(Ci.params)], "$%04x", val);
+                        sprintf(&Ci.params[strlen(Ci.params)], "$%04x", val);
                     }
 
                     strcpy(Ci.mnem, "dc.l");
@@ -1153,7 +1062,7 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
                     Ci.lblname = "";
                     Ci.params[0] = '\0';
                     /* Reset mnem to original status */
-                    strcpy (Ci.mnem, PBytSiz == 1 ? "dc.b" : "dc.w");
+                    strcpy(Ci.mnem, PBytSiz == 1 ? "dc.b" : "dc.w");
                     PrintCleanup();
                     ppos -= 4;
                     continue;
@@ -1194,7 +1103,7 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
                 }
             }
 
-            if (strlen(Ci.params))   /* Any final cleanup */
+            if (strlen(Ci.params)) /* Any final cleanup */
             {
                 PrevEnt = PCPos;
                 OutputLine(pseudcmd, &Ci, opt);
@@ -1222,13 +1131,13 @@ static void ListInitData (Label* ldf, int nBytes, char lclass, struct options* o
 
 void ROFDataPrint(struct options* opt)
 {
-    Label *srch;
+    Label* srch;
 
     /*char dattmp[5];*/
-    const char *udat = "* Uninitialized Data (Class \"%c\")";
+    const char* udat = "* Uninitialized Data (Class \"%c\")";
     // TODO: Change this to add a space. The reference exe will also have to be
     // patched.
-    const char *idat = "* Initialized Data (Class\"%c\")";
+    const char* idat = "* Initialized Data (Class\"%c\")";
 
     InProg = 0;
     auto category = labelManager->getCategory('D');
@@ -1248,7 +1157,7 @@ void ROFDataPrint(struct options* opt)
     {
         dataprintHeader(idat, '_', FALSE, opt);
 
-        IBuf = (char *)mem_alloc((size_t)rof_header_getInitDataSize(ROFHd) + 1);
+        IBuf = (char*)mem_alloc((size_t)rof_header_getInitDataSize(ROFHd) + 1);
 
         if (fseek(opt->ModFP, IDataBegin, SEEK_SET))
         {
@@ -1295,7 +1204,7 @@ void ROFDataPrint(struct options* opt)
         int size = rof_header_getRemoteInitDataSize(ROFHd);
         dataprintHeader(idat, 'H', TRUE, opt);
 
-        IBuf = (char *)mem_alloc((size_t)size + 1);
+        IBuf = (char*)mem_alloc((size_t)size + 1);
 
         if (fread(IBuf, size, 1, opt->ModFP) < 1)
         {
@@ -1305,7 +1214,7 @@ void ROFDataPrint(struct options* opt)
         PCPos = 0;
         auto category4 = labelManager->getCategory('H');
         srch = category4 ? category4->getFirst() : NULL;
-        ListInitROF("", refs_iremote,IBuf, size, 'H', opt);
+        ListInitROF("", refs_iremote, IBuf, size, 'H', opt);
         BlankLine(opt);
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
         free(IBuf);
@@ -1326,25 +1235,25 @@ void ROFDataPrint(struct options* opt)
 void OS9DataPrint(struct options* opt)
 {
     Label *dta, *srch;
-    char *what = "* OS9 data area definitions";
+    char* what = "* OS9 data area definitions";
     struct cmd_items Ci;
     long filePos = ftell(opt->ModFP);
-    
+
     if (!modHeader->initDataHeaderOffset)
     {
         IDataBegin = modHeader->memorySize;
         IDataCount = 0;
     }
 
-    InProg = 0;    /* Stop looking for Inline program labels to substitute */
-    memset(&Ci, 0, sizeof (Ci));
+    InProg = 0; /* Stop looking for Inline program labels to substitute */
+    memset(&Ci, 0, sizeof(Ci));
     auto category = labelManager->getCategory('D');
     dta = category ? category->getFirst() : NULL;
 
     if (dta)
-    {                           /* special tree for OS9 data defs */
+    { /* special tree for OS9 data defs */
         BlankLine(opt);
-        
+
         if (opt->IsUnformatted)
         {
             writer_printf(stdout_writer, " %22s%s\n", "", what);
@@ -1377,7 +1286,7 @@ void OS9DataPrint(struct options* opt)
             srch = srch->LNext;
         }*/
 
-        if (srch->myAddr)              /* i.e., if not D000 */
+        if (srch->myAddr) /* i.e., if not D000 */
         {
             strcpy(Ci.mnem, "ds.b");
             sprintf(Ci.params, "%ld", srch->myAddr);
@@ -1421,12 +1330,12 @@ void OS9DataPrint(struct options* opt)
  *         Label cClass                                      *
  * ******************************************************** */
 
-void ListData(Label *me, int upadr, char cClass, struct options* opt)
+void ListData(Label* me, int upadr, char cClass, struct options* opt)
 {
     struct cmd_items Ci;
     register int datasize;
 
-    memset (&Ci, 0, sizeof (Ci));
+    memset(&Ci, 0, sizeof(Ci));
 
     /* Process lower entries first */
 
@@ -1449,7 +1358,7 @@ void ListData(Label *me, int upadr, char cClass, struct options* opt)
     if (opt->IsROF && me->global())
     {
         char* newName = strdup(me->name());
-        strcat (newName, ":");
+        strcat(newName, ":");
         me->setName(newName);
     }
 
@@ -1457,17 +1366,17 @@ void ListData(Label *me, int upadr, char cClass, struct options* opt)
     {
         srch = me->RNext;*/       /* Find smallest entry in that list */
 
-        /*while (srch->LNext)
-        {
-            srch = srch->LNext;
-        }
-
-        datasize = (srch->myaddr) - (label_getMyAddr(me));
-    }
-    else
+    /*while (srch->LNext)
     {
-        datasize = (upadr) - (label_getMyAddr(me));
-    }*/
+        srch = srch->LNext;
+    }
+
+    datasize = (srch->myaddr) - (label_getMyAddr(me));
+}
+else
+{
+    datasize = (upadr) - (label_getMyAddr(me));
+}*/
 
     /* Don't print any Class 'D' variables which are not in Data area */
     /* Note, Don't think we'll get this far, we have a return up above,
@@ -1542,22 +1451,18 @@ void ListData(Label *me, int upadr, char cClass, struct options* opt)
  * Passed: stdflg - 1 for std labels, 0 for externals *
  * ************************************************** */
 
-void WrtEquates (int stdflg, struct options* opt)
+void WrtEquates(int stdflg, struct options* opt)
 {
-    char *claspt = "_!^ABCDEFGHIJKMNOPQRSTUVWXYZ;",
-        *curnt = claspt,
-        *syshd = "* OS-9 system function equates\n",
-        *aschd = "* ASCII control character equates\n";
-    static char *genhd[2] = { "* Class %c external label equates\n",
-                      "* Class %c standard named label equates\n"
-                    };
-    register int flg;           /* local working flg - clone of stdflg */
-    Label *me;
+    char *claspt = "_!^ABCDEFGHIJKMNOPQRSTUVWXYZ;", *curnt = claspt, *syshd = "* OS-9 system function equates\n",
+         *aschd = "* ASCII control character equates\n";
+    static char* genhd[2] = {"* Class %c external label equates\n", "* Class %c standard named label equates\n"};
+    register int flg; /* local working flg - clone of stdflg */
+    Label* me;
 
     InProg = 0;
     curnt = claspt;
 
-    if ( ! stdflg)                /* print ! and ^ only on std cClass pass */
+    if (!stdflg) /* print ! and ^ only on std cClass pass */
     {
         curnt += 2;
     }
@@ -1567,7 +1472,7 @@ void WrtEquates (int stdflg, struct options* opt)
         int minval;
 
         flg = stdflg;
-        strcpy (ClsHd, "%5d %21s");
+        strcpy(ClsHd, "%5d %21s");
         auto category = labelManager->getCategory(NowClass);
         me = category ? category->getFirst() : NULL;
 
@@ -1577,7 +1482,7 @@ void WrtEquates (int stdflg, struct options* opt)
 
             if (NowClass == 'D')
             {
-                if (stdflg)     /* Don't print data defs */
+                if (stdflg) /* Don't print data defs */
                 {
                     continue;
                 }
@@ -1586,7 +1491,7 @@ void WrtEquates (int stdflg, struct options* opt)
                  * What we're doing is positioning me to
                  * last real data element*/
 
-               /* if (!(me = FindLbl (me, M_Mem)))*/
+                /* if (!(me = FindLbl (me, M_Mem)))*/
                 if (modHeader)
                 {
                     me = findlbl(NowClass, modHeader->memorySize);
@@ -1603,35 +1508,35 @@ void WrtEquates (int stdflg, struct options* opt)
 
             /* Don't write vsect data for ROF's */
 
-            if ((opt->IsROF) && stdflg && strchr ("BDGH", NowClass))
+            if ((opt->IsROF) && stdflg && strchr("BDGH", NowClass))
             {
                 continue;
             }
 
             switch (NowClass)
             {
-                case '!':
-                    strcat(ClsHd, syshd);
-                    SrcHd = syshd;
-                    flg = -1;
-                    break;
-                case '^':
-                    strcat(ClsHd, aschd);
-                    SrcHd = aschd;
-                    flg = -1;
-                    break;
-                default:
-                    strcat(ClsHd, genhd[flg]);
-                    SrcHd = genhd[flg];
+            case '!':
+                strcat(ClsHd, syshd);
+                SrcHd = syshd;
+                flg = -1;
+                break;
+            case '^':
+                strcat(ClsHd, aschd);
+                SrcHd = aschd;
+                flg = -1;
+                break;
+            default:
+                strcat(ClsHd, genhd[flg]);
+                SrcHd = genhd[flg];
             }
 
-            HadWrote = 0;       /* flag header not written */
+            HadWrote = 0; /* flag header not written */
 
             /* Determine minimum value for printing *
              * minval will be the first value to    *
              * print                                */
 
-            minval = 0;     /* Default to "print all" */
+            minval = 0; /* Default to "print all" */
 
             // Added OR to satisfy VS null checker.
             if (opt->IsROF || !modHeader)
@@ -1639,10 +1544,10 @@ void WrtEquates (int stdflg, struct options* opt)
                 /*minval = rof_datasize (NowClass);*/
 
                 /* If this cClass has any data, we want to exclude
-                    * printing the last entry.
-                    * Otherwise, if no real entries, we want to print
-                    * element "0"
-                    */
+                 * printing the last entry.
+                 * Otherwise, if no real entries, we want to print
+                 * element "0"
+                 */
 
                 /*if (minval)
                 {
@@ -1655,7 +1560,8 @@ void WrtEquates (int stdflg, struct options* opt)
                 {
                     minval = modHeader->memorySize + 1;
                 }
-                else {
+                else
+                {
                     if (NowClass == 'L')
                     {
                         minval = modHeader->size + 1;
@@ -1672,13 +1578,13 @@ void WrtEquates (int stdflg, struct options* opt)
 
 /* TellLabels(me) - Print out the labels for cClass in "me" array */
 
-static void TellLabels(Label *me, int flg, char cClass, int minval, struct options* opt)
+static void TellLabels(Label* me, int flg, char cClass, int minval, struct options* opt)
 {
     struct cmd_items Ci;
 
-    memset(&Ci, 0, sizeof (Ci));
+    memset(&Ci, 0, sizeof(Ci));
     strcpy(Ci.mnem, "equ");
-    
+
     while (me)
     {
         char lbl[100];
@@ -1689,7 +1595,7 @@ static void TellLabels(Label *me, int flg, char cClass, int minval, struct optio
 
             if (me->myAddr >= minval)
             {
-                if ( ! HadWrote)
+                if (!HadWrote)
                 {
                     BlankLine(opt);
 
@@ -1712,13 +1618,13 @@ static void TellLabels(Label *me, int flg, char cClass, int minval, struct optio
                     BlankLine(opt);
                 }
 
-                strcpy (lbl, me->name());
+                strcpy(lbl, me->name());
                 Ci.lblname = lbl;
                 Ci.cmd_wrd = me->myAddr;
 
                 if (opt->IsROF && me->global())
                 {
-                    strcat (Ci.lblname, ":");
+                    strcat(Ci.lblname, ":");
                 }
 
                 if (strchr("!^", cClass))

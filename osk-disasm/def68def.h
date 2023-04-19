@@ -4,7 +4,6 @@
 
 #include "userdef.h"
 
-
 const OPSTRUCTURE* tablematch(int opword, const OPSTRUCTURE* entry);
 
 #endif

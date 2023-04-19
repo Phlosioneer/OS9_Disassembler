@@ -38,10 +38,9 @@
 static const char* stdSiz[] = { "b", "w", "l" };
 
 /*
- * ewReg() - Retrieves the register name and number from the extended word
+ * Retrieves the register name and number from the extended word
  * Returns: The string containing the Regname and number
  */
-
 static char * ewReg(int extWrd, char *dst)
 {
     sprintf (dst, "%c%d", dispRegNam[(extWrd >> 15) & 1], (extWrd >> 12) & 7);
@@ -219,10 +218,9 @@ int cmd_cas (struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
 }
 
 /*
- * getcas2EW() - Retrieves the data for one of the "cas2" extended words
+ * Retrieves the data for one of the "cas2" extended words
  * Returns: the character name of the register (either "d" or "a").
  */
-
 static char getcas2Ew(struct cmd_items *ci, int *dc, int *du, int *rn, struct parse_state* state)
 {
     int ew = getnext_w(ci, state);
@@ -463,9 +461,8 @@ static char * getbf_fld(char *dst, int flg, int val)
 }
 
 /*
- * bitfields_020() - Handles the bitfield functions
+ * Handles the bitfield functions
  */
-
 int bitfields_020(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
 {
     int mode, reg;

@@ -35,110 +35,102 @@
  *                                                                          *
  * ************************************************************************ */
 
-
 //#define _GNU_SOURCE     /* Needed to get isblank() defined */
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include "userdef.h"
-#include "disglobs.h"
-#include "structs.h"
-#include "commonsubs.h"
 #include "cmdfile.h"
+#include "commonsubs.h"
+#include "disglobs.h"
+#include "dismain.h"
+#include "dprint.h"
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
-#include "cmdfile.h"
-#include "dprint.h"
-#include "dismain.h"
-#include "label.h"
+#include "structs.h"
+#include "userdef.h"
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 /*#include "amodes.h"*/
 
-struct data_bounds* LAdds[33];     /* Temporary */
+struct data_bounds* LAdds[33]; /* Temporary */
 struct data_bounds* dbounds;
 static const char BoundsNames[] = "ABCDLSW";
 
 static int NxtBnd;
-static int NoEnd;      /* Flag that no end on last bound                 */
-static struct data_bounds *prevbnd ;
+static int NoEnd; /* Flag that no end on last bound                 */
+static struct data_bounds* prevbnd;
 
-static char *cpyhexnum(char *dst, char *src);
-static char *cpy_digit_str(char *dst, char *src);
-static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses);
-static char *setoffset(char *p, struct offset_tree *oft);
-static int optincmd(char *lpos, struct options* opt);
-static int cmdamode(char *pt, char* defaultLabelClasses, int defaultMode);
-static struct comment_tree *newcomment(int addrs,
-                            struct comment_tree *parent);
+static char* cpyhexnum(char* dst, char* src);
+static char* cpy_digit_str(char* dst, char* src);
+static int do_mode(char* lpos, int GettingAmode, char* defaultLabelClasses);
+static char* setoffset(char* p, struct offset_tree* oft);
+static int optincmd(char* lpos, struct options* opt);
+static int cmdamode(char* pt, char* defaultLabelClasses, int defaultMode);
+static struct comment_tree* newcomment(int addrs, struct comment_tree* parent);
 
-static void errexitFromCmdfile (char *msg)
+static void errexitFromCmdfile(char* msg)
 {
     char errtxt[100];
-    sprintf (errtxt, "Line %d: %s", LinNum, msg);
-    errexit (errtxt);
+    sprintf(errtxt, "Line %d: %s", LinNum, msg);
+    errexit(errtxt);
 }
 
-/* ************************************************************************ *
- * AsmComment() Add comments to be placed into the assembler source/listing *
- *          on separate lines                                               *
- * Format for this entry:                                                   *
- *      <Label class> addr <delim>Dtext<delim>                              *
- *      ---                                                                 *
- *      textD\n                                                             *
- * D represents any delimiter, following lines will be added until a line   *
- *      ended by the delimiter is encountered.  The delimiter can be        *
- *      included in the text as long as it's not the last char on the line. *
- *      The delimiter can be the last character if it's doubled             *
- * ************************************************************************ */
-
-static int
-AsmComment (char *lpos, FILE *cmdfile)
+/*
+ * AsmComment() Add comments to be placed into the assembler source/listing
+ *          on separate lines
+ * Format for this entry:
+ *      <Label class> addr <delim>Dtext<delim>
+ *      ---
+ *      textD\n
+ * D represents any delimiter, following lines will be added until a line
+ *      ended by the delimiter is encountered.  The delimiter can be
+ *      included in the text as long as it's not the last char on the line.
+ *      The delimiter can be the last character if it's doubled
+ */
+static int AsmComment(char* lpos, FILE* cmdfile)
 {
     int adr = 0;
-    register char *txt;
+    register char* txt;
     char delim;
     int lastline;
-    struct comment_tree *treebase;
-    register struct comment_tree *me;
-    struct comment_line *prevline = 0;
+    struct comment_tree* treebase;
+    register struct comment_tree* me;
+    struct comment_line* prevline = 0;
     char lblclass;
 
     lpos = cmntsetup(lpos, &lblclass, &adr);
-    if ( ! lpos)
+    if (!lpos)
     {
         return -1;
     }
 
     switch (*lpos)
     {
-#ifndef OSK
-        case '\r':
-#endif
-        case '\n':
-            return 0;    /* Require AT LEAST the delimiter on the first line */
-        default:
-            delim = *lpos;
-            *lpos = '\0';   /* So we can have an empty string for first line */
-            ++lpos;
+    case '\r':
+    case '\n':
+        return 0; /* Require AT LEAST the delimiter on the first line */
+    default:
+        delim = *lpos;
+        *lpos = '\0'; /* So we can have an empty string for first line */
+        ++lpos;
     }
 
     /* Now locate or set up an appropriate tree structure */
 
-    treebase = Comments[strpos (lblorder, lblclass)];
+    treebase = Comments[strpos(lblorder, lblclass)];
 
-    if ( ! treebase)
+    if (!treebase)
     {
-        me = treebase = Comments[strpos (lblorder, lblclass)] =
-            newcomment (adr, 0);
+        me = treebase = Comments[strpos(lblorder, lblclass)] = newcomment(adr, 0);
     }
     else
     {
-        struct comment_tree *oldme;
+        struct comment_tree* oldme;
 
-       /* int cmtfound = 0;*/
+        /* int cmtfound = 0;*/
         me = treebase;
 
-        while (1) {
+        while (1)
+        {
             if (adr < me->adrs)
             {
                 if (me->cmtLeft)
@@ -149,7 +141,7 @@ AsmComment (char *lpos, FILE *cmdfile)
                 else
                 {
                     oldme = me;
-                    me = newcomment (adr, me);
+                    me = newcomment(adr, me);
                     oldme->cmtLeft = me;
 
                     /*cmtfound = 1;*/
@@ -165,10 +157,10 @@ AsmComment (char *lpos, FILE *cmdfile)
                         me = me->cmtRight;
                         continue;
                     }
-                    else        /* The same address was previously done */
+                    else /* The same address was previously done */
                     {
                         oldme = me;
-                        me = newcomment (adr, me);
+                        me = newcomment(adr, me);
                         oldme->cmtRight = me;
                         break;
                     }
@@ -180,7 +172,8 @@ AsmComment (char *lpos, FILE *cmdfile)
                     /* Here, we need to find the last comment */
                     prevline = me->commts;
 
-                    while (prevline->nextline) {
+                    while (prevline->nextline)
+                    {
                         prevline = prevline->nextline;
                     }
 
@@ -188,26 +181,26 @@ AsmComment (char *lpos, FILE *cmdfile)
                     break;
                 }
             }
-        }       /* while (1) ( for locating or adding comments */
-    }           /* end of search in comment_tree - me = appropriate tree */
+        } /* while (1) ( for locating or adding comments */
+    }     /* end of search in comment_tree - me = appropriate tree */
 
-/************************************************************************** */
+    /************************************************************************** */
 
     /* Now get the comment strings */
     while (1)
     {
-        struct comment_line *cline;
+        struct comment_line* cline;
         char mbuf[500];
 
         lastline = 0;
 
-        if (strchr(lpos,'\n'))
+        if (strchr(lpos, '\n'))
         {
-            *strchr(lpos,'\n') = '\0';
+            *strchr(lpos, '\n') = '\0';
         }
-        if (strchr(lpos,'\r'))
+        if (strchr(lpos, '\r'))
         {
-            *strchr(lpos,'\r') = '\0';
+            *strchr(lpos, '\r') = '\0';
         }
 
         /* If this is the last line, set flag for later */
@@ -219,11 +212,11 @@ AsmComment (char *lpos, FILE *cmdfile)
         }
 
         /* Now we can finally store the comment */
-        txt = (char *)mem_alloc (strlen(lpos) + 1);
+        txt = (char*)mem_alloc(strlen(lpos) + 1);
         txt[strlen(lpos)] = '\0';
-        strncpy (txt,lpos,strlen(lpos));
-        cline = (struct comment_line *)mem_alloc (sizeof (struct comment_line));
-        memset (cline, 0, sizeof(struct comment_line));
+        strncpy(txt, lpos, strlen(lpos));
+        cline = (struct comment_line*)mem_alloc(sizeof(struct comment_line));
+        memset(cline, 0, sizeof(struct comment_line));
 
         if (prevline)
         {
@@ -260,27 +253,19 @@ void do_cmd_file(struct options* opt)
     char miscbuf[240];
 
     /* We will do our check for a specification for the CmdFile here */
-    if ( !opt->CmdFP)
+    if (!opt->CmdFP)
     {
         return;
     }
 
-    NxtBnd = 0;                 /* init Next boundary pointer */
+    NxtBnd = 0; /* init Next boundary pointer */
 
-    /*if ( ! (CmdFP = fopen (CmdFileName, "rb")))
+    while (fgets(miscbuf, sizeof(miscbuf), opt->CmdFP))
     {
-        fprintf (stderr, "Erorr # %d: Cannot open cmd file %s for read\n",
-                          errno, CmdFileName);
-        exit (1);
-    }*/
-
-    while (fgets (miscbuf, sizeof (miscbuf), opt->CmdFP))
-    {
-        char *th,
-             *mbf;
+        char *th, *mbf;
         ++LinNum;
 
-        mbf = skipblank (miscbuf);
+        mbf = skipblank(miscbuf);
 
         /* Convert newlines and carriage returns to null */
         th = (char*)strchr(mbf, '\n');
@@ -292,88 +277,85 @@ void do_cmd_file(struct options* opt)
         th = strchr(mbf, '\r');
         if (th)
         {
-                *th = '\0';
+            *th = '\0';
         }
 
-        if ( ! strlen (mbf))      /* blank line? */
+        if (!strlen(mbf)) /* blank line? */
         {
             continue;
         }
 
         switch (*mbf)
         {
-        case '*':         /* Comment */
-            continue;           /*yes, ignore   */
-        case '+':         /* Options */
-            if (optincmd (++mbf, opt) == -1)
-            {   /* an error in an option would probably be fatal, anyway */
-                fprintf (stderr, "Error processing cmd line #%d\n", LinNum);
-                exit (1);
+        case '*':     /* Comment */
+            continue; /*yes, ignore   */
+        case '+':     /* Options */
+            if (optincmd(++mbf, opt) == -1)
+            { /* an error in an option would probably be fatal, anyway */
+                fprintf(stderr, "Error processing cmd line #%d\n", LinNum);
+                exit(1);
             }
             continue;
-        case '"':        /* Assembler file comment(s)    */
-            if (AsmComment (++mbf, opt->CmdFP) == -1)
+        case '"': /* Assembler file comment(s)    */
+            if (AsmComment(++mbf, opt->CmdFP) == -1)
             {
                 fprintf(stderr, "Error processing cmd line #%d\n", LinNum);
-                exit (1);
+                exit(1);
             }
 
             continue;
-        case '\'':   /* Append comment to end of line */
-            if (ApndCmnt ( ++mbf) == -1)
+        case '\'': /* Append comment to end of line */
+            if (ApndCmnt(++mbf) == -1)
             {
-                fprintf (stderr, "Error processing cmd line #%d\n",LinNum);
-                exit (1);
+                fprintf(stderr, "Error processing cmd line #%d\n", LinNum);
+                exit(1);
             }
 
             continue;
         case '>':
-            AMode = cmdamode(skipblank (++mbf), defaultLabelClasses, AMode);
+            AMode = cmdamode(skipblank(++mbf), defaultLabelClasses, AMode);
             continue;
 
-        /* rof ascii data definition */
-        /*case '=':
-            rof_ascii (skipblank (++mbf));
-            continue;*/
+            /* rof ascii data definition */
+            /*case '=':
+                rof_ascii (skipblank (++mbf));
+                continue;*/
         }
 
-        if (strchr (BoundsNames, toupper (*mbf)) || isdigit (*mbf))
+        if (strchr(BoundsNames, toupper(*mbf)) || isdigit(*mbf))
         {
-            boundsline (mbf);
+            boundsline(mbf);
         }
-        else   /* All possible options are exhausted */
+        else /* All possible options are exhausted */
         {
-            fprintf (stderr, "Illegal cmd or switch in line %d\n", LinNum);
-            exit (1);
+            fprintf(stderr, "Illegal cmd or switch in line %d\n", LinNum);
+            exit(1);
         }
     }
 }
 
-/* ************************************************************************ *
- * ApndCmnt() - Add comments to the end of the assembler command line       *
- * Format for this entry:                                                   *
- *      ' <Label Class> <hex addr> text                                     *
- *      ---                                                                 *
- * No delimiter is used, all text to the end of the line is included        *
- * ************************************************************************ */
-
-int
-ApndCmnt (char *lpos)
+/*
+ * ApndCmnt() - Add comments to the end of the assembler command line
+ * Format for this entry:
+ *      ' <Label Class> <hex addr> text
+ *      ---
+ * No delimiter is used, all text to the end of the line is included
+ */
+int ApndCmnt(char* lpos)
 {
     char lblclass;
     int myadr;
-    struct append_comment *mycmnt,
-                    **me_ptr;
-    char *cline;
+    struct append_comment *mycmnt, **me_ptr;
+    char* cline;
 
     lpos = cmntsetup(lpos, &lblclass, &myadr);
-    if ( ! lpos)
+    if (!lpos)
     {
         return -1;
     }
 
-    mycmnt = CmntApnd[strpos (lblorder, lblclass)];
-    me_ptr = &(CmntApnd[strpos (lblorder, lblclass)]);
+    mycmnt = CmntApnd[strpos(lblorder, lblclass)];
+    me_ptr = &(CmntApnd[strpos(lblorder, lblclass)]);
 
     if (mycmnt)
     {
@@ -407,33 +389,26 @@ ApndCmnt (char *lpos)
                         break;
                     }
                 }
-                else                /* Else we've encountered an   */
-                {                   /* existing entry for this adr */
+                else /* Else we've encountered an   */
+                {    /* existing entry for this adr */
                     break;
                 }
             }
         }
     }
 
-    mycmnt = (struct append_comment *)mem_alloc (sizeof (struct append_comment));
-    memset (mycmnt, 0, sizeof (struct append_comment));
+    mycmnt = (struct append_comment*)mem_alloc(sizeof(struct append_comment));
+    memset(mycmnt, 0, sizeof(struct append_comment));
 
-    if ( ! mycmnt)
+    if (!mycmnt)
     {
-        fprintf (stderr, "Cannot allocate memory for append comment\n");
-        exit (1);
+        fprintf(stderr, "Cannot allocate memory for append comment\n");
+        exit(1);
     }
 
     mycmnt->adrs = myadr;
 
- /*   if (me_ptr)
-    {*/
-        *me_ptr = mycmnt;
-/*    }
-    else
-    {
-        CmntApnd[strpos (lblorder, lblclass)] = mycmnt;
-    }*/
+    *me_ptr = mycmnt;
 
     /* Get rid of newlines */
 
@@ -449,59 +424,56 @@ ApndCmnt (char *lpos)
         *cline = '\0';
     }
 
-    mycmnt->CmPtr = (char *)mem_alloc (strlen (lpos) + 1);
+    mycmnt->CmPtr = (char*)mem_alloc(strlen(lpos) + 1);
 
     if (mycmnt->CmPtr)
     {
-        strcpy (mycmnt->CmPtr, lpos);
+        strcpy(mycmnt->CmPtr, lpos);
     }
     else
     {
-        fprintf (stderr,
-                "Cannot allocat memory for append comment string\n");
-        exit (1);
+        fprintf(stderr, "Cannot allocat memory for append comment string\n");
+        exit(1);
     }
 
     return 1;
 }
 
-/* 
- * cmntsetup() - Get Label class and address for comment *
+/*
+ * cmntsetup() - Get Label class and address for comment
  * Passed: (1) - the command line string
  *         (2) - ptr to Class variable
- *         (3) - ptr to Address variable                       *
- * Returns current position in command line string       *
- *         positioned on the first char of the comment   *
- *         (either the delim for self-standing comments  *
- *          or the comment string for appends)           *
- * ***************************************************** */
-
-char *cmntsetup (char *cpos, char *clas, int *adrs)
+ *         (3) - ptr to Address variable
+ * Returns current position in command line string
+ *         positioned on the first char of the comment
+ *         (either the delim for self-standing comments
+ *          or the comment string for appends)
+ */
+char* cmntsetup(char* cpos, char* clas, int* adrs)
 {
-    register char *p;
+    register char* p;
 
-    cpos = skipblank (cpos);
+    cpos = skipblank(cpos);
 
-    *clas = *(cpos++);       /* first element is Label Class */
+    *clas = *(cpos++); /* first element is Label Class */
 
-    if (isalpha (*clas) && islower (*clas))
+    if (isalpha(*clas) && islower(*clas))
     {
         *clas = toupper(*clas);
     }
 
-    if ( ! strchr(lblorder,*clas))
+    if (!strchr(lblorder, *clas))
     {
-        fprintf (stderr, "Illegal label class for comment, Line %d\n", LinNum);
-        return (char *)0;
+        fprintf(stderr, "Illegal label class for comment, Line %d\n", LinNum);
+        return (char*)0;
     }
 
-    cpos = skipblank (cpos);    /* cpos now points to address */
+    cpos = skipblank(cpos); /* cpos now points to address */
 
-    if (sscanf (cpos,"%x", adrs) != 1)
+    if (sscanf(cpos, "%x", adrs) != 1)
     {
-        fprintf (stderr,"Error in getting address of comment : Line #%d\n",
-                 LinNum);
-        exit (1);
+        fprintf(stderr, "Error in getting address of comment : Line #%d\n", LinNum);
+        exit(1);
     }
 
     /* Now move up past address */
@@ -520,20 +492,19 @@ char *cmntsetup (char *cpos, char *clas, int *adrs)
     }
 
     *p = '\0';
-    return (cpos = skipblank (cpos));
+    return (cpos = skipblank(cpos));
 }
 
-/* *********************************************** *
- * newcomment() adds new comment_tree address       *
- * Passed: address for comment,                    *
- *         parent or null if first in tree         *
- * *********************************************** */
-
-static struct comment_tree *newcomment (int addrs, struct comment_tree *parent)
+/*
+ * newcomment() adds new comment_tree address
+ * Passed: address for comment,
+ *         parent or null if first in tree
+ */
+static struct comment_tree* newcomment(int addrs, struct comment_tree* parent)
 {
-    struct comment_tree *newtree;
+    struct comment_tree* newtree;
 
-    newtree = (struct comment_tree *)mem_alloc(sizeof (struct comment_tree));
+    newtree = (struct comment_tree*)mem_alloc(sizeof(struct comment_tree));
     memset(newtree, 0, sizeof(struct comment_tree));
 
     newtree->adrs = addrs;
@@ -541,22 +512,21 @@ static struct comment_tree *newcomment (int addrs, struct comment_tree *parent)
     return newtree;
 }
 
-/* ****************************************** *
+/*
  * Process options found in command file line *
- * ****************************************** */
-
-static int optincmd (char *lpos, struct options* opt)
+ */
+static int optincmd(char* lpos, struct options* opt)
 {
     char st[500], *spt = st;
 
-    while (*(lpos = skipblank (lpos)))
+    while (*(lpos = skipblank(lpos)))
     {
-        if (sscanf (lpos, "%500s", spt) != 1)
+        if (sscanf(lpos, "%500s", spt) != 1)
         {
             return (-1);
         }
 
-        lpos += strlen (spt);
+        lpos += strlen(spt);
 
         if (*spt == '-')
         {
@@ -568,22 +538,21 @@ static int optincmd (char *lpos, struct options* opt)
     return (0);
 }
 
-/* ************************************************************** *
- * cmdsplit() :  split cmdline..  i.e. transfer characters up to  *
- * ';' or end of line - returns ptr to next char in cmdline buffer*
- * ************************************************************** */
-// Pure function
-char *cmdsplit (char *dest, char *src)
+/*
+ * split cmdline..  i.e. transfer characters up to
+ * ';' or end of line - returns ptr to next char in cmdline buffer
+ * Pure function
+ */
+char* cmdsplit(char* dest, char* src)
 {
     char c;
 
-    src = skipblank (src);
+    src = skipblank(src);
 
     c = *src;
-    if ( ! c || (c == '\n'))
-        return 0;
+    if (!c || (c == '\n')) return 0;
 
-    if (strchr (src, ';'))
+    if (strchr(src, ';'))
     {
         while ((c = *(src++)) != ';')
         {
@@ -594,18 +563,17 @@ char *cmdsplit (char *dest, char *src)
     }
     else
     {
-        strcpy (dest, src);
-        src += strlen (src);
+        strcpy(dest, src);
+        src += strlen(src);
     }
     return src;
 }
 
-
-/* *************************************************** *
- * Process addressing modes found in command file line *
- * *************************************************** */
-// Pure function
-static int cmdamode(char *pt, char* defaultLabelClasses, int defaultAMode)
+/*
+ * Process addressing modes found in command file line
+ * Pure function
+ */
+static int cmdamode(char* pt, char* defaultLabelClasses, int defaultAMode)
 {
     char buf[80];
     int ret = defaultAMode;
@@ -619,40 +587,40 @@ static int cmdamode(char *pt, char* defaultLabelClasses, int defaultAMode)
     return ret;
 }
 
-/* **************************************************************** *
- * getrange() This function interprets the range specified in the   *
- *      command line and stores the low and high values in "lo"     *
- *      and "hi" (the addresses are passed by the caller            *
- * **************************************************************** */     
-// Pure function
-void getrange(char *pt, int *lo, int *hi, int usize, int allowopen, int GettingAmode)
+/*
+ * This function interprets the range specified in the
+ * command line and stores the low and high values in "lo"
+ * and "hi" (the addresses are passed by the caller
+ * Pure function
+ */
+void getrange(char* pt, int* lo, int* hi, int usize, int allowopen, int GettingAmode)
 {
     char tmpdat[50], c;
 
     /* see if it's just a single byte/word */
 
     pt = skipblank(pt);
-    if ( ! isxdigit(*pt))
+    if (!isxdigit(*pt))
     {
         if ((*pt == '-') || ((*pt == '/')))
         {
             if (GettingAmode)
             {
-                errexitFromCmdfile ("Open-ended ranges not permitted with Amodes");
+                errexitFromCmdfile("Open-ended ranges not permitted with Amodes");
             }
 
             if (NoEnd)
             {
-                errexitFromCmdfile ("No start address/no end address in prev line");
+                errexitFromCmdfile("No start address/no end address in prev line");
             }
 
             *lo = NxtBnd;
         }
         else
-        {                       /* no range specified */
-            if (*pt && (*pt != '\n'))   /* non-digit gargabe */
+        {                             /* no range specified */
+            if (*pt && (*pt != '\n')) /* non-digit gargabe */
             {
-                errexitFromCmdfile ("Illegal Address specified");
+                errexitFromCmdfile("Illegal Address specified");
             }
             else
             {
@@ -660,72 +628,72 @@ void getrange(char *pt, int *lo, int *hi, int usize, int allowopen, int GettingA
                 *lo = NxtBnd;
                 NxtBnd = *lo + usize;
                 *hi = NxtBnd - 1;
-                return;   /* We're done with this line */
+                return; /* We're done with this line */
             }
         }
     }
-    else  /* We have a (first) number) */
+    else /* We have a (first) number) */
     {
-        pt = cpyhexnum (tmpdat, pt);
-        sscanf (tmpdat, "%x", lo);
+        pt = cpyhexnum(tmpdat, pt);
+        sscanf(tmpdat, "%x", lo);
     }
 
     /* Scan for second number/range/etc */
 
-    switch (c = *(pt = skipblank (pt)))
+    switch (c = *(pt = skipblank(pt)))
     {
     case '/':
         if (GettingAmode)
         {
-            errexitFromCmdfile ("Cannot specify \"/\" in this mode!");
+            errexitFromCmdfile("Cannot specify \"/\" in this mode!");
         }
 
-        pt = skipblank (++pt);
+        pt = skipblank(++pt);
 
         switch (*pt)
         {
-            case ';':
-            case '\0':
-                if (NoEnd)          /* if a NoEnd from prev cmd, */
-                {                   /* second bump won't be done */
-                    ++NoEnd;
-                }
-
+        case ';':
+        case '\0':
+            if (NoEnd) /* if a NoEnd from prev cmd, */
+            {          /* second bump won't be done */
                 ++NoEnd;
-                *hi = *lo;
-                break;
-            default:
-                pt = cpy_digit_str (tmpdat, pt);
-                NxtBnd = *lo + atoi (tmpdat);
-                *hi = NxtBnd - 1;
-                break;
+            }
+
+            ++NoEnd;
+            *hi = *lo;
+            break;
+        default:
+            pt = cpy_digit_str(tmpdat, pt);
+            NxtBnd = *lo + atoi(tmpdat);
+            *hi = NxtBnd - 1;
+            break;
         }
 
         break;
     case '-':
-        switch (*(pt = skipblank (++pt)))
+        switch (*(pt = skipblank(++pt)))
         {
         case ';':
         case '\0':
             if (NoEnd)
-            {  /* if a NoEnd from prev cmd, second bump won't be done */
+            { /* if a NoEnd from prev cmd, second bump won't be done */
                 ++NoEnd;
             }
 
-            ++NoEnd;          /* Flag need end address */
-            *hi = *lo;          /* tmp value */
+            ++NoEnd;   /* Flag need end address */
+            *hi = *lo; /* tmp value */
             break;
         default:
-            if (isxdigit (*pt))
+            if (isxdigit(*pt))
             {
-                pt = cpyhexnum (tmpdat, pt);
-                sscanf (tmpdat, "%x", hi);
+                pt = cpyhexnum(tmpdat, pt);
+                sscanf(tmpdat, "%x", hi);
                 NxtBnd = *hi + 1;
             }
         }
         break;
     default:
-        if ( ! (*pt))
+        if (!(*pt))
         {
             NxtBnd = *lo + usize;
             *hi = NxtBnd - 1;
@@ -736,7 +704,7 @@ void getrange(char *pt, int *lo, int *hi, int usize, int allowopen, int GettingA
 
     if (*pt)
     {
-        errexitFromCmdfile ("Extra data...");
+        errexitFromCmdfile("Extra data...");
     }
 }
 
@@ -745,34 +713,35 @@ void getrange(char *pt, int *lo, int *hi, int usize, int allowopen, int GettingA
  *      cmdamode(), which splits the command line up into single commands.
  * Passed : lpos - Pointer to current character in command line.
  * Outputs to AMode_cmdfile global
- * 
+ *
  * Pure function
  */
-static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
+static int do_mode(char* lpos, int GettingAmode, char* defaultLabelClasses)
 {
-    struct data_bounds *mptr;
-    register int mclass;         /* addressing mode */
+    struct data_bounds* mptr;
+    register int mclass; /* addressing mode */
     char c;
     int lo, hi;
-    register struct data_bounds *lp;
-    struct offset_tree *otreept = 0;
+    register struct data_bounds* lp;
+    struct offset_tree* otreept = 0;
 
     int ret;
 
-    if (*(lpos = skipblank (lpos)) == '#')
+    if (*(lpos = skipblank(lpos)) == '#')
     {
-        lpos = skipblank (++lpos);
+        lpos = skipblank(++lpos);
     }
 
-    switch (c = toupper (*(lpos++)))
+    switch (c = toupper(*(lpos++)))
     {
-    case 'I': ret = AM_IMM;
+    case 'I':
+        ret = AM_IMM;
         break;
     case 'A':
-        ret = AM_A0;     /* Initial */
+        ret = AM_A0; /* Initial */
         c = *(lpos++);
 
-         /* Must be a0, a1, ..., a7 */
+        /* Must be a0, a1, ..., a7 */
         if ((c >= '0') && c < ('8'))
         {
             ret += (c - '0');
@@ -781,9 +750,9 @@ static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
         {
             char ar[4];
 
-            strncpy (ar, lpos - 1, 2);
+            strncpy(ar, lpos - 1, 2);
             ar[2] = '\0';
-            fprintf (stderr, "Illegal Address Register: %s\n", ar);
+            fprintf(stderr, "Illegal Address Register: %s\n", ar);
         }
 
         break;
@@ -797,17 +766,17 @@ static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
         ret = AM_LONG;
         break;
     default:
-        errexitFromCmdfile ("Illegal addressing mode");
-        exit (1);               /* not needed but just to be safe */
+        errexitFromCmdfile("Illegal addressing mode");
+        exit(1); /* not needed but just to be safe */
     }
 
-    lpos = skipblank (lpos);
+    lpos = skipblank(lpos);
     mclass = *(lpos++);
-    mclass = toupper (mclass);
+    mclass = toupper(mclass);
 
-    if ( ! strchr (lblorder, mclass)) /* Legal class ? */
+    if (!strchr(lblorder, mclass)) /* Legal class ? */
     {
-        errexitFromCmdfile ("Illegal class definition");
+        errexitFromCmdfile("Illegal class definition");
     }
 
     /* Offset spec (if any) */
@@ -815,7 +784,7 @@ static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
     /* check for default reset (no address) */
 
     lpos = skipblank(lpos);
-    if ( ! lpos || ! (*lpos) || (*lpos == ';'))
+    if (!lpos || !(*lpos) || (*lpos == ';'))
     {
         AMODE_BOUNDS_CHECK(ret);
         defaultLabelClasses[ret - 1] = mclass;
@@ -825,30 +794,30 @@ static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
 
     if (*(lpos) == '(')
     {
-        otreept = (struct offset_tree *)mem_alloc (sizeof (struct offset_tree));
-        memset (otreept, 0, sizeof(struct offset_tree));
-        lpos = setoffset (++lpos, otreept);
+        otreept = (struct offset_tree*)mem_alloc(sizeof(struct offset_tree));
+        memset(otreept, 0, sizeof(struct offset_tree));
+        lpos = setoffset(++lpos, otreept);
     }
 
-    lpos = skipblank (lpos);
+    lpos = skipblank(lpos);
 
-     /*  Hopefully, passing a hard-coded 1 will work always.
+    /*  Hopefully, passing a hard-coded 1 will work always.
      */
 
     getrange(lpos, &lo, &hi, 1, 0, GettingAmode);
 
     /* Now insert new range into tree */
 
-    mptr = (struct data_bounds *)mem_alloc (sizeof (struct data_bounds));
-    memset (mptr, 0, sizeof(struct data_bounds));
+    mptr = (struct data_bounds*)mem_alloc(sizeof(struct data_bounds));
+    memset(mptr, 0, sizeof(struct data_bounds));
 
     mptr->b_lo = lo;
     mptr->b_hi = hi;
     mptr->DLess = mptr->DMore = 0;
-    mptr->b_typ = mclass;        /*a_mode; */
+    mptr->b_typ = mclass; /*a_mode; */
     mptr->dofst = otreept;
 
-    if ( ! LAdds[ret])
+    if (!LAdds[ret])
     {
         LAdds[ret] = mptr;
         mptr->DPrev = 0;
@@ -891,7 +860,7 @@ static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
                 }
                 else
                 {
-                    errexitFromCmdfile ("Addressing mode segments overlap");
+                    errexitFromCmdfile("Addressing mode segments overlap");
                 }
             }
         }
@@ -902,50 +871,47 @@ static int do_mode(char *lpos, int GettingAmode, char* defaultLabelClasses)
 
 #define ILLBDRYNAM "Illegal boundary name in line %d\n"
 
-/* ************************************************************ *
- * boundsline () -Process boundaries found in command file line *
- *      This processes the entire line, including all multiple  *
- *      commands separated by a semicolon  on the same line     *
- *      (Called from mainline cmdfile processing routine.       *
- * ************************************************************ */     
-
-void boundsline (char *mypos)
+/*
+ * Process boundaries found in command file line *
+ * This processes the entire line, including all multiple
+ * commands separated by a semicolon  on the same line
+ * (Called from mainline cmdfile processing routine.
+ */
+void boundsline(char* mypos)
 {
     char tmpbuf[80];
-    register char *hold;
+    register char* hold;
     register int count = 1;
 
-    if (isdigit (*mypos))           /*   Repeat count for line   */
+    if (isdigit(*mypos)) /*   Repeat count for line   */
     {
-        mypos = cpy_digit_str (tmpbuf, mypos);
-        count = atoi (tmpbuf);
-        mypos = skipblank (mypos);
+        mypos = cpy_digit_str(tmpbuf, mypos);
+        count = atoi(tmpbuf);
+        mypos = skipblank(mypos);
     }
 
-    hold = mypos;       /* Save begin of count repeated commands */
+    hold = mypos; /* Save begin of count repeated commands */
 
     /* Repeatedly process the repeated commands for count times */
 
     while (count--)
     {
-        char *nextpos;
+        char* nextpos;
         mypos = hold;
 
         /* Process each command (within the repeat) individually */
 
-        
         for (nextpos = cmdsplit(tmpbuf, mypos); nextpos; mypos = nextpos, nextpos = cmdsplit(tmpbuf, mypos))
         {
-            setupbounds (tmpbuf);
+            setupbounds(tmpbuf);
         }
     }
 }
 
-/* ************************************************* *
- * set up offset (if there) for offset specification *
- * ************************************************* */
-
-static char * setoffset (char *p, struct offset_tree *oft)
+/*
+ * set up offset (if there) for offset specification
+ */
+static char* setoffset(char* p, struct offset_tree* oft)
 {
     char c, bufr[80];
 
@@ -953,95 +919,91 @@ static char * setoffset (char *p, struct offset_tree *oft)
 
     oft->oclas_maj = oft->of_maj = oft->add_to = 0;
 
-    p = skipblank (p);
+    p = skipblank(p);
 
-    if ( ! strchr (p, ')'))
+    if (!strchr(p, ')'))
     {
-        errexitFromCmdfile ("\"(\" in command with no \")\"");
+        errexitFromCmdfile("\"(\" in command with no \")\"");
     }
 
     /* If it's "*", handle it */
 
-    if ((c = toupper (*(p++))) == '*')
+    if ((c = toupper(*(p++))) == '*')
     {
         /* Hope this works - flag * addressing like this  */
         oft->incl_pc++;
-        p = skipblank (p);      /* used this char, position for next */
-        c = toupper (*(p++));
+        p = skipblank(p); /* used this char, position for next */
+        c = toupper(*(p++));
     }
     switch (c)
     {
-        case '+':       /* Allowable for "*" ??? */
-            ++oft->add_to;
-            break;
-        case '-':
-            break;
-        case ')':
-            if (!oft->incl_pc)
-                errexitFromCmdfile ("Blank offset spec!!!");
+    case '+': /* Allowable for "*" ??? */
+        ++oft->add_to;
+        break;
+    case '-':
+        break;
+    case ')':
+        if (!oft->incl_pc) errexitFromCmdfile("Blank offset spec!!!");
 
-            oft->oclas_maj = 'L';
+        oft->oclas_maj = 'L';
 
-            return p;
-        default:
-            errexitFromCmdfile ("No '+', '-', or '*' in offset specification");
+        return p;
+    default:
+        errexitFromCmdfile("No '+', '-', or '*' in offset specification");
     }
 
     /* At this point, we have a "+" or "-" and are sitting on it */
 
-    p = skipblank (p);
-    c = toupper (*(p++));
+    p = skipblank(p);
+    c = toupper(*(p++));
 
-    if ( ! strchr (lblorder, oft->oclas_maj = c) )
-        errexitFromCmdfile ("No offset specified !!");
+    if (!strchr(lblorder, oft->oclas_maj = c)) errexitFromCmdfile("No offset specified !!");
 
-    p = skipblank (p);
+    p = skipblank(p);
 
-    if ( ! isxdigit (*p))
+    if (!isxdigit(*p))
     {
-        errexitFromCmdfile ("Non-Hex number in offset value spec");
+        errexitFromCmdfile("Non-Hex number in offset value spec");
     }
 
     /* NOTE: need to be sure string is lowercase and following
      * value needs to go into the structure */
 
-    p = cpyhexnum (bufr, p);
-    sscanf (bufr, "%x", &(oft->of_maj));
+    p = cpyhexnum(bufr, p);
+    sscanf(bufr, "%x", &(oft->of_maj));
     /*if(add_to)
        oft->of_maj = -(oft->of_maj); */
 
     /* Here oft->of_maj contains the offset specified in (+/-xxxx) */
 
-    if (*(p = skipblank (p)) == ')')
+    if (*(p = skipblank(p)) == ')')
     {
         addlbl(c, oft->of_maj, NULL);
         /*addlbl (oft->of_maj, c, NULL);*/
     }
-    else {
-        errexitFromCmdfile ("Illegal character.. offset must end with \")\"");
+    else
+    {
+        errexitFromCmdfile("Illegal character.. offset must end with \")\"");
     }
 
     return ++p;
 }
 
-static void
-bndoverlap ()
+static void bndoverlap()
 {
-    fprintf (stderr, "Data segment overlap in line %d\n", LinNum);
-    exit (1);
+    fprintf(stderr, "Data segment overlap in line %d\n", LinNum);
+    exit(1);
 }
 
-/* ***************************************************** *
- * bdinsert() - inserts an entry into the boundary table *
- * ***************************************************** */
-
-static void
-bdinsert (struct data_bounds *bb)
+/*
+ * bdinsert() - inserts an entry into the boundary table
+ */
+static void bdinsert(struct data_bounds* bb)
 {
-    register struct data_bounds *npt;
+    register struct data_bounds* npt;
     register int mylo = bb->b_lo, myhi = bb->b_hi;
 
-    npt = dbounds;              /*  Start at base       */
+    npt = dbounds; /*  Start at base       */
 
     while (1)
     {
@@ -1077,130 +1039,125 @@ bdinsert (struct data_bounds *bb)
             }
             else
             {
-                bndoverlap ();
+                bndoverlap();
             }
         }
     }
 }
 
-/* **************************************************************** *
- * setupbounds() - The base entry point for setting up a single     *
- *      boundary.                                                   *
- * Passed : lpos = current position in cmd line                     *
- * **************************************************************** */
-
-void setupbounds (char *lpos)
+/*
+ * The base entry point for setting up a single boundary.
+ * Passed : lpos = current position in cmd line
+ */
+void setupbounds(char* lpos)
 {
-    struct data_bounds *bdry;
-    register int bdtyp,
-             lclass = 0;
-    int rglo,
-        rghi;
-    char c,
-         loc[20];
-    struct offset_tree *otreept = 0;
+    struct data_bounds* bdry;
+    register int bdtyp, lclass = 0;
+    int rglo, rghi;
+    char c, loc[20];
+    struct offset_tree* otreept = 0;
 
-    PBytSiz = 1;                /* Default to single byte */
+    PBytSiz = 1; /* Default to single byte */
 
     /* First character should be boundary type */
 
-    switch (c = toupper (*(lpos = skipblank (lpos))))
+    switch (c = toupper(*(lpos = skipblank(lpos))))
     {
-        case 'C':       /* 'C'ode cmd.  simply sets the Boundary Pointer */
-                        /* for the next command */
-            lpos = skipblank (++lpos);
-            lpos = cpyhexnum (loc, lpos);
-            sscanf (loc, "%x", &NxtBnd);
-            ++NxtBnd;   /* Position to start of NEXT boundary */
-            return;     /* Nothing else to do for this option */
+    case 'C': /* 'C'ode cmd.  simply sets the Boundary Pointer */
+              /* for the next command */
+        lpos = skipblank(++lpos);
+        lpos = cpyhexnum(loc, lpos);
+        sscanf(loc, "%x", &NxtBnd);
+        ++NxtBnd; /* Position to start of NEXT boundary */
+        return;   /* Nothing else to do for this option */
 
-            /* Label types */
+        /* Label types */
 
+    case 'L':
+        /*PBytSiz = 2;*/
+        lpos = skipblank(++lpos);
+
+        switch (toupper(*(lpos++)))
+        {
+        case 'W':
+            PBytSiz = 2;
+            break;
         case 'L':
-            /*PBytSiz = 2;*/
-            lpos = skipblank (++lpos);
-            
-            switch (toupper (*(lpos++)))
-            {
-            case 'W':
-                PBytSiz = 2;
-                break;
-            case 'L':
-                PBytSiz = 4;
-            }
+            PBytSiz = 4;
+        }
 
-            lpos = skipblank (lpos);
-            lclass = toupper(*lpos);
+        lpos = skipblank(lpos);
+        lclass = toupper(*lpos);
 
-            if ( ! strchr (lblorder, lclass))
-            {
-                errexitFromCmdfile ("Illegal Label Class");
-            }
+        if (!strchr(lblorder, lclass))
+        {
+            errexitFromCmdfile("Illegal Label Class");
+        }
 
+        break;
+
+    case 'D': /* Non-label "D"igit values) */
+        lclass = '$';
+        lpos = skipblank(++lpos);
+
+        switch (toupper(*lpos))
+        {
+        case 'B':
+            PBytSiz = 1;
             break;
-
-        case 'D':   /* Non-label "D"igit values) */
-            lclass = '$';
-            lpos = skipblank(++lpos);
-
-            switch (toupper(*lpos))
-            {
-            case 'B':
-                PBytSiz = 1;
-                break;
-            case 'W':
-                PBytSiz = 2;
-                break;
-            case 'L':
-                PBytSiz = 4;
-                break;
-            }
-
-            lpos = skipblank(++lpos);
-
-            switch (*lpos)
-            {
-                case '&':
-                case '^':
-                case '$':
-                    lclass = *lpos;
-                    break;
-                default:
-                    --lpos;
-                    break;
-            }
-
+        case 'W':
+            PBytSiz = 2;
             break;
-
-        case 'A':    /* ASCII string  data */
-            lclass = '^';
+        case 'L':
+            PBytSiz = 4;
             break;
-        case '>':
-            AMode = cmdamode(skipblank (++lpos), defaultLabelClasses, AMode);
+        }
+
+        lpos = skipblank(++lpos);
+
+        switch (*lpos)
+        {
+        case '&':
+        case '^':
+        case '$':
+            lclass = *lpos;
             break;
         default:
-            fprintf(stderr, "%s\n", lpos);
-            errexitFromCmdfile ("Illegal boundary name");
+            --lpos;
+            break;
+        }
+
+        break;
+
+    case 'A': /* ASCII string  data */
+        lclass = '^';
+        break;
+    case '>':
+        AMode = cmdamode(skipblank(++lpos), defaultLabelClasses, AMode);
+        break;
+    default:
+        fprintf(stderr, "%s\n", lpos);
+        errexitFromCmdfile("Illegal boundary name");
     }
 
-    bdtyp = (int) strpos (BoundsNames, c) + 1;
+    bdtyp = (int)strpos(BoundsNames, c) + 1;
 
     /* Offset spec (if any) */
 
-    lpos = skipblank (++lpos);
+    lpos = skipblank(++lpos);
 
     if (*(lpos) == '(')
     {
-        otreept = (struct offset_tree *)mem_alloc (sizeof (struct offset_tree));
-        memset (otreept, 0, sizeof(struct offset_tree));
-        lpos = setoffset (++lpos, otreept);
+        otreept = (struct offset_tree*)mem_alloc(sizeof(struct offset_tree));
+        memset(otreept, 0, sizeof(struct offset_tree));
+        lpos = setoffset(++lpos, otreept);
     }
 
-    getrange (lpos, &rglo, &rghi, PBytSiz, 1, FALSE);
+    getrange(lpos, &rglo, &rghi, PBytSiz, 1, FALSE);
 
     /* Now create the addition to the list */
 
-    bdry = (struct data_bounds *)mem_alloc (sizeof (struct data_bounds));
+    bdry = (struct data_bounds*)mem_alloc(sizeof(struct data_bounds));
     memset(bdry, 0, sizeof(struct data_bounds));
     bdry->b_lo = rglo;
     bdry->b_hi = rghi;
@@ -1224,67 +1181,59 @@ void setupbounds (char *lpos)
     {
         switch (NoEnd)
         {
-        case 1:                /* NoEnd from this pass */
-            ++NoEnd;            /* flag for next pass */
+        case 1:      /* NoEnd from this pass */
+            ++NoEnd; /* flag for next pass */
             break;
         default:
             /*fprintf (stderr, "NoEnd in prev cmd.. ");
             fprintf (stderr, "inserting \\x%x for prev hi\n", bdry->b_lo);
             fprintf(stderr,"...\n");*/
             prevbnd->b_hi = bdry->b_lo - 1;
-            NoEnd -= 2;          /* undo one flagging */
+            NoEnd -= 2; /* undo one flagging */
         }
     }
 
-    prevbnd = bdry;             /* save this for open-ended bound */
+    prevbnd = bdry; /* save this for open-ended bound */
 
-    if ( ! dbounds)
-    {                           /* First entry  */
+    if (!dbounds)
+    { /* First entry  */
         bdry->DPrev = 0;
         dbounds = bdry;
     }
     else
     {
-        bdinsert (bdry);
+        bdinsert(bdry);
     }
 }
 
-/* ******************************************************************** *
- * cpyhexnum() - Copies all valid hexadecimal string from "src" to      *
- *      "dst" until a non-hex char is encountered and NULL-terminates   *
- *      string in "dst".                                                *
- * Passed : (1) - Destination for string .  It is the responsibility of *
- *                the caller to insure that "dst" is of adequate size.  *
- *          (2) - Source from which to copy                             *
- * Returns: Pointer to first non-hexadecimal character in src string.   *
- *          This may be a space, "/", etc.                              *
- * ******************************************************************** */
-// Pure function
-static char * cpyhexnum (char *dst, char *src)
+/*
+ * Copies all valid hexadecimal string from "src" to
+ * "dst" until a non-hex char is encountered and NULL-terminates
+ * string in "dst".
+ * Passed : (1) - Destination for string .  It is the responsibility of
+ *                the caller to insure that "dst" is of adequate size.
+ *          (2) - Source from which to copy
+ * Returns: Pointer to first non-hexadecimal character in src string.
+ *          This may be a space, "/", etc.
+ * Pure function
+ */
+static char* cpyhexnum(char* dst, char* src)
 {
-    while (isxdigit (*(src)))
-        *(dst++) = tolower (*(src++));
+    while (isxdigit(*(src)))
+        *(dst++) = tolower(*(src++));
     *dst = '\0';
     return src;
 }
 
-/* ******************************************************************** *
- * cpy_digit_str() - Copies string of digits from "src" to "dst" until  *
- *      a non-digit is encountered.  See cpyhexnum() for details        *
- * ******************************************************************** */
-// Pure function.
-static char * cpy_digit_str (char *dst, char *src)
+/*
+ * Copies string of digits from "src" to "dst" until
+ * a non-digit is encountered.  See cpyhexnum() for details
+ * Pure function.
+ */
+static char* cpy_digit_str(char* dst, char* src)
 {
-    while (isdigit (*(src)))
+    while (isdigit(*(src)))
         *(dst++) = *(src++);
     *dst = '\0';
     return src;
 }
-
-/* FIXME : This is not used, but it's wrong anyway... fix or delete */
-/*int
-endofcmd (char *pp)
-{
-    return (1 ? ((*pp == '\n') || (*pp == ';') || ( ! (*pp))) : 0);
-}*/
-

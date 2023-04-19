@@ -24,41 +24,35 @@
  * ******************************************************************** */
 
 #ifndef HAVE_STRUCTS
-#   define HAVE_STRUCTS
-
-
-
+#define HAVE_STRUCTS
 
 /*struct extended020 {
 };*/
 
-
 /* Offset 9 (-L00xx) - type stuff ] */
 
-struct offset_tree {
-    char oclas_maj;        /* Class to use in offset addressing          */
-    int  of_maj;           /* The main offset value                      */
-    char incl_pc;          /* Flag to include PC offset mode             */
-    int add_to;            /* Flag: if set, add to offset, else subtract */
+struct offset_tree
+{
+    char oclas_maj; /* Class to use in offset addressing          */
+    int of_maj;     /* The main offset value                      */
+    char incl_pc;   /* Flag to include PC offset mode             */
+    int add_to;     /* Flag: if set, add to offset, else subtract */
     /*int of_sec;          Secondary offset (0 if none) */
     /*char oclas_sec;      Class of secondary offset */
 };
 
 /* Data areas/Label Addressing Modes tree structure */
 
-struct data_bounds {
-    int  b_lo,         /* Lower (beginning) boundary address       */
-         b_hi,         /* Upper (ending) boundary address          */
-         b_siz;        /* Size of one unit in the set              */
-    char b_typ;        /* Boundary type for DA's and Lbl Class for AModes */
-    char b_class;      /* Class for class 'L' and 'S' boundaries          */
-    struct offset_tree *dofst;
-    struct data_bounds *DLess,
-                        *DMore,
-                        *DPrev;
+struct data_bounds
+{
+    int b_lo,     /* Lower (beginning) boundary address       */
+        b_hi,     /* Upper (ending) boundary address          */
+        b_siz;    /* Size of one unit in the set              */
+    char b_typ;   /* Boundary type for DA's and Lbl Class for AModes */
+    char b_class; /* Class for class 'L' and 'S' boundaries          */
+    struct offset_tree* dofst;
+    struct data_bounds *DLess, *DMore, *DPrev;
 };
-
-
 
 /* ******************************************** *
  * xtndcmnt structures                          *
@@ -66,11 +60,12 @@ struct data_bounds {
  * end of the assembly line                     *
  * ******************************************** */
 
-struct append_comment {
+struct append_comment
+{
     int adrs;
-    struct append_comment *apLeft;
-    struct append_comment *apRight;
-    char *CmPtr;
+    struct append_comment* apLeft;
+    struct append_comment* apRight;
+    char* CmPtr;
 };
 
 /* ************************************ *
@@ -78,22 +73,21 @@ struct append_comment {
  * ************************************ */
 
 /* Single line of a comment */
-struct comment_line {
-    struct comment_line *nextline;
-    char *ctxt;
+struct comment_line
+{
+    struct comment_line* nextline;
+    char* ctxt;
 };
 
 /* Main tree */
 
-struct comment_tree {
+struct comment_tree
+{
     int adrs;
-    struct comment_tree *cmtUp;
-    struct comment_tree *cmtLeft;
-    struct comment_tree *cmtRight;
-    struct comment_line *commts;
+    struct comment_tree* cmtUp;
+    struct comment_tree* cmtLeft;
+    struct comment_tree* cmtRight;
+    struct comment_line* commts;
 };
 
-
-#endif             /*    #define HAVE_STRUCTS */
-
-
+#endif /*    #define HAVE_STRUCTS */

@@ -26,33 +26,32 @@
  *                                                                      *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define _MAIN_  /* We will define all variables in one header file, then
-                   define them extern from all other files */
+#define _MAIN_ /* We will define all variables in one header file, then                                                \
+                  define them extern from all other files */
 
-#include <string.h>
-#include <ctype.h>
 #include "disglobs.h"
-#include "textdef.h"
-#include "modtypes.h"
 #include "main_support.h"
+#include "modtypes.h"
+#include "textdef.h"
+#include <ctype.h>
+#include <string.h>
 
-#include "rof.h"
-#include "commonsubs.h"
 #include "cmdfile.h"
+#include "command_items.h"
+#include "commonsubs.h"
 #include "def68def.h"
-#include "exit.h"
 #include "dismain.h"
 #include "dprint.h"
+#include "exit.h"
 #include "label.h"
-#include "command_items.h"
-
+#include "rof.h"
 
 #ifdef _WIN32
-#   define strcasecmp _stricmp
+#define strcasecmp _stricmp
 #endif
 
 #ifdef _OSK
-#   define strcasecmp strcmp
+#define strcasecmp strcmp
 #endif
 
 /* Some variables that are only used in one or two modules */
@@ -66,18 +65,19 @@ int IDataCount;
 int HdrEnd;
 
 int AMode;
-//int AMode_cmdfile;
 int NowClass;
 int PBytSiz;
 
 static int get_asmcmd(struct parse_state* state);
 
-static const char *DrvrJmps[] = {
-    "Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL
-};
+static const char* DrvrJmps[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
 
-static const char *FmanJmps[] = {"Open", "Create", "Makdir", "Chgdir", "Delete", "Seek",
-        "Read", "Write", "Readln", "Writeln", "Getstat", "Setstat", "Close", NULL};
+static const char* FmanJmps[] = {"Open",  "Create", "Makdir",  "Chgdir",  "Delete",  "Seek",  "Read",
+                                 "Write", "Readln", "Writeln", "Getstat", "Setstat", "Close", NULL};
+
+const OPSTRUCTURE* opmains[] = {instr00, instr01, instr02, /* Repeat 3 times for 3 move sizes */
+                                instr03, instr04, instr05, instr06, instr07, instr08, instr09, NULL, /* No instr 010 */
+                                instr11, instr12, instr13, instr14, NULL};
 
 struct module_header* module_new()
 {
@@ -95,17 +95,13 @@ void module_destroy(struct module_header* module_)
     free(module_);
 }
 
-/* ***********************
- * get_drvr_jmps()
- *    Read the Driver initialization table and set up
- *    label names.
- */
+// Read the Driver initialization table and set up label names.
 // NOT ACTIVELY MAINTAINED.
 static void get_drvr_jmps(int mty, FILE* ModFP)
 {
-    register const char **pt;
+    register const char** pt;
     register int jmpdst;
-    int jmpbegin = ftell (ModFP);
+    int jmpbegin = ftell(ModFP);
     char boundstr[50];
 
     if (mty == MT_DEVDRVR)
@@ -123,25 +119,21 @@ static void get_drvr_jmps(int mty, FILE* ModFP)
 
         if (jmpdst)
         {
-            addlbl ('L', jmpdst, *pt);
-            sprintf (boundstr, "L W L %x-%lx", jmpbegin, ftell(ModFP) - 1);
+            addlbl('L', jmpdst, *pt);
+            sprintf(boundstr, "L W L %x-%lx", jmpbegin, ftell(ModFP) - 1);
         }
         else
         {
-            sprintf (boundstr, "L W & %x-%lx", jmpbegin, ftell(ModFP) - 1);
+            sprintf(boundstr, "L W & %x-%lx", jmpbegin, ftell(ModFP) - 1);
         }
 
-        setupbounds (boundstr);
+        setupbounds(boundstr);
         jmpbegin = ftell(ModFP);
         ++pt;
     }
-
 }
 
-/* ****************************************************** *
- * Get the module header.  We will do this only in Pass 1 *
- * ****************************************************** */
-
+// Get the module header.  We will do this only in Pass 1.
 static int get_modhead(struct options* opt)
 {
     /* Get standard (common to all modules) header fields */
@@ -183,7 +175,7 @@ static int get_modhead(struct options* opt)
         case MT_FILEMAN:
         case MT_DEVDRVR:
             mod->execOffset = fread_l(opt->ModFP);
-            
+
             /* Add label for Exception Handler, if applicable */
             /* Only for specific Module Types??? */
             mod->exceptionOffset = fread_l(opt->ModFP);
@@ -194,7 +186,7 @@ static int get_modhead(struct options* opt)
 
             /* Add btext */
             /* applicable for only specific Moule Types??? */
-            addlbl ('L', 0, "btext");
+            addlbl('L', 0, "btext");
 
             if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
             {
@@ -229,7 +221,7 @@ static int get_modhead(struct options* opt)
                 IDataBegin = fread_l(opt->ModFP);
                 IDataCount = fread_l(opt->ModFP);
                 /* Insure we have an entry for the first Initialized Data */
-                addlbl ('D', IDataBegin, "");
+                addlbl('D', IDataBegin, "");
                 CodeEnd = mod->initDataHeaderOffset;
             }
             else
@@ -243,7 +235,7 @@ static int get_modhead(struct options* opt)
         fseek(opt->ModFP, 0, SEEK_END);
         if (ftell(opt->ModFP) < mod->size)
         {
-            errexit ("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
+            errexit("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
         }
         modHeader = mod;
 
@@ -260,13 +252,9 @@ static int get_modhead(struct options* opt)
     return 0;
 }
 
-/*
- * modnam_find() - search a modna struct for the desired value
- * Returns: On Success: Pointer to the desired value
- *          On Failure: NULL
- */
-
-struct modnam * modnam_find (struct modnam *pt, int desired)
+/// <summary>Search a modna struct for the desired value</summary>
+/// <returns>Pointer to the desired value, or `nullptr` if missing.</returns>
+struct modnam* modnam_find(struct modnam* pt, int desired)
 {
     while ((pt->val) && (pt->val != desired))
     {
@@ -276,57 +264,49 @@ struct modnam * modnam_find (struct modnam *pt, int desired)
     return (pt->val ? pt : NULL);
 }
 
-/* ******************************************************************** *
- * RdLblFile() - Reads a label file and stores label values into label  *
- *      tree if value (or address) is present in tree                   *
- *      Path to file has already been opened and is stored in "inpath"  *
- *                                                                      *
- *      Lines are in the format:                                        *
- *        NAME equ ADDR CLASS                                           *
- *      ADDR can be either decimal, or hex with the prefix $.           *
- *      CLASS is one "D" or "L"                                         *
- * ******************************************************************** */
-
-static void RdLblFile (FILE *inpath)
+/*
+ * Reads a label file and stores label values into label tree if value (or
+ * address) is present in tree. Path to file has already been opened and is
+ * stored in "inpath".
+ *
+ * Lines are in the format:
+ *      NAME equ ADDR CLASS
+ * ADDR can be either decimal, or hex with the prefix $. CLASS is one "D" or "L".
+ */
+static void RdLblFile(FILE* inpath)
 {
-    char labelname[30],
-         clas,
-         eq[10],
-         strval[15],
-        *lbegin;
+    char labelname[30], clas, eq[10], strval[15], *lbegin;
     int address;
-    Label *nl;
+    Label* nl;
 
-    while ( ! feof (inpath))
+    while (!feof(inpath))
     {
         char rdbuf[81];
 
-        fgets (rdbuf, 80, inpath);
+        fgets(rdbuf, 80, inpath);
 
         lbegin = skipblank(rdbuf);
-        if ( ! lbegin || (*lbegin == '*'))
+        if (!lbegin || (*lbegin == '*'))
         {
             continue;
         }
 
-        if (sscanf (rdbuf, "%s %s %s %c", labelname, eq, strval, &clas) == 4)
+        if (sscanf(rdbuf, "%s %s %s %c", labelname, eq, strval, &clas) == 4)
         {
-            clas = toupper (clas);
+            clas = toupper(clas);
 
-            if ( ! strcasecmp (eq, "equ"))
+            if (!strcasecmp(eq, "equ"))
             {
                 /* Store address in proper place */
 
-                if (strval[0] == '$')   /* if represented in hex */
-                {
-                    sscanf (&strval[1], "%x", &address);
-                }
+                if (strval[0] == '$') /* if represented in hex */
+                    sscanf(&strval[1], "%x", &address);
                 else
                 {
-                    address = atoi (strval);
+                    address = atoi(strval);
                 }
 
-                nl = findlbl (clas, address);
+                nl = findlbl(clas, address);
 
                 if (nl)
                 {
@@ -338,13 +318,11 @@ static void RdLblFile (FILE *inpath)
     }
 }
 
-/* ******************************************************** *
- * GetLabels() - Set up all label definitions               *
- *      Reads in all default label files and then reads     *
- *      any files specified by the '-s' option.             *
- * ******************************************************** */
-
-static void GetLabels (struct options* opt)                    /* Read the labelfiles */
+/**
+ * Set up all label definitions. Reads in all default label files and then reads
+ * any files specified by the '-s' option.
+ */
+static void GetLabels(struct options* opt) /* Read the labelfiles */
 {
     register int x;
 
@@ -384,38 +362,29 @@ static void GetLabels (struct options* opt)                    /* Read the label
 
     for (x = 0; x < opt->LblFilz; x++)
     {
-        register FILE *inpath;
+        register FILE* inpath;
 
         inpath = build_path(opt->LblFNam[x], BINREAD, opt);
         if (inpath)
         {
             RdLblFile(inpath);
-            fclose (inpath);
+            fclose(inpath);
         }
         else
         {
-            fprintf (stderr, "ERROR! cannot open Label File %s for read\n",
-                opt->LblFNam[x]);
+            fprintf(stderr, "ERROR! cannot open Label File %s for read\n", opt->LblFNam[x]);
         }
     }
 }
 
 /*
- * dopass() - Do a complete single pass through the module.
- *      The first pass establishes the addresses of necessary labels
- *      On the second pass, the desired label names have been inserted
- *      and printing of the listing and writing of the source file is
- *      done, if either or both is desired.
+ * Do a complete single pass through the module. The first pass establishes the
+ * addresses of necessary labels. On the second pass, the desired label names
+ * have been inserted and printing of the listing and writing of the source file
+ * is done, if either or both is desired.
  */
-
 int dopass(int mypass, struct options* opt)
 {
-    /*int sval = 0;
-    int lval = 0;
-    int wval = 0;*/
-
-
-
     if (Pass == 1)
     {
         if (opt->ModFP)
@@ -439,7 +408,7 @@ int dopass(int mypass, struct options* opt)
             /* Set Default Addressing Modes according to Module Type */
             if (modHeader->type == MT_PROGRAM)
             {
-                //strcpy(DfltLbls, "&&&&&&D&&&&L");
+                // strcpy(DfltLbls, "&&&&&&D&&&&L");
                 strncpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
             }
             else if (modHeader->type == MT_DEVDRVR)
@@ -454,7 +423,7 @@ int dopass(int mypass, struct options* opt)
 
                    (a1) & (a5) default to Read/Write, etc.  For Init/Term, specify
                    AModes for these with Boundary Defs*/
-                //strcpy (DfltLbls, "&ZD&PG&&&&&L");
+                // strcpy (DfltLbls, "&ZD&PG&&&&&L");
                 strncpy(defaultLabelClasses, driverDefaultLabelClasses, AM_MAXMODES);
             }
         }
@@ -469,9 +438,8 @@ int dopass(int mypass, struct options* opt)
 
         setROFPass();
     }
-    else   /* Do Pass 2 Setup */
+    else /* Do Pass 2 Setup */
     {
-        /*parsetree ('A');*/
         GetLabels(opt);
 
         /* We do this here so that we can rename labels
@@ -525,7 +493,7 @@ int dopass(int mypass, struct options* opt)
     int instrNum = -1;
     while (PCPos < CodeEnd)
     {
-        struct data_bounds *bp;
+        struct data_bounds* bp;
 
         instrNum += 1;
 
@@ -535,9 +503,9 @@ int dopass(int mypass, struct options* opt)
         /* NOTE: The 6809 version did an "if" and it apparently worked,
          *     but we had to do this to get it to work with consecutive bounds.
          */
-        for (bp = ClasHere (dbounds, PCPos); bp; bp = ClasHere(dbounds, PCPos))
+        for (bp = ClasHere(dbounds, PCPos); bp; bp = ClasHere(dbounds, PCPos))
         {
-            NsrtBnds (bp, &parseState);
+            NsrtBnds(bp, &parseState);
             CmdEnt = PCPos;
         }
 
@@ -547,9 +515,7 @@ int dopass(int mypass, struct options* opt)
         {
             if (Pass == 2)
             {
-                /*PrintComment('L', CmdEnt, PCPos);*/
                 Instruction.comment = get_apcomment('L', CmdEnt);
-                /*list_print (&Instruction, CmdEnt, NULL);*/
                 PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
 
                 if (opt->PrintAllCode && Instruction.wcount)
@@ -564,26 +530,12 @@ int dopass(int mypass, struct options* opt)
                     {
                         char tmpcod[10];
 
-                        sprintf (tmpcod, "%04x ", (unsigned short)Instruction.code[wpos++]);
-                        strcat (codbuf, tmpcod);
+                        sprintf(tmpcod, "%04x ", (unsigned short)Instruction.code[wpos++]);
+                        strcat(codbuf, tmpcod);
                         --count;
-/*                        if (count > 1)
-                        {
-                            PrintAllCodLine(Instruction.code[wpos],
-                                    Instruction.code[wpos + 1]);
-                            count -= 2;
-                            wpos += 2;
-                        }
-                        else
-                        {
-                            PrintAllCodL1(Instruction.code[wpos]);
-                            --count;
-                            ++wpos;
-                        }*/
-                       /*printf("%04x ", Instruction.code[count] & 0xffff);*/
                     }
 
-                    printXtraBytes (codbuf);
+                    printXtraBytes(codbuf);
                 }
             }
         }
@@ -592,11 +544,9 @@ int dopass(int mypass, struct options* opt)
             if (Pass == 2)
             {
                 strcpy(Instruction.mnem, "dc.w");
-                sprintf(Instruction.params, "$%x",
-                        Instruction.cmd_wrd & 0xffff);
+                sprintf(Instruction.params, "$%x", Instruction.cmd_wrd & 0xffff);
                 PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
                 CmdEnt = PCPos;
-                /*list_print (&Instruction, CmdEnt, NULL);*/
             }
         }
     }
@@ -606,7 +556,6 @@ int dopass(int mypass, struct options* opt)
         WrtEnds(opt);
     }
 
-    /*reflst();*/
     return 0;
 }
 
@@ -614,48 +563,20 @@ int dopass(int mypass, struct options* opt)
  * noimplemented() - A dummy function which simply returns NULL for instructions
  *       that do not yet have handler functions
  */
-
-int notimplemented(struct cmd_items *ci, int tblno, const OPSTRUCTURE *op, struct parse_state* state)
+int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state)
 {
     return 0;
 }
 
-/*extern OPSTRUCTURE *instr00,*instr01,*instr04,*instr05,*instr06,
-       *instr07,*instr08,*instr09,*instr11,*instr12,*instr13,*instr14;*/
-const OPSTRUCTURE *opmains[] =
-{
-    instr00,
-    instr01,
-    instr02,    /* Repeat 3 times for 3 move sizes */
-    instr03,
-    instr04,
-    instr05,
-    instr06,
-    instr07,
-    instr08,
-    instr09,
-    NULL,       /* No instr 010 */
-    instr11,
-    instr12,
-    instr13,
-    instr14,
-    NULL
-};
-
 static int get_asmcmd(struct parse_state* state)
 {
-    /*extern OPSTRUCTURE syntax1[];
-    extern COPROCSTRUCTURE syntax2[];*/
-    register const OPSTRUCTURE *optbl;
+    register const OPSTRUCTURE* optbl;
 
     int opword;
     int j;
-    /*int size;*/
 
-
-    /*size = 0;*/
     Instruction.wcount = 0;
-    opword = getnext_w (&Instruction, state);
+    opword = getnext_w(&Instruction, state);
     /* Make adjustments for this being the command word */
     Instruction.cmd_wrd = Instruction.code[0] & 0xffff;
     Instruction.wcount = 0; /* Set it back again */
@@ -663,9 +584,8 @@ static int get_asmcmd(struct parse_state* state)
     /* This may be temporary.  Opword %1111xxxxxxxxxxxx is available
      * for 68030-68040 CPU's, but we are not yet making this available
      */
-    if ((opword & 0xf000) == 0xf000)
-        return 0;
-    
+    if ((opword & 0xf000) == 0xf000) return 0;
+
     optbl = opmains[(opword >> 12) & 0x0f];
     if (!optbl)
     {
@@ -674,14 +594,13 @@ static int get_asmcmd(struct parse_state* state)
 
     for (j = 0; j <= MAXINST; j++)
     {
-        const OPSTRUCTURE *curop = &optbl[j];
+        const OPSTRUCTURE* curop = &optbl[j];
 
         error = FALSE;
 
-        if (!(curop->name))
-            break;
+        if (!(curop->name)) break;
 
-        curop = tablematch (opword, curop);
+        curop = tablematch(opword, curop);
 
         /* The table must be organized such that the "cpulvl" field
          * is sorted in ascending order.  Therefore, if a "cpulvl"
@@ -710,56 +629,51 @@ static int get_asmcmd(struct parse_state* state)
         }
     }
 
-#if (DEVICE==68040 || COPROCESSOR==TRUE)
+#if (DEVICE == 68040 || COPROCESSOR == TRUE)
     for (h = 3; h <= MAXCOPROCINST; h++)
     {
         error = FALSE;
-        j = fpmatch (start);
+        j = fpmatch(start);
         if (!error)
         {
-            size = disassembleattempt (start, j);
-            if (size != 0)
-                break;
+            size = disassembleattempt(start, j);
+            if (size != 0) break;
         }
     }
 #endif
-/*    if (size == 0)
-    {
-        writer_printf(stdout_writer, "\n%c%8x", HEXDEL, start);
-        writer_printf(stdout_writer, " %4X\t\t  DC.W", get16 (start));
-        writer_printf(stdout_writer, " \t\t?  ");
-        return (2);
-    }
-    else
-        return (size);*/
+    /*    if (size == 0)
+        {
+            writer_printf(stdout_writer, "\n%c%8x", HEXDEL, start);
+            writer_printf(stdout_writer, " %4X\t\t  DC.W", get16 (start));
+            writer_printf(stdout_writer, " \t\t?  ");
+            return (2);
+        }
+        else
+            return (size);*/
 
     return 0;
 }
 
-/* ******************************************************************** *
- * MovBytes() - Reads data for Data Boundary range from input file and  *
- *          places it onto the print buffer (and does any applicable    *
- *          printing if in pass 2).                                     *
- * ******************************************************************** */
-
-void MovBytes (struct data_bounds *db, struct parse_state* state)
+/*
+ * Reads data for Data Boundary range from input file and places it onto the print
+ * buffer (and does any applicable printing if in pass 2).
+ */
+void MovBytes(struct data_bounds* db, struct parse_state* state)
 {
     struct cmd_items Ci;
     char tmps[20];
     unsigned int valu;
     int bmask;
-    /*char *xFmt[3] = {"$%02x", "$%04x", "$%08x"};*/
     char xtrabytes[50];
-    int cCount = 0,
-        maxLst;
-    char *xtrafmt;
+    int cCount = 0, maxLst;
+    char* xtrafmt;
 
     CmdEnt = PCPos;
 
     /* This may be temporary, and we may set PBytSiz
      * to the appropriate value */
     *xtrabytes = '\0';
-    strcpy (Ci.mnem, "dc");
+    strcpy(Ci.mnem, "dc");
     Ci.params[0] = '\0';
     Ci.lblname = "";
     Ci.comment = NULL;
@@ -778,17 +692,17 @@ void MovBytes (struct data_bounds *db, struct parse_state* state)
     switch (PBytSiz)
     {
     case 1:
-        strcat (Ci.mnem, ".b");
+        strcat(Ci.mnem, ".b");
         maxLst = 4;
         bmask = 0xff;
         break;
     case 2:
-        strcat (Ci.mnem, ".w");
+        strcat(Ci.mnem, ".w");
         maxLst = 2;
         bmask = 0xffff;
         break;
     case 4:
-        strcat (Ci.mnem, ".l");
+        strcat(Ci.mnem, ".l");
         maxLst = 1;
         bmask = 0xffff;
         break;
@@ -822,8 +736,7 @@ void MovBytes (struct data_bounds *db, struct parse_state* state)
 
         /*process_label (&Ci, AMode, valu);*/
 
-
-        LblCalc (tmps, valu, AMode, PCPos - db->b_siz, state->opt->IsROF);
+        LblCalc(tmps, valu, AMode, PCPos - db->b_siz, state->opt->IsROF);
 
         if (Pass == 2)
         {
@@ -835,26 +748,26 @@ void MovBytes (struct data_bounds *db, struct parse_state* state)
             }
             else if (cCount < maxLst)
             {
-                Ci.cmd_wrd =  ((Ci.cmd_wrd << (PBytSiz * 8)) | (valu & bmask));
+                Ci.cmd_wrd = ((Ci.cmd_wrd << (PBytSiz * 8)) | (valu & bmask));
             }
             else
             {
-                sprintf (tmpval, xtrafmt, valu & bmask);
-                strcat (xtrabytes, tmpval);
+                sprintf(tmpval, xtrafmt, valu & bmask);
+                strcat(xtrabytes, tmpval);
             }
 
             ++cCount;
 
             if (strlen(Ci.params))
             {
-                strcat (Ci.params, ",");
+                strcat(Ci.params, ",");
             }
 
-            strcat (Ci.params, tmps);
+            strcat(Ci.params, tmps);
 
             /* If length of operand string is max, print a line */
 
-            if ( (strlen (Ci.params) > 22) || findlbl ('L', PCPos))
+            if ((strlen(Ci.params) > 22) || findlbl('L', PCPos))
             {
                 PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
 
@@ -866,7 +779,7 @@ void MovBytes (struct data_bounds *db, struct parse_state* state)
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
                 Ci.lblname = NULL;
-                CmdEnt = PCPos/* _ PBytSiz*/;
+                CmdEnt = PCPos /* _ PBytSiz*/;
                 cCount = 0;
             }
         }
@@ -876,29 +789,28 @@ void MovBytes (struct data_bounds *db, struct parse_state* state)
 
     /* Loop finished.. print any unprinted data */
 
-    if ((Pass == 2) && strlen (Ci.params))
+    if ((Pass == 2) && strlen(Ci.params))
     {
         PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
 
         if (strlen(xtrabytes))
         {
-            printXtraBytes (xtrabytes);
+            printXtraBytes(xtrabytes);
         }
     }
 }
 
-
-/* ******************************************
- * MovAsc() - Move nb byes fordcb" statement
+/*
+ * Move nb byes fordcb" statement.
+ * TODO: Not sure how to trigger this code for testing?
  */
-// TODO: Not sure how to trigger this code for testing?
-void MovASC(int nb, char aclass, struct parse_state *state)
+void MovASC(int nb, char aclass, struct parse_state* state)
 {
     char oper_tmp[30];
     struct cmd_items Ci;
     int cCount = 0;
 
-    strcpy (Ci.mnem, "dc.b");         /* Default mnemonic to "fcc" */
+    strcpy(Ci.mnem, "dc.b"); /* Default mnemonic to "fcc" */
     CmdEnt = PCPos;
     *oper_tmp = '\0';
     Ci.cmd_wrd = 0;
@@ -910,9 +822,7 @@ void MovASC(int nb, char aclass, struct parse_state *state)
         register int x;
         char c[6];
 
-        if ((strlen (oper_tmp) > 24) ||
-            (strlen (oper_tmp) && findlbl (aclass, PCPos)))
-            /*(strlen (oper_tmp) && findlbl (ListRoot (aclass), PCPos + 1)))*/
+        if ((strlen(oper_tmp) > 24) || (strlen(oper_tmp) && findlbl(aclass, PCPos)))
         {
             sprintf(Ci.params, "\"%s\"", oper_tmp);
             PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
@@ -928,43 +838,37 @@ void MovASC(int nb, char aclass, struct parse_state *state)
         ++cCount;
         ++PCPos;
 
-        if (isprint (x) && (x != '"'))
+        if (isprint(x) && (x != '"'))
         {
             if (Pass == 2)
             {
-                /*if (strlen (pbuf->instr) < 12)
-                {
-                    sprintf (c, "%02x ", x);
-                    strcat (pbuf->instr, c);
-                }*/
-
-                sprintf (c, "%c", x & 0x7f);
-                strcat (oper_tmp, c);
+                sprintf(c, "%c", x & 0x7f);
+                strcat(oper_tmp, c);
 
                 if (cCount < 16)
                 {
                     Ci.cmd_wrd = (Ci.cmd_wrd << 8) | (x & 0xff);
                 }
-            }   /* end if (Pass2) */
+            } /* end if (Pass2) */
         }
-        else            /* then it's a control character */
+        else /* then it's a control character */
         {
             if (Pass == 1)
             {
                 if ((x & 0x7f) < 33)
                 {
                     char lbl[10];
-                    sprintf (lbl, "ASC%02x", x);
-                    addlbl ('^', x & 0xff, lbl);
+                    sprintf(lbl, "ASC%02x", x);
+                    addlbl('^', x & 0xff, lbl);
                 }
             }
-            else       /* Pass 2 */
+            else /* Pass 2 */
             {
                 /* Print any unprinted ASCII characters */
-                if (strlen (oper_tmp))
+                if (strlen(oper_tmp))
                 {
-                    sprintf (Ci.params, "\"%s\"", oper_tmp);
-                    PrintLine (pseudcmd, &Ci, aclass, CmdEnt, CmdEnt, state->opt);
+                    sprintf(Ci.params, "\"%s\"", oper_tmp);
+                    PrintLine(pseudcmd, &Ci, aclass, CmdEnt, CmdEnt, state->opt);
                     Ci.params[0] = '\0';
                     Ci.cmd_wrd = 0;
                     Ci.lblname = "";
@@ -975,15 +879,15 @@ void MovASC(int nb, char aclass, struct parse_state *state)
 
                 if (isprint(x))
                 {
-                    sprintf (Ci.params, "'%c'", x);
+                    sprintf(Ci.params, "'%c'", x);
                 }
                 else
                 {
-                    sprintf (Ci.params, "$%x", x);
+                    sprintf(Ci.params, "$%x", x);
                 }
 
                 Ci.cmd_wrd = x;
-                PrintLine (pseudcmd, &Ci, aclass, CmdEnt, PCPos, state->opt);
+                PrintLine(pseudcmd, &Ci, aclass, CmdEnt, PCPos, state->opt);
                 Ci.lblname = "";
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
@@ -991,14 +895,13 @@ void MovASC(int nb, char aclass, struct parse_state *state)
                 CmdEnt = PCPos;
             }
         }
-    }       /* end while (nb--) - all chars moved */
+    } /* end while (nb--) - all chars moved */
 
     /* Finally clean up any remaining data. */
-    if ((Pass == 2) && (strlen (oper_tmp)) )       /* Clear out any pending string */
+    if ((Pass == 2) && (strlen(oper_tmp))) /* Clear out any pending string */
     {
-        sprintf (Ci.params, "\"%s\"", oper_tmp);
-        /*list_print (&Ci, CmdEnt, NULL);*/
-        PrintLine (pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
+        sprintf(Ci.params, "\"%s\"", oper_tmp);
+        PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
         Ci.lblname = "";
         *oper_tmp = '\0';
     }
@@ -1006,41 +909,39 @@ void MovASC(int nb, char aclass, struct parse_state *state)
     CmdEnt = PCPos;
 }
 
-/* ********************************* *
- * NsertBnds():	Insert boundary area *
- * ********************************* */
-
-void NsrtBnds (struct data_bounds *bp, struct parse_state* state)
+/*
+ * Insert boundary area
+ */
+void NsrtBnds(struct data_bounds* bp, struct parse_state* state)
 {
-    /*memset (pbuf, 0, sizeof (struct printbuf));*/
-    AMode = 0;                  /* To prevent LblCalc from defining class */
+    AMode = 0; /* To prevent LblCalc from defining class */
     NowClass = bp->b_class;
-    PBytSiz = 1;                /* Default to one byte length */
+    PBytSiz = 1; /* Default to one byte length */
 
     switch (bp->b_typ)
     {
-        case 1:                    /* Ascii */
-            /* Bugfix?  Pc was bp->b_lo...  that setup allowed going past
-             * the end if the lower bound was not right. */
+    case 1: /* Ascii */
+        /* Bugfix?  Pc was bp->b_lo...  that setup allowed going past
+         * the end if the lower bound was not right. */
 
-            MovASC ((bp->b_hi) - PCPos + 1, 'L', state);
-            break;                  /* bump PC  */
-        case 6:                     /* Word */
-            PBytSiz = 2;            /* Takes care of both Word & Long */
-            MovBytes(bp, state);
-            break;
-        case 4:                     /* Long */
-            PBytSiz = 4;            /* Takes care of both Word & Long */
-            MovBytes(bp, state);
-            break;
-        case 2:                     /* Byte */
-        case 5:                     /* Short */
-            MovBytes (bp, state);
-            break;
-        case 3:                    /* "C"ode .. not implememted yet */
-            break;
-        default:
-            break;
+        MovASC((bp->b_hi) - PCPos + 1, 'L', state);
+        break;       /* bump PC  */
+    case 6:          /* Word */
+        PBytSiz = 2; /* Takes care of both Word & Long */
+        MovBytes(bp, state);
+        break;
+    case 4:          /* Long */
+        PBytSiz = 4; /* Takes care of both Word & Long */
+        MovBytes(bp, state);
+        break;
+    case 2: /* Byte */
+    case 5: /* Short */
+        MovBytes(bp, state);
+        break;
+    case 3: /* "C"ode .. not implememted yet */
+        break;
+    default:
+        break;
     }
 
     NowClass = 0;

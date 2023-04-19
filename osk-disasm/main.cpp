@@ -1,10 +1,10 @@
 
 #include "main_support.h"
 
-#include "exit.h"
-#include "dismain.h"
-#include "writer.h"
 #include "cmdfile.h"
+#include "dismain.h"
+#include "exit.h"
+#include "writer.h"
 
 int main(int argc, char** argv)
 {
@@ -18,8 +18,7 @@ int main(int argc, char** argv)
     struct options* opt = getoptions(argc, argv);
 
     /* We must have a file to disassemble */
-    if (opt->ModFile == NULL)
-        errexit("You must specify a file to disassemble");
+    if (opt->ModFile == NULL) errexit("You must specify a file to disassemble");
 
     /*ModFile = argv[1];*/
     Pass = 1;

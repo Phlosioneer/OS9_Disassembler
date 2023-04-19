@@ -2,19 +2,20 @@
 #ifndef DPRINT_H
 #define DPRINT_H
 
-#include "userdef.h"
 #include "label.h"
+#include "userdef.h"
 
 struct cmd_items;
 
-/* ******************
+/*
  * ireflist structure: Represents an entry in the Initialized Refs
  *       list.
  */
 
-struct ireflist {
-    struct ireflist *Prev;
-    struct ireflist *Next;
+struct ireflist
+{
+    struct ireflist* Prev;
+    struct ireflist* Next;
     int dAddr;
 };
 

@@ -2,22 +2,15 @@
 #ifndef COMMON_SUBS_H
 #define COMMON_SUBS_H
 
-#include <stdio.h>
 #include "structs.h"
 #include "userdef.h"
-
-
-#ifdef __cplusplus
 #include <fstream>
+#include <stdio.h>
 
-struct ifstream_handle {
-	std::ifstream* inner;
+struct ifstream_handle
+{
+    std::ifstream* inner;
 };
-#else
-struct ifstream_handle {
-	void* inner;
-};
-#endif // __cplusplus
 
 // Returns the index of a character in a string, or -1 if not found.
 // Pure function
@@ -41,6 +34,5 @@ char* freadString(FILE* fp);
 
 // Memory
 void* mem_alloc(size_t size);
-
 
 #endif

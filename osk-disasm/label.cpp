@@ -24,21 +24,20 @@
  * ******************************************************************** */
 
 #include <map>
-#include <string>
 #include <sstream>
+#include <string>
 
-
-#include <string.h>
-#include <ctype.h>
 #include "userdef.h"
+#include <ctype.h>
+#include <string.h>
 
+#include "cmdfile.h"
+#include "command_items.h"
 #include "commonsubs.h"
+#include "dismain.h"
 #include "exit.h"
 #include "label.h"
-#include "command_items.h"
-#include "cmdfile.h"
 #include "main_support.h"
-#include "dismain.h"
 #include "rof.h"
 
 LabelManager* labelManager = new LabelManager();
@@ -47,7 +46,7 @@ const char lblorder[] = "_!^$&@%ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 const char defaultDefaultLabelClasses[] = "&&&&&&D&&LLL"; //"&&&&&&D&&LLLLLL";
 const char programDefaultLabelClasses[] = "&&&&&&D&&&&L";
-const char driverDefaultLabelClasses[] =  "&ZD&PG&&&&&L";
+const char driverDefaultLabelClasses[] = "&ZD&PG&&&&&L";
 
 char defaultLabelClasses[AM_MAXMODES];
 
@@ -55,37 +54,26 @@ static_assert(sizeof(defaultDefaultLabelClasses) == AM_MAXMODES, "Wrong number o
 static_assert(sizeof(programDefaultLabelClasses) == AM_MAXMODES, "Wrong number of program labels");
 static_assert(sizeof(driverDefaultLabelClasses) == AM_MAXMODES, "Wrong number of driver labels");
 
-
-Label* label_getNext(Label* handle) {
+Label* label_getNext(Label* handle)
+{
     return labelManager->getCategory(handle->category)->getNextAfter(handle);
 }
 
-Label* labelclass_getFirst(LabelCategory* handle) {
+Label* labelclass_getFirst(LabelCategory* handle)
+{
     return handle->getFirst();
 }
 
 /*
-struct label_class* labelclass(char lblclass) {
-    return labelManager->getCategory(lblclass)->handle();
-}
-
-Label* lblpos(char lblclass, int lblval)
-{
-    Label* label = labelManager->getCategory(lblclass)->get(lblval);
-    return label ? label->handle() : nullptr;
-}
-*/
-
-/* ************************
-* addlbl() - Add a label to the list
-*        Does nothing for class '^', '@', '$', or '&'
-*        if the label exists, and a different name is provided, renames the label
-* Passed : (1) char label class
-*          (2) int the address for the label
-*          (3) char * - the name for the label
-*              If NULL or empty string, the hex address of the label prepended with
-*              the class letter is used.
-*/
+ * Add a label to the list
+ *        Does nothing for class '^', '@', '$', or '&'
+ *        if the label exists, and a different name is provided, renames the label
+ * Passed : (1) char label class
+ *          (2) int the address for the label
+ *          (3) char * - the name for the label
+ *              If NULL or empty string, the hex address of the label prepended with
+ *              the class letter is used.
+ */
 Label* addlbl(char lblclass, int value, const char* newName)
 {
     if (strchr("^@$&", lblclass))
@@ -98,17 +86,15 @@ Label* addlbl(char lblclass, int value, const char* newName)
 }
 
 /*
-* findlbl() - Finds the label with the exact value 'lblval'
-* Passed:  (1) - The character class for the label
-*          (2) - The value for the address
-* Returns: The label def if it exists, NULL if not found
-*
-*/
-
+ * Finds the label with the exact value 'lblval'
+ * Passed:  (1) - The character class for the label
+ *          (2) - The value for the address
+ * Returns: The label def if it exists, NULL if not found
+ *
+ */
 Label* findlbl(char lblclass, int lblval)
 {
-    if (strchr("^@$&", lblclass))
-        return NULL;
+    if (strchr("^@$&", lblclass)) return NULL;
 
     return labelManager->getLabel(lblclass, lblval);
 }
@@ -120,17 +106,17 @@ char* lblstr(char lblclass, int lblval)
 }
 
 /*
-    * process_label: Handle label depending upon Pass.  If Pass 1, add
-    *      it as needed, if Pass 2, place values into the struct cmd_items fields
-    *
-    */
-void process_label(struct cmd_items * ci, char lblclass, int addr)
+ * Handle label depending upon Pass.  If Pass 1, add
+ *      it as needed, if Pass 2, place values into the struct cmd_items fields
+ *
+ */
+void process_label(struct cmd_items* ci, char lblclass, int addr)
 {
     if (Pass == 1)
     {
         labelManager->addLabel(lblclass, addr, NULL);
     }
-    else   /* Pass 2, find it */
+    else /* Pass 2, find it */
     {
         Label* label = labelManager->getLabel(lblclass, addr);
         if (label)
@@ -145,28 +131,26 @@ void process_label(struct cmd_items * ci, char lblclass, int addr)
     }
 }
 
-/* ******************************************************************** *
-* singleCharData() - Append a char in the desired printable format onto dst    *
-* ******************************************************************** */
-
-static void singleCharData(std::ostream &dest, char ch)
+/*
+ * Append a char in the desired printable format onto dst
+ */
+static void singleCharData(std::ostream& dest, char ch)
 {
-    //char mytmp[10];
+    // char mytmp[10];
 
     if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
     {
         dest << '\'' << ch << '\'';
-        //sprintf(mytmp, "'%c'", ch & 0x7f);
-        //strcat(dst, mytmp);
+        // sprintf(mytmp, "'%c'", ch & 0x7f);
+        // strcat(dst, mytmp);
     }
     else
     {
         Label* pp = labelManager->getLabel('^', ch);
-        if (pp)
-            /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
+        if (pp) /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
         {
             dest << pp->name();
-            //strcat(dst, pp->name());
+            // strcat(dst, pp->name());
         }
         else
         {
@@ -178,23 +162,24 @@ static void singleCharData(std::ostream &dest, char ch)
             dest.width(prevWidth);
             dest.setf(prevBase, std::ios_base::basefield);
 
-            //sprintf(mytmp, "$%02x", ch & 0x7f);
-            //strcat(dst, mytmp);
+            // sprintf(mytmp, "$%02x", ch & 0x7f);
+            // strcat(dst, mytmp);
         }
     }
 
     if (ch & 0x80)
     {
         dest << "+$80";
-        //strcat(dst, "+$80");
+        // strcat(dst, "+$80");
     }
 }
 
-LabelManager::LabelManager() {};
+LabelManager::LabelManager(){};
 
 LabelManager::~LabelManager()
 {
-    for (auto pair : _labelCategories) {
+    for (auto pair : _labelCategories)
+    {
         delete pair.second;
         pair.second = nullptr;
     }
@@ -215,8 +200,10 @@ LabelCategory* LabelManager::getCategory(char code)
 }
 
 /* Prints out all labels organized by class. */
-void LabelManager::printAll() {
-    for (auto it = _labelCategories.begin(); it != _labelCategories.end(); it++) {
+void LabelManager::printAll()
+{
+    for (auto it = _labelCategories.begin(); it != _labelCategories.end(); it++)
+    {
         it->second->printAll();
     }
 }
@@ -231,10 +218,12 @@ Label* LabelManager::getLabel(char code, long value)
     return getCategory(code)->get(value);
 }
 
-LabelCategory::LabelCategory(char code) : code(code) {};
+LabelCategory::LabelCategory(char code) : code(code){};
 
-LabelCategory::~LabelCategory() {
-    for (auto &label : _labels) {
+LabelCategory::~LabelCategory()
+{
+    for (auto& label : _labels)
+    {
         delete label;
         label = nullptr;
     }
@@ -243,14 +232,16 @@ LabelCategory::~LabelCategory() {
 Label* LabelCategory::add(long value, const char* newName)
 {
     Label* label = _labelsByValue[value];
-    if (label == nullptr) {
+    if (label == nullptr)
+    {
         /* Add the label */
         label = new Label(code, value, newName);
         if (label)
         {
             // Keep the list of labels sorted by value.
             iterator it;
-            for (it = begin(); it != end() && (*it)->myAddr < value; it++);
+            for (it = begin(); it != end() && (*it)->myAddr < value; it++)
+                ;
             _labels.insert(it, label);
 
             _labelsByValue[value] = label;
@@ -282,7 +273,8 @@ void LabelCategory::printAll()
     if (!_labels.empty())
     {
         printf("\nLabel definitions for Class '%c'\n\n", code);
-        for (auto label : _labels) {
+        for (auto label : _labels)
+        {
             printf("%s equ $%d\n", label->name(), (int)(label->myAddr));
         }
     }
@@ -291,7 +283,8 @@ void LabelCategory::printAll()
 Label* LabelCategory::getNextAfter(Label* label)
 {
     iterator it;
-    for (it = begin(); *it != label; it++);
+    for (it = begin(); *it != label; it++)
+        ;
     if (it == end() || it + 1 == end())
     {
         return nullptr;
@@ -315,17 +308,18 @@ Label* LabelCategory::getFirst()
 }
 
 /* Value is either the address of the label, or the value of the equate. */
-Label::Label(char category, int value, const char* name) : 
-    myAddr(value), category(category),
-    _stdName(false), _global(false), _name("")
+Label::Label(char category, int value, const char* name)
+    : myAddr(value), category(category), _stdName(false), _global(false), _name("")
 {
     setName(name);
 }
 
-void Label::setName(const char* name) {
+void Label::setName(const char* name)
+{
     if (name && strlen(name) > 0)
     {
-        if (strlen(name) > LBLLEN) {
+        if (strlen(name) > LBLLEN)
+        {
             printf("Error: label name '%s' too long. Truncating to %d characters.", name, LBLLEN);
         }
         strncpy(_name, name, LBLLEN);
@@ -334,7 +328,8 @@ void Label::setName(const char* name) {
     else
     {
         /* Assume that a program label does not exceed 20 bits */
-        if (myAddr > 0x3FFFF) {
+        if (myAddr > 0x3FFFF)
+        {
             printf("Error: label value %x is more than 20 bits. Truncating name to %05x.", myAddr, myAddr);
         }
 
@@ -343,27 +338,26 @@ void Label::setName(const char* name) {
 }
 
 /*
- * PrintLbl () - Prints out the label to "dest", in the format needed.
+ * Prints out the label to "dest", in the format needed.
  * Passed : (1) dest - The string buffer into which to print the label.
  *          (2) clas - The Class Letter for the label.
  *          (3)  adr - The label's address.
  *          (4)   dl - ptr to the nlist tree for the label
  */
-
-static void PrintLbl(std::ostream &dest, char clas, int adr, Label* dl, int amod)
+static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod)
 {
     auto prevFill = dest.fill();
     auto prevWidth = dest.width();
     auto prevBase = dest.flags() & std::ios_base::basefield;
 
-    //char tmp[10];
+    // char tmp[10];
     /*short decn = adr & 0xffff;*/
     int mask;
 
     /* Readjust class definition if necessary */
     if (clas == '@')
     {
-         if (abs(adr) < 9)
+        if (abs(adr) < 9)
         /*if ( (adr <= 9) ||
              ((PBytSiz == 1) && adr > 244) ||
              ((PBytSiz == 2) && adr > 65526) )*/
@@ -378,104 +372,104 @@ static void PrintLbl(std::ostream &dest, char clas, int adr, Label* dl, int amod
 
     switch (clas)
     {
-        //char *hexfmt;
+        // char *hexfmt;
 
-        case '$':       /* Hexadecimal notation */
-            dest << '$';
-            switch (amod)
+    case '$': /* Hexadecimal notation */
+        dest << '$';
+        switch (amod)
+        {
+        default:
+            switch (PBytSiz)
             {
-                default:
-                    switch (PBytSiz)
-                    {
-                    case 1:
-                        adr &= 0xff;
-                        break;
-                    case 2:
-                        adr &= 0xffff;
-                        break;
-                    default:
-                        break;
-                    }
-
-                    if (abs(adr) <= 0xff)
-                    {
-                        dest.fill('0');
-                        dest.width(2);
-                        //hexfmt = "%02x";
-                    }
-                    else if (abs(adr) <= 0xffff)
-                    {
-                        dest.fill('0');
-                        dest.width(4);
-                        //hexfmt = "%04x";
-                    }
-                    else
-                    {
-                        //hexfmt = "%x";
-                    }
-
-                    break;
-                case AM_LONG:
-                    dest.fill('0');
-                    dest.width(8);
-                    //hexfmt = "%08x";
-                    break;
-                case AM_SHORT:
-                    dest.fill('0');
-                    dest.width(4);
-                    //hexfmt = "%04x";
-                    break;
+            case 1:
+                adr &= 0xff;
+                break;
+            case 2:
+                adr &= 0xffff;
+                break;
+            default:
+                break;
             }
 
-            dest << std::hex << adr;
-            //sprintf (tmp, hexfmt, adr);
-            //sprintf (dest, "$%s", tmp);
-            break;
-        case '&':       /* Decimal */
-            dest << adr;
-            //sprintf (dest, "%d", adr);
-            break;
-        case '^':       /* ASCII */
-            //*dest = '\0';
-
-            if (adr > 0xff)
+            if (abs(adr) <= 0xff)
             {
-                singleCharData(dest, adr & 0xff);
-                dest << "*256+";
-                //movchr (dest, (adr >> 8) & 0xff);
-                //strcat (dest, "*256+");
+                dest.fill('0');
+                dest.width(2);
+                // hexfmt = "%02x";
             }
-            singleCharData(dest, adr & 0xff);
-
-            break;
-        case '%':       /* Binary */
-            //strcpy (dest, "%");
-            dest << "%";
-
-            if (adr > 0xffff)
+            else if (abs(adr) <= 0xffff)
             {
-                mask = 0x80000000;
-            }
-            else if (adr > 0xff)
-            {
-                mask = 0x8000;
+                dest.fill('0');
+                dest.width(4);
+                // hexfmt = "%04x";
             }
             else
             {
-                mask = 0x80;
-            }
-
-            while (mask)
-            {
-                //strcat (dest, (mask & adr ? "1" : "0"));
-                dest << (mask & adr ? '1' : '0');
-                mask >>= 1;
+                // hexfmt = "%x";
             }
 
             break;
-        default:
-            //strcpy (dest, dl->inner->name());
-            dest << dl->name();
+        case AM_LONG:
+            dest.fill('0');
+            dest.width(8);
+            // hexfmt = "%08x";
+            break;
+        case AM_SHORT:
+            dest.fill('0');
+            dest.width(4);
+            // hexfmt = "%04x";
+            break;
+        }
+
+        dest << std::hex << adr;
+        // sprintf (tmp, hexfmt, adr);
+        // sprintf (dest, "$%s", tmp);
+        break;
+    case '&': /* Decimal */
+        dest << adr;
+        // sprintf (dest, "%d", adr);
+        break;
+    case '^': /* ASCII */
+        //*dest = '\0';
+
+        if (adr > 0xff)
+        {
+            singleCharData(dest, adr & 0xff);
+            dest << "*256+";
+            // movchr (dest, (adr >> 8) & 0xff);
+            // strcat (dest, "*256+");
+        }
+        singleCharData(dest, adr & 0xff);
+
+        break;
+    case '%': /* Binary */
+        // strcpy (dest, "%");
+        dest << "%";
+
+        if (adr > 0xffff)
+        {
+            mask = 0x80000000;
+        }
+        else if (adr > 0xff)
+        {
+            mask = 0x8000;
+        }
+        else
+        {
+            mask = 0x80;
+        }
+
+        while (mask)
+        {
+            // strcat (dest, (mask & adr ? "1" : "0"));
+            dest << (mask & adr ? '1' : '0');
+            mask >>= 1;
+        }
+
+        break;
+    default:
+        // strcpy (dest, dl->inner->name());
+        dest << dl->name();
     }
 
     dest.fill(prevFill);
@@ -483,20 +477,20 @@ static void PrintLbl(std::ostream &dest, char clas, int adr, Label* dl, int amod
     dest.setf(prevBase, std::ios_base::basefield);
 }
 
-/* **************************************************************** *
- * ClasHere()	See if a Data boundary for this address is defined  *
- * Passed : (1) Pointer to Boundary Class list                      *
- *          (2) Address to check for                                *
- * Returns: Ptr to Boundary definition if found,  NULL if no match. *
- * **************************************************************** */
-// Pure function.
+/*
+ * See if a Data boundary for this address is defined
+ * Passed : (1) Pointer to Boundary Class list
+ *          (2) Address to check for
+ * Returns: Ptr to Boundary definition if found,  NULL if no match.
+ * Pure function.
+ */
 struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
 {
-    register struct data_bounds *pt;
-    register int h = (int) adrs;
+    register struct data_bounds* pt;
+    register int h = (int)adrs;
 
     pt = bp;
-    if ( ! pt)
+    if (!pt)
     {
         return 0;
     }
@@ -532,19 +526,19 @@ struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
 }
 
 /*
- * LblCalc() - Calculate the Label for a location
+ * Calculate the Label for a location
  * Passed:  (1) dst - pointer to character string into which to APPEND result                                       *
  *          (2) adr -  the address of the label
  *          (3) amod - the AMode desired
+ * This is NOT SAFE AT ALL.
  */
-// This is NOT SAFE AT ALL.
 int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
 {
 
-    int raw = adr /*& 0xffff */ ;   /* Raw offset (postbyte) - was unsigned */
-    char mainclass;                 /* Class for this location */
+    int raw = adr /*& 0xffff */; /* Raw offset (postbyte) - was unsigned */
+    char mainclass;              /* Class for this location */
 
-    struct data_bounds *kls = 0;
+    struct data_bounds* kls = 0;
     Label* mylabel = 0;
 
     if (amod == AM_REL)
@@ -571,7 +565,7 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
         {
             mainclass = kls->b_typ;
 
-            if (kls->dofst)     /* Offset ? */
+            if (kls->dofst) /* Offset ? */
             {
                 if (kls->dofst->add_to)
                 {
@@ -587,7 +581,7 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
                 if (kls->dofst->incl_pc)
                 {
                     raw += CmdEnt;
-                    addlbl (kls->dofst->oclas_maj, raw, NULL);
+                    addlbl(kls->dofst->oclas_maj, raw, NULL);
                 }
             }
         }
@@ -598,11 +592,11 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
             mainclass = defaultLabelClasses[amod - 1];
         }
     }
-    else              /* amod=0, it's a boundary def  */
+    else /* amod=0, it's a boundary def  */
     {
         if (NowClass)
         {
-            kls = ClasHere (dbounds, CmdEnt);
+            kls = ClasHere(dbounds, CmdEnt);
             mainclass = NowClass;
 
             if (kls->dofst)
@@ -636,34 +630,34 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
 
     if (Pass == 1)
     {
-        addlbl (mainclass, raw, NULL);
+        addlbl(mainclass, raw, NULL);
     }
     else
-    {                           /*Pass2 */
-        //char tmpname[20];
+    { /*Pass2 */
+        // char tmpname[20];
 
         mylabel = findlbl(mainclass, raw);
         if (mylabel)
         {
-            PrintLbl (dest, mainclass, raw, mylabel, amod);
-            //strcat (dst, tmpname);
+            PrintLbl(dest, mainclass, raw, mylabel, amod);
+            // strcat (dst, tmpname);
         }
         else
-        {                       /* Special case for these */
-            if (strchr ("^$@&%", mainclass))
+        { /* Special case for these */
+            if (strchr("^$@&%", mainclass))
             {
-                PrintLbl (dest, mainclass, raw, mylabel, amod);
-                //strcat (dst, tmpname);
+                PrintLbl(dest, mainclass, raw, mylabel, amod);
+                // strcat (dst, tmpname);
             }
             else
             {
                 char t;
 
                 t = (mainclass ? mainclass : 'D');
-                fprintf (stderr, "Lookup error on Pass 2 (main)\n");
-                fprintf (stderr, "Cannot find %c - %05x\n", t, raw);
-             /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
-                exit (1);
+                fprintf(stderr, "Lookup error on Pass 2 (main)\n");
+                fprintf(stderr, "Cannot find %c - %05x\n", t, raw);
+                /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
+                exit(1);
             }
         }
 
@@ -676,29 +670,29 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
             if (kls->dofst->add_to)
             {
                 dest << '+';
-                //strcat (dst, "+");
+                // strcat (dst, "+");
             }
             else
             {
                 dest << '-';
-                //strcat (dst, "-");
+                // strcat (dst, "-");
             }
 
             if (kls->dofst->incl_pc)
             {
-                //strcat (dst, "*");
+                // strcat (dst, "*");
                 dest << '*';
 
                 if (kls->dofst->of_maj)
                 {
-                    //strcat (dst, "-");
+                    // strcat (dst, "-");
                     dest << '-';
                 }
                 else
                 {
                     // Messy kludge.
                     goto cleanup;
-                    //return 1;
+                    // return 1;
                 }
             }
             mylabel = findlbl(c, kls->dofst->of_maj);
@@ -706,29 +700,27 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
             /*if ((mylabel = FindLbl (LblList[strpos (lblorder, c)],
                                     kls->dofst->of_maj)))*/
             {
-                PrintLbl (dest, c, kls->dofst->of_maj, mylabel, amod);
-                //strcat (dst, tmpname);
+                PrintLbl(dest, c, kls->dofst->of_maj, mylabel, amod);
+                // strcat (dst, tmpname);
             }
             else
-            {                   /* Special case for these */
-                if (strchr ("^$@&", c))
+            { /* Special case for these */
+                if (strchr("^$@&", c))
                 {
-                    PrintLbl (dest, c, kls->dofst->of_maj, mylabel, amod);
-                    //strcat (dst, tmpname);
+                    PrintLbl(dest, c, kls->dofst->of_maj, mylabel, amod);
+                    // strcat (dst, tmpname);
                 }
                 else
                 {
                     char t;
 
                     t = (c ? c : 'D');
-                    fprintf (stderr, "Lookup error on Pass 2 (offset)\n");
-                    fprintf (stderr, "Cannot find %c%x\n", t,
-                             kls->dofst->of_maj);
+                    fprintf(stderr, "Lookup error on Pass 2 (offset)\n");
+                    fprintf(stderr, "Cannot find %c%x\n", t, kls->dofst->of_maj);
                     /*fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
-                    exit (1);
+                    exit(1);
                 }
             }
-
         }
     }
 cleanup:
@@ -740,8 +732,7 @@ cleanup:
 /* For debugging. Prints out all labels organized by class. */
 void parsetree(char c)
 {
-    if (Pass == 1)
-        return;
+    if (Pass == 1) return;
 
     labelManager->printAll();
 }

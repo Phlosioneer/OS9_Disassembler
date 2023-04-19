@@ -8,52 +8,74 @@
 
 struct cmd_items;
 
-
-#include <vector>
-#include <memory>
 #include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
-class Label {
-public:
+class Label
+{
+  public:
     Label(char category, int value, const char* name);
 
     const char category;
     const long myAddr;
 
-    inline char* name() { return _name; }
-    inline bool stdName() { return _stdName; }
-    inline void setStdName(bool isStdName) { _stdName = isStdName; }
-    inline bool global() { return _global; }
-    inline void setGlobal(bool isGlobal) { _global = isGlobal; }
+    inline char* name()
+    {
+        return _name;
+    }
+    inline bool stdName()
+    {
+        return _stdName;
+    }
+    inline void setStdName(bool isStdName)
+    {
+        _stdName = isStdName;
+    }
+    inline bool global()
+    {
+        return _global;
+    }
+    inline void setGlobal(bool isGlobal)
+    {
+        _global = isGlobal;
+    }
 
     void setName(const char* newName);
 
-private:
+  private:
     char _name[LBLLEN + 1];
-    
+
     bool _stdName;
     bool _global;
 };
 
-class LabelCategory {
-public:
+class LabelCategory
+{
+  public:
     typedef typename std::vector<Label*>::iterator iterator;
 
     LabelCategory(char code);
     ~LabelCategory();
-    
+
     const char code;
-    
-    inline iterator begin() { return _labels.begin(); }
-    inline iterator end() { return _labels.end(); }
+
+    inline iterator begin()
+    {
+        return _labels.begin();
+    }
+    inline iterator end()
+    {
+        return _labels.end();
+    }
     Label* add(long value, const char* newName);
     Label* get(long value);
     void printAll();
     Label* getNextAfter(Label* label);
     Label* getFirst();
 
-private:
+  private:
     // This list is always sorted by address / value.
     std::vector<Label*> _labels;
     std::map<long, Label*> _labelsByValue;
@@ -64,9 +86,10 @@ private:
     LabelCategory& operator=(LabelCategory&&) = delete;
 };
 
-class LabelManager {
-public:
-    std::string validLabelClasses{ "_!=ABCDEFGHIJKLMNOPQRSTUVWXYZ\0" };
+class LabelManager
+{
+  public:
+    std::string validLabelClasses{"_!=ABCDEFGHIJKLMNOPQRSTUVWXYZ\0"};
     LabelManager();
     ~LabelManager();
 
@@ -75,9 +98,9 @@ public:
     Label* getLabel(char code, long value);
     void printAll();
 
-private:
+  private:
     std::map<char, LabelCategory*> _labelCategories;
-    
+
     LabelManager(LabelManager const&) = delete;
     LabelManager& operator=(LabelManager const&) = delete;
     LabelManager& operator=(LabelManager&&) = delete;
@@ -95,9 +118,7 @@ void process_label(struct cmd_items* ci, char lblclass, int addr);
 void parsetree(char c);
 int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof);
 
-
-
-extern LabelManager *labelManager;
+extern LabelManager* labelManager;
 
 extern const char lblorder[];
 

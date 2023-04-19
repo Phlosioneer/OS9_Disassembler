@@ -1,0 +1,8 @@
+﻿---
+BasedOnStyle: Microsoft
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AlwaysBreakTemplateDeclarations: 'Yes'
+Language: Cpp
+PointerAlignment: Left
+UseTab: Never
+...

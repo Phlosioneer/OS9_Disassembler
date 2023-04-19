@@ -4,7 +4,6 @@
 
 #include "userdef.h"
 
-
 int cmp2_chk2(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
 int rtm_020(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_moves(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);

@@ -4,7 +4,6 @@
 
 #include "userdef.h"
 
-
 struct cmd_items;
 
 int biti_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);

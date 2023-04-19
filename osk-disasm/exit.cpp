@@ -4,12 +4,11 @@
 #include <stdexcept>
 #include "main_support.h"
 
-/* ***************************************************************************** *
- * errexit() - Exit when an error occurs.  Prints a prompt describing the error  *
- * Passed: A brief string describing the nature of the error.  A return is not   *
- *      required in the prompt string; the subroutine provides one.              *
- * ***************************************************************************** */
-
+/*
+ * Exit when an error occurs.  Prints a prompt describing the error
+ * Passed: A brief string describing the nature of the error.  A return is not
+ *      required in the prompt string; the subroutine provides one.
+ */
 void errexit(char* pmpt)
 {
     if (errno)
@@ -24,10 +23,9 @@ void errexit(char* pmpt)
     throw std::exception();
 }
 
-/* *******************************
+/*
  * Exit on File Read error...
- * ******************************* */
-
+ */
 void filereadexit()
 {
     errexit("Error reading file...\nAborting");

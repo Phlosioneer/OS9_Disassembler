@@ -24,39 +24,39 @@
  *                                                                      *
  * ******************************************************************** */
 
-
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include "rof.h"
 #include "disglobs.h"
 #include "userdef.h"
-#include "rof.h"
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
-#include "commonsubs.h"
 #include "cmdfile.h"
-#include "exit.h"
-#include "dprint.h"
-#include "label.h"
 #include "command_items.h"
-#include "writer.h"
+#include "commonsubs.h"
 #include "dismain.h"
+#include "dprint.h"
+#include "exit.h"
+#include "label.h"
 #include "main_support.h"
+#include "writer.h"
 
- /* ************************* *
-  *  External references      *
-  *  -------------------      *
-  *  We will attempt to place *
-  *  all in one set           *
-  * ************************* */
-struct rof_header {
-    int   sync;
-    short ty_lan,        /* Type/Language */
-        att_rev,       /* Attribute/Revision word */
-        valid,         /* Nonzero if valid */
-        series;        /* Assembler version used to compile */
-    char  rdate[6];
+/* ************************* *
+ *  External references      *
+ *  -------------------      *
+ *  We will attempt to place *
+ *  all in one set           *
+ * ************************* */
+struct rof_header
+{
+    int sync;
+    short ty_lan, /* Type/Language */
+        att_rev,  /* Attribute/Revision word */
+        valid,    /* Nonzero if valid */
+        series;   /* Assembler version used to compile */
+    char rdate[6];
     short edition;
-    int   statstorage,   /* Size of static variable storage */
+    int statstorage,   /* Size of static variable storage */
         idatsz,        /* Size of initialized data */
         codsz,         /* Size of the object code  */
         stksz,         /* Size of stack required   */
@@ -65,37 +65,32 @@ struct rof_header {
         remotestatsiz, /* Size of remote static storage   */
         remoteidatsiz, /* Size of remote initialized data */
         debugsiz;      /* Size of the debug   */
-    char* rname;         /* Ptr to module name  */
+    char* rname;       /* Ptr to module name  */
 };
 
-struct rof_extrn {
+struct rof_extrn
+{
     int hasName;
     union {
         char* nam;
         Label* lbl;
     } EName;
-    /*  void *EName;*/              /* External name                    */
-    char  dstClass;             /* Class for referenced item NUll if extern */
-    int   Type;                 /* Type Flag                        */
-    int   Ofst;                 /* Offset into code                 */
-    int   Extrn;                /* Flag that it's an external ref   */
-    struct rof_extrn* EUp,      /* Previous Ref for entire list     */
-        * ENext,                 /* Next Reference for All externs   */
-        * MyNext;                /* Next ref for this name.  If NULL, we can free EName */
+    /*  void *EName;*/     /* External name                    */
+    char dstClass;         /* Class for referenced item NUll if extern */
+    int Type;              /* Type Flag                        */
+    int Ofst;              /* Offset into code                 */
+    int Extrn;             /* Flag that it's an external ref   */
+    struct rof_extrn *EUp, /* Previous Ref for entire list     */
+        *ENext,            /* Next Reference for All externs   */
+        *MyNext;           /* Next ref for this name.  If NULL, we can free EName */
 };
 
-
-struct rof_extrn* refs_data,
-    * refs_idata,
-    * refs_code,
-    * refs_remote,
-    * refs_iremote,
-    * extrns,                   /* Generic external pointer */
-    * codeRefs_sav;
+struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremote,
+    *extrns, /* Generic external pointer */
+    *codeRefs_sav;
 struct rof_header* ROFHd = NULL;
 
-/*static void ROFDataLst (struct rof_extrn *mylist, int maxcount, struct asc_data *ascdat, char cclass);*/
-static void get_refs(char *vname, int count, int ref_typ, char *codebuffer, FILE* ModFP);
+static void get_refs(char* vname, int count, int ref_typ, char* codebuffer, FILE* ModFP);
 
 void extern_def_destroy(struct rof_extrn* handle)
 {
@@ -153,44 +148,36 @@ char* rof_header_getPsectParams(struct rof_header* handle)
 {
     char* ret = (char*)calloc(100, sizeof(char));
     if (!ret) errexit("OoM");
-    snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname,
-        handle->ty_lan >> 8,
-        handle->ty_lan & 0xff,
-        handle->edition,
-        handle->stksz);
+    snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname, handle->ty_lan >> 8, handle->ty_lan & 0xff, handle->edition,
+             handle->stksz);
     ret[99] = '\0';
     return ret;
 }
 
-
-/* **************************************************************** *
- * RealPos() - Returns the correct file position.  Returns CmdEnt   *
- *             Non-ROF files, CmdEnt Offset by Code Entry Point     *
- * **************************************************************** */
-
+/*
+ * Returns the correct file position.  Returns CmdEnt. For Non-ROF files, CmdEnt
+ * Offset by Code Entry Point.
+ */
 int RealEnt(struct options* opt)
 {
     return opt->IsROF ? (CmdEnt + HdrEnd) : CmdEnt;
 }
 
-/* ************************************************************************ *
- * AddInitLbls() - Add the initialization data to the Labels Ref            *
- *          On entry, the file pointer is positioned to the begin of the    *
- *          initialized data list for this particular vsect.                *
- * ************************************************************************ */
-
-void AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas, FILE* ModFP)
+/*
+ * Add the initialization data to the Labels Ref. On entry, the file pointer is
+ * positioned to the begin of the initialized data list for this particular vsect.
+ */
+void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP)
 {
-    char *dataBuf,
-         *ptr;
+    char *dataBuf, *ptr;
     register int refVal;
 
-    dataBuf = (char *)mem_alloc((size_t)dataSiz + 1);
+    dataBuf = (char*)mem_alloc((size_t)dataSiz + 1);
 
-    if (fread (dataBuf, dataSiz, 1, ModFP) == -1)
+    if (fread(dataBuf, dataSiz, 1, ModFP) == -1)
     {
-        fprintf (stderr, "AddInitLbls(): Failed to read in data for Init Data Buffer");
-        exit (errno);
+        fprintf(stderr, "AddInitLbls(): Failed to read in data for Init Data Buffer");
+        exit(errno);
     }
 
     while (tbl)
@@ -222,20 +209,17 @@ void AddInitLbls (struct rof_extrn *tbl, int dataSiz, char klas, FILE* ModFP)
     }
 }
 
-/* ************************************************** *
- * rofhdr() - read and interpret rof header           *
- * ************************************************** */
-
-void getRofHdr (FILE *progpath, struct options* opt)
+/*
+ * Read and interpret rof header
+ */
+void getRofHdr(FILE* progpath, struct options* opt)
 {
-    int glbl_cnt,
-        ext_count,
-        count;          /* Generic counter */
+    int glbl_cnt, ext_count, count; /* Generic counter */
     int local_count;
-    char *codeBuf;
+    char* codeBuf;
 
-    opt->IsROF = TRUE;    /* Flag that module is an ROF module */
-    fseek(progpath, 0, SEEK_SET);   /* Start all over */
+    opt->IsROF = TRUE;            /* Flag that module is an ROF module */
+    fseek(progpath, 0, SEEK_SET); /* Start all over */
 
     /* get header data */
     ROFHd = (rof_header*)malloc(sizeof(struct rof_header));
@@ -246,27 +230,28 @@ void getRofHdr (FILE *progpath, struct options* opt)
     memset(ROFHd, 0, sizeof(struct rof_header));
     /*ROFHd->sync = (M_ID << 16) | (fread_w(ModFP) & 0xffff); */
     ROFHd->sync = fread_l(progpath);
-        
+
     if (ROFHd->sync != 0xdeadface)
     {
-        errexit ("Illegal ROF Module sync bytes");
+        errexit("Illegal ROF Module sync bytes");
     }
 
     ROFHd->ty_lan = fread_w(progpath);
-    ROFHd->att_rev = fread_w (progpath);       /* Attribute/Revision word */
-    ROFHd->valid = fread_w (progpath);         /* Nonzero if valid */
-    ROFHd->series = fread_w (progpath);        /* Assembler version used to compile */
+    ROFHd->att_rev = fread_w(progpath); /* Attribute/Revision word */
+    ROFHd->valid = fread_w(progpath);   /* Nonzero if valid */
+    ROFHd->series = fread_w(progpath);  /* Assembler version used to compile */
     fread(ROFHd->rdate, sizeof(ROFHd->rdate), 1, progpath);
-    ROFHd->edition = fread_w(progpath);;
-    ROFHd->statstorage = fread_l (progpath);   /* Size of static variable storage */
-    ROFHd->idatsz = fread_l (progpath);        /* Size of initialized data */
-    ROFHd->codsz = fread_l (progpath);         /* Size of the object code  */
-    ROFHd->stksz = fread_l (progpath);         /* Size of stack required   */
-    ROFHd->code_begin = fread_l (progpath);    /* Offset to entry point of object code   */
-    ROFHd->utrap = fread_l (progpath);         /* Offset to unitialized trap entry point */
-    ROFHd->remotestatsiz = fread_l (progpath); /* Size of remote static storage   */
-    ROFHd->remoteidatsiz = fread_l (progpath); /* Size of remote initialized data */
-    ROFHd->debugsiz = fread_l (progpath);      /* Size of the debug   */
+    ROFHd->edition = fread_w(progpath);
+    ;
+    ROFHd->statstorage = fread_l(progpath);   /* Size of static variable storage */
+    ROFHd->idatsz = fread_l(progpath);        /* Size of initialized data */
+    ROFHd->codsz = fread_l(progpath);         /* Size of the object code  */
+    ROFHd->stksz = fread_l(progpath);         /* Size of stack required   */
+    ROFHd->code_begin = fread_l(progpath);    /* Offset to entry point of object code   */
+    ROFHd->utrap = fread_l(progpath);         /* Offset to unitialized trap entry point */
+    ROFHd->remotestatsiz = fread_l(progpath); /* Size of remote static storage   */
+    ROFHd->remoteidatsiz = fread_l(progpath); /* Size of remote initialized data */
+    ROFHd->debugsiz = fread_l(progpath);      /* Size of the debug   */
 
     ROFHd->rname = freadString(progpath);
 
@@ -274,24 +259,24 @@ void getRofHdr (FILE *progpath, struct options* opt)
      * won't do it's thing...
      */
 
-    //modHeader->memorySize = 0x10000;
+    // modHeader->memorySize = 0x10000;
     /*ModData = 0x7fff;*/
 
     /* ************************************************ *
      * Get the Global definitions                       *
      * ************************************************ */
-    count = glbl_cnt = fread_w (progpath);
+    count = glbl_cnt = fread_w(progpath);
 
     while (count--)
     {
-        char *name;
-        Label *me;
+        char* name;
+        Label* me;
         int adrs;
         int typ;
 
         name = freadString(progpath);
-        typ = fread_w (progpath);
-        adrs = fread_l (progpath);
+        typ = fread_w(progpath);
+        adrs = fread_l(progpath);
 
         me = addlbl(rof_class(typ, REFGLBL), adrs, name);
         if (me)
@@ -301,16 +286,15 @@ void getRofHdr (FILE *progpath, struct options* opt)
     }
 
     /* Code section... read, or save file position   */
-    HdrEnd = ftell (progpath);
+    HdrEnd = ftell(progpath);
     CodeEnd = ROFHd->codsz;
 
     /* Read code into buffer for get_refs() while we're here */
 
-
     codeBuf = (char*)mem_alloc((size_t)ROFHd->codsz + 1);
-    if (fread (codeBuf, ROFHd->codsz, 1, progpath) == -1)
+    if (fread(codeBuf, ROFHd->codsz, 1, progpath) == -1)
     {
-        fprintf (stderr, "Failed to read code buffer\n");
+        fprintf(stderr, "Failed to read code buffer\n");
     }
 
     /*idp_begin = code_begin + rofptr->codsz;
@@ -333,35 +317,32 @@ void getRofHdr (FILE *progpath, struct options* opt)
      *    External References Section     *
      * ********************************** */
 
-    if (fseek (progpath, IDataBegin + ROFHd->idatsz + ROFHd->remoteidatsiz + ROFHd->debugsiz, SEEK_SET) == -1)
+    if (fseek(progpath, IDataBegin + ROFHd->idatsz + ROFHd->remoteidatsiz + ROFHd->debugsiz, SEEK_SET) == -1)
     {
-        fprintf (stderr, "rofhdr(): Seek error on module\n");
-        exit (errno);
+        fprintf(stderr, "rofhdr(): Seek error on module\n");
+        exit(errno);
     }
-
-    
 
     for (ext_count = fread_w(progpath); ext_count > 0; ext_count--)
     {
-        char *_name;
+        char* _name;
         int refcount;
 
         _name = freadString(progpath);
-        refcount = fread_w (progpath);
+        refcount = fread_w(progpath);
 
         /* Get the individual occurrences for this name */
 
-        get_refs (_name, refcount, REFXTRN, NULL, opt->ModFP);
+        get_refs(_name, refcount, REFXTRN, NULL, opt->ModFP);
     }
-
 
     /* *************************** *
      *    Local variables...       *
      * *************************** */
 
-    local_count = fread_w (progpath);
+    local_count = fread_w(progpath);
     get_refs("", local_count, REFLOCAL, codeBuf, opt->ModFP);
-    free (codeBuf);
+    free(codeBuf);
 
     /* Now we need to add labels for these refs */
 
@@ -371,20 +352,20 @@ void getRofHdr (FILE *progpath, struct options* opt)
 
     if (fseek(progpath, IDataBegin, SEEK_SET) == -1)
     {
-        errexit ("RofLoadInitData() : Failed to seek to begin of Init Data");
+        errexit("RofLoadInitData() : Failed to seek to begin of Init Data");
     }
 
-    AddInitLbls (refs_idata, ROFHd->idatsz, '_', opt->ModFP);
-    AddInitLbls (refs_iremote, ROFHd->idatsz, 'H', opt->ModFP);
+    AddInitLbls(refs_idata, ROFHd->idatsz, '_', opt->ModFP);
+    AddInitLbls(refs_iremote, ROFHd->idatsz, 'H', opt->ModFP);
 
     /* Now we're ready to disassemble the code */
 
     /* Position to begin of Code section */
-    fseek (progpath, HdrEnd, SEEK_SET);
+    fseek(progpath, HdrEnd, SEEK_SET);
     PCPos = 0;
 }
 
-void RofLoadInitData (void)
+void RofLoadInitData(void)
 {
     /* ********************************** *
      * Initialized data section           *
@@ -397,17 +378,14 @@ void RofLoadInitData (void)
     /* ********************************** *
      *     Debug Information Section      *
      * ********************************** */
-
 }
 
-/* ****************************************************** *
- * rof_class () - returns the Destination reference for   *
- *          the reference                                 *
- * Passed: The Type byte from the reference               *
- * Returns: The Class Letter for the entry                *
- * ****************************************************** */
-
-char rof_class (int typ, int refTy)
+/*
+ * Returns the Destination reference for the reference.
+ * Passed: The Type byte from the reference.
+ * Returns: The Class Letter for the entry.
+ */
+char rof_class(int typ, int refTy)
 {
     /* We'll tie up additional classes for data/bss as follows
      * D for data
@@ -422,13 +400,13 @@ char rof_class (int typ, int refTy)
     case REFGLBL:
         switch (typ & 0x100)
         {
-        case 0:         /* NOT common */
-            switch (typ & 0x04)        /* Docs are backward? */
+        case 0:                 /* NOT common */
+            switch (typ & 0x04) /* Docs are backward? */
             {
-            case 0:         /* Data */
-                switch (typ & 0x01)  /* Docs are backward ? */
+            case 0:                 /* Data */
+                switch (typ & 0x01) /* Docs are backward ? */
                 {
-                case 0:         /* Uninit */
+                case 0: /* Uninit */
                     switch (typ & 0x02)
                     {
                     case 0:
@@ -436,7 +414,7 @@ char rof_class (int typ, int refTy)
                     default:
                         return 'G';
                     }
-                default:    /* Init */
+                default: /* Init */
                     switch (typ & 0x02)
                     {
                     case 0:
@@ -448,16 +426,16 @@ char rof_class (int typ, int refTy)
             default: /* Code or Equ */
                 switch (typ & 0x02)
                 {
-                case 0:     /* NOT remote */
+                case 0: /* NOT remote */
                     return 'L';
                 default:
                     return 'L'; /* FIXME: This is actually 'equ' */
                 }
             }
-        default:        /* common */
+        default: /* common */
             switch (typ & 0x20)
             {
-            case 0:     /* NOT Remote */
+            case 0: /* NOT Remote */
                 /* These are WRONG! but for now, we'll use them */
                 return '_';
             default:
@@ -474,17 +452,17 @@ char rof_class (int typ, int refTy)
         case 0: /* NOT remote */
             switch (typ & 0x200)
             {
-            case 0:     /* data */
+            case 0: /* data */
                 return '_';
-            default:    /* remote */
+            default: /* remote */
                 return 'L';
             }
         default:
             switch (typ & 0x200)
             {
-            case 0:     /* code */
+            case 0: /* code */
                 return 'L';
-            default:      /* debug */
+            default: /* debug */
                 break;
             }
             return 'L';
@@ -494,64 +472,24 @@ char rof_class (int typ, int refTy)
     return 'L'; /* Should never get to here, but for safety's sake */
 }
 
-/* ************************************************** *
- * rof_addlbl() - Adds a label to the nlist tree if   *
- *                applicable                          *
- *                Copies rof name to nlist name if    *
- *                different
- * Passed: adrs - address of label                    *
- *         ref  - reference structure                 *
- * ************************************************** */
-
-/*void rof_addlbl (int adrs, struct rof_extrn *ref)
+/*
+ * Get entries for given reference, either external or local.
+ * Passed:  name (or blank for locals)
+ *          count - number of entries to process
+ *          1 if external, 0 if local
+ */
+static void get_refs(char* vname, int count, int ref_typ, char* code_buf, FILE* ModFP)
 {
-    Label *nl;
-
-    // The following may be a kludge.  The problem is that Relative
-     * external references get added to class C.
-     * Hopefully, no external references are needed in the label ref
-     * tables.  We'll try this to see...
-     //
-
-    if (ref->Extrn)
-    {
-        return;
-    }
-
-    if ((nl = addlbl (adrs, rof_class (ref->Type, 1), NULL)))
-    {
-        if (strlen (ref->EName))
-        {
-            if (strcmp (nl->sname, ref->EName))
-            {
-                strcpy (nl->sname, ref->EName);
-            }
-        }
-    }
-}*/
-
-/* ************************************************************** *
- * get_refs() - get entries for given reference,                  *
- *            either external or local.                           *
- * Passed:  name (or blank for locals)                            *
- *          count - number of entries to process                  *
- *          1 if external, 0 if local                             *
- * ************************************************************** */
-
-static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* ModFP)
-{
-    struct rof_extrn *prevRef = NULL;
+    struct rof_extrn* prevRef = NULL;
     char myClass;
     unsigned int _ty;
     int _ofst;
-    struct rof_extrn *new_ref,
-                        *curRef,
-                    **base = 0;
+    struct rof_extrn *new_ref, *curRef, **base = 0;
 
     for (; count > 0; count--)
     {
-        _ty = fread_w (ModFP);
-        _ofst = fread_l (ModFP);
+        _ty = fread_w(ModFP);
+        _ofst = fread_l(ModFP);
 
         /* Skip Debug refs */
         if (ref_typ == REFLOCAL)
@@ -581,7 +519,7 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
             base = &refs_iremote;
             break;
         default:
-            myClass = 'L';  /* Possibly cause erroneous result, but to avoid crash */
+            myClass = 'L'; /* Possibly cause erroneous result, but to avoid crash */
             base = &refs_code;
         }
 
@@ -590,8 +528,8 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
         }
         else*/
         {
-            new_ref = (struct rof_extrn *)mem_alloc(sizeof(struct rof_extrn));
-            memset (new_ref, 0, sizeof(struct rof_extrn));
+            new_ref = (struct rof_extrn*)mem_alloc(sizeof(struct rof_extrn));
+            memset(new_ref, 0, sizeof(struct rof_extrn));
 
             new_ref->Type = _ty;
             new_ref->Ofst = _ofst;
@@ -602,13 +540,13 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
                 prevRef->MyNext = new_ref;
             }
 
-            /*base = &refs_data;*/  /* For the time being, let's try to just use one list for all refs */
+            /*base = &refs_data;*/ /* For the time being, let's try to just use one list for all refs */
 
             /* If this tree has not yet been initialized, simply set the
              * base pointer to this entry (as the first)
              */
 
-            if ( ! *base)
+            if (!*base)
             {
                 *base = new_ref;
             }
@@ -619,10 +557,10 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
              * won't be here
              */
 
-            else        /* We have entries, insert it into the proper place */
+            else /* We have entries, insert it into the proper place */
             {
                 curRef = *base;
-                /*extrns = *base;*/     /* Use the global externs pointer */
+                /*extrns = *base;*/ /* Use the global externs pointer */
 
                 if (_ofst < curRef->Ofst)
                 {
@@ -652,7 +590,7 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
                     curRef->ENext = new_ref;
                 }
 
-            }       /* *base != NULL */
+            } /* *base != NULL */
 
             prevRef = new_ref;
 
@@ -665,10 +603,10 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
             else
             {
                 register int dstVal;
-                char *pt = &(code_buf[new_ref->Ofst]);
+                char* pt = &(code_buf[new_ref->Ofst]);
 
                 new_ref->dstClass = rof_class(_ty, REFGLBL);
-                
+
                 if ((ref_typ == REFLOCAL) && (myClass == 'L'))
                 {
                     switch ((new_ref->Type >> 3) & 3)
@@ -686,17 +624,17 @@ static void get_refs(char *vname, int count, int ref_typ, char *code_buf, FILE* 
                     new_ref->EName.lbl = addlbl(new_ref->dstClass, dstVal, "");
                 }
             }
-        }               /* end "if (ref_typ == REFXTRN)" */
-    }               /* end "while (count--) */
+        } /* end "if (ref_typ == REFXTRN)" */
+    }     /* end "while (count--) */
 }
 
-/* ************************************************** *
- * find_extrn() - find an external reference          *
- * Passed : (1) xtrn - starting extrn ref             *
- *          (2) adrs - Address to match               *
- * ************************************************** */
-// Pure function.
-struct rof_extrn * find_extrn ( struct rof_extrn *xtrn, int adrs)
+/*
+ * Find an external reference.
+ * Passed : (1) xtrn - starting extrn ref
+ *          (2) adrs - Address to match
+ * Pure function.
+ */
+struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs)
 {
     /*int found = 0;*/
 
@@ -713,66 +651,62 @@ struct rof_extrn * find_extrn ( struct rof_extrn *xtrn, int adrs)
     return (xtrn->Ofst == adrs ? xtrn : NULL);
 }
 
-/* ******************************************************** *
- * rof_datasize() - returns the end of rof data area        *
- * Passed: Label Class letter to search                     *
- * Returns: size of this data area                          *
- *          If not a data area, returns 0                   *
- * ******************************************************** */
-
-// Unused, but useful as documentation
-int rof_datasize (char cclass)
+/*
+ * Returns the end of rof data area
+ * Passed: Label Class letter to search
+ * Returns: size of this data area. If not a data area, returns 0.
+ * Unused, but useful as documentation
+ */
+int rof_datasize(char cclass)
 {
     int dsize;
 
     switch (cclass)
     {
-        case 'D':
-            dsize = ROFHd->statstorage;
-            break;
-        case 'H':
-            dsize = ROFHd->remoteidatsiz;  
-            break;
-        case 'G':
-            dsize = ROFHd->remotestatsiz;
-            break;
-        case '_':
-            dsize = ROFHd->idatsz;
-            break;
-        default:
-            dsize = 0;
+    case 'D':
+        dsize = ROFHd->statstorage;
+        break;
+    case 'H':
+        dsize = ROFHd->remoteidatsiz;
+        break;
+    case 'G':
+        dsize = ROFHd->remotestatsiz;
+        break;
+    case '_':
+        dsize = ROFHd->idatsz;
+        break;
+    default:
+        dsize = 0;
     }
 
     return dsize;
 }
 
-/* ******************************************************************** *
- * DataDoBlock - Process a block composed of an initialized reference   *
- *               from a data area                                       *
- * Passed : (1) struct rof_extrn *mylist - pointer to tree element      *
- *          (2) int datasize - the size of the area to process          *
- *          (3) char class - the label class (D or C)                   *
- * ******************************************************************** */
-
-static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *iBuf, int blkEnd,
-             char cclass, struct options* opt)
+/*
+ * Process a block composed of an initialized reference from a data area.
+ * Passed : (1) struct rof_extrn *mylist - pointer to tree element
+ *          (2) int datasize - the size of the area to process
+ *          (3) char class - the label class (D or C)
+ */
+static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBuf, int blkEnd, char cclass,
+                         struct options* opt)
 {
     /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
     char lblString[200];
 
-    memset (&Ci, 0, sizeof(struct cmd_items));
+    memset(&Ci, 0, sizeof(struct cmd_items));
 
     /* Insert Label if applicable */
 
     if ((*lblList)->myAddr == CmdEnt)
     {
-        strcpy (lblString, (*lblList)->name());
+        strcpy(lblString, (*lblList)->name());
         Ci.lblname = lblString;
 
         if ((*lblList)->global())
         {
-            strcat (Ci.lblname, ":");
+            strcat(Ci.lblname, ":");
         }
 
         (*lblList) = label_getNext(*lblList);
@@ -788,30 +722,22 @@ static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *i
          * references, 'refsList' will be null
          */
 
-        if ( *refsList && ((*refsList)->Ofst == CmdEnt) )
+        if (*refsList && ((*refsList)->Ofst == CmdEnt))
         {
-            strcpy (Ci.mnem, "dc.");
+            strcpy(Ci.mnem, "dc.");
 
             switch (((*refsList)->Type >> 3) & 3)
             {
-            case 1:         /* SIZ_BYTE */
-                strcat (Ci.mnem, "b");
-                /*my_val = *(iBuf++);*/
+            case 1: /* SIZ_BYTE */
+                strcat(Ci.mnem, "b");
                 ++PCPos;
                 break;
-            case 2:         /* SIZ_WORD */
-                strcat (Ci.mnem, "w");
-                /*my_val = bufReadW(&iBuf) & 0xffff;*/
-                /*iBuf += 2;*/
-                /*my_val = (*(iBuf++) << 8) | (*(iBuf++) & 0xff);*/
+            case 2: /* SIZ_WORD */
+                strcat(Ci.mnem, "w");
                 PCPos += 2;
                 break;
-            default:         /* SIZ_LONG */
-                strcat (Ci.mnem, "l");
-                /*my_val = bufReadL(&iBuf);*/
-                /*iBuf += 4;*/
-                /*my_val = (*(iBuf++) << 24) | ((*(iBuf++) & 0xff) << 16) | ((*(iBuf++) & 0xff) << 8) |
-                    (*(iBuf++) & 0xff);*/
+            default: /* SIZ_LONG */
+                strcat(Ci.mnem, "l");
                 PCPos += 4;
             }
 
@@ -821,7 +747,7 @@ static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *i
             }
             else
             {
-                strcpy (Ci.params, (*refsList)->EName.lbl->name());
+                strcpy(Ci.params, (*refsList)->EName.lbl->name());
             }
 
             PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt, opt);
@@ -829,20 +755,8 @@ static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *i
             Ci.lblname = NULL;
             Ci.params[0] = '\0';
             Ci.mnem[0] = '\0';
-            /*switch ((*refsList)->Type)
-            {
-            case REFGLBL:
-                strcpy(Ci.params, (*refsList)->EName.nam);
-                break;
-            case REFLOCAL:
-                strcpy (Ci.params, (*refsList)->EName.lbl->sname);
-                break;
-            default:
-                strcpy (Ci.params, "???");
-            }*/
-
         }
-        else      /* No reference entry for this area */
+        else /* No reference entry for this area */
         {
             int bytCount = 0;
             int bytSize;
@@ -854,25 +768,25 @@ static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *i
             }
             else
             {
-                register char *fmt;
+                register char* fmt;
 
                 switch ((blkEnd - PCPos) % 4)
                 {
                 case 0:
                     bytSize = 4;
                     bytCount = (blkEnd - PCPos) >> 2;
-                    strcpy (Ci.mnem, "dc.l");
+                    strcpy(Ci.mnem, "dc.l");
                     fmt = "$%08x";
                     break;
                 case 2:
                     bytSize = 2;
-                    strcpy (Ci.mnem, "dc.w");
+                    strcpy(Ci.mnem, "dc.w");
                     bytCount = (blkEnd - PCPos) >> 1;
                     fmt = "$%04x";
                     break;
                 default:
                     bytSize = 1;
-                    strcpy (Ci.mnem, "dc.b");
+                    strcpy(Ci.mnem, "dc.b");
                     bytCount = blkEnd - PCPos;
                     fmt = "$%02x";
                 }
@@ -887,58 +801,39 @@ static char * DataDoBlock (struct rof_extrn **refsList, Label **lblList, char *i
                         val = *(iBuf++) & 0xff;
                         break;
                     case 4:
-                        /*for (byteNum = 0; byteNum < 4; byteNum++)
-                        {
-                            val = (val << 8) | (*(iBuf++) & 0xff);
-                        }*/
                         val = bufReadL(&iBuf);
-                        /*iBuf += 4;*/
                         break;
-                        /*val = ((*(iBuf++) & 0xff) << 8) | (*(iBuf++) & 0xff);
-                        val <<= 16;*/
-                        /* Fall through to the 'word' function to pick up next two bytes */
                     default:
                         val = bufReadW(&iBuf);
-                        /*iBuf +=2;*/
-                        /*val = val | ((*(iBuf++) & 0xff) << 8) | (*(iBuf++) & 0xff);*/
                     }
 
                     PCPos += bytSize;
-                    sprintf (Ci.params, fmt, val);
+                    sprintf(Ci.params, fmt, val);
                     PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt, opt);
                     CmdEnt = PCPos;
                     Ci.lblname = NULL;
                     Ci.params[0] = '\0';
                 }
-                
+
                 Ci.mnem[0] = '\0';
             }
         }
-
-        /*PrintLine (realcmd, &Ci, cclass, CmdEnt, CmdEnt + blkEnd);
-        CmdEnt += bump;
-        PrevEnt = CmdEnt;
-        blkEnd -= bump;
-        (*refsList) = (*refsList)->ENext;
-        nl = nl->Next;*/
     }
 
     return iBuf;
 }
 
-/* **************************************************************** *
- * ListInitROF() - moves initialized data into the listing.         *
- *                 Really a setup routine                           *
- * Passed : (1) nl - Ptr to proper nlist, positioned at the first   *
- *                    element to be listed                          *
- *          (2) mycount - count of elements in this sect.           *
- *          (3) class   - Label Class letter                        *
- * **************************************************************** */
-
-void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, char iClass, struct options* opt)
+/*
+ * Moves initialized data into the listing. Really a setup routine.
+ * Passed : (1) nl - Ptr to proper nlist, positioned at the first
+ *                    element to be listed
+ *          (2) mycount - count of elements in this sect.
+ *          (3) class   - Label Class letter
+ */
+void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct options* opt)
 {
     auto category = labelManager->getCategory(iClass);
-    Label *lblList = category ? category->getFirst() : NULL;
+    Label* lblList = category ? category->getFirst() : NULL;
 
     PCPos = 0;
 
@@ -946,7 +841,7 @@ void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, 
     {
         register int blkEnd;
 
-        blkEnd = isize;     /* Make this a default */
+        blkEnd = isize; /* Make this a default */
 
         if (lblList)
         {
@@ -956,7 +851,7 @@ void ListInitROF(char * hdr, struct rof_extrn *refsList, char *iBuf, int isize, 
             }
         }
 
-        iBuf = DataDoBlock (&refsList, &lblList, iBuf, blkEnd, iClass, opt);
+        iBuf = DataDoBlock(&refsList, &lblList, iBuf, blkEnd, iClass, opt);
     }
 }
 
@@ -972,28 +867,28 @@ void setROFPass(void)
     }
 }
 
-/**
+/*
  * rof_setup_ref:
  *
- * @ref: Reference to desired struct rof_extrn
- * @addr: The position in the code where toe ref is located
- * @dest: Pointer to where the string is to be stored
- * @value: The value found at @addr.  If it's nonzero, this is the value to add o subtract to/from the ref
+ * ref: Reference to desired struct rof_extrn
+ * addr: The position in the code where toe ref is located
+ * dest: Pointer to where the string is to be stored
+ * value: The value found at @addr.  If it's nonzero, this is the value to add o subtract to/from the ref
  *
- * Checks to see if an external reference is found at this location, nd if so, sets up the assembler string for this portion of the opcode
+ * Checks to see if an external reference is found at this location, nd if so, sets up the assembler string for this
+ * portion of the opcode
  *
  * Returns: trturns TRUE (1) if a ref was found and set up, FALSE (0) if no ref found here
- **/
-
-int rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val)
+ */
+int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val)
 {
-    if (find_extrn(ref,addrs))
+    if (find_extrn(ref, addrs))
     {
-        strcpy (dest, find_extrn(ref, addrs)->EName.nam);
+        strcpy(dest, find_extrn(ref, addrs)->EName.nam);
 
         if (ClasHere(LAdds[AMode], CmdEnt))
         {
-            struct data_bounds *kls = ClasHere(LAdds[AMode], CmdEnt);
+            struct data_bounds* kls = ClasHere(LAdds[AMode], CmdEnt);
 
             if (kls->dofst)
             {
@@ -1020,13 +915,13 @@ int rof_setup_ref(struct rof_extrn *ref, int addrs, char *dest, int val)
     }
 }
 
-char * IsRef(char *dst, int curloc, int ival)
+char* IsRef(char* dst, int curloc, int ival)
 {
-    register char *retVal = NULL;
+    register char* retVal = NULL;
 
     if (refs_code && (refs_code->Ofst == curloc))
     {
-        register struct rof_extrn *ep_tmp;
+        register struct rof_extrn* ep_tmp;
 
         if (Pass == 1)
         {
@@ -1044,11 +939,11 @@ char * IsRef(char *dst, int curloc, int ival)
                 {
                     char offsetbuf[20];
 
-                    strcat (dst, (refs_code->Type & 0x80) ? "-" : "+");
-                    sprintf (offsetbuf, "%d", ival);
-                    strcat (dst, offsetbuf);
+                    strcat(dst, (refs_code->Type & 0x80) ? "-" : "+");
+                    sprintf(offsetbuf, "%d", ival);
+                    strcat(dst, offsetbuf);
                 }
-            }   /* Else leave retVal=NULL - for local refs, let calling process handle it */
+            } /* Else leave retVal=NULL - for local refs, let calling process handle it */
             else
             {
                 strcat(dst, refs_code->EName.lbl->name());
@@ -1070,10 +965,10 @@ char * IsRef(char *dst, int curloc, int ival)
                 ep_tmp->EUp = NULL;
             }
 
-            free (refs_code);
+            free(refs_code);
             refs_code = ep_tmp;
         }
-    }       /* End "if (refs_code && (refs_code->Ofst == val)) */
-    
+    } /* End "if (refs_code && (refs_code->Ofst == val)) */
+
     return retVal;
 }

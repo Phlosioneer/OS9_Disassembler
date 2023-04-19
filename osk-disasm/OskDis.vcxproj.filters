@@ -108,9 +108,6 @@
     <ClInclude Include="exit.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="externc.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="writer.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -121,6 +118,7 @@
   <ItemGroup>
     <None Include="test\actual.s" />
     <None Include="test\expected.s" />
+    <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test\actualStdout.txt" />

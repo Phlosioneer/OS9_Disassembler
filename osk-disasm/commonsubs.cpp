@@ -24,19 +24,18 @@
  *                                                                          *
  * ************************************************************************ */
 
-
-#include <sstream>
-#include <string.h>
-#include <stdio.h>
-#include "userdef.h"
 #include "modtypes.h"
+#include "userdef.h"
+#include <sstream>
+#include <stdio.h>
+#include <string.h>
 
 #include "rof.h"
 
+#include "command_items.h"
 #include "commonsubs.h"
 #include "exit.h"
 #include "label.h"
-#include "command_items.h"
 #include "main_support.h"
 
 // Returns the index of a character in a string, or -1 if not found.
@@ -69,19 +68,18 @@ unsigned int revbits(unsigned int num, int length)
     int n2 = 0;
     int c, i;
 
-    for (c = (length - 1), i = 0; c >= 0; c--,i++)
+    for (c = (length - 1), i = 0; c >= 0; c--, i++)
     {
         n2 <<= 1;
 
-        if (num & (1 << i))
-            n2 |= 1;
+        if (num & (1 << i)) n2 |= 1;
     }
 
     return n2;
 }
 
 // Read one byte. If the read fails, the program is immediately exited.
-unsigned char fread_b(FILE * fp)
+unsigned char fread_b(FILE* fp)
 {
     unsigned char b;
 
@@ -100,14 +98,13 @@ unsigned short fread_w(FILE* fp)
     return (fread_b(fp) << 8) | fread_b(fp);
 }
 
-unsigned int fread_l(FILE * fp)
+unsigned int fread_l(FILE* fp)
 {
     return (fread_w(fp) << 16) | fread_w(fp);
 }
 
-
 // Returns the word value stored at pos pt in a buffer
-unsigned short bufReadW(char **pt)
+unsigned short bufReadW(char** pt)
 {
     unsigned int val = 0;
 
@@ -118,7 +115,7 @@ unsigned short bufReadW(char **pt)
 }
 
 // Returns the long value stored at pos pt in a buffer
-unsigned int bufReadL(char **pt)
+unsigned int bufReadL(char** pt)
 {
     unsigned int byteCnt;
     unsigned int val = 0;
@@ -133,10 +130,10 @@ unsigned int bufReadL(char **pt)
 
 // Read a null-terminated string from the file, allocate memory for that
 // string, and store it there.
-char* freadString(FILE * fp)
+char* freadString(FILE* fp)
 {
     std::ostringstream buffer;
-    
+
     char ch = getc(fp);
     while (ch && (ch > 0))
     {
@@ -146,7 +143,7 @@ char* freadString(FILE * fp)
     }
 
     //*strPt = '\0';
-    //strcpy ((newStr = (char *)mem_alloc(strlen(strBuf) + 1)), strBuf);
+    // strcpy ((newStr = (char *)mem_alloc(strlen(strBuf) + 1)), strBuf);
     std::string temp = buffer.str();
     return _strdup(temp.c_str());
 }
@@ -164,4 +161,3 @@ void* mem_alloc(size_t size)
 
     return addr;
 }
-

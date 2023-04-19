@@ -2,7 +2,6 @@
 #ifndef CMDFILE_H
 #define CMDFILE_H
 
-
 #include "structs.h"
 #include <stdio.h>
 

@@ -25,295 +25,42 @@
 
 #include <string.h>
 
-#include "userdef.h"
-#include "sysnames.h"
-#include "rof.h"
+#include "cmdfile.h"
+#include "command_items.h"
 #include "commonsubs.h"
 #include "disglobs.h"
-#include "cmdfile.h"
-#include "label.h"
-#include "opcode00.h"
-#include "command_items.h"
-#include "textdef.h"
-#include "main_support.h"
 #include "dprint.h"
+#include "label.h"
+#include "main_support.h"
+#include "opcode00.h"
+#include "rof.h"
+#include "sysnames.h"
+#include "textdef.h"
+#include "userdef.h"
 
-enum {
+enum
+{
     EA2REG,
     REG2EA
 };
 
-/*int bitModeRegLegal(int mode, int reg)
-{
-    if ( ((2 ^ mode) & 0x7d) == 0)
-    {
-        return 0;
-    }
-
-    if (mode == 6)
-    {
-        if ( ((2 ^ reg) & 3) == 0)
-        {
-            return 0;
-        }
-    }
-}*/
-
-/*int      bit_movep_immediate (struct cmd_items *cmditms)
-{
-    register int firstword = cmditms->cmd_wrd;*/    /* To save calculations */
-/*    short ext1, ext2;
-    int mode,reg;*/
-
-    /* 68020+ code*/
-/*    if ((firstword & 0xfff0) == 0x6c)  // "rtm"
-    {
-        //if (cpu >= 2)
-        {
-            return rtm_020(cmditms);
-        }
-       // else
-            //return 0;
-    }*/
 /*
-    switch (firstword)
-    {
-    case 0x3c:
-    case 0x7c:
-        return biti_reg(cmditms, "ori");
-    case 0x023c:
-    case 0x027c:
-        return biti_reg(cmditms, "andi");
-    case 0x0a3c:
-    case 0x0a7c:
-        return biti_reg(cmditms, "eori");
-    default:
-        break;
-    }*/
-
-    /* Handle static bit cmds */
-/*
-    switch (firstword & 0xffd0)
-    {
-    case 0x0800:
-        return bit_static(cmditms, "btst");
-    case 0x0840:
-        return bit_static(cmditms, "bchg");
-    case 0x0880:
-        return bit_static(cmditms, "bclr");
-    case 0x8a0:
-        return bit_static(cmditms, "bset");
-    }*/
-
-    /* Dynamic bit commands */
-/*
-    switch ((firstword >> 6) & 7)
-    {
-        case 4:
-            if (bit_dynamic(cmditms, "btst"))
-            {
-                return 1;
-            }
-            break;
-        case 5:
-            if (bit_dynamic(cmditms, "bchg"))
-            {
-                return 1;
-            }
-            break;
-        case 6:
-            if (bit_dynamic(cmditms, "bclr"))
-            {
-                return 1;
-            }
-            break;
-        case 7:
-            if (bit_dynamic(cmditms, "bset"))
-            {
-                return 1;
-            }
-            break;
-
-    }
-
-    switch ((firstword >> 8) & 0x0f)
-    {
-    case 0:
-        if (cpu >= 2)
-        {
-            if ((firstword & 0x1c) == 0x0c) */   /* "cmp2" or "chk2"? */
-/*            {*/
-                /* For the time being, if this is not a match, simply
-                                 * continue */
-/*
-                if (cmp2_chk2(cmditms))
-                    return 1;
-            }
-        }
-
-        return (biti_size(cmditms, "ori"));
-        break;
-    case 0x01:
-        return (biti_size(cmditms, "andi"));*/
-        /* Eliminate ccr & SR */
-/*        break;
-    case 0x02:
-        return (biti_size(cmditms, "ori"));
-    case 0x03:
-        if ((firstword & 0x1f0) == 0xf0)
-        {
-            if (cpu > 2)
-            {*/
-                /* Process rtm, callm, cmp2, chk2 */
-/*            }
-            else
-            {
-                return 0;
-            }
-        }
-        else
-        {
-            return (biti_size(cmditms, "andi"));
-        }
-
-        break;
-    case 4:
-        break;
-    case 0x6:
-
-        if ((firstword & 0xc0) == 0xc0)
-        {
-            strcpy(cmditms->mnem, "callm");*/
-            /* special case */
-/*        }
-        else
-        {
-            return biti_size(cmditms, "addi");
-        }
-        break;
-    case 0x0a:
-        strcpy(cmditms->mnem, "eori");*/
-        /* Eliminate ccr & SR */
-        /* Go process extended command */
-/*        break;
-    case 0x0c:
-        return biti_size(cmditms, "cmpi");
-        break;
-    case 0x08:
-        {
-            switch ((firstword >> 6) & 3)
-            {
-            case 0:
-                strcpy(cmditms->mnem, "btst");
-                break;
-            case 1:
-                strcpy(cmditms->mnem, "bchg");
-                break;
-            case 2:
-                strcpy(cmditms->mnem, "bclr");
-                break;
-            case 3:
-                strcpy(cmditms->mnem, "bset");
-                break;
-            }
-        }
-    case 0x0ff:
-        strcpy(cmditms->mnem, "moves");
-        break;
-    }*/
-
-    /* We need to now check a different set of bits */
-/*    switch ((firstword >>6) & 0x07)
-    {
-    case 3:
-        if (firstword & 0x800)
-        {
-            if ((firstword & 0x3f) == 0x3d)
-            {
-                strcpy(cmditms->mnem, "cas");
-                break;
-            }
-            else
-            {*/
-                /* Possible tests needed */
-/*                strcpy(cmditms->mnem, "cas");
-                break;
-            }
-        }
-
-        break;
-    case 0x4:
-        strcpy(cmditms->mnem, "btst");
-        break;
-    case 5:
-        strcpy(cmditms->mnem, "bchg");
-        break;
-    case 6:
-        strcpy(cmditms->mnem, "bclr");
-        break;
-    case 7:
-        strcpy(cmditms->mnem, "bset");
-        break;
-    case 10:
-        ext1 = getnext_w(cmditms);*/
-        /* Eliminate ccr & SR */
-/*        switch (cmditms->cmd_wrd & 0xff)
-        {
-            int regflag = cmditms->cmd_wrd & 0x40;*/
-/*
-        case 0x3c:
-        case 0x7c:*/
-            /* If it's ccr and it's negative, sign extend it */
-/*            if ((regflag == 0) && ( ext1 & 0x80))
-            {
-                ext1 |= 0xffff0000;
-            }*/
-
-            /* Verify if it's a label */
-/*            if (regflag == 0)
-            {
-                sprintf(cmditms->params, "#%s,ccr", ext1);
-            }
-            else
-            {
-                sprintf (cmditms->params, "#%s,sr", ext1);
-            }
-
-            strcpy(cmditms->mnem,"eori");
-            return 1;
-        default:
-            strcpy (cmditms->mnem, "eori");
-        }
-    }
-
-    if ((firstword & 0x38) == 0x08)
-    {
-        strcpy(cmditms->mnem, "movep");
-    }
-
-
-    return 0;
-}*/
-
-/* ******************
  * Immediate bit operations involving the status registers
  * Returns 1 on success, 0 on failure
- *
  */
-
-int biti_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int biti_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    static char *sr[2] = {"ccr", "sr"};
+    static char* sr[2] = {"ccr", "sr"};
     register int size;
 
     register int ext1 = getnext_w(ci, state);
     size = (ci->cmd_wrd >> 6) & 1;
 
-/*    if (ext1 & 0xff00)
-    {
-        ungetnext_w(ci);
-        return 0;
-    }*/
+    /*    if (ext1 & 0xff00)
+        {
+            ungetnext_w(ci);
+            return 0;
+        }*/
 
     if ((size == 0) && (ext1 > 0x1f))
     {
@@ -322,9 +69,10 @@ int biti_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
     }
 
     /* Add functions to retrieve label */
-    if (Pass == 2) {
-        strcpy (ci->mnem, op->name);
-        sprintf (ci->params, "#%d,%s", ext1, sr[size]);
+    if (Pass == 2)
+    {
+        strcpy(ci->mnem, op->name);
+        sprintf(ci->params, "#%d,%s", ext1, sr[size]);
     }
 
     return 1;
@@ -332,10 +80,8 @@ int biti_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
 
 /*
  * Immediate bit operations not involving status registers
- *
  */
-
-int biti_size(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int size = (ci->cmd_wrd >> 6) & 3;
     register int mode = (ci->cmd_wrd >> 3) & 7;
@@ -352,11 +98,11 @@ int biti_size(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_s
         switch (ci->cmd_wrd)
         {
         case 0x023c:
-            strcpy (EaString, "ccr");
+            strcpy(EaString, "ccr");
             size = SIZ_BYTE;
             break;
         case 0x027c:
-            strcpy (EaString, "sr");
+            strcpy(EaString, "sr");
             size = SIZ_WORD;
         }
     }
@@ -374,18 +120,18 @@ int biti_size(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_s
 
         if (mode == 7)
         {
-                /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
-                if (reg > 1)
-                {
-                    return 0;
-                }
+            /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
+            if (reg > 1)
+            {
+                return 0;
+            }
         }
     }
 
     /* The source here is always immediate, but go through
      * get_eff_addr to get the label, if needed
      */
-    if (!get_eff_addr (ci, ea, 7, 4, size, state))
+    if (!get_eff_addr(ci, ea, 7, 4, size, state))
     {
         return 0;
     }
@@ -424,23 +170,21 @@ int biti_size(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_s
         }
     }
 
-    sprintf (ci->params, "%s,%s", ea, EaString);
-    strcpy (ci->mnem, op->name);
-    strcat (ci->mnem, SizSufx[size]);
+    sprintf(ci->params, "%s,%s", ea, EaString);
+    strcpy(ci->mnem, op->name);
+    strcat(ci->mnem, SizSufx[size]);
     return 1;
 }
 
-int bit_static(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int bit_static(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int ext0,
-                 mode, reg;
+    register int ext0, mode, reg;
     char ea[30];
 
     mode = (ci->cmd_wrd >> 3) & 7;
     reg = ci->cmd_wrd & 7;
 
-    if (mode == 1)
-        return 0;
+    if (mode == 1) return 0;
 
     ext0 = getnext_w(ci, state);
 
@@ -458,43 +202,41 @@ int bit_static(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_
         return 0;
     }
 
-    if (get_eff_addr (ci, ea, mode, reg, (ext0 >7) ? SIZ_LONG : SIZ_BYTE, state))
+    if (get_eff_addr(ci, ea, mode, reg, (ext0 > 7) ? SIZ_LONG : SIZ_BYTE, state))
     {
         sprintf(ci->params, "#%d,%s", ext0, ea);
         strcpy(ci->mnem, op->name);
-        strcat (ci->mnem, (mode == 0) ? "l" : "b");
+        strcat(ci->mnem, (mode == 0) ? "l" : "b");
         return 1;
     }
-
 
     return 0;
 }
 
-int bit_dynamic(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int bit_dynamic(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int mode, reg;
 
     mode = (ci->cmd_wrd >> 3) & 7;
     reg = ci->cmd_wrd & 7;
 
-    if (mode == 1)
-        return 0;
+    if (mode == 1) return 0;
 
-/*    switch (op->id)
-    {
-        case 4:
-            if (mode == 4)
-                return 0;
-        default:
-            if (mode > 1)
-                return 0;
-    }*/
+    /*    switch (op->id)
+        {
+            case 4:
+                if (mode == 4)
+                    return 0;
+            default:
+                if (mode > 1)
+                    return 0;
+        }*/
 
-    if (get_eff_addr (ci, EaString, mode, reg, SIZ_LONG, state))
+    if (get_eff_addr(ci, EaString, mode, reg, SIZ_LONG, state))
     {
-        sprintf(ci->params,"d%d,%s", (ci->cmd_wrd >>9) & 7, EaString);
+        sprintf(ci->params, "d%d,%s", (ci->cmd_wrd >> 9) & 7, EaString);
         strcpy(ci->mnem, op->name);
-        strcat (ci->mnem, (mode == 0) ? "l" : "b");
+        strcat(ci->mnem, (mode == 0) ? "l" : "b");
         return 1;
     }
 
@@ -503,10 +245,8 @@ int bit_dynamic(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse
 
 /*
  *  Build the "move"/"movea" commands
- *
  */
-
-int move_instr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int move_instr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int d_mode, d_reg, src_mode, src_reg;
     char src_ea[50], dst_ea[50];
@@ -515,17 +255,17 @@ int move_instr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_
     /* Move instructions have size a bit different */
     switch ((ci->cmd_wrd >> 12) & 3)
     {
-        case 1:
-            size = SIZ_BYTE;
-            break;
-        case 3:
-            size = SIZ_WORD;
-            break;
-        case 2:
-            size = SIZ_LONG;
-            break;
-        default:
-            return 0;
+    case 1:
+        size = SIZ_BYTE;
+        break;
+    case 3:
+        size = SIZ_WORD;
+        break;
+    case 2:
+        size = SIZ_LONG;
+        break;
+    default:
+        return 0;
     }
 
     /* Get Destination EA */
@@ -540,12 +280,12 @@ int move_instr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_
     src_mode = (ci->cmd_wrd >> 3) & 7;
     src_reg = ci->cmd_wrd & 7;
 
-    if (get_eff_addr (ci, src_ea, src_mode, src_reg, size, state))
+    if (get_eff_addr(ci, src_ea, src_mode, src_reg, size, state))
     {
-        if (get_eff_addr (ci, dst_ea, d_mode, d_reg, size, state))
+        if (get_eff_addr(ci, dst_ea, d_mode, d_reg, size, state))
         {
             sprintf(ci->params, "%s,%s", src_ea, dst_ea);
-            strcpy (ci->mnem, "move");
+            strcpy(ci->mnem, "move");
 
             if (((ci->cmd_wrd >> 6) & 7) == 1)
             {
@@ -578,11 +318,11 @@ int move_instr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_
     return 0;
 }
 
-int move_ccr_sr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int move_ccr_sr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
     int dir;
-    char *statReg;
+    char* statReg;
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
 
@@ -608,20 +348,20 @@ int move_ccr_sr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse
         return 0;
     }
 
-    if (get_eff_addr (ci, EaString, mode, reg, SIZ_WORD, state))
+    if (get_eff_addr(ci, EaString, mode, reg, SIZ_WORD, state))
     {
-        register char *dot;
+        register char* dot;
 
         switch (dir)
         {
         case EA2REG:
-            sprintf (ci->params, "%s,%s", EaString, statReg);
+            sprintf(ci->params, "%s,%s", EaString, statReg);
             break;
         default:
-            sprintf (ci->params, "%s,%s", statReg, EaString);
+            sprintf(ci->params, "%s,%s", statReg, EaString);
         }
 
-        strcpy (ci->mnem, op->name);
+        strcpy(ci->mnem, op->name);
 
         dot = strchr(ci->mnem, '.');
         if (dot)
@@ -635,9 +375,9 @@ int move_ccr_sr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse
     return 0;
 }
 
-int move_usp(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int move_usp(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register char *dot;
+    register char* dot;
 
     sprintf(EaString, "A%d", ci->cmd_wrd & 7);
 
@@ -647,10 +387,10 @@ int move_usp(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
     }
     else
     {
-        sprintf (ci->params, "%s,%s", EaString, "usp");
+        sprintf(ci->params, "%s,%s", EaString, "usp");
     }
 
-    strcpy (ci->mnem, op->name);
+    strcpy(ci->mnem, op->name);
 
     dot = strchr(ci->mnem, '.');
     if (dot)
@@ -661,7 +401,7 @@ int move_usp(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
     return 1;
 }
 
-int movep(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int movep(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int addr_reg = ci->cmd_wrd & 7;
     register int opMode = (ci->cmd_wrd >> 6) & 7;
@@ -671,33 +411,33 @@ int movep(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state
     int disp = getnext_w(ci, state);
     static char opcodeFmt[8];
 
-    strcpy (opcodeFmt, "%s,%s");
-    sprintf (DReg, "D%d", (ci->cmd_wrd >> 9) & 7);
+    strcpy(opcodeFmt, "%s,%s");
+    sprintf(DReg, "D%d", (ci->cmd_wrd >> 9) & 7);
 
-    sprintf (AReg, "%d(A%d)", disp, addr_reg);
+    sprintf(AReg, "%d(A%d)", disp, addr_reg);
 
     if (opMode & 2)
     {
-        sprintf (ci->params, opcodeFmt, DReg, AReg);
+        sprintf(ci->params, opcodeFmt, DReg, AReg);
     }
     else
     {
-        sprintf (ci->params, opcodeFmt, AReg, DReg);
+        sprintf(ci->params, opcodeFmt, AReg, DReg);
     }
 
-    strcpy (ci->mnem, op->name);
-    strcat( ci->mnem, (size == SIZ_LONG) ? "l" : "w");
+    strcpy(ci->mnem, op->name);
+    strcat(ci->mnem, (size == SIZ_LONG) ? "l" : "w");
     return 1;
 }
 
-int moveq(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register char *dot;
+    register char* dot;
 
     EaString[0] = '\0';
     LblCalc(EaString, ci->cmd_wrd & 0xff, AM_IMM, CmdEnt, state->opt->IsROF);
     sprintf(ci->params, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
-    strcpy (ci->mnem, op->name);
+    strcpy(ci->mnem, op->name);
 
     dot = strchr(ci->mnem, '.');
     if (dot)
@@ -708,12 +448,11 @@ int moveq(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state
     return 1;
 }
 
-/* --------------------------------------------------------------- *
- * one_ea - A generic handler for when the basic command is a      *
- *      single word and the EA is in the lower 6 bytes             *
- * --------------------------------------------------------------- */
-
-int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+/*
+ * A generic handler for when the basic command is a
+ *      single word and the EA is in the lower 6 bytes
+ */
+int one_ea(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -722,13 +461,13 @@ int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_stat
 
     if (strchr(op->name, '.'))
     {
-        if (size >= sizeof(SizSufx)/sizeof(SizSufx[0]))
+        if (size >= sizeof(SizSufx) / sizeof(SizSufx[0]))
         {
             return 0;
         }
     }
 
-    if (j == 38)       /* swap */
+    if (j == 38) /* swap */
     {
         sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
     }
@@ -737,17 +476,15 @@ int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_stat
         /* eliminate modes */
         switch (op->id)
         {
-            case 38:    /* swap */
-            case 43:    /* tst  */
-                break;      /* Allow all modes */
-            case 39:    /* pea  */
-            case 57:    /* jsr  */
-            case 58:    /* jmp  */
-                if ((mode < 2) || (mode == 3) || (mode == 4))
-                    return 0;
-            default:
-                if (mode == 1)
-                    return 0;
+        case 38:   /* swap */
+        case 43:   /* tst  */
+            break; /* Allow all modes */
+        case 39:   /* pea  */
+        case 57:   /* jsr  */
+        case 58:   /* jmp  */
+            if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
+        default:
+            if (mode == 1) return 0;
         }
 
         /* Eliminate mode-7 regs */
@@ -756,18 +493,16 @@ int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_stat
         {
             switch (op->id)
             {
-                case 32:        /* Allow all modes */
-                case 38:
-                    break;
-                case 39:
-                case 57:    /* jsr  */
-                case 58:    /* jmp  */
-                    if (reg == 4)
-                        return 0;
-                    break;
-                default:
-                    if (reg > 1)
-                        return 0;
+            case 32: /* Allow all modes */
+            case 38:
+                break;
+            case 39:
+            case 57: /* jsr  */
+            case 58: /* jmp  */
+                if (reg == 4) return 0;
+                break;
+            default:
+                if (reg > 1) return 0;
             }
         }
 
@@ -775,22 +510,22 @@ int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_stat
 
         if (get_eff_addr(ci, ea, mode, reg, size, state))
         {
-            char *statreg = "ccr";
+            char* statreg = "ccr";
 
             switch (op->id)
             {
-                case 28:    /* Move from SR */
-                    statreg = "sr";
-                case 33:    /* Move to CCR  */
-                case 35:    /* Move from CCR */
-                    if (ci->cmd_wrd & 0x400)
-                        sprintf (ci->params, "%s,%s", ea, statreg);
-                    else
-                        sprintf (ci->params, "%s,%s", statreg, ea);
-                    break;
-                default:    /* A single ea */
-                    strcpy(ci->params, ea);
-                    break;
+            case 28: /* Move from SR */
+                statreg = "sr";
+            case 33: /* Move to CCR  */
+            case 35: /* Move from CCR */
+                if (ci->cmd_wrd & 0x400)
+                    sprintf(ci->params, "%s,%s", ea, statreg);
+                else
+                    sprintf(ci->params, "%s,%s", statreg, ea);
+                break;
+            default: /* A single ea */
+                strcpy(ci->params, ea);
+                break;
             }
         }
         else
@@ -799,72 +534,68 @@ int one_ea(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_stat
         }
     }
 
-    strcpy (ci->mnem, op->name);
+    strcpy(ci->mnem, op->name);
 
-    if (strchr (ci->mnem, '.'))
+    if (strchr(ci->mnem, '.'))
     {
-        strcat (ci->mnem, SizSufx[size]);
+        strcat(ci->mnem, SizSufx[size]);
     }
 
     return 1;
 }
 
-/* ------------------------------------------------------------------- *
- * branch_displ - Calculates the size of a branch and places the size
+/*
+ * Calculates the size of a branch and places the size
  *          suffix in the string provided in the parameters.
  * Returns: The branch size (sign extended) if valid, 0 on uneven branch size
- *
  */
-
-static int branch_displ (struct cmd_items *ci, int cmd_word, char *siz_suffix, struct parse_state* state)
+static int branch_displ(struct cmd_items* ci, int cmd_word, char* siz_suffix, struct parse_state* state)
 {
     register int displ = cmd_word & 0xff;
 
     switch (displ)
     {
-        case 0:
-            displ = getnext_w(ci, state);
+    case 0:
+        displ = getnext_w(ci, state);
 
-            if (displ & 1)
-            {
-                ungetnext_w(ci, state);
-                return 0;
-            }
+        if (displ & 1)
+        {
+            ungetnext_w(ci, state);
+            return 0;
+        }
 
-            strcpy (siz_suffix, "w");
-            break;
-        case 0xff:
-            if (state->cpu < MC68020)
-                return 0;  /* Long branch not available for < 68020 */
+        strcpy(siz_suffix, "w");
+        break;
+    case 0xff:
+        if (state->cpu < MC68020) return 0; /* Long branch not available for < 68020 */
 
-            displ = (getnext_w(ci, state) << 16) | (getnext_w(ci, state) & 0xffff);
+        displ = (getnext_w(ci, state) << 16) | (getnext_w(ci, state) & 0xffff);
 
-            if (displ & 1)
-            {
-                ungetnext_w(ci, state);
-                ungetnext_w(ci, state);
-                return 0;
-            }
+        if (displ & 1)
+        {
+            ungetnext_w(ci, state);
+            ungetnext_w(ci, state);
+            return 0;
+        }
 
-            strcpy (siz_suffix, "l");
-            break;
-        default:
-            if (displ & 1)
-                return 0;
+        strcpy(siz_suffix, "l");
+        break;
+    default:
+        if (displ & 1) return 0;
 
-            /* Sign extend the 8-bit displacement */
-            if (displ & 0x80)
-            {
-                displ |= (-1 ^ 0xff);
-            }
+        /* Sign extend the 8-bit displacement */
+        if (displ & 0x80)
+        {
+            displ |= (-1 ^ 0xff);
+        }
 
-            strcpy (siz_suffix, "s");
+        strcpy(siz_suffix, "s");
     }
 
     return displ;
 }
 
-int bra_bsr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int displ;
     register int jmp_base = PCPos;
@@ -872,8 +603,7 @@ int bra_bsr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
 
     displ = branch_displ(ci, ci->cmd_wrd, siz, state);
 
-    if (displ & 1)
-        return 0;
+    if (displ & 1) return 0;
 
     if (!state->opt->IsROF)
     {
@@ -897,19 +627,18 @@ int bra_bsr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
 
         if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
         {
-            strcpy (ci->mnem, op->name);
-            strcat (ci->mnem, siz);
+            strcpy(ci->mnem, op->name);
+            strcat(ci->mnem, siz);
             return 1;
         }
         else
         {
-            if (displ == 0)
-                return 0;
+            if (displ == 0) return 0;
         }
     }
 
-    strcpy (ci->mnem, op->name);
-    strcat (ci->mnem, siz);
+    strcpy(ci->mnem, op->name);
+    strcat(ci->mnem, siz);
     /*dstAddr = jmp_base + displ;
 
     //if (IsROF && (Pass == 2))
@@ -926,7 +655,7 @@ int bra_bsr(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
     return 1;
 }
 
-int cmd_no_opcode(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmd_no_opcode(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     ci->params[0] = '\0';
     strcpy(ci->mnem, op->name);
@@ -934,8 +663,7 @@ int cmd_no_opcode(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct par
     return 1;
 }
 
-
-int bit_rotate_mem(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int bit_rotate_mem(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -955,8 +683,8 @@ int bit_rotate_mem(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct pa
     {
         if (Pass == 2)
         {
-            strcpy (ci->params, ea);
-            strcpy (ci->mnem, op->name);
+            strcpy(ci->params, ea);
+            strcpy(ci->mnem, op->name);
         }
 
         return 1;
@@ -965,23 +693,23 @@ int bit_rotate_mem(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct pa
     return 0;
 }
 
-int bit_rotate_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int bit_rotate_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int count_reg = (ci->cmd_wrd >> 9) & 7;
     char dest_ea[5];
 
     switch ((ci->cmd_wrd >> 5) & 1)
     {
-        case 0:
-            sprintf (ci->params, "#%d,", (count_reg == 0) ? 8 : count_reg);
-            break;
-        default:
-            sprintf (ci->params, "d%d,", count_reg);
+    case 0:
+        sprintf(ci->params, "#%d,", (count_reg == 0) ? 8 : count_reg);
+        break;
+    default:
+        sprintf(ci->params, "d%d,", count_reg);
     }
 
     sprintf(dest_ea, "d%d", ci->cmd_wrd & 7);
-    strcat (ci->params, dest_ea);
-    strcpy (ci->mnem, op->name);
+    strcat(ci->params, dest_ea);
+    strcpy(ci->mnem, op->name);
 
     /* Use count_reg to hold Size... */
 
@@ -994,18 +722,17 @@ int bit_rotate_reg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct pa
     return 1;
 }
 
-int br_cond(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int br_cond(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int jmp_base = PCPos;
-    register char *condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
+    register char* condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
     char siz[5];
     register int displ;
-    char *subst;
+    char* subst;
 
     displ = branch_displ(ci, ci->cmd_wrd, siz, state);
 
-    if (displ & 1)
-        return 0;
+    if (displ & 1) return 0;
 
     /* It wouldn't seem likely that a conditional branch would
      * ever branch to an external ref, and would probably ever
@@ -1035,14 +762,13 @@ int br_cond(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
 
         if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
         {
-            strcpy (ci->mnem, op->name);
-            strcat (ci->mnem, siz);
+            strcpy(ci->mnem, op->name);
+            strcat(ci->mnem, siz);
             return 1;
         }
         else
         {
-            if (displ == 0)
-                return 0;
+            if (displ == 0) return 0;
         }
     }
 
@@ -1057,14 +783,14 @@ int br_cond(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
         }
 
         *(subst++) = '.';
-        strcpy (subst, siz);
+        strcpy(subst, siz);
     }
     else
     {
         return 0;
     }
 
-        /* We need to calculate the address here */
+    /* We need to calculate the address here */
     /*process_label (ci, 'L', jmp_base + displ);*/
     LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF);
     /*sprintf (ci->params, "L%05x", jmp_base + displ);*/
@@ -1072,15 +798,16 @@ int br_cond(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
     return 1;
 }
 
-typedef struct add_sub_def {
+typedef struct add_sub_def
+{
     int size;
     int direction;
     char regname;
     int allmodes;
 } ADDSUBDEF;
 
-/* ********************
- * add_sub() - Handles add, sub, and, or, eor instructions
+/*
+ * Handles add, sub, and, or, eor instructions
  *   Cmd modes:
  *     1000 - "or"
  *     1001 - "sub"
@@ -1088,25 +815,17 @@ typedef struct add_sub_def {
  *     1100 - "and"
  *     1101 - "add"
  */
-
-int add_sub(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int add_sub(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     /*int datareg = (ci->cmd_wrd >> 9) & 7;*/
     int ea_mode = (ci->cmd_wrd >> 3) & 7;
     int ea_reg = ci->cmd_wrd & 7;
-    register int opmode = (ci->cmd_wrd >>6) & 7;
+    register int opmode = (ci->cmd_wrd >> 6) & 7;
     register int cmdcode = ci->cmd_wrd >> 12;
-    static ADDSUBDEF AddSubDefs[] = {
-        {SIZ_BYTE, EA2REG, 'd', 0},
-        {SIZ_WORD, EA2REG, 'd', 0},
-        {SIZ_LONG, EA2REG, 'd', 0},
-        {SIZ_WORD, EA2REG, 'a', 1},
-        {SIZ_BYTE, REG2EA, 'd', 0},
-        {SIZ_WORD, REG2EA, 'd', 0},
-        {SIZ_LONG, REG2EA, 'd', 0},
-        {SIZ_LONG, EA2REG, 'a', 1} 
-    };
-    register ADDSUBDEF *asDef = &AddSubDefs[opmode];
+    static ADDSUBDEF AddSubDefs[] = {{SIZ_BYTE, EA2REG, 'd', 0}, {SIZ_WORD, EA2REG, 'd', 0}, {SIZ_LONG, EA2REG, 'd', 0},
+                                     {SIZ_WORD, EA2REG, 'a', 1}, {SIZ_BYTE, REG2EA, 'd', 0}, {SIZ_WORD, REG2EA, 'd', 0},
+                                     {SIZ_LONG, REG2EA, 'd', 0}, {SIZ_LONG, EA2REG, 'a', 1}};
+    register ADDSUBDEF* asDef = &AddSubDefs[opmode];
     char ea[50];
 
     if (asDef->direction == EA2REG)
@@ -1116,12 +835,12 @@ int add_sub(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
             return 0;
         }
 
-        if (cmdcode == 0x1011)    /* eor */
+        if (cmdcode == 0x1011) /* eor */
         {
             return 0;
         }
 
-        if ((cmdcode & 3) != 1)     /* Only "add"/"sub" allow An direct */
+        if ((cmdcode & 3) != 1) /* Only "add"/"sub" allow An direct */
         {
             if (ea_mode == 1)
             {
@@ -1132,21 +851,18 @@ int add_sub(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
         /* If not "add" or "sub", An cannot be a Dest */
         if ((cmdcode != 0x09) && (cmdcode != 0x0d))
         {
-            if (asDef->regname == 'a')
-                return 0;
+            if (asDef->regname == 'a') return 0;
         }
     }
-    else       /* else asDef->Direction = REG2EA */
+    else /* else asDef->Direction = REG2EA */
     {
         if (cmdcode == 0x0b) /* "eor" allows Dn, others don't */
         {
-            if (ea_mode == 1)
-                return 0;
+            if (ea_mode == 1) return 0;
         }
         else
         {
-            if (ea_mode < 2)
-                return 0;
+            if (ea_mode < 2) return 0;
         }
 
         if ((ea_mode == 7) && (ea_reg > 1))
@@ -1159,15 +875,15 @@ int add_sub(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
     {
         if (asDef->direction == REG2EA)
         {
-            sprintf (ci->params, "%c%d,%s", asDef->regname, (ci->cmd_wrd >> 9) & 7, ea);
+            sprintf(ci->params, "%c%d,%s", asDef->regname, (ci->cmd_wrd >> 9) & 7, ea);
         }
         else
         {
-            sprintf (ci->params, "%s,%c%d", ea, asDef->regname, (ci->cmd_wrd >> 9) & 7);
+            sprintf(ci->params, "%s,%c%d", ea, asDef->regname, (ci->cmd_wrd >> 9) & 7);
         }
 
-        strcpy (ci->mnem, op->name);
-        strcat (ci->mnem, SizSufx[asDef->size]);
+        strcpy(ci->mnem, op->name);
+        strcat(ci->mnem, SizSufx[asDef->size]);
         return 1;
     }
     else
@@ -1176,7 +892,7 @@ int add_sub(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
     }
 }
 
-int cmp_cmpa(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmp_cmpa(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int mode = (ci->cmd_wrd >> 3) & 7;
     register int reg = ci->cmd_wrd & 7;
@@ -1202,16 +918,15 @@ int cmp_cmpa(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
 
     if (get_eff_addr(ci, EaString, mode, reg, size, state))
     {
-        sprintf (ci->params, "%s,%c%d", EaString, regName,
-                (ci->cmd_wrd >> 9) & 7);
-        strcpy (ci->mnem, op->name);
-        strcat (ci->mnem, SizSufx[size]);
+        sprintf(ci->params, "%s,%c%d", EaString, regName, (ci->cmd_wrd >> 9) & 7);
+        strcpy(ci->mnem, op->name);
+        strcat(ci->mnem, SizSufx[size]);
         return 1;
     }
 
     return 0;
 }
-int addq_subq(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int addq_subq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1230,8 +945,8 @@ int addq_subq(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_s
 
     if (get_eff_addr(ci, EaString, mode, reg, size, state))
     {
-        sprintf (ci->params, "#%d,%s", data, EaString);
-        strcpy (ci->mnem, op->name);
+        sprintf(ci->params, "#%d,%s", data, EaString);
+        strcpy(ci->mnem, op->name);
         strcat(ci->mnem, SizSufx[size]);
         return 1;
     }
@@ -1239,19 +954,19 @@ int addq_subq(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_s
     return 0;
 }
 
-int abcd_sbcd(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int srcReg = ci->cmd_wrd & 7;
     register int dstReg = (ci->cmd_wrd >> 9) & 7;
-    register char *dot;
+    register char* dot;
 
     if (ci->cmd_wrd & 0x08)
     {
-        sprintf (ci->params, "-(a%d),-(a%d)", srcReg, dstReg);
+        sprintf(ci->params, "-(a%d),-(a%d)", srcReg, dstReg);
     }
     else
     {
-        sprintf (ci->params, "d%d,d%d", srcReg, dstReg);
+        sprintf(ci->params, "d%d,d%d", srcReg, dstReg);
     }
 
     strcpy(ci->mnem, op->name);
@@ -1265,53 +980,52 @@ int abcd_sbcd(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_s
     return 1;
 }
 
-/* *************************************************************** *
- * addTrapOpt() - If Pass 1, set up a boundary for the Trap option *
- *      so that it will disassemble correctly on Pass 2.           *
- *      if Pass 2, unget the next option word so it will be        *
- *      disassebled as a constant.                                 *
- * *************************************************************** */
-
-void addTrapOpt(struct cmd_items *ci, int ppos, struct parse_state* state)
+/*
+ * addTrapOpt() - If Pass 1, set up a boundary for the Trap option
+ *      so that it will disassemble correctly on Pass 2.
+ *      if Pass 2, unget the next option word so it will be
+ *      disassebled as a constant.
+ */
+void addTrapOpt(struct cmd_items* ci, int ppos, struct parse_state* state)
 {
     char bndstr[100];
 
     if (Pass == 1)
     {
-        sprintf (bndstr, "L W $ %05x-%05x", ppos, ppos+1);
-        boundsline (bndstr);
+        sprintf(bndstr, "L W $ %05x-%05x", ppos, ppos + 1);
+        boundsline(bndstr);
     }
-    else    /* If Pass 2, unget the opt so it will print as a "dc.w" */
+    else /* If Pass 2, unget the opt so it will print as a "dc.w" */
     {
         ungetnext_w(ci, state);
     }
 }
 
-int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int vector = ci->cmd_wrd & 0x0f;
     register int syscall = getnext_w(ci, state);
-    unsigned int sysCallCount = sizeof(SysNames)/sizeof(SysNames[0]);
-    unsigned int mathCallCount = sizeof(MathCalls)/sizeof(MathCalls[0]);
+    unsigned int sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
+    unsigned int mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
     ci->mnem[0] = '\0';
 
     switch (vector)
     {
-    case 0:             /* System Call */
+    case 0: /* System Call */
         if (state->opt->IsROF)
         {
             if (Pass == 2)
             {
-                struct rof_extrn *vec_ref = find_extrn (refs_code, CmdEnt + 1);
-                struct rof_extrn *call_ref = find_extrn (refs_code, CmdEnt + 2);
-                const char *callName = NULL;
+                struct rof_extrn* vec_ref = find_extrn(refs_code, CmdEnt + 1);
+                struct rof_extrn* call_ref = find_extrn(refs_code, CmdEnt + 2);
+                const char* callName = NULL;
 
                 if (call_ref != NULL)
                 {
                     register int x;
 
-                    //callName = call_ref->EName.nam;
+                    // callName = call_ref->EName.nam;
                     callName = extern_def_name(call_ref);
 
                     for (x = 0; x < sysCallCount; x++)
@@ -1319,7 +1033,7 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
                         if (!strcmp(callName, SysNames[x]))
                         {
 
-                            strcpy (ci->mnem, "os9");
+                            strcpy(ci->mnem, "os9");
                             strcpy(ci->params, callName);
                             return 1;
                         }
@@ -1328,13 +1042,13 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
 
                 if (vec_ref)
                 {
-                    //register char *vN = vec_ref->EName.nam;
+                    // register char *vN = vec_ref->EName.nam;
                     const char* vN = extern_def_name(vec_ref);
                     register int x;
 
                     for (x = 0; x < mathCallCount; x++)
                     {
-                        if (!strcmp("T$Math",vN) || !strcmp("T$Math",vN))
+                        if (!strcmp("T$Math", vN) || !strcmp("T$Math", vN))
                         {
                             register int matched = FALSE;
 
@@ -1361,7 +1075,7 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
                         sprintf(ci->params, "%s,$%x", vN, syscall);
                     }
 
-                    strcpy (ci->mnem, "tcall");
+                    strcpy(ci->mnem, "tcall");
                     return 1;
                 }
                 else
@@ -1373,10 +1087,10 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
                     }
                     else
                     {
-                        sprintf (ci->params, "$%x,$%x", vector, syscall);
+                        sprintf(ci->params, "$%x,$%x", vector, syscall);
                     }
 
-                    strcpy (ci->mnem, "tcall");
+                    strcpy(ci->mnem, "tcall");
                     return 1;
                 }
                 break;
@@ -1388,7 +1102,7 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
             {
                 if (syscall < sysCallCount)
                 {
-                    addlbl ('!', syscall, SysNames[syscall]);
+                    addlbl('!', syscall, SysNames[syscall]);
                     /*addTrapOpt (ci, PCPos - 2);*/
                     return 1;
                 }
@@ -1400,13 +1114,13 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
             }
             else
             {
-                strcpy (ci->params, SysNames[syscall]);
-                strcpy (ci->mnem, "os9");
+                strcpy(ci->params, SysNames[syscall]);
+                strcpy(ci->mnem, "os9");
                 return 1;
             }
         }
-    case 0x0f:          /* Math trap   */
-        if (syscall < sizeof(MathCalls)/sizeof(MathCalls[0]))
+    case 0x0f: /* Math trap   */
+        if (syscall < sizeof(MathCalls) / sizeof(MathCalls[0]))
         {
             strcpy(ci->params, "T$Math");
             strcpy(ci->mnem, "tcall");
@@ -1419,9 +1133,9 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
         break;
     default:
         /* TODO: Provide for user-defined labels */
-        sprintf (ci->params, "$%02x,", vector);
-        sprintf (&ci->params[strlen(ci->params)], "%04x", syscall);
-        strcpy (ci->mnem, "tcall");
+        sprintf(ci->params, "$%02x,", vector);
+        sprintf(&ci->params[strlen(ci->params)], "%04x", syscall);
+        strcpy(ci->mnem, "tcall");
         /*strcpy (ci->mnem, op->name);*/
         /*addTrapOpt (ci, PCPos - 2);*/
         return 1;
@@ -1431,20 +1145,20 @@ int trap(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state*
     return 0;
 }
 
-int cmd_stop(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmd_stop(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     sprintf(ci->params, "#%d", getnext_w(ci, state));
-    strcpy (ci->mnem, op->name);
+    strcpy(ci->mnem, op->name);
     return 1;
 }
 
-int cmd_dbcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     /*int br_from = PCPos;
     register int dest;*/
-    char *condpos;
+    char* condpos;
 
-    strcpy (ci->mnem, op->name);
+    strcpy(ci->mnem, op->name);
 
     condpos = strchr(ci->mnem, '~');
     if (condpos)
@@ -1454,14 +1168,14 @@ int cmd_dbcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
 
         switch (ent)
         {
-            case 0:
-                strcpy (condpos, "rn");
-                break;
-            case 1:
-                strcpy (condpos, "ra");
-                break;
-            default:
-                strcpy(condpos, typecondition[ent].condition);
+        case 0:
+            strcpy(condpos, "rn");
+            break;
+        case 1:
+            strcpy(condpos, "ra");
+            break;
+        default:
+            strcpy(condpos, typecondition[ent].condition);
         }
 
         offset = getnext_w(ci, state);
@@ -1471,9 +1185,9 @@ int cmd_dbcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
         AMode = AM_REL;
         PCPos -= 2;
         EaString[0] = '\0';
-        LblCalc (EaString, offset, AM_REL, PCPos, state->opt->IsROF);
+        LblCalc(EaString, offset, AM_REL, PCPos, state->opt->IsROF);
         PCPos += 2;
-        sprintf (ci->params, "d%d,%s", ci->cmd_wrd & 7, EaString);
+        sprintf(ci->params, "d%d,%s", ci->cmd_wrd & 7, EaString);
 
         return 1;
     }
@@ -1481,11 +1195,11 @@ int cmd_dbcc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
     return 0;
 }
 
-int cmd_scc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmd_scc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
-    char *condpos;
+    char* condpos;
 
     if (mode == 1)
     {
@@ -1497,14 +1211,14 @@ int cmd_scc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
         return 0;
     }
 
-    strcpy (ci->mnem, op->name);
+    strcpy(ci->mnem, op->name);
 
     condpos = strchr(ci->mnem, '~');
     if (condpos)
     {
         strcpy(condpos, typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition);
 
-        if ( get_eff_addr(ci, EaString, mode, reg, SIZ_BYTE, state))
+        if (get_eff_addr(ci, EaString, mode, reg, SIZ_BYTE, state))
         {
             strcpy(ci->params, EaString);
             return 1;
@@ -1514,13 +1228,13 @@ int cmd_scc(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
     return 0;
 }
 
-int cmd_exg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmd_exg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int regnumSrc = (ci->cmd_wrd >> 9) & 7;
     register int regnumDst = ci->cmd_wrd & 7;
     char regnameSrc = 'd';
     char regnameDst = 'd';
-    char *dot;
+    char* dot;
 
     switch ((ci->cmd_wrd >> 3) & 0x1f)
     {
@@ -1535,8 +1249,8 @@ int cmd_exg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
         return 0;
     }
 
-    sprintf (ci->params, "%c%d,%c%d", regnameSrc,regnumSrc,regnameDst, regnumDst);
-    strcpy (ci->mnem, op->name);
+    sprintf(ci->params, "%c%d,%c%d", regnameSrc, regnumSrc, regnameDst, regnumDst);
+    strcpy(ci->mnem, op->name);
 
     dot = strchr(ci->mnem, '.');
     if (dot)
@@ -1547,12 +1261,12 @@ int cmd_exg(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_sta
     return 1;
 }
 
-int ext_extb(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int ext_extb(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register char *sufx;
+    register char* sufx;
 
-    sprintf (ci->params, "d%d", ci->cmd_wrd & 7);
-    strcpy (ci->mnem, op->name);
+    sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
+    strcpy(ci->mnem, op->name);
 
     switch (ci->cmd_wrd & 0x01c0)
     {
@@ -1573,16 +1287,16 @@ int ext_extb(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_st
         return 0;
     }
 
-    strcat (ci->mnem, sufx);
+    strcat(ci->mnem, sufx);
     return 1;
 }
 
-int cmpm_addx_subx(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct parse_state* state)
+int cmpm_addx_subx(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int srcRegno = ci->cmd_wrd & 7;
     register int dstRegno = (ci->cmd_wrd >> 9) & 7;
     register int size = (ci->cmd_wrd >> 6) & 3;
-    char *opcodeFmt;
+    char* opcodeFmt;
 
     if (size == 3)
     {
@@ -1591,10 +1305,10 @@ int cmpm_addx_subx(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct pa
 
     switch (ci->cmd_wrd & 0xf000)
     {
-    case 0xb000:            /* cmpm */
+    case 0xb000: /* cmpm */
         opcodeFmt = "(a%d)+,(a%d)+";
         break;
-    default:                /* addx/subx */
+    default: /* addx/subx */
         if (ci->cmd_wrd & 8)
         {
             opcodeFmt = "-(a%d),-(a%d)";
@@ -1605,9 +1319,9 @@ int cmpm_addx_subx(struct cmd_items *ci, int j, const OPSTRUCTURE *op, struct pa
         }
     }
 
-    sprintf (ci->params, opcodeFmt, srcRegno, dstRegno);
-    strcpy (ci->mnem, op->name);
-    strcat (ci->mnem, SizSufx[size]);
+    sprintf(ci->params, opcodeFmt, srcRegno, dstRegno);
+    strcpy(ci->mnem, op->name);
+    strcat(ci->mnem, SizSufx[size]);
 
     return 1;
 }

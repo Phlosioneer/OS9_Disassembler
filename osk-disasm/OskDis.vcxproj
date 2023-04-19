@@ -128,7 +128,6 @@
   <ItemGroup>
     <ClInclude Include="cmdfile.h" />
     <ClInclude Include="def68def.h" />
-    <ClInclude Include="externc.h" />
     <ClInclude Include="main_support.h" />
     <ClInclude Include="disglobs.h" />
     <ClInclude Include="commonsubs.h" />
@@ -150,6 +149,7 @@
     <ClInclude Include="userdef.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".clang-format" />
     <None Include="test\actual.s" />
     <None Include="test\expected.s" />
   </ItemGroup>
