@@ -42,8 +42,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode, int reg, int size,
                                struct parse_state* state);
-int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWbrief* ew_b, int mode, int reg, int size,
-                                struct parse_state* state);
 void get_displ(struct cmd_items* ci, char* dst, int siz_flag, struct parse_state* state);
 int set_indirect_idx(char* dest, struct extWbrief* extW, int cpu);
 

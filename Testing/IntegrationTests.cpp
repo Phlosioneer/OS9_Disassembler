@@ -71,5 +71,13 @@ namespace IntegrationTests
 
 			test.run();
 		}
+
+		TEST_METHOD(PcScaleRoff)
+		{
+			reset();
+			IntegrationTestCase test("pc_scale_r");
+
+			test.run();
+		}
 	};
 }

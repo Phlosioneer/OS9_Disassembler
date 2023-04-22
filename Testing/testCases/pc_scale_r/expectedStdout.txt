@@ -1,0 +1,6 @@
+    0  00000 0000            psect  cdi_bpsys,$2,$1,0,0,main 
+    1  00000 907b main:      dc.w   $907b      
+    2  00002 1a0a            dc.w   $1a0a      
+    3
+    4  00004 0000            ends              
+    4

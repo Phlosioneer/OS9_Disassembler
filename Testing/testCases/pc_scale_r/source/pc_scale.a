@@ -1,0 +1,13 @@
+  nam  cdi_bpsys
+  use <OSKDEFS.D>
+
+Edition equ 0
+Typ_Lang equ (Sbrtn<<8)+Objct
+Attr_Rev equ ((ReEnt+SupStat)<<8)+0
+
+  psect  cdi_bpsys,Typ_Lang,Attr_Rev,Edition,0,main
+  
+main:
+  sub.w 10(pc,d1.l*2),d0
+
+  ends

@@ -926,7 +926,7 @@ char* IsRef(char* dst, int curloc, int ival)
         if (Pass == 1)
         {
             refs_code = refs_code->ENext;
-            return dst;
+            retVal = dst;
         }
         else
         {
@@ -946,6 +946,7 @@ char* IsRef(char* dst, int curloc, int ival)
             } /* Else leave retVal=NULL - for local refs, let calling process handle it */
             else
             {
+                // Pretty sure this is a bug, and it's supposed to be strcpy().
                 strcat(dst, refs_code->EName.lbl->name());
                 retVal = dst;
             }

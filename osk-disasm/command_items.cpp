@@ -1,7 +1,9 @@
 
 #include "command_items.h"
 
+#include <sstream>
 #include <string.h>
+#include <string>
 
 #include "commonsubs.h"
 #include "disglobs.h"
@@ -9,6 +11,7 @@
 #include "exit.h"
 #include "main_support.h"
 #include "modtypes.h"
+#include "params.h"
 #include "rof.h"
 
 #define LABEL_LEN 200
@@ -38,14 +41,14 @@ const char* SizSufx[] = {"b", "w", "l"};
 
 typedef struct modestrs
 {
-    char* str;
+    const char* str;
     int CPULvl;
 } MODE_STR;
 
 MODE_STR ModeStrings[] = {{"d%d", 0},    {"a%d", 0},     {"(a%d)", 0},     {"(a%d)+", 0},
                           {"-(a%d)", 0}, {"%s(a%d)", 0}, {"%s(a%d,%s)", 0}};
 
-/* The above strings for when the register is A6 (sp) */
+/* The above strings for when the register is A7 (sp) */
 MODE_STR SPStrings[] = {{"", 99999}, /* Should never be used */
                         {"sp", 0},   {"(sp)", 0}, {"(sp)+", 0}, {"-(sp)", 0}, {"%s(sp)", 0}, {"%s(sp,%s)", 0}};
 
@@ -405,32 +408,26 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         break;
     }
 
+    std::unique_ptr<InstrParam> param;
+
     switch (mode)
     {
         MODE_STR* a_pt;
     default:
         return 0;
     case 0: /* "Dn" */
-        sprintf(ea, ModeStrings[mode].str, reg);
-        return 1;
+        param = std::make_unique<RegParam>(makeDReg(reg));
+        break;
     case 1: /* "An" */
         if (size < SIZ_WORD) return 0;
     case 2: /* (An) */
     case 3: /* (An)+ */
     case 4: /* -(An) */
-        if (reg == 7)
-        {
-            a_pt = &SPStrings[mode];
-        }
-        else
-        {
-            a_pt = &ModeStrings[mode];
-        }
-
-        sprintf(ea, a_pt->str, reg);
-        return 1;
+        param = std::make_unique<RegParam>(makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
-    case 5: /* d{16}An */
+    case 5: /* d{16}(An) */
+    {
+        char* label = nullptr;
         AMode = AM_A0 + reg;
         ext1 = getnext_w(ci, state);
 
@@ -444,76 +441,53 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
+        if (LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF))
+        {
+            label = dispstr;
+        }
 
-        if (reg == 7)
-        {
-            sprintf(ea, SPStrings[mode].str, dispstr);
-        }
-        else
-        {
-            sprintf(ea, ModeStrings[mode].str, dispstr, reg);
-        }
-        return 1;
+        param = std::make_unique<RegOffsetParam>(makeAReg(reg), ext1, label);
+
+        // `0(An)` and `(An)` assemble to different instructions.
+        ((RegOffsetParam*)param.get())->setShouldForceZero(true);
+
         break;
+    }
     case 6: /* d{8}(An,Xn) or 68020-up */
-        AMode = AM_A0 + reg;
-
         if (get_ext_wrd(ci, &ew_b, mode, reg, state))
         {
+            if (state->cpu < 20 && ew_b.scale != 0)
+            {
+                ungetnext_w(ci, state);
+                return 0;
+            }
+            auto addressReg = makeAReg(reg);
+            auto offsetReg = ew_b.regNam == 'a' ? makeAReg(ew_b.regno) : makeDReg(ew_b.regno);
+            auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
+            char* label = nullptr;
+            if (ew_b.displ != 0)
+            {
+                // ew_b.displ -= 2;
+                if (LblCalc(dispstr, ew_b.displ, AM_A0 + reg, PCPos - 2, state->opt->IsROF))
+                {
+                    label = dispstr;
+                }
+            }
             if (ew_b.isFull)
             {
                 return process_extended_word_full(ci, ea, &ew_b, mode, reg, size, state);
             }
             else
             {
-                return process_extended_word_brief(ci, ea, &ew_b, mode, reg, size, state);
+                param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, ew_b.scale, ew_b.displ,
+                                                         label);
             }
-            /* the displacement should be a string for it may sometimes
-             * be a label */
-            /*char a_disp[50];
-            char idxstr[30];
-
-            a_disp[0] = '\0';*/
-
-            /* This is for cpu's < 68020
-             * for 68020-up, the bd can be up to 32 bits
-             */
-            /*if (abs(ew_b.displ) > 0x80)
-            {
-                ungetnext_w(ci);
-                return 0;
-            }
-
-            if (ew_b.displ)
-            {
-                LblCalc (a_disp, ew_b.displ, AMode);
-            }
-
-            if (!set_indirect_idx (idxstr, &ew_b))
-            {
-                ungetnext_w(ci);
-                return 0;
-            }
-
-            if (reg == 7)
-            {
-                sprintf (ea, SPStrings[mode].str, a_disp, idxstr);
-            }
-            else
-            {
-                sprintf (ea, ModeStrings[mode].str, a_disp, reg, idxstr);
-            }
-
-            return 1;
-            */
         }
         else
         {
             return 0;
         }
 
-        /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
         break;
 
         /* We now go to mode %111, where the mode is determined
@@ -523,20 +497,33 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         switch (reg)
         {
         case 0: /* (xxx).W */
-            AMode = AM_SHORT;
-            ext1 = getnext_w(ci, state);
-            /*sprintf (dispstr, "%d", displac_w);*/
-            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
-            sprintf(ea, Mode07Strings[reg].str, dispstr);
-            return 1;
         case 1: /* (xxx).L */
-            AMode = AM_LONG;
-            ext1 = getnext_w(ci, state);
-            ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
-            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
-            sprintf(ea, Mode07Strings[reg].str, dispstr);
-            return 1;
+        {
+            char* label = nullptr;
+            OperandSize opSize;
+            int amode_local;
+            if (reg == 0)
+            {
+                opSize = OperandSize::Word;
+                ext1 = getnext_w(ci, state);
+                amode_local = AM_SHORT;
+            }
+            else
+            {
+                opSize = OperandSize::Long;
+                ext1 = getnext_w(ci, state);
+                ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
+                amode_local = AM_LONG;
+            }
+            if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF))
+            {
+                label = dispstr;
+            }
+            param = std::make_unique<AbsoluteAddrParam>(ext1, label, opSize);
+            break;
+        }
         case 4: /* #<data> */
+        {
             AMode = AM_IMM;
             ref_ptr = PCPos;
             ext1 = getnext_w(ci, state);
@@ -571,35 +558,68 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 return 1;
             }
 
+            // This uses too many global variables to be replaced by LiteralParam.
             LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
+        }
         case 2: /* (d16,PC) */
-            AMode = AM_REL;
+        {
+            char* label = nullptr;
             ext1 = getnext_w(ci, state);
-            /* (ext1 - 2) to reflect PCPos before getnext_w */
-            /*LblCalc(dispstr, ext1 - 2, AMode, ea_addr);*/
-            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
-            sprintf(ea, Mode07Strings[reg].str, dispstr);
-            return 1;
+            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF))
+            {
+                label = dispstr;
+            }
+            param = std::make_unique<RegOffsetParam>(Register::REG_PC, ext1, label);
+            break;
+        }
         case 3: /* d8(PC,Xn) */
-            AMode = AM_REL;
-
             if (get_ext_wrd(ci, &ew_b, mode, reg, state))
             {
+                if (state->cpu < 20 && ew_b.scale != 0)
+                {
+                    ungetnext_w(ci, state);
+                    return 0;
+                }
+                auto offsetReg = ew_b.regNam == 'a' ? makeAReg(ew_b.regno) : makeDReg(ew_b.regno);
+                auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
+                char* label = nullptr;
+                if (ew_b.displ != 0)
+                {
+                    ew_b.displ -= 2;
+                    if (LblCalc(dispstr, ew_b.displ, AM_REL, PCPos - 2, state->opt->IsROF))
+                    {
+                        label = dispstr;
+                    }
+                }
                 if (ew_b.isFull)
                 {
                     return process_extended_word_full(ci, ea, &ew_b, mode, reg, size, state);
                 }
                 else
                 {
-                    return process_extended_word_brief(ci, ea, &ew_b, mode, reg, size, state);
+                    param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, ew_b.scale,
+                                                             ew_b.displ, label);
                 }
             }
+            else
+            {
+                return 0;
+            }
+
+            break;
         }
+        break;
     }
 
-    return 0; /* Return 0 means no effective address was found */
+    // return 0; /* Return 0 means no effective address was found */
+    if (param)
+    {
+        strcpy(ea, param->toStr().c_str());
+        return 1;
+    }
+    return 0;
 }
 
 /*
@@ -756,62 +776,6 @@ int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbr
     }
 
     strcat(dststr, ")");
-
-    return 1;
-}
-
-int process_extended_word_brief(struct cmd_items* ci, char* dststr, struct extWbrief* ew_b, int mode, int reg, int size,
-                                struct parse_state* state)
-{
-    char a_disp[50];
-    char idxstr[30];
-
-    a_disp[0] = '\0';
-
-    /* This is for cpu's < 68020
-     * for 68020-up, the bd can be up to 32 bits
-     */
-    /*if (abs(ew_b.displ) > 0x80)
-    {
-        ungetnext_w(ci);
-        return 0;
-    }*/
-
-    if (ew_b->displ)
-    {
-        if (mode == 7)
-        {
-            ew_b->displ -= 2;
-        }
-
-        LblCalc(a_disp, ew_b->displ, AMode, PCPos - 2, state->opt->IsROF);
-    }
-
-    if (!set_indirect_idx(idxstr, ew_b, state->cpu))
-    {
-        ungetnext_w(ci, state);
-        return 0;
-    }
-
-    switch (mode)
-    {
-    case 6:
-        switch (reg)
-        {
-        case 7:
-            sprintf(dststr, SPStrings[mode].str, a_disp, idxstr);
-            break;
-        default:
-            sprintf(dststr, ModeStrings[mode].str, a_disp, reg, idxstr);
-            break;
-        }
-        break;
-    case 7: /* PCRel */
-        sprintf(dststr, Mode07Strings[reg].str, a_disp, idxstr);
-        break;
-    default:
-        return 0;
-    }
 
     return 1;
 }
