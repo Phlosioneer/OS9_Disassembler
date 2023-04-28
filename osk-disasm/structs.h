@@ -54,40 +54,4 @@ struct data_bounds
     struct data_bounds *DLess, *DMore, *DPrev;
 };
 
-/* ******************************************** *
- * xtndcmnt structures                          *
- * These are comments that are appended to the  *
- * end of the assembly line                     *
- * ******************************************** */
-
-struct append_comment
-{
-    int adrs;
-    struct append_comment* apLeft;
-    struct append_comment* apRight;
-    char* CmPtr;
-};
-
-/* ************************************ *
- * Stand-alone Comment structures       *
- * ************************************ */
-
-/* Single line of a comment */
-struct comment_line
-{
-    struct comment_line* nextline;
-    char* ctxt;
-};
-
-/* Main tree */
-
-struct comment_tree
-{
-    int adrs;
-    struct comment_tree* cmtUp;
-    struct comment_tree* cmtLeft;
-    struct comment_tree* cmtRight;
-    struct comment_line* commts;
-};
-
 #endif /*    #define HAVE_STRUCTS */

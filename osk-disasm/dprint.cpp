@@ -81,11 +81,6 @@ static char* IBuf;       /* Pointer to buffer containing the Init Data values */
 int LinNum;
 char EaString[200];
 
-/* Comments tree */
-
-struct comment_tree* Comments[33];
-struct append_comment* CmntApnd[33];
-
 struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
                            {"Systm", 12}, {"FlMgr", 13}, {"Drivr", 14}, {"Devic", 15}, {"", 0}};
 
@@ -267,63 +262,6 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
 }
 
 /* ******************************************************** *
- * get_comment() - Checks for append comment for current    *
- *              command line.                               *
- * Passed: (1) cClass,                                       *
- *         (2) entry address for command                    *
- * Returns: ptr to comment string if present                *
- *          ptr to empty string if none                     *
- * ******************************************************** */
-
-char* get_apcomment(char clas, int addr)
-{
-    struct append_comment* mytree = CmntApnd[strpos(lblorder, clas)];
-
-    if (!clas)
-    {
-        return NULL;
-    }
-
-    if (mytree)
-    {
-        while (1)
-        {
-            if (addr < mytree->adrs)
-            {
-                if (mytree->apLeft)
-                {
-                    mytree = mytree->apLeft;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else
-            {
-                if (addr > mytree->adrs)
-                {
-                    if (mytree->apRight)
-                    {
-                        mytree = mytree->apRight;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    return mytree->CmPtr;
-                }
-            }
-        }
-    }
-
-    return NULL;
-}
-
-/* ******************************************************** *
  * PrintLine () - The generic, global printline function    *
  *                It checks for unlisted boundaries, prints *
  *                the line, and then does cleanup           *
@@ -332,12 +270,6 @@ char* get_apcomment(char clas, int addr)
 void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi, struct options* opt)
 {
     NonBoundsLbl(cClass, opt); /*Check for non-boundary labels */
-
-    if (cClass)
-    {
-        PrintComment(cClass, cmdlow, cmdhi, opt);
-        ci->comment = get_apcomment(cClass, cmdlow);
-    }
 
     OutputLine(pfmt, ci, opt);
 
@@ -402,62 +334,6 @@ void printXtraBytes(char* data)
     {
         writer_printf(stdout_writer, xtraFmt, data);
         data[0] = '\0'; /* Reset data to empty string */
-    }
-}
-
-/*
- * PrintComment() -Print any comments appropriate
- *
- */
-
-void PrintComment(char lblcClass, int cmdlow, int cmdhi, struct options* opt)
-{
-    register struct comment_tree* me;
-    register int x;
-
-    for (x = cmdlow; x < cmdhi; x++)
-    {
-        me = Comments[strpos(lblorder, lblcClass)];
-
-        while (me)
-        {
-            if (x < me->adrs)
-            {
-                me = me->cmtLeft;
-            }
-            else
-            {
-                if (x > me->adrs)
-                {
-                    me = me->cmtRight;
-                }
-                else /* Assume for now it's equal */
-                {
-                    struct comment_line* line;
-
-                    line = me->commts;
-
-                    for (line = me->commts; line; line = line->nextline)
-                    {
-                        if (opt->IsUnformatted)
-                        {
-                            printf(" * %s\n", line->ctxt);
-                        }
-                        else
-                        {
-                            printf("%5d * %s\n", LinNum++, line->ctxt);
-                        }
-
-                        if (opt->asmFile)
-                        {
-                            writer_printf(opt->asmFile, "* %s\n", line->ctxt);
-                        }
-                    }
-
-                    break; /* This address done, proceed with next x */
-                }
-            }
-        }
     }
 }
 

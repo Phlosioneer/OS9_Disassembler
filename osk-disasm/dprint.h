@@ -20,10 +20,8 @@ struct ireflist
 };
 
 void PrintPsect(struct options* opt);
-char* get_apcomment(char clas, int addr);
 void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi, struct options* opt);
 void printXtraBytes(char* data);
-void PrintComment(char lblcClass, int cmdlow, int cmdhi, struct options* opt);
 void ROFPsect(struct rof_header* rptr, struct options* opt);
 void WrtEnds(struct options* opt);
 void ParseIRefs(char rClass, struct options* opt);
@@ -40,10 +38,5 @@ extern int PrevEnt;
 extern int LinNum;
 extern char EaString[200]; /* Buffer to hold the effective address. */
 extern struct ireflist* IRefs;
-
-/* Comments tree */
-
-extern struct comment_tree* Comments[33];
-extern struct append_comment* CmntApnd[33];
 
 #endif

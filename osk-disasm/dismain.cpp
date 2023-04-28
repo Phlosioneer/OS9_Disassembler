@@ -515,7 +515,6 @@ int dopass(int mypass, struct options* opt)
         {
             if (Pass == 2)
             {
-                Instruction.comment = get_apcomment('L', CmdEnt);
                 PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
 
                 if (opt->PrintAllCode && Instruction.wcount)
