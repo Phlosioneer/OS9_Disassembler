@@ -28,7 +28,7 @@ IntegrationTestCase::IntegrationTestCase(std::string caseName)
 	expectedStdOutFile(expectedStdOutFilePath)
 {
 	inputFilePath = basePath + "test.module";
-	commandFilePath = basePath + "commands.txt";
+	commandFilePath = basePath + "commands.json";
 	labelFilePath = basePath + "labels.s";
 
 	std::ifstream moduleExists{ inputFilePath };
@@ -70,8 +70,13 @@ void IntegrationTestCase::run()
 	options* opt = options_new();
 	opt->ModFile = _strdup(inputFilePath.c_str());
 	if (!commandFilePath.empty()) {
-		opt->CmdFP = fopen(commandFilePath.c_str(), BINREAD);
+		//opt->CmdFP = fopen(commandFilePath.c_str(), BINREAD);
+		opt->CmdFileName = _strdup(commandFilePath.c_str());
 	}
+	else {
+		opt->CmdFileName = nullptr;
+	}
+	opt->CmdFP = nullptr;
 	opt->asmFile = moduleOutput.handle();
 	stdout_writer = standardOutput.handle();
 
@@ -79,8 +84,6 @@ void IntegrationTestCase::run()
 	{
 		options_addLabelFile(opt, labelFilePath.c_str());
 	}
-
-	do_cmd_file(opt);
 
 	Pass = 1;
 	dopass(1, opt);

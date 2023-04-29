@@ -886,22 +886,7 @@ int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val)
     {
         strcpy(dest, find_extrn(ref, addrs)->EName.nam);
 
-        if (ClasHere(LAdds[AMode], CmdEnt))
-        {
-            struct data_bounds* kls = ClasHere(LAdds[AMode], CmdEnt);
-
-            if (kls->dofst)
-            {
-                if (kls->dofst->incl_pc)
-                {
-                    strcat(dest, "-*");
-                }
-
-                strcat(dest, (kls->dofst->add_to) ? "+" : "-");
-                sprintf(&dest[strlen(dest)], "%d", kls->dofst->of_maj);
-            }
-        }
-        else if (val != 0)
+        if (val != 0)
         {
             strcat(dest, (val > 0 ? "+" : "-"));
             sprintf(&dest[strlen(dest)], "%d", abs(val));

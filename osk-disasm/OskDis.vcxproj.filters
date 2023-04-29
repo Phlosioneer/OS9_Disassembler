@@ -125,6 +125,7 @@
     <None Include="test\actual.s" />
     <None Include="test\expected.s" />
     <None Include=".clang-format" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="test\actualStdout.txt" />

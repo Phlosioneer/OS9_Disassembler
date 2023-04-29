@@ -16,7 +16,6 @@ void reset()
     labelManager = new LabelManager();
 
     // cmdfile.c
-    memset(LAdds, 0, 33 * sizeof(void*));
     dbounds = nullptr;
 
     // dismain.c

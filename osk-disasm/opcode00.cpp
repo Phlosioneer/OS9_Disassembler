@@ -980,27 +980,6 @@ int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     return 1;
 }
 
-/*
- * addTrapOpt() - If Pass 1, set up a boundary for the Trap option
- *      so that it will disassemble correctly on Pass 2.
- *      if Pass 2, unget the next option word so it will be
- *      disassebled as a constant.
- */
-void addTrapOpt(struct cmd_items* ci, int ppos, struct parse_state* state)
-{
-    char bndstr[100];
-
-    if (Pass == 1)
-    {
-        sprintf(bndstr, "L W $ %05x-%05x", ppos, ppos + 1);
-        boundsline(bndstr);
-    }
-    else /* If Pass 2, unget the opt so it will print as a "dc.w" */
-    {
-        ungetnext_w(ci, state);
-    }
-}
-
 int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int vector = ci->cmd_wrd & 0x0f;
@@ -1103,7 +1082,6 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
                 if (syscall < sysCallCount)
                 {
                     addlbl('!', syscall, SysNames[syscall]);
-                    /*addTrapOpt (ci, PCPos - 2);*/
                     return 1;
                 }
                 else
@@ -1124,7 +1102,6 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
         {
             strcpy(ci->params, "T$Math");
             strcpy(ci->mnem, "tcall");
-            /*addTrapOpt (ci, PCPos - 2);*/
             return 1;
         }
 
@@ -1137,7 +1114,6 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
         sprintf(&ci->params[strlen(ci->params)], "%04x", syscall);
         strcpy(ci->mnem, "tcall");
         /*strcpy (ci->mnem, op->name);*/
-        /*addTrapOpt (ci, PCPos - 2);*/
         return 1;
     }
 

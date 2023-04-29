@@ -1,0 +1,16 @@
+{
+	"ranges": [
+		{
+			"type": "data",
+			"size": "word",
+			"start": 0,
+			"end": 19
+		},
+		{
+			"type": "data",
+			"size": "word",
+			"start": 144,
+			"end": 383
+		}
+	]
+}

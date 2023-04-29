@@ -25,7 +25,6 @@ int add_sub(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
 int cmp_cmpa(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
 int addq_subq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
 int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
-void addTrapOpt(struct cmd_items* ci, int ppos, struct parse_state* state);
 int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_stop(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state);

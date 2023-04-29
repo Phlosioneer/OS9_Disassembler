@@ -99,6 +99,8 @@ void module_destroy(struct module_header* module_)
 // NOT ACTIVELY MAINTAINED.
 static void get_drvr_jmps(int mty, FILE* ModFP)
 {
+    throw std::runtime_error("driver modules aren't supported anymore");
+    /*
     register const char** pt;
     register int jmpdst;
     int jmpbegin = ftell(ModFP);
@@ -128,9 +130,11 @@ static void get_drvr_jmps(int mty, FILE* ModFP)
         }
 
         setupbounds(boundstr);
+        
         jmpbegin = ftell(ModFP);
         ++pt;
     }
+    */
 }
 
 // Get the module header.  We will do this only in Pass 1.

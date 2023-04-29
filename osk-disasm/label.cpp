@@ -560,37 +560,9 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
 
     if (amod)
     {
-        kls = ClasHere(LAdds[amod], CmdEnt);
-        if (kls)
-        {
-            mainclass = kls->b_typ;
-
-            if (kls->dofst) /* Offset ? */
-            {
-                if (kls->dofst->add_to)
-                {
-                    raw -= kls->dofst->of_maj;
-                }
-                else
-                {
-                    raw += kls->dofst->of_maj;
-                }
-
-                /* Let's attempt to insert the label for PC-Rel offets here */
-
-                if (kls->dofst->incl_pc)
-                {
-                    raw += CmdEnt;
-                    addlbl(kls->dofst->oclas_maj, raw, NULL);
-                }
-            }
-        }
-        else
-        {
-            /*mainclass = DEFAULTCLASS;*/
-            AMODE_BOUNDS_CHECK(amod);
-            mainclass = defaultLabelClasses[amod - 1];
-        }
+        /*mainclass = DEFAULTCLASS;*/
+        AMODE_BOUNDS_CHECK(amod);
+        mainclass = defaultLabelClasses[amod - 1];
     }
     else /* amod=0, it's a boundary def  */
     {
@@ -598,23 +570,6 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
         {
             kls = ClasHere(dbounds, CmdEnt);
             mainclass = NowClass;
-
-            if (kls->dofst)
-            {
-                if (kls->dofst->add_to)
-                {
-                    raw -= kls->dofst->of_maj;
-                }
-                else
-                {
-                    raw += kls->dofst->of_maj;
-                }
-
-                if (kls->dofst->incl_pc)
-                {
-                    raw += CmdEnt;
-                }
-            }
         }
         else
         {
@@ -658,68 +613,6 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
                 fprintf(stderr, "Cannot find %c - %05x\n", t, raw);
                 /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
                 exit(1);
-            }
-        }
-
-        /* Now process offset, if any */
-
-        if (kls && kls->dofst)
-        {
-            char c = kls->dofst->oclas_maj;
-
-            if (kls->dofst->add_to)
-            {
-                dest << '+';
-                // strcat (dst, "+");
-            }
-            else
-            {
-                dest << '-';
-                // strcat (dst, "-");
-            }
-
-            if (kls->dofst->incl_pc)
-            {
-                // strcat (dst, "*");
-                dest << '*';
-
-                if (kls->dofst->of_maj)
-                {
-                    // strcat (dst, "-");
-                    dest << '-';
-                }
-                else
-                {
-                    // Messy kludge.
-                    goto cleanup;
-                    // return 1;
-                }
-            }
-            mylabel = findlbl(c, kls->dofst->of_maj);
-            if (mylabel)
-            /*if ((mylabel = FindLbl (LblList[strpos (lblorder, c)],
-                                    kls->dofst->of_maj)))*/
-            {
-                PrintLbl(dest, c, kls->dofst->of_maj, mylabel, amod);
-                // strcat (dst, tmpname);
-            }
-            else
-            { /* Special case for these */
-                if (strchr("^$@&", c))
-                {
-                    PrintLbl(dest, c, kls->dofst->of_maj, mylabel, amod);
-                    // strcat (dst, tmpname);
-                }
-                else
-                {
-                    char t;
-
-                    t = (c ? c : 'D');
-                    fprintf(stderr, "Lookup error on Pass 2 (offset)\n");
-                    fprintf(stderr, "Cannot find %c%x\n", t, kls->dofst->of_maj);
-                    /*fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
-                    exit(1);
-                }
             }
         }
     }

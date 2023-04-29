@@ -29,18 +29,6 @@
 /*struct extended020 {
 };*/
 
-/* Offset 9 (-L00xx) - type stuff ] */
-
-struct offset_tree
-{
-    char oclas_maj; /* Class to use in offset addressing          */
-    int of_maj;     /* The main offset value                      */
-    char incl_pc;   /* Flag to include PC offset mode             */
-    int add_to;     /* Flag: if set, add to offset, else subtract */
-    /*int of_sec;          Secondary offset (0 if none) */
-    /*char oclas_sec;      Class of secondary offset */
-};
-
 /* Data areas/Label Addressing Modes tree structure */
 
 struct data_bounds
@@ -50,7 +38,6 @@ struct data_bounds
         b_siz;    /* Size of one unit in the set              */
     char b_typ;   /* Boundary type for DA's and Lbl Class for AModes */
     char b_class; /* Class for class 'L' and 'S' boundaries          */
-    struct offset_tree* dofst;
     struct data_bounds *DLess, *DMore, *DPrev;
 };
 
