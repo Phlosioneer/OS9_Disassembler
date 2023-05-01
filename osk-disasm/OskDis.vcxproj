@@ -144,7 +144,6 @@
     <ClInclude Include="reset.h" />
     <ClInclude Include="writer.h" />
     <ClInclude Include="rof.h" />
-    <ClInclude Include="structs.h" />
     <ClInclude Include="sysnames.h" />
     <ClInclude Include="targetsys.h" />
     <ClInclude Include="textdef.h" />

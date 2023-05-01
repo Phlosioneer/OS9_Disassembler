@@ -2,7 +2,6 @@
 #ifndef COMMON_SUBS_H
 #define COMMON_SUBS_H
 
-#include "structs.h"
 #include "userdef.h"
 #include <fstream>
 #include <stdio.h>

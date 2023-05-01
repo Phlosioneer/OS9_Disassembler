@@ -130,7 +130,7 @@ static void get_drvr_jmps(int mty, FILE* ModFP)
         }
 
         setupbounds(boundstr);
-        
+
         jmpbegin = ftell(ModFP);
         ++pt;
     }
@@ -497,7 +497,7 @@ int dopass(int mypass, struct options* opt)
     int instrNum = -1;
     while (PCPos < CodeEnd)
     {
-        struct data_bounds* bp;
+        const DataRegion* bp;
 
         instrNum += 1;
 
@@ -507,7 +507,7 @@ int dopass(int mypass, struct options* opt)
         /* NOTE: The 6809 version did an "if" and it apparently worked,
          *     but we had to do this to get it to work with consecutive bounds.
          */
-        for (bp = ClasHere(dbounds, PCPos); bp; bp = ClasHere(dbounds, PCPos))
+        for (bp = allRegions.classHere(PCPos); bp; bp = allRegions.classHere(PCPos))
         {
             NsrtBnds(bp, &parseState);
             CmdEnt = PCPos;
@@ -661,7 +661,7 @@ static int get_asmcmd(struct parse_state* state)
  * Reads data for Data Boundary range from input file and places it onto the print
  * buffer (and does any applicable printing if in pass 2).
  */
-void MovBytes(struct data_bounds* db, struct parse_state* state)
+void MovBytes(const DataRegion* db, struct parse_state* state)
 {
     struct cmd_items Ci;
     char tmps[20];
@@ -681,9 +681,9 @@ void MovBytes(struct data_bounds* db, struct parse_state* state)
     Ci.lblname = "";
     Ci.comment = NULL;
     Ci.cmd_wrd = 0;
-    PBytSiz = db->b_siz;
+    PBytSiz = db->size(); // Unclear if this has side-effects outside of this func
 
-    if (PBytSiz < 4)
+    if (db->size() < 4)
     {
         xtrafmt = "%02x";
     }
@@ -692,7 +692,7 @@ void MovBytes(struct data_bounds* db, struct parse_state* state)
         xtrafmt = "%04x";
     }
 
-    switch (PBytSiz)
+    switch (db->size())
     {
     case 1:
         strcat(Ci.mnem, ".b");
@@ -713,13 +713,13 @@ void MovBytes(struct data_bounds* db, struct parse_state* state)
         errexit("Unexpected byte size");
     }
 
-    while (PCPos <= db->b_hi)
+    while (PCPos <= db->range.end)
     {
         /* Init dest buffer to null string for LblCalc concatenation */
 
         tmps[0] = '\0';
 
-        switch (PBytSiz)
+        switch (db->size())
         {
         case 1:
             valu = fread_b(state->ModFP);
@@ -734,12 +734,12 @@ void MovBytes(struct data_bounds* db, struct parse_state* state)
             errexit("Unexpected byte size");
         }
 
-        PCPos += db->b_siz;
+        PCPos += db->size();
         ++cCount;
 
         /*process_label (&Ci, AMode, valu);*/
 
-        LblCalc(tmps, valu, AMode, PCPos - db->b_siz, state->opt->IsROF);
+        LblCalc(tmps, valu, AMode, PCPos - db->size(), state->opt->IsROF);
 
         if (Pass == 2)
         {
@@ -751,7 +751,7 @@ void MovBytes(struct data_bounds* db, struct parse_state* state)
             }
             else if (cCount < maxLst)
             {
-                Ci.cmd_wrd = ((Ci.cmd_wrd << (PBytSiz * 8)) | (valu & bmask));
+                Ci.cmd_wrd = ((Ci.cmd_wrd << (db->size() * 8)) | (valu & bmask));
             }
             else
             {
@@ -787,7 +787,7 @@ void MovBytes(struct data_bounds* db, struct parse_state* state)
             }
         }
 
-        /*PCPos += PBytSiz;*/
+        /*PCPos += db->size();*/
     }
 
     /* Loop finished.. print any unprinted data */
@@ -915,36 +915,33 @@ void MovASC(int nb, char aclass, struct parse_state* state)
 /*
  * Insert boundary area
  */
-void NsrtBnds(struct data_bounds* bp, struct parse_state* state)
+void NsrtBnds(const DataRegion* bp, struct parse_state* state)
 {
-    AMode = 0; /* To prevent LblCalc from defining class */
-    NowClass = bp->b_class;
-    PBytSiz = 1; /* Default to one byte length */
+    AMode = 0;      /* To prevent LblCalc from defining class */
+    NowClass = '$'; // bp->b_class;
+    PBytSiz = 1;    /* Default to one byte length */
 
-    switch (bp->b_typ)
+    switch (bp->type)
     {
-    case 1: /* Ascii */
+    case DataRegion::DataSize::String:
         /* Bugfix?  Pc was bp->b_lo...  that setup allowed going past
          * the end if the lower bound was not right. */
 
-        MovASC((bp->b_hi) - PCPos + 1, 'L', state);
-        break;       /* bump PC  */
-    case 6:          /* Word */
+        MovASC(bp->range.end - PCPos + 1, 'L', state);
+        break; /* bump PC  */
+    case DataRegion::DataSize::Words:
         PBytSiz = 2; /* Takes care of both Word & Long */
         MovBytes(bp, state);
         break;
-    case 4:          /* Long */
+    case DataRegion::DataSize::Longs:
         PBytSiz = 4; /* Takes care of both Word & Long */
         MovBytes(bp, state);
         break;
-    case 2: /* Byte */
-    case 5: /* Short */
+    case DataRegion::DataSize::Bytes:
         MovBytes(bp, state);
         break;
-    case 3: /* "C"ode .. not implememted yet */
-        break;
     default:
-        break;
+        throw std::runtime_error("Unexpected DataSize enum value");
     }
 
     NowClass = 0;

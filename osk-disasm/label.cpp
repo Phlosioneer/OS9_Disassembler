@@ -478,54 +478,6 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
 }
 
 /*
- * See if a Data boundary for this address is defined
- * Passed : (1) Pointer to Boundary Class list
- *          (2) Address to check for
- * Returns: Ptr to Boundary definition if found,  NULL if no match.
- * Pure function.
- */
-struct data_bounds* ClasHere(struct data_bounds* bp, int adrs)
-{
-    register struct data_bounds* pt;
-    register int h = (int)adrs;
-
-    pt = bp;
-    if (!pt)
-    {
-        return 0;
-    }
-
-    while (1)
-    {
-        if (h < pt->b_lo)
-        {
-            if (pt->DLess)
-                pt = pt->DLess;
-            else
-                return 0;
-        }
-        else
-        {
-            if (h > pt->b_hi)
-            {
-                if (pt->DMore)
-                {
-                    pt = pt->DMore;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            else
-            {
-                return pt;
-            }
-        }
-    }
-}
-
-/*
  * Calculate the Label for a location
  * Passed:  (1) dst - pointer to character string into which to APPEND result                                       *
  *          (2) adr -  the address of the label
@@ -538,7 +490,6 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
     int raw = adr /*& 0xffff */; /* Raw offset (postbyte) - was unsigned */
     char mainclass;              /* Class for this location */
 
-    struct data_bounds* kls = 0;
     Label* mylabel = 0;
 
     if (amod == AM_REL)
@@ -568,7 +519,6 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
     {
         if (NowClass)
         {
-            kls = ClasHere(dbounds, CmdEnt);
             mainclass = NowClass;
         }
         else

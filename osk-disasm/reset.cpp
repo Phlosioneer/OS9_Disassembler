@@ -16,7 +16,7 @@ void reset()
     labelManager = new LabelManager();
 
     // cmdfile.c
-    dbounds = nullptr;
+    allRegions.clear();
 
     // dismain.c
     if (modHeader)

@@ -35,30 +35,16 @@
  *                                                                          *
  * ************************************************************************ */
 
-//#define _GNU_SOURCE     /* Needed to get isblank() defined */
+#include "nlohmann/json.hpp"
+#include <fstream>
+
 #include "cmdfile.h"
 #include "commonsubs.h"
-#include "disglobs.h"
-#include "dismain.h"
-#include "dprint.h"
-#include "exit.h"
-#include "label.h"
 #include "main_support.h"
-#include "structs.h"
-#include "userdef.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-/*#include "amodes.h"*/
-
-#include <fstream>
-#include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
-struct data_bounds* dbounds;
-
-static void bdinsert(struct data_bounds* bb);
+RegionManager allRegions;
 
 void do_cmd_file(struct options* opt)
 {
@@ -67,7 +53,6 @@ void do_cmd_file(struct options* opt)
     {
         return;
     }
-    opt->CmdFP = fopen(opt->CmdFileName, BINREAD);
 
     json commands;
     try
@@ -79,99 +64,92 @@ void do_cmd_file(struct options* opt)
         throw e;
     }
     const auto regions = commands["ranges"];
-    for (auto &region : regions)
+    for (auto& region : regions)
     {
         auto type = region["type"];
         if (type == "data")
         {
             auto size = region["size"];
-            struct data_bounds* bounds = (struct data_bounds*)mem_alloc(sizeof(struct data_bounds));
-            memset(bounds, 0, sizeof(struct data_bounds));
-
+            DataRegion::DataSize sizeEnum;
             if (size == "byte")
             {
-                bounds->b_siz = 1;
-                bounds->b_typ = 2; // See switch in NsrtBnds
+                sizeEnum = DataRegion::DataSize::Bytes;
             }
             else if (size == "word")
             {
-                bounds->b_siz = 2;
-                bounds->b_typ = 6; // See switch in NsrtBnds
+                sizeEnum = DataRegion::DataSize::Words;
             }
             else if (size == "long")
             {
-                bounds->b_siz = 4;
-                bounds->b_typ = 4; // See switch in NsrtBnds
+                sizeEnum = DataRegion::DataSize::Longs;
             }
             else
             {
                 throw std::runtime_error("Unexpected size");
             }
 
-            bounds->b_lo = region["start"];
-            bounds->b_hi = region["end"];
-            bounds->b_class = '$';
-
-            if (!dbounds)
-            { // First entry
-                bounds->DPrev = nullptr;
-                dbounds = bounds;
-            }
-            else
-            {
-                bdinsert(bounds);
-            }
+            Range range(region["start"], region["end"]);
+            allRegions.addDataRegion(DataRegion(range, sizeEnum));
         }
     }
     return;
 }
 
-/*
- * bdinsert() - inserts an entry into the boundary table
- */
-static void bdinsert(struct data_bounds* bb)
+#pragma region Range
+
+Range::Range(size_t start, size_t end) : start(start), end(end)
 {
-    register struct data_bounds* npt;
-    register int mylo = bb->b_lo, myhi = bb->b_hi;
+}
 
-    npt = dbounds; /*  Start at base       */
+#pragma endregion
 
-    while (1)
+#pragma region DataRegion
+
+DataRegion::DataRegion(Range range, DataSize type) : range(range), type(type)
+{
+}
+
+size_t DataRegion::asByteSize(DataSize size)
+{
+    switch (size)
     {
-        if (myhi < npt->b_lo)
-        {
-            if (npt->DLess)
-            {
-                npt = npt->DLess;
-                continue;
-            }
-            else
-            {
-                bb->DPrev = npt;
-                npt->DLess = bb;
-                return;
-            }
-        }
-        else
-        {
-            if (mylo > npt->b_hi)
-            {
-                if (npt->DMore)
-                {
-                    npt = npt->DMore;
-                    continue;
-                }
-                else
-                {
-                    bb->DPrev = npt;
-                    npt->DMore = bb;
-                    return;
-                }
-            }
-            else
-            {
-                throw std::runtime_error("Boundary Overlap");
-            }
-        }
+    case DataSize::String:
+    case DataSize::Bytes:
+        return 1;
+    case DataSize::Words:
+        return 2;
+    case DataSize::Longs:
+        return 4;
+    default:
+        throw std::exception();
     }
 }
+
+#pragma endregion
+
+#pragma region RegionManager
+
+RegionManager::RegionManager()
+{
+}
+
+/*
+ * See if a Data boundary for this address is defined
+ * Passed : (1) Pointer to Boundary Class list
+ *          (2) Address to check for
+ * Returns: Ptr to Boundary definition if found,  NULL if no match.
+ * Pure function.
+ */
+const DataRegion* RegionManager::classHere(size_t address) const
+{
+    for (auto& region : _dataRegions)
+    {
+        if (region.range.contains(address))
+        {
+            return &region;
+        }
+    }
+    return nullptr;
+}
+
+#pragma endregion

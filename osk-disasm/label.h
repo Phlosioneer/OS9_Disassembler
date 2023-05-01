@@ -109,8 +109,6 @@ class LabelManager
 Label* label_getNext(Label* handle);
 Label* labelclass_getFirst(LabelCategory* handle);
 
-struct label_class* labelclass(char lblclass);
-struct data_bounds* ClasHere(struct data_bounds* bp, int adrs);
 Label* findlbl(char lblclass, int lblval);
 char* lblstr(char lblclass, int lblval);
 Label* addlbl(char lblclass, int val, const char* newname);

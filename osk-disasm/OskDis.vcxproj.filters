@@ -93,9 +93,6 @@
     <ClInclude Include="rof.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="structs.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="sysnames.h">
       <Filter>headers</Filter>
     </ClInclude>

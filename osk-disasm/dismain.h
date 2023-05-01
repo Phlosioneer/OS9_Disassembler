@@ -9,6 +9,7 @@
 struct modnam;
 struct cmd_items;
 struct options;
+class DataRegion;
 
 struct module_header
 {
@@ -51,9 +52,9 @@ struct module_header
 struct modnam* modnam_find(struct modnam* pt, int desired);
 int dopass(int mypass, struct options* opt);
 int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
-void MovBytes(struct data_bounds* db, struct parse_state* state);
+void MovBytes(const DataRegion* bp, struct parse_state* state);
 void MovASC(int nb, char aclass, struct parse_state* state);
-void NsrtBnds(struct data_bounds* bp, struct parse_state* state);
+void NsrtBnds(const DataRegion* bp, struct parse_state* state);
 
 struct module_header* module_new();
 void module_destroy(struct module_header* module_);

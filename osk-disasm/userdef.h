@@ -7,7 +7,6 @@
 
 #ifndef USERDEF_H
 #define USERDEF_H
-#include "structs.h"
 #include "targetsys.h"
 
 #if (COPROCESSOR == TRUE || DEVICE == 68040)
