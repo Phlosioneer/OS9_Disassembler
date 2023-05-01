@@ -6,24 +6,57 @@ const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp", "
 const char sizeLetters[] = {'b', 'w', 'l'};
 const char* sizeSuffixes[] = {".b", ".w", ".l"};
 
-const char* getRegisterName(Register reg)
+namespace Registers
+{
+
+const char* getName(Register reg)
 {
     auto regNumber = static_cast<size_t>(reg);
     if (regNumber >= _countof(registerNames)) throw std::exception();
     return registerNames[regNumber];
 }
 
-Register makeDReg(unsigned int id)
+constexpr Register makeDReg(unsigned int id)
 {
     if (id >= 8) throw std::exception();
-    return static_cast<Register>(id + 9);
+    return fromIdUnchecked(id + getId(Register::REG_D0));
 }
 
-Register makeAReg(unsigned int id)
+constexpr Register makeAReg(unsigned int id)
 {
     if (id >= 8) throw std::exception();
-    return static_cast<Register>(id);
+    return fromIdUnchecked(id + getId(Register::A0));
 }
+
+constexpr Register fromId(unsigned int id)
+{
+    if (id >= 17) throw std::exception();
+    return fromIdUnchecked(id);
+}
+
+constexpr bool isDReg(Register reg)
+{
+    return getId(reg) < getId(Register::REG_PC);
+}
+
+constexpr bool isAReg(Register reg)
+{
+    return getId(reg) > getId(Register::REG_PC);
+}
+
+constexpr uint8_t getIndex(Register reg)
+{
+    if (reg == Register::REG_PC) throw std::runtime_error("PC register doesn't have an index");
+    return getIndexUnchecked(reg);
+}
+
+constexpr uint8_t getIndexUnchecked(Register reg)
+{
+    if (isDReg(reg)) return getId(reg) - getId(Register::REG_D0);
+    return getId(reg) - getId(Register::A0);
+}
+
+} // namespace Registers
 
 char getOperandSizeLetter(OperandSize size)
 {
@@ -38,6 +71,147 @@ const char* getOperandSizeSuffix(OperandSize size)
     if (i >= _countof(sizeSuffixes)) throw std::exception();
     return sizeSuffixes[i];
 }
+
+#pragma region RegisterSet
+
+RegisterSet::RegisterSet() : RegisterSet(0, 0)
+{
+}
+
+RegisterSet::RegisterSet(uint8_t addressRegMask, uint8_t dataRegMask, bool hasPC)
+    : _addressRegisters(addressRegMask), _dataRegisters(dataRegMask), _hasPC(hasPC)
+{
+}
+
+void RegisterSet::format(std::ostream& stream) const
+{
+    bool hasOutputAnything = false;
+    if (_addressRegisters.any())
+    {
+        formatRanges(stream, _addressRegisters, Registers::makeAReg);
+        hasOutputAnything = true;
+    }
+    if (_hasPC)
+    {
+        if (hasOutputAnything) stream << '/';
+        stream << Registers::getName(Register::REG_PC);
+        hasOutputAnything = true;
+    }
+    if (_dataRegisters.any())
+    {
+        if (hasOutputAnything) stream << '/';
+        formatRanges(stream, _dataRegisters, Registers::makeDReg);
+        hasOutputAnything = true;
+    }
+    if (!hasOutputAnything)
+    {
+        stream << '0';
+    }
+}
+
+bool RegisterSet::contains(Register reg) const
+{
+    if (reg == Register::REG_PC)
+    {
+        return _hasPC;
+    }
+    else if (Registers::isAReg(reg))
+    {
+        return _addressRegisters[Registers::getIndexUnchecked(reg)];
+    }
+    else
+    {
+        return _dataRegisters[Registers::getIndexUnchecked(reg)];
+    }
+}
+
+bool RegisterSet::add(Register reg)
+{
+    bool ret;
+    if (reg == Register::REG_PC)
+    {
+        ret = _hasPC;
+        _hasPC = true;
+    }
+    else if (Registers::isAReg(reg))
+    {
+        auto index = Registers::getIndexUnchecked(reg);
+        ret = _addressRegisters[index];
+        _addressRegisters.set(index);
+    }
+    else
+    {
+        auto index = Registers::getIndexUnchecked(reg);
+        ret = _dataRegisters[index];
+        _addressRegisters.set(index);
+    }
+    return ret;
+}
+
+bool RegisterSet::remove(Register reg)
+{
+    bool ret;
+    if (reg == Register::REG_PC)
+    {
+        ret = _hasPC;
+        _hasPC = false;
+    }
+    else if (Registers::isAReg(reg))
+    {
+        auto index = Registers::getIndexUnchecked(reg);
+        ret = _addressRegisters[index];
+        _addressRegisters.reset(index);
+    }
+    else
+    {
+        auto index = Registers::getIndexUnchecked(reg);
+        ret = _dataRegisters[index];
+        _dataRegisters.set(index);
+    }
+    return ret;
+}
+
+void RegisterSet::formatRanges(std::ostream& stream, const std::bitset<8>& registers, Registers::RegMaker maker)
+{
+    int i;
+    bool hasStartReg = false;
+    bool hasPrintedDash = false;
+    bool doSlash = false;
+
+    for (i = 0; i < 8; i++)
+    {
+        if (registers[i])
+        {
+            if (hasStartReg)
+            {
+                if (!hasPrintedDash)
+                {
+                    stream << '-';
+                    hasPrintedDash = true;
+                }
+                continue;
+            }
+            else
+            {
+                if (doSlash) stream << '/';
+                stream << Registers::getName(maker(i));
+                hasStartReg = true;
+            }
+        }
+        else if (hasStartReg)
+        {
+            // Print the end register if needed.
+            if (hasPrintedDash) stream << Registers::getName(maker(i - 1));
+            hasStartReg = false;
+            hasPrintedDash = false;
+            doSlash = true;
+        }
+    }
+
+    if (hasPrintedDash) stream << Registers::getName(maker(i - 1));
+}
+
+#pragma endregion
 
 #pragma region InstrParam
 
@@ -91,7 +265,7 @@ RegParam::RegParam(Register reg, RegParamMode mode) : reg(reg), mode(mode)
 
 void RegParam::format(std::ostream& stream) const
 {
-    auto name = getRegisterName(reg);
+    auto name = Registers::getName(reg);
     switch (mode)
     {
     case RegParamMode::Direct:
@@ -200,10 +374,10 @@ void RegOffsetParam::format(std::ostream& stream) const
     {
         stream << offset;
     }
-    stream << '(' << getRegisterName(addressReg);
+    stream << '(' << Registers::getName(addressReg);
     if (_hasOffsetReg)
     {
-        stream << ',' << getRegisterName(_offsetReg) << getOperandSizeSuffix(_offsetRegSize);
+        stream << ',' << Registers::getName(_offsetReg) << getOperandSizeSuffix(_offsetRegSize);
         if (_scale != 0) stream << '*' << (1 << _scale);
     }
     stream << ')';

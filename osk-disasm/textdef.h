@@ -35,8 +35,6 @@ extern const SIZETYPES sizefield[];
 extern const CONDITIONALS typecondition[];
 extern const EAALLOWED_TYPE EAtype[];
 
-extern EASPEC EA[2];
-
 extern const OPSTRUCTURE instr00[];
 extern const OPSTRUCTURE instr01[];
 extern const OPSTRUCTURE instr02[];
@@ -52,35 +50,4 @@ extern const OPSTRUCTURE instr12[];
 extern const OPSTRUCTURE instr13[];
 extern const OPSTRUCTURE instr14[];
 
-/* ****************ADDITIONS*********************** */
-
-/*
-these are the predefined symbols for the symbol table. The correspond
-to the standard MOTOROLA memory map. To change the startup symbols,
-change them here. To add or delete the startup symbols, add or delete
-from here and in doinit under main.c .
-*/
-
-extern const char ROMSYMB[];
-
-/*
-these are the miscellanous messages that are needed in different parts
-of the program.
-*/
-
-extern const char PROMPT[];
-extern const char WHICHREGMSG[];
-extern const char BRKMSG[];
-extern const char SYMBMSG[];
-extern const char UNKNOWNMSG[];
-extern const char HITKEYMSG[];
-extern const char MMASHELPMSG[];
-
-/*
-these are the ports known by the monitor. To add ports, add them here
-*/
-
-extern const struct port_element p[];
-
-/* ***************************************************************** */
 #endif

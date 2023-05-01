@@ -105,10 +105,6 @@ extern const EAALLOWED_TYPE EAtype[] = {
     {0x1a000}  /* entry 54 'O' Fpcr list	*/
 };
 
-/* where SorD will be either TRUE or FALSE and be used to
-           determine which is being used ie. EA[SorD]		*/
-EASPEC EA[2];
-
 /* The DEVICE that the target system uses will determine which OPSTRUCTURE
    will be compiled into the monitor */
 
@@ -645,36 +641,3 @@ COPROCSTRUCTURE syntax2[] =
 }
 ;
 #endif /* end for COPROCSTRUCTURE */
-
-/* ****************ADDITIONS*********************** */
-
-/*
-these are the predefined symbols for the symbol table. The correspond
-to the standard MOTOROLA memory map. To change the startup symbols,
-change them here. To add or delete the startup symbols, add or delete
-from here and in doinit under main.c .
-*/
-
-extern const char ROMSYMB[] = "/rom";
-
-/*
-these are the miscellanous messages that are needed in different parts
-of the program.
-*/
-
-extern const char PROMPT[] = "\nMOTOROLA> ";
-extern const char WHICHREGMSG[] = "Which register? ";
-extern const char BRKMSG[] = "Break Point:\n";
-extern const char SYMBMSG[] = "Known Symbols:\n";
-extern const char UNKNOWNMSG[] = "UNKNOWN\t\t\t?";
-extern const char HITKEYMSG[] = "Hit any key to continue ...\n";
-extern const char MMASHELPMSG[] =
-    "\nDirectives.\nBackup -[<number>], Advance +[<number>], Help '?', Quit 'q' or '.'\n\n";
-
-/*
-these are the ports known by the monitor. To add ports, add them here
-*/
-
-extern const struct port_element p[] = {{"term ", TERMINAL, 8}, {"host ", HOST, 8}, {LASTCMD, 0}};
-
-/* ***************************************************************** */

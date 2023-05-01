@@ -2,6 +2,7 @@
 #ifndef COMMAND_ITEMS_H
 #define COMMAND_ITEMS_H
 
+#include <ostream>
 #include <stdio.h>
 
 #include "disglobs.h"
@@ -46,7 +47,7 @@ void get_displ(struct cmd_items* ci, char* dst, int siz_flag, struct parse_state
 int set_indirect_idx(char* dest, struct extWbrief* extW, int cpu);
 
 int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
-char* regbyte(char* s, unsigned char regmask, char* ad, int doslash);
+void regbyte(std::ostream& stream, unsigned char regmask, bool isAddress);
 int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
 int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
 int getnext_w(struct cmd_items* ci, struct parse_state* state);

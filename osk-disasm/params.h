@@ -2,6 +2,7 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#include <bitset>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -42,12 +43,69 @@ enum class OperandSize
     Long
 };
 
-const char* getRegisterName(Register reg);
-Register makeDReg(unsigned int id);
-Register makeAReg(unsigned int id);
+// Helper methods for the Register enum.
+namespace Registers
+{
+typedef Register (*RegMaker)(unsigned int id);
+constexpr Register makeDReg(unsigned int id);
+constexpr Register makeAReg(unsigned int id);
+
+const char* getName(Register reg);
+constexpr Register fromId(unsigned int id);
+inline constexpr uint8_t getId(Register reg)
+{
+    return static_cast<int>(reg);
+}
+inline constexpr Register fromIdUnchecked(unsigned int id)
+{
+    return static_cast<Register>(id);
+}
+
+constexpr bool isDReg(Register reg);
+constexpr bool isAReg(Register reg);
+constexpr uint8_t getIndex(Register reg);
+constexpr uint8_t getIndexUnchecked(Register reg);
+
+}; // namespace Registers
 
 char getOperandSizeLetter(OperandSize size);
 const char* getOperandSizeSuffix(OperandSize size);
+
+class RegisterSet
+{
+  public:
+    RegisterSet();
+    RegisterSet(uint8_t addressRegMask, uint8_t dataRegMask, bool hasPC = false);
+
+    void format(std::ostream& stream) const;
+    inline std::string format() const
+    {
+        std::ostringstream buffer;
+        format(buffer);
+        return buffer.str();
+    }
+
+    bool contains(Register reg) const;
+
+    // Returns true if the register was already in the set.
+    bool add(Register reg);
+
+    // Returns true if the register was removed from the set.
+    bool remove(Register reg);
+
+  private:
+    std::bitset<8> _addressRegisters;
+    std::bitset<8> _dataRegisters;
+    bool _hasPC;
+
+    static void formatRanges(std::ostream& stream, const std::bitset<8>& registers, Registers::RegMaker maker);
+};
+
+inline std::ostream& operator<<(std::ostream& os, const RegisterSet& registers)
+{
+    registers.format(os);
+    return os;
+}
 
 class InstrParam
 {

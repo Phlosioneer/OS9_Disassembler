@@ -15,9 +15,9 @@ namespace UnitTests
 	public:
 		TEST_METHOD(makeRegTest)
 		{
-			Assert::AreEqual(static_cast<int>(Register::A4), static_cast<int>(makeAReg(4)));
-			Assert::AreEqual(static_cast<int>(Register::D2), static_cast<int>(makeDReg(2)));
-			Assert::AreEqual(static_cast<int>(Register::SP), static_cast<int>(makeAReg(7)));
+			Assert::AreEqual(static_cast<int>(Register::A4), static_cast<int>(Registers::makeAReg(4)));
+			Assert::AreEqual(static_cast<int>(Register::D2), static_cast<int>(Registers::makeDReg(2)));
+			Assert::AreEqual(static_cast<int>(Register::SP), static_cast<int>(Registers::makeAReg(7)));
 		}
 
 		TEST_METHOD(LiteralTest)
@@ -74,13 +74,13 @@ namespace UnitTests
 			auto scale = RegOffsetParam(Register::SP, Register::A3, OperandSize::Word, 2);
 			Assert::AreEqual(std::string("(sp,a3.w*4)"), scale.toStr());
 
-			auto badScale = [] { RegOffsetParam(Register::A0, Register::D4, OperandSize::Word, 8); };
+			auto badScale = [] { RegOffsetParam test(Register::A0, Register::D4, OperandSize::Word, 8); };
 			Assert::ExpectException<std::exception>(badScale);
 
-			auto badSize = [] { RegOffsetParam(Register::A0, Register::D4, OperandSize::Byte, 0); };
+			auto badSize = [] { RegOffsetParam test(Register::A0, Register::D4, OperandSize::Byte, 0); };
 			Assert::ExpectException<std::exception>(badSize);
 
-			auto badBaseReg = [] { RegOffsetParam(Register::REG_D0, 0, nullptr); };
+			auto badBaseReg = [] { RegOffsetParam test(Register::REG_D0, 0, nullptr); };
 			Assert::ExpectException<std::exception>(badBaseReg);
 		}
 	};

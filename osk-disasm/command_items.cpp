@@ -129,7 +129,10 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_stat
 
     if (get_eff_addr(ci, ea, mode, reg, size, state))
     {
-        sprintf(ci->params, "%s,%c%d", ea, regname[0], (ci->cmd_wrd >> 9) & 7);
+        std::ostringstream buffer;
+        buffer << ea << ',' << regname[0] << ((ci->cmd_wrd >> 9) & 7);
+        auto bufferStr = buffer.str();
+        strcpy(ci->params, bufferStr.c_str());
         strcpy(ci->mnem, op->name);
 
         switch (size)
@@ -189,53 +192,19 @@ static char* regwrite(char* s, char* ad, int low, int high, int slash)
     return s;
 }
 
-/*
- * Format ``regmask'' into ``s''.  ``ad'' is a prefix used to indicate
- * whether the mask is for address, data, or floating-point registers.
- */
-char* regbyte(char* s, unsigned char regmask, char* ad, int doslash)
+static std::unique_ptr<RegisterSet> reglist(uint16_t regmask, int mode)
 {
-    int i;
-    int last;
-
-    for (last = -1, i = 0; regmask; i++, regmask >>= 1)
-    {
-        if (regmask & 1)
-        {
-            if (last != -1)
-                continue;
-            else
-                last = i;
-        }
-        else if (last != -1)
-        {
-            s = regwrite(s, ad, last, i - 1, doslash);
-            doslash = 1;
-            last = -1;
-        }
-    }
-
-    if (last != -1) s = regwrite(s, ad, last, i - 1, doslash);
-
-    return s;
-}
-
-static void reglist(char* s, unsigned long regmask, int mode)
-{
-    char* t = s;
-
     if (mode == 4)
     {
         regmask = revbits(regmask, 16);
     }
 
-    s = regbyte(s, (unsigned char)(regmask >> 8), "a", 0);
-    s = regbyte(s, (unsigned char)(regmask & 0xff), "d", s != t);
+    uint8_t addressByte = regmask >> 8;
+    uint8_t dataByte = regmask & 0xFF;
 
-    if (s == t)
-    {
-        strcpy(s, "0");
-    }
+    // RegisterSet registers(addressByte, dataByte);
+    // stream << registers;
+    return std::make_unique<RegisterSet>(addressByte, dataByte);
 }
 
 int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
@@ -244,7 +213,6 @@ int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
     int reg = ci->cmd_wrd & 7;
     int size = (ci->cmd_wrd & 0x40) ? SIZ_LONG : SIZ_WORD;
     char ea[50];
-    char regnames[50];
     int dir = (ci->cmd_wrd >> 10) & 1;
     int regmask;
 
@@ -272,18 +240,22 @@ int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
         return 0;
     }
 
-    reglist(regnames, regmask, mode);
-    strcpy(ci->mnem, op->name);
-    strcat(ci->mnem, SizSufx[size]);
+    std::ostringstream mneumonic;
+    mneumonic << op->name << SizSufx[size];
+    auto mneumonicResult = mneumonic.str();
+    strcpy(ci->mnem, mneumonicResult.c_str());
 
+    std::ostringstream params;
     if (dir)
     {
-        sprintf(ci->params, "%s,%s", ea, regnames);
+        params << ea << ',' << *reglist(regmask, mode);
     }
     else
     {
-        sprintf(ci->params, "%s,%s", regnames, ea);
+        params << *reglist(regmask, mode) << ',' << ea;
     }
+    auto paramsResult = params.str();
+    strcpy(ci->params, paramsResult.c_str());
 
     return 1;
 }
@@ -416,14 +388,14 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
     default:
         return 0;
     case 0: /* "Dn" */
-        param = std::make_unique<RegParam>(makeDReg(reg));
+        param = std::make_unique<RegParam>(Registers::makeDReg(reg));
         break;
     case 1: /* "An" */
         if (size < SIZ_WORD) return 0;
     case 2: /* (An) */
     case 3: /* (An)+ */
     case 4: /* -(An) */
-        param = std::make_unique<RegParam>(makeAReg(reg), static_cast<RegParamMode>(mode - 1));
+        param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
     case 5: /* d{16}(An) */
     {
@@ -446,7 +418,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             label = dispstr;
         }
 
-        param = std::make_unique<RegOffsetParam>(makeAReg(reg), ext1, label);
+        param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), ext1, label);
 
         // `0(An)` and `(An)` assemble to different instructions.
         ((RegOffsetParam*)param.get())->setShouldForceZero(true);
@@ -461,8 +433,8 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 ungetnext_w(ci, state);
                 return 0;
             }
-            auto addressReg = makeAReg(reg);
-            auto offsetReg = ew_b.regNam == 'a' ? makeAReg(ew_b.regno) : makeDReg(ew_b.regno);
+            auto addressReg = Registers::makeAReg(reg);
+            auto offsetReg = ew_b.regNam == 'a' ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
             auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
             char* label = nullptr;
             if (ew_b.displ != 0)
@@ -582,7 +554,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                     ungetnext_w(ci, state);
                     return 0;
                 }
-                auto offsetReg = ew_b.regNam == 'a' ? makeAReg(ew_b.regno) : makeDReg(ew_b.regno);
+                auto offsetReg = ew_b.regNam == 'a' ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
                 auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
                 char* label = nullptr;
                 if (ew_b.displ != 0)
