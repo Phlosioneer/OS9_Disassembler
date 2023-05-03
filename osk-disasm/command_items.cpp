@@ -353,7 +353,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        if (LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF))
+        if (LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF, state->Pass))
         {
             label = dispstr;
         }
@@ -380,7 +380,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             if (ew_b.displ != 0)
             {
                 // ew_b.displ -= 2;
-                if (LblCalc(dispstr, ew_b.displ, AM_A0 + reg, state->PCPos - 2, state->opt->IsROF))
+                if (LblCalc(dispstr, ew_b.displ, AM_A0 + reg, state->PCPos - 2, state->opt->IsROF, state->Pass))
                 {
                     label = dispstr;
                 }
@@ -420,7 +420,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
                 amode_local = AM_LONG;
             }
-            if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF))
+            if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF, state->Pass))
             {
                 label = dispstr;
             }
@@ -464,7 +464,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
 
             // This uses too many global variables to be replaced by LiteralParam.
-            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF);
+            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF, state->Pass);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         }
@@ -472,7 +472,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         {
             char* label = nullptr;
             ext1 = getnext_w(ci, state);
-            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF))
+            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
             {
                 label = dispstr;
             }
@@ -493,7 +493,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 if (ew_b.displ != 0)
                 {
                     ew_b.displ -= 2;
-                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF))
+                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
                     {
                         label = dispstr;
                     }

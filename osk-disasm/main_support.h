@@ -34,7 +34,6 @@ void options_destroy(struct options* opt);
 void options_addLabelFile(struct options* opt, const char* name);
 
 extern char* PsectName;
-extern int Pass; /* The disassembler is a two-pass assembler */
 extern int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
 
 #endif

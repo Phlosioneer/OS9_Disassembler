@@ -852,7 +852,7 @@ void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, c
     }
 }
 
-void setROFPass(void)
+void setupROFPass(int Pass)
 {
     if (Pass == 1)
     {
@@ -897,7 +897,7 @@ int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val)
     }
 }
 
-char* IsRef(char* dst, int curloc, int ival)
+char* IsRef(char* dst, int curloc, int ival, int Pass)
 {
     register char* retVal = NULL;
 

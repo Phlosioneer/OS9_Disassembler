@@ -85,10 +85,8 @@ void IntegrationTestCase::run()
 		options_addLabelFile(opt, labelFilePath.c_str());
 	}
 
-	Pass = 1;
 	dopass(1, opt);
-	Pass = 2;
-	dopass(Pass, opt);
+	dopass(2, opt);
 
 	opt->asmFile = nullptr;
 	stdout_writer = nullptr;

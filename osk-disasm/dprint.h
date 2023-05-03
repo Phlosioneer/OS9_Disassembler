@@ -145,7 +145,6 @@ extern const char pseudcmd[80];
 extern const char realcmd[80];
 extern int PrevEnt;
 extern int LinNum;
-extern char EaString[200]; /* Buffer to hold the effective address. */
 extern struct ireflist* IRefs;
 
 #endif

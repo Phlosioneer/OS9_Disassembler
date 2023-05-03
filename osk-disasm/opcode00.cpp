@@ -70,7 +70,7 @@ int biti_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     }
 
     /* Add functions to retrieve label */
-    if (Pass == 2)
+    if (state->Pass == 2)
     {
         strcpy(ci->mnem, op->name);
         sprintf(ci->params, "#%d,%s", ext1, sr[size]);
@@ -361,17 +361,19 @@ int move_ccr_sr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse
         return 0;
     }
 
-    if (get_eff_addr(ci, EaString, mode, reg, SIZ_WORD, state))
+    char EaStringBuffer[200];
+    EaStringBuffer[0] = '\0';
+    if (get_eff_addr(ci, EaStringBuffer, mode, reg, SIZ_WORD, state))
     {
         register char* dot;
 
         switch (dir)
         {
         case EA2REG:
-            sprintf(ci->params, "%s,%s", EaString, statReg);
+            sprintf(ci->params, "%s,%s", EaStringBuffer, statReg);
             break;
         default:
-            sprintf(ci->params, "%s,%s", statReg, EaString);
+            sprintf(ci->params, "%s,%s", statReg, EaStringBuffer);
         }
 
         strcpy(ci->mnem, op->name);
@@ -392,15 +394,17 @@ int move_usp(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
 {
     register char* dot;
 
-    sprintf(EaString, "A%d", ci->cmd_wrd & 7);
+    char EaStringBuffer[200];
+    EaStringBuffer[0] = '\0';
+    sprintf(EaStringBuffer, "A%d", ci->cmd_wrd & 7);
 
     if ((ci->cmd_wrd >> 3) & 1)
     {
-        sprintf(ci->params, "%s,%s", "usp", EaString);
+        sprintf(ci->params, "%s,%s", "usp", EaStringBuffer);
     }
     else
     {
-        sprintf(ci->params, "%s,%s", EaString, "usp");
+        sprintf(ci->params, "%s,%s", EaStringBuffer, "usp");
     }
 
     strcpy(ci->mnem, op->name);
@@ -447,9 +451,10 @@ int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
 {
     register char* dot;
 
-    EaString[0] = '\0';
-    LblCalc(EaString, ci->cmd_wrd & 0xff, AM_IMM, state->CmdEnt, state->opt->IsROF);
-    sprintf(ci->params, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
+    char EaStringBuffer[200];
+    EaStringBuffer[0] = '\0';
+    LblCalc(EaStringBuffer, ci->cmd_wrd & 0xff, AM_IMM, state->CmdEnt, state->opt->IsROF, state->Pass);
+    sprintf(ci->params, "#%s,d%d", EaStringBuffer, (ci->cmd_wrd >> 9) & 7);
     strcpy(ci->mnem, op->name);
 
     dot = strchr(ci->mnem, '.');
@@ -650,8 +655,7 @@ int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     //    }
     //}*/
 
-    /*process_label (ci, 'L', dstAddr);*/
-    LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF);
+    LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass);
 
     return 1;
 }
@@ -682,7 +686,7 @@ int bit_rotate_mem(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct pa
 
     if (get_eff_addr(ci, ea, mode, reg, 8, state))
     {
-        if (Pass == 2)
+        if (state->Pass == 2)
         {
             strcpy(ci->params, ea);
             strcpy(ci->mnem, op->name);
@@ -792,8 +796,7 @@ int br_cond(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     }
 
     /* We need to calculate the address here */
-    /*process_label (ci, 'L', jmp_base + displ);*/
-    LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF);
+    LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass);
     /*sprintf (ci->params, "L%05x", jmp_base + displ);*/
 
     return 1;
@@ -917,9 +920,11 @@ int cmp_cmpa(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
         }
     }
 
-    if (get_eff_addr(ci, EaString, mode, reg, size, state))
+    char EaStringBuffer[200];
+    EaStringBuffer[0] = '\0';
+    if (get_eff_addr(ci, EaStringBuffer, mode, reg, size, state))
     {
-        sprintf(ci->params, "%s,%c%d", EaString, regName, (ci->cmd_wrd >> 9) & 7);
+        sprintf(ci->params, "%s,%c%d", EaStringBuffer, regName, (ci->cmd_wrd >> 9) & 7);
         strcpy(ci->mnem, op->name);
         strcat(ci->mnem, SizSufx[size]);
         return 1;
@@ -944,9 +949,11 @@ int addq_subq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
         data = 8;
     }
 
-    if (get_eff_addr(ci, EaString, mode, reg, size, state))
+    char EaStringBuffer[200];
+    EaStringBuffer[0] = '\0';
+    if (get_eff_addr(ci, EaStringBuffer, mode, reg, size, state))
     {
-        sprintf(ci->params, "#%d,%s", data, EaString);
+        sprintf(ci->params, "#%d,%s", data, EaStringBuffer);
         strcpy(ci->mnem, op->name);
         strcat(ci->mnem, SizSufx[size]);
         return 1;
@@ -995,7 +1002,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
     case 0: /* System Call */
         if (state->opt->IsROF)
         {
-            if (Pass == 2)
+            if (state->Pass == 2)
             {
                 struct rof_extrn* vec_ref = find_extrn(refs_code, state->CmdEnt + 1);
                 struct rof_extrn* call_ref = find_extrn(refs_code, state->CmdEnt + 2);
@@ -1078,7 +1085,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
         }
         else
         {
-            if (Pass == 1)
+            if (state->Pass == 1)
             {
                 if (syscall < sysCallCount)
                 {
@@ -1158,11 +1165,11 @@ int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
         offset = getnext_w(ci, state);
         /*dest  = br_from + offset;*/
 
-        /*process_label (ci, 'L', dest);*/
         AMode = AM_REL;
-        EaString[0] = '\0';
-        LblCalc(EaString, offset, AM_REL, state->PCPos - 2, state->opt->IsROF);
-        sprintf(ci->params, "d%d,%s", ci->cmd_wrd & 7, EaString);
+        char EaStringBuffer[200];
+        EaStringBuffer[0] = '\0';
+        LblCalc(EaStringBuffer, offset, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass);
+        sprintf(ci->params, "d%d,%s", ci->cmd_wrd & 7, EaStringBuffer);
 
         return 1;
     }
@@ -1193,9 +1200,11 @@ int cmd_scc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     {
         strcpy(condpos, typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition);
 
-        if (get_eff_addr(ci, EaString, mode, reg, SIZ_BYTE, state))
+        char EaStringBuffer[200];
+        EaStringBuffer[0] = '\0';
+        if (get_eff_addr(ci, EaStringBuffer, mode, reg, SIZ_BYTE, state))
         {
-            strcpy(ci->params, EaString);
+            strcpy(ci->params, EaStringBuffer);
             return 1;
         }
     }

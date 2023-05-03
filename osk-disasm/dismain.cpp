@@ -388,7 +388,7 @@ static void GetLabels(struct options* opt) /* Read the labelfiles */
  * have been inserted and printing of the listing and writing of the source file
  * is done, if either or both is desired.
  */
-int dopass(int mypass, struct options* opt)
+int dopass(int Pass, struct options* opt)
 {
     if (Pass == 1)
     {
@@ -439,7 +439,7 @@ int dopass(int mypass, struct options* opt)
         GetIRefs(opt);
         do_cmd_file(opt);
 
-        setROFPass();
+        setupROFPass(Pass);
     }
     else /* Do Pass 2 Setup */
     {
@@ -450,7 +450,7 @@ int dopass(int mypass, struct options* opt)
          */
         if (opt->IsROF)
         {
-            setROFPass();
+            setupROFPass(Pass);
             RofLoadInitData();
         }
 
@@ -483,6 +483,7 @@ int dopass(int mypass, struct options* opt)
     };
     parseState.ModFP = opt->ModFP;
     parseState.opt = opt;
+    parseState.Pass = Pass;
     if (opt->IsROF)
     {
         parseState.PCPos = 0;
@@ -705,11 +706,9 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
         state->PCPos += db->size();
         ++cCount;
 
-        /*process_label (&Ci, AMode, valu);*/
+        LblCalc(tmps, valu, AMode, state->PCPos - db->size(), state->opt->IsROF, state->Pass);
 
-        LblCalc(tmps, valu, AMode, state->PCPos - db->size(), state->opt->IsROF);
-
-        if (Pass == 2)
+        if (state->Pass == 2)
         {
             if (cCount == 0)
             {
@@ -767,7 +766,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
     /* Loop finished.. print any unprinted data */
 
-    if ((Pass == 2) && strlen(Ci.params))
+    if ((state->Pass == 2) && strlen(Ci.params))
     {
         PrintLine(pseudcmd, &Ci, 'L', state->CmdEnt, state->opt);
 

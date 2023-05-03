@@ -35,6 +35,7 @@ struct parse_state
     FILE* ModFP;
     int PCPos;
     int CmdEnt; /* The entry point for the instruction / command */
+    int Pass; /* The disassembler is a two-pass assembler */
 
     // Temporary?
     struct options* opt;

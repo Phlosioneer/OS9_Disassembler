@@ -77,9 +77,9 @@ char rof_class(int typ, int refTy);
 struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
 int rof_datasize(char cclass);
 void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct parse_state* state);
-void setROFPass(void);
+void setupROFPass(int Pass);
 int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
-char* IsRef(char* dst, int curloc, int ival);
+char* IsRef(char* dst, int curloc, int ival, int Pass);
 
 void extern_def_destroy(struct rof_extrn* handle);
 const char* extern_def_name(struct rof_extrn* handle);

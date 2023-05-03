@@ -112,9 +112,7 @@ Label* labelclass_getFirst(LabelCategory* handle);
 Label* findlbl(char lblclass, int lblval);
 char* lblstr(char lblclass, int lblval);
 Label* addlbl(char lblclass, int val, const char* newname);
-void process_label(struct cmd_items* ci, char lblclass, int addr);
-void parsetree(char c);
-int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof);
+int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pass);
 
 extern LabelManager* labelManager;
 

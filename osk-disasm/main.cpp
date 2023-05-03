@@ -21,10 +21,8 @@ int main(int argc, char** argv)
     if (opt->ModFile == NULL) errexit("You must specify a file to disassemble");
 
     /*ModFile = argv[1];*/
-    Pass = 1;
     dopass(1, opt);
-    Pass = 2;
-    dopass(Pass, opt);
+    dopass(2, opt);
 
     writer_close(stdout_writer);
     options_destroy(opt);

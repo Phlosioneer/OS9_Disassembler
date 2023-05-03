@@ -79,7 +79,6 @@ static int HadWrote;     /* flag that header has been written */
 static char* SrcHd;      /* ptr for header for source file */
 static char* IBuf;       /* Pointer to buffer containing the Init Data values */
 int LinNum;
-char EaString[200];
 
 struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
                            {"Systm", 12}, {"FlMgr", 13}, {"Drivr", 14}, {"Devic", 15}, {"", 0}};
@@ -1024,6 +1023,7 @@ void ROFDataPrint(struct options* opt)
         parse_state state{0};
         state.ModFP = opt->ModFP;
         state.opt = opt;
+        state.Pass = 2;
 
         dataprintHeader(udat, 'D', FALSE, opt);
 
@@ -1039,6 +1039,7 @@ void ROFDataPrint(struct options* opt)
         parse_state state{0};
         state.ModFP = opt->ModFP;
         state.opt = opt;
+        state.Pass = 2;
 
         dataprintHeader(idat, '_', FALSE, opt);
 
@@ -1076,6 +1077,7 @@ void ROFDataPrint(struct options* opt)
         parse_state state{0};
         state.ModFP = opt->ModFP;
         state.opt = opt;
+        state.Pass = 2;
 
         dataprintHeader(udat, 'G', TRUE, opt);
 
@@ -1091,6 +1093,8 @@ void ROFDataPrint(struct options* opt)
         parse_state state{0};
         state.ModFP = opt->ModFP;
         state.opt = opt;
+        state.Pass = 2;
+
         int size = rof_header_getRemoteInitDataSize(ROFHd);
         dataprintHeader(idat, 'H', TRUE, opt);
 
@@ -1130,6 +1134,7 @@ void OS9DataPrint(struct options* opt)
     parse_state state{0};
     state.ModFP = opt->ModFP;
     state.opt = opt;
+    state.Pass = 2;
 
     if (!modHeader->initDataHeaderOffset)
     {

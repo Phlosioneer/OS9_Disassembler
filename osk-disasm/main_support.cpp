@@ -48,7 +48,6 @@
 #endif
 
 char* PsectName = NULL;
-int Pass; /* The disassembler is a two-pass assembler */
 int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
 
 struct options* options_new()

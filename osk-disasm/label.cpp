@@ -107,32 +107,6 @@ char* lblstr(char lblclass, int lblval)
 }
 
 /*
- * Handle label depending upon Pass.  If Pass 1, add
- *      it as needed, if Pass 2, place values into the struct cmd_items fields
- *
- */
-void process_label(struct cmd_items* ci, char lblclass, int addr)
-{
-    if (Pass == 1)
-    {
-        labelManager->addLabel(lblclass, addr, NULL);
-    }
-    else /* Pass 2, find it */
-    {
-        Label* label = labelManager->getLabel(lblclass, addr);
-        if (label)
-        {
-            strcpy(ci->params, label->name());
-        }
-        else
-        {
-            fprintf(stderr, "*** phasing error ***\n");
-            sprintf(ci->params, "L%05x", addr);
-        }
-    }
-}
-
-/*
  * Append a char in the desired printable format onto dst
  */
 static void singleCharData(std::ostream& dest, char ch)
@@ -453,7 +427,7 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
  *          (3) amod - the AMode desired
  * This is NOT SAFE AT ALL.
  */
-int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
+int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pass)
 {
 
     int raw = adr /*& 0xffff */; /* Raw offset (postbyte) - was unsigned */
@@ -468,7 +442,7 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof)
 
     if (isRof)
     {
-        if (IsRef(dst, curloc, adr))
+        if (IsRef(dst, curloc, adr, Pass))
         {
             return 1;
         }
@@ -539,12 +513,4 @@ cleanup:
     std::string destStr = dest.str();
     strcat(dst, destStr.c_str());
     return 1;
-}
-
-/* For debugging. Prints out all labels organized by class. */
-void parsetree(char c)
-{
-    if (Pass == 1) return;
-
-    labelManager->printAll();
 }
