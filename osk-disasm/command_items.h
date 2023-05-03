@@ -33,6 +33,8 @@ struct cmd_items
 struct parse_state
 {
     FILE* ModFP;
+    int PCPos;
+    int CmdEnt; /* The entry point for the instruction / command */
 
     // Temporary?
     struct options* opt;

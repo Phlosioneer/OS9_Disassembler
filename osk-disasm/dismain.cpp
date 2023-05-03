@@ -402,9 +402,7 @@ int dopass(int mypass, struct options* opt)
             errexit("Cannot open Module file for read");
         }
 
-        PCPos = 0;
         get_modhead(opt);
-        PCPos = ftell(opt->ModFP);
         strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
         if (modHeader)
         {
@@ -458,8 +456,6 @@ int dopass(int mypass, struct options* opt)
 
         WrtEquates(1, opt);
         WrtEquates(0, opt);
-        /*showem();*/
-        CmdEnt = 0;
 
         if (opt->IsROF)
         {
@@ -481,45 +477,47 @@ int dopass(int mypass, struct options* opt)
         errexit("FIle Seek Error");
     }
 
+    struct parse_state parseState
+    {
+        0
+    };
+    parseState.ModFP = opt->ModFP;
+    parseState.opt = opt;
     if (opt->IsROF)
     {
-        PCPos = 0;
+        parseState.PCPos = 0;
     }
     else
     {
-        PCPos = HdrEnd;
+        parseState.PCPos = HdrEnd;
     }
 
-    struct parse_state parseState;
-    parseState.ModFP = opt->ModFP;
-    parseState.opt = opt;
-
     int instrNum = -1;
-    while (PCPos < CodeEnd)
+    while (parseState.PCPos < CodeEnd)
     {
         const DataRegion* bp;
 
         instrNum += 1;
 
         memset(&Instruction, 0, sizeof(Instruction));
-        CmdEnt = PCPos;
+        parseState.CmdEnt = parseState.PCPos;
 
         /* NOTE: The 6809 version did an "if" and it apparently worked,
          *     but we had to do this to get it to work with consecutive bounds.
          */
-        for (bp = allRegions.classHere(PCPos); bp; bp = allRegions.classHere(PCPos))
+        for (bp = allRegions.classHere(parseState.PCPos); bp; bp = allRegions.classHere(parseState.PCPos))
         {
             NsrtBnds(bp, &parseState);
-            CmdEnt = PCPos;
+            parseState.CmdEnt = parseState.PCPos;
         }
 
-        if (CmdEnt >= CodeEnd) continue;
+        if (parseState.CmdEnt >= CodeEnd) continue;
 
         if (get_asmcmd(&parseState))
         {
             if (Pass == 2)
             {
-                PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
+                PrintLine(pseudcmd, &Instruction, 'L', parseState.CmdEnt, opt);
 
                 if (opt->PrintAllCode && Instruction.wcount)
                 {
@@ -549,15 +547,15 @@ int dopass(int mypass, struct options* opt)
                 params << '$' << PrettyNumber<int>(Instruction.cmd_wrd & 0xffff).hex();
                 auto result = params.str();
                 strcpy(Instruction.params, result.c_str());
-                PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
-                CmdEnt = PCPos;
+                PrintLine(pseudcmd, &Instruction, 'L', parseState.CmdEnt, opt);
+                parseState.CmdEnt = parseState.PCPos;
             }
         }
     }
 
     if (Pass == 2)
     {
-        WrtEnds(opt);
+        WrtEnds(opt, parseState.PCPos);
     }
 
     return 0;
@@ -625,10 +623,10 @@ static int get_asmcmd(struct parse_state* state)
             }
             else
             {
-                if (ftell(state->ModFP) != RealEnt(state->opt) + 2)
+                if (ftell(state->ModFP) != RealEnt(state->opt, state->CmdEnt) + 2)
                 {
-                    fseek(state->ModFP, RealEnt(state->opt) + 2, SEEK_SET);
-                    PCPos = CmdEnt + 2;
+                    fseek(state->ModFP, RealEnt(state->opt, state->CmdEnt) + 2, SEEK_SET);
+                    state->PCPos = state->CmdEnt + 2;
                     initcmditems(&Instruction);
                 }
             }
@@ -651,7 +649,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
     std::ostringstream xtrabytes;
     int cCount = 0, maxLst;
 
-    CmdEnt = PCPos;
+    state->CmdEnt = state->PCPos;
 
     /* This may be temporary, and we may set PBytSiz
      * to the appropriate value */
@@ -683,7 +681,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
         errexit("Unexpected byte size");
     }
 
-    while (PCPos <= db->range.end)
+    while (state->PCPos <= db->range.end)
     {
         /* Init dest buffer to null string for LblCalc concatenation */
 
@@ -704,12 +702,12 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
             errexit("Unexpected byte size");
         }
 
-        PCPos += db->size();
+        state->PCPos += db->size();
         ++cCount;
 
         /*process_label (&Ci, AMode, valu);*/
 
-        LblCalc(tmps, valu, AMode, PCPos - db->size(), state->opt->IsROF);
+        LblCalc(tmps, valu, AMode, state->PCPos - db->size(), state->opt->IsROF);
 
         if (Pass == 2)
         {
@@ -749,9 +747,9 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
             /* If length of operand string is max, print a line */
 
-            if ((strlen(Ci.params) > 22) || findlbl('L', PCPos))
+            if ((strlen(Ci.params) > 22) || findlbl('L', state->PCPos))
             {
-                PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
+                PrintLine(pseudcmd, &Ci, 'L', state->CmdEnt, state->opt);
 
                 printXtraBytes(xtrabytes.str());
                 xtrabytes = {};
@@ -759,7 +757,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
                 Ci.lblname = NULL;
-                CmdEnt = PCPos /* _ PBytSiz*/;
+                state->CmdEnt = state->PCPos /* _ PBytSiz*/;
                 cCount = 0;
             }
         }
@@ -771,7 +769,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
     if ((Pass == 2) && strlen(Ci.params))
     {
-        PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
+        PrintLine(pseudcmd, &Ci, 'L', state->CmdEnt, state->opt);
 
         printXtraBytes(xtrabytes.str());
     }

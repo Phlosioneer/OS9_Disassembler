@@ -158,7 +158,7 @@ char* rof_header_getPsectParams(struct rof_header* handle)
  * Returns the correct file position.  Returns CmdEnt. For Non-ROF files, CmdEnt
  * Offset by Code Entry Point.
  */
-int RealEnt(struct options* opt)
+int RealEnt(struct options* opt, int CmdEnt)
 {
     return opt->IsROF ? (CmdEnt + HdrEnd) : CmdEnt;
 }
@@ -362,7 +362,6 @@ void getRofHdr(FILE* progpath, struct options* opt)
 
     /* Position to begin of Code section */
     fseek(progpath, HdrEnd, SEEK_SET);
-    PCPos = 0;
 }
 
 void RofLoadInitData(void)
@@ -689,7 +688,7 @@ int rof_datasize(char cclass)
  *          (3) char class - the label class (D or C)
  */
 static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBuf, int blkEnd, char cclass,
-                         struct options* opt)
+                         struct parse_state* state)
 {
     /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
@@ -699,7 +698,7 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
 
     /* Insert Label if applicable */
 
-    if ((*lblList)->myAddr == CmdEnt)
+    if ((*lblList)->myAddr == state->CmdEnt)
     {
         strcpy(lblString, (*lblList)->name());
         Ci.lblname = lblString;
@@ -712,17 +711,17 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
         (*lblList) = label_getNext(*lblList);
     }
 
-    while (PCPos < blkEnd)
+    while (state->PCPos < blkEnd)
     {
         /*int bump = 2,
             my_val;*/
 
-        CmdEnt = PCPos;
+        state->CmdEnt = state->PCPos;
         /* First check that refsList is not null. If this vsect has no
          * references, 'refsList' will be null
          */
 
-        if (*refsList && ((*refsList)->Ofst == CmdEnt))
+        if (*refsList && ((*refsList)->Ofst == state->CmdEnt))
         {
             strcpy(Ci.mnem, "dc.");
 
@@ -730,15 +729,15 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
             {
             case 1: /* SIZ_BYTE */
                 strcat(Ci.mnem, "b");
-                ++PCPos;
+                state->PCPos++;
                 break;
             case 2: /* SIZ_WORD */
                 strcat(Ci.mnem, "w");
-                PCPos += 2;
+                state->PCPos += 2;
                 break;
             default: /* SIZ_LONG */
                 strcat(Ci.mnem, "l");
-                PCPos += 4;
+                state->PCPos += 4;
             }
 
             if ((*refsList)->Extrn)
@@ -750,8 +749,8 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
                 strcpy(Ci.params, (*refsList)->EName.lbl->name());
             }
 
-            PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt, opt);
-            CmdEnt = PCPos;
+            PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
+            state->CmdEnt = state->PCPos;
             Ci.lblname = NULL;
             Ci.params[0] = '\0';
             Ci.mnem[0] = '\0';
@@ -760,7 +759,7 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
         {
             int bytCount = 0;
             int bytSize;
-            bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, cclass, opt);
+            bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, cclass, state);
             if (bytCount)
             {
                 iBuf += bytCount;
@@ -770,24 +769,24 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
             {
                 register char* fmt;
 
-                switch ((blkEnd - PCPos) % 4)
+                switch ((blkEnd - state->PCPos) % 4)
                 {
                 case 0:
                     bytSize = 4;
-                    bytCount = (blkEnd - PCPos) >> 2;
+                    bytCount = (blkEnd - state->PCPos) >> 2;
                     strcpy(Ci.mnem, "dc.l");
                     fmt = "$%08x";
                     break;
                 case 2:
                     bytSize = 2;
                     strcpy(Ci.mnem, "dc.w");
-                    bytCount = (blkEnd - PCPos) >> 1;
+                    bytCount = (blkEnd - state->PCPos) >> 1;
                     fmt = "$%04x";
                     break;
                 default:
                     bytSize = 1;
                     strcpy(Ci.mnem, "dc.b");
-                    bytCount = blkEnd - PCPos;
+                    bytCount = blkEnd - state->PCPos;
                     fmt = "$%02x";
                 }
 
@@ -807,10 +806,10 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
                         val = bufReadW(&iBuf);
                     }
 
-                    PCPos += bytSize;
+                    state->PCPos += bytSize;
                     sprintf(Ci.params, fmt, val);
-                    PrintLine(pseudcmd, &Ci, cclass, CmdEnt, CmdEnt, opt);
-                    CmdEnt = PCPos;
+                    PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
+                    state->CmdEnt = state->PCPos;
                     Ci.lblname = NULL;
                     Ci.params[0] = '\0';
                 }
@@ -830,14 +829,12 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
  *          (2) mycount - count of elements in this sect.
  *          (3) class   - Label Class letter
  */
-void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct options* opt)
+void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct parse_state* state)
 {
     auto category = labelManager->getCategory(iClass);
     Label* lblList = category ? category->getFirst() : NULL;
 
-    PCPos = 0;
-
-    while (PCPos < (isize))
+    while (state->PCPos < (isize))
     {
         register int blkEnd;
 
@@ -851,7 +848,7 @@ void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, c
             }
         }
 
-        iBuf = DataDoBlock(&refsList, &lblList, iBuf, blkEnd, iClass, opt);
+        iBuf = DataDoBlock(&refsList, &lblList, iBuf, blkEnd, iClass, state);
     }
 }
 

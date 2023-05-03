@@ -129,16 +129,16 @@ std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
 }
 
 void PrintPsect(struct options* opt);
-void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi, struct options* opt);
+void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int CmdEnt, struct options* opt);
 void printXtraBytes(std::string& data);
 void ROFPsect(struct rof_header* rptr, struct options* opt);
-void WrtEnds(struct options* opt);
+void WrtEnds(struct options* opt, int PCPos);
 void ParseIRefs(char rClass, struct options* opt);
 void GetIRefs(struct options* opt);
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct options* opt);
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct parse_state* state);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
-void ListData(Label* me, int upadr, char cClass, struct options* opt);
+void ListData(Label* me, int upadr, char cClass, struct parse_state* state);
 void WrtEquates(int stdflg, struct options* opt);
 
 extern const char pseudcmd[80];

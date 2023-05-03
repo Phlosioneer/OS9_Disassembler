@@ -62,8 +62,8 @@
 #define CNULL '\0'
 struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
-static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt);
-static void NonBoundsLbl(char cClass, struct options* opt);
+static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
+static void NonBoundsLbl(char cClass, struct options* opt, int CmdEnt);
 static void TellLabels(Label* me, int flg, char cClass, int minval, struct options* opt);
 
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
@@ -135,7 +135,7 @@ void PrintPsect(struct options* opt)
     paramBuffer << '$' << PrettyNumber<uint32_t>(type).hex();
     auto params = paramBuffer.str();
     strcpy(Ci.params, params.c_str());
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
     /*hdrvals[0] = M_Type;*/
 
     int lang = modHeader ? modHeader->lang : 0;
@@ -146,7 +146,7 @@ void PrintPsect(struct options* opt)
     paramBuffer << '$' << PrettyNumber<uint32_t>(lang).hex();
     params = paramBuffer.str();
     strcpy(Ci.params, params.c_str());
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
     /*hdrvals[1] = M_Lang;*/
 
     psectParamBuffer << ",(" << ProgType << "<<8)|" << ProgLang;
@@ -171,7 +171,7 @@ void PrintPsect(struct options* opt)
             Ci.lblname = ModAtts[c].name;
             Ci.cmd_wrd = ModAtts[c].val;
             sprintf(Ci.params, "$%02x", ModAtts[c].val);
-            PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
+            PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
         }
     }
 
@@ -197,7 +197,7 @@ void PrintPsect(struct options* opt)
     pgWdthSave = opt->PgWidth;
     opt->PgWidth = 200;
     BlankLine(opt);
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
     BlankLine(opt);
     opt->PgWidth = pgWdthSave;
     InProg = 1;
@@ -208,7 +208,7 @@ void PrintPsect(struct options* opt)
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt)
+static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
 {
     Label* nl;
     char lbl[100];
@@ -228,7 +228,7 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
         }
     }
 
-    PrintFormatted(pfmt, ci, opt);
+    PrintFormatted(pfmt, ci, opt, CmdEnt);
 
     if (opt->asmFile)
     {
@@ -245,7 +245,7 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
 
 /* Straighten/clean up - prepare for next line  */
 
-static void PrintCleanup()
+static void PrintCleanup(int CmdEnt)
 {
     PrevEnt = CmdEnt;
 
@@ -274,16 +274,16 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi, struct options* opt)
+void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int CmdEnt, options* opt)
 {
-    NonBoundsLbl(cClass, opt); /*Check for non-boundary labels */
+    NonBoundsLbl(cClass, opt, CmdEnt); /*Check for non-boundary labels */
 
-    OutputLine(pfmt, ci, opt);
+    OutputLine(pfmt, ci, opt, CmdEnt);
 
-    PrintCleanup();
+    PrintCleanup(CmdEnt);
 }
 
-static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt)
+static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
 {
     int _linlen;
 
@@ -343,7 +343,7 @@ void printXtraBytes(std::string& data)
     }
 }
 
-static void NonBoundsLbl(char cClass, struct options* opt)
+static void NonBoundsLbl(char cClass, struct options* opt, int CmdEnt)
 {
     if (cClass)
     {
@@ -439,10 +439,9 @@ void ROFPsect(struct rof_header* rptr, struct options* opt)
         /*OPHCAT ((int)(rptr->modent));*/
     }
 
-    CmdEnt = 0;
     PrevEnt = 1; /* To prevent NonBoundsLbl() output */
     InProg = 0;  /* Inhibit Label Lookup */
-    PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
+    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
     InProg = 1;
 }
 
@@ -450,7 +449,7 @@ void ROFPsect(struct rof_header* rptr, struct options* opt)
  * WrtEnds() - writes the "ends" command line          *
  * *************************************************** */
 
-void WrtEnds(struct options* opt)
+void WrtEnds(struct options* opt, int PCPos)
 {
     struct cmd_items Ci;
 
@@ -458,8 +457,8 @@ void WrtEnds(struct options* opt)
     strcpy(Ci.mnem, "ends");
 
     BlankLine(opt);
-    CmdEnt = PCPos; /* This should always work */
-    PrintFormatted(pseudcmd, &Ci, opt);
+    //CmdEnt = PCPos; /* This should always work */
+    PrintFormatted(pseudcmd, &Ci, opt, PCPos);
 
     if (opt->asmFile)
     {
@@ -597,8 +596,7 @@ static void dataprintHeader(const char* hdr, char klas, int isRemote, struct opt
     strcpy(Ci.params, isRemote ? "remote" : "");
     Ci.cmd_wrd = 0;
     Ci.comment = "";
-    CmdEnt = PrevEnt = 0;
-    PrintLine(pseudcmd, &Ci, 'D', 0, 0, opt);
+    PrintLine(pseudcmd, &Ci, 'D', 0, opt);
 }
 
 // Attempt to match an ascii string within a data block.
@@ -606,7 +604,7 @@ static void dataprintHeader(const char* hdr, char klas, int isRemote, struct opt
 // This approach is way too greedy. It was completely broken in the oringal and
 // fixing it breaks a ton of other stuff.
 
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct options* opt)
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct parse_state* state)
 {
     register int count = bufEnd;
     register const char* ch = buf;
@@ -630,7 +628,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
     // Ensure the entire block is ascii, and there's at least one printable
     // character. Multiple strings are allowed within the same block.
 
-    while (count-- > CmdEnt)
+    while (count-- > state->CmdEnt)
     {
         register unsigned char c;
 
@@ -663,7 +661,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
     int consumedThisLine = 0;
     int consumedByGroup = 0;
     char group[MAX_ASCII_LINE_LEN + 5];
-    while (PCPos + consumedThisLine < bufEnd)
+    while (state->PCPos + consumedThisLine < bufEnd)
     {
         // The way this is written is kinda odd for C, but it translates well
         // into C++
@@ -737,11 +735,11 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
         {
             // Output the line first.
             count += consumedThisLine;
-            PCPos += consumedThisLine;
+            state->PCPos += consumedThisLine;
             strncpy(ci->mnem, "dc.b", MNEM_LEN);
-            PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
-            CmdEnt = PCPos;
-            PrevEnt = PCPos;
+            PrintLine(pseudcmd, ci, iClass, state->CmdEnt, state->opt);
+            state->CmdEnt = state->PCPos;
+            PrevEnt = state->PCPos;
             ci->lblname = "";
             ci->params[0] = '\0';
 
@@ -755,11 +753,11 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
     if (strlen(ci->params))
     {
         count += consumedThisLine;
-        PCPos += consumedThisLine;
+        state->PCPos += consumedThisLine;
         strncpy(ci->mnem, "dc.b", MNEM_LEN);
-        PrintLine(pseudcmd, ci, iClass, CmdEnt, CmdEnt, opt);
-        CmdEnt = PCPos;
-        PrevEnt = PCPos;
+        PrintLine(pseudcmd, ci, iClass, state->CmdEnt, state->opt);
+        state->CmdEnt = state->PCPos;
+        PrevEnt = state->PCPos;
         ci->lblname = "";
         ci->params[0] = '\0';
     }
@@ -772,7 +770,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
  *
  */
 
-static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* opt)
+static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state* state)
 {
     struct cmd_items Ci;
     /*char *hexFmt;*/
@@ -783,36 +781,36 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
     Ci.comment = Ci.lblname = "";
     Ci.mnem[0] = Ci.params[0] = '\0';
     NowClass = 'D';
-    PCPos = IDataBegin; /* MovBytes/MovASC use PCPos */
-    CmdEnt = PCPos;
+    state->PCPos = IDataBegin; /* MovBytes/MovASC use PCPos */
+    state->CmdEnt = state->PCPos;
 
-    curlbl = findlbl('D', PCPos);
+    curlbl = findlbl('D', state->PCPos);
     if (!curlbl)
     {
-        curlbl = addlbl('D', PCPos, "");
+        curlbl = addlbl('D', state->PCPos, "");
     }
 
-    if (fseek(opt->ModFP, 0x40l, SEEK_SET) != -1)
+    if (fseek(state->ModFP, 0x40l, SEEK_SET) != -1)
     {
         int idatbegin, idatcount;
 
-        if (fseek(opt->ModFP, (long)fread_l(opt->ModFP), SEEK_SET) == -1)
+        if (fseek(state->ModFP, (long)fread_l(state->ModFP), SEEK_SET) == -1)
         {
             fprintf(stderr, "Cannot seek to Init Data Buffer\n");
             return;
         }
 
-        idatbegin = fread_l(opt->ModFP);
-        idatcount = fread_l(opt->ModFP);
+        idatbegin = fread_l(state->ModFP);
+        idatcount = fread_l(state->ModFP);
 
         if (idatcount == 0)
         {
             return;
         }
 
-        BlankLine(opt);
+        BlankLine(state->opt);
 
-        if (opt->IsUnformatted)
+        if (state->opt->IsUnformatted)
         {
             writer_printf(stdout_writer, " %s\n", what);
             ++LinNum;
@@ -822,12 +820,12 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
             writer_printf(stdout_writer, "%5d %s\n", LinNum++, what);
         }
 
-        if (opt->asmFile)
+        if (state->opt->asmFile)
         {
-            writer_printf(opt->asmFile, "%s\n", what);
+            writer_printf(state->opt->asmFile, "%s\n", what);
         }
 
-        BlankLine(opt);
+        BlankLine(state->opt);
 
         AMode = 0; /* Mode for Data             */
 
@@ -856,12 +854,12 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
                 lblCount = idatcount; /* Don't go past the end of data */
             }
 
-            CmdEnt = PCPos; /* Save Entry Point */
+            state->CmdEnt = state->PCPos; /* Save Entry Point */
             ppos = lblCount;
             strcpy(lbl, ldf->name());
             Ci.lblname = lbl;
 
-            if (opt->IsROF && ldf->global())
+            if (state->opt->IsROF && ldf->global())
             {
                 strcat(Ci.lblname, ":");
             }
@@ -890,7 +888,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
                 char tmp[20];
                 int val;
 
-                if ((IRefs) && (PCPos == IRefs->dAddr))
+                if ((IRefs) && (state->PCPos == IRefs->dAddr))
                 {
                     Label* mylbl;
                     struct ireflist* tmpref;
@@ -900,15 +898,15 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
 
                     if (strlen(Ci.params))
                     {
-                        OutputLine(pseudcmd, &Ci, opt);
+                        OutputLine(pseudcmd, &Ci, state->opt, state->CmdEnt);
                         Ci.lblname = "";
-                        PrintCleanup();
-                        CmdEnt = PCPos;
+                        PrintCleanup(state->CmdEnt);
+                        state->CmdEnt = state->PCPos;
                         Ci.params[0] = '\0';
                     }
 
-                    val = fread_l(opt->ModFP);
-                    PCPos += 4;
+                    val = fread_l(state->ModFP);
+                    state->PCPos += 4;
                     lblCount -= 4;
                     idatcount -= 4;
 
@@ -933,8 +931,8 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
                     }
 
                     strcpy(Ci.mnem, "dc.l");
-                    OutputLine(pseudcmd, &Ci, opt);
-                    CmdEnt = PCPos;
+                    OutputLine(pseudcmd, &Ci, state->opt, state->CmdEnt);
+                    state->CmdEnt = state->PCPos;
                     tmpref = IRefs;
                     IRefs = IRefs->Next;
                     free(tmpref);
@@ -942,7 +940,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
                     Ci.params[0] = '\0';
                     /* Reset mnem to original status */
                     strcpy(Ci.mnem, PBytSiz == 1 ? "dc.b" : "dc.w");
-                    PrintCleanup();
+                    PrintCleanup(state->CmdEnt);
                     ppos -= 4;
                     continue;
                 }
@@ -951,10 +949,10 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
                     switch (PBytSiz)
                     {
                     case 1:
-                        sprintf(tmp, "$%02x", (fgetc(opt->ModFP) & 0xff));
+                        sprintf(tmp, "$%02x", (fgetc(state->ModFP) & 0xff));
                         break;
                     case 2:
-                        val = fread_w(opt->ModFP);
+                        val = fread_w(state->ModFP);
                         sprintf(tmp, "$%04x", val & 0xffff);
                         break;
                     }
@@ -966,15 +964,15 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
 
                     strcat(Ci.params, tmp);
                     ppos -= PBytSiz;
-                    PCPos += PBytSiz;
+                    state->PCPos += PBytSiz;
                     idatcount -= PBytSiz;
                     lblCount -= PBytSiz;
 
                     if (strlen(Ci.params) > 24)
                     {
-                        OutputLine(pseudcmd, &Ci, opt);
-                        PrintCleanup();
-                        CmdEnt = PCPos;
+                        OutputLine(pseudcmd, &Ci, state->opt, state->CmdEnt);
+                        PrintCleanup(state->CmdEnt);
+                        state->CmdEnt = state->PCPos;
                         Ci.lblname = "";
                         Ci.params[0] = '\0';
                         Ci.wcount = 0;
@@ -984,14 +982,14 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
 
             if (strlen(Ci.params)) /* Any final cleanup */
             {
-                PrevEnt = PCPos;
-                OutputLine(pseudcmd, &Ci, opt);
-                CmdEnt = PCPos;
+                PrevEnt = state->PCPos;
+                OutputLine(pseudcmd, &Ci, state->opt, state->CmdEnt);
+                state->CmdEnt = state->PCPos;
                 Ci.wcount = 0;
                 Ci.params[0] = '\0';
             }
 
-            CmdEnt = PCPos;
+            state->CmdEnt = state->PCPos;
             idatcount -= lblCount;
             ldf = label_getNext(ldf);
         }
@@ -1023,17 +1021,25 @@ void ROFDataPrint(struct options* opt)
     srch = category ? category->getFirst() : NULL;
     if (srch)
     {
+        parse_state state{0};
+        state.ModFP = opt->ModFP;
+        state.opt = opt;
+
         dataprintHeader(udat, 'D', FALSE, opt);
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        ListData(srch, rof_header_getUninitDataSize(ROFHd), 'D', opt);
+        ListData(srch, rof_header_getUninitDataSize(ROFHd), 'D', &state);
         BlankLine(opt);
-        WrtEnds(opt);
+        WrtEnds(opt, state.PCPos);
     }
 
     if (rof_header_getInitDataSize(ROFHd))
     {
+        parse_state state{0};
+        state.ModFP = opt->ModFP;
+        state.opt = opt;
+
         dataprintHeader(idat, '_', FALSE, opt);
 
         IBuf = (char*)mem_alloc((size_t)rof_header_getInitDataSize(ROFHd) + 1);
@@ -1048,17 +1054,16 @@ void ROFDataPrint(struct options* opt)
             errexit("Cannot read Initialized data from file!");
         }
 
-        PCPos = 0;
         auto category2 = labelManager->getCategory('_');
         srch = category2 ? category2->getFirst() : NULL;
 
         if (rof_header_getInitDataSize(ROFHd))
         {
-            ListInitROF("", refs_idata, IBuf, rof_header_getInitDataSize(ROFHd), '_', opt);
+            ListInitROF("", refs_idata, IBuf, rof_header_getInitDataSize(ROFHd), '_', &state);
         }
 
         BlankLine(opt);
-        WrtEnds(opt);
+        WrtEnds(opt, state.PCPos);
         /*ListInitData (srch, ROFHd.idatsz, '_');*/
         free(IBuf);
         /*ListInitROF (dta, ROFHd.idatsz, '_');*/
@@ -1068,18 +1073,24 @@ void ROFDataPrint(struct options* opt)
     srch = category3 ? category3->getFirst() : NULL;
     if (srch)
     {
+        parse_state state{0};
+        state.ModFP = opt->ModFP;
+        state.opt = opt;
+
         dataprintHeader(udat, 'G', TRUE, opt);
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        PCPos = 0;
-        ListData(srch, rof_header_getRemoteUninitDataSize(ROFHd), 'G', opt);
+        ListData(srch, rof_header_getRemoteUninitDataSize(ROFHd), 'G', &state);
         BlankLine(opt);
-        WrtEnds(opt);
+        WrtEnds(opt, state.PCPos);
     }
 
     if (rof_header_getRemoteInitDataSize(ROFHd))
     {
+        parse_state state{0};
+        state.ModFP = opt->ModFP;
+        state.opt = opt;
         int size = rof_header_getRemoteInitDataSize(ROFHd);
         dataprintHeader(idat, 'H', TRUE, opt);
 
@@ -1090,15 +1101,14 @@ void ROFDataPrint(struct options* opt)
             errexit("Cannot read Remote Initialized data from file!");
         }
 
-        PCPos = 0;
         auto category4 = labelManager->getCategory('H');
         srch = category4 ? category4->getFirst() : NULL;
-        ListInitROF("", refs_iremote, IBuf, size, 'H', opt);
+        ListInitROF("", refs_iremote, IBuf, size, 'H', &state);
         BlankLine(opt);
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
         free(IBuf);
         BlankLine(opt);
-        WrtEnds(opt);
+        WrtEnds(opt, state.PCPos);
         /*ListInitROF (dta, ROFHd.idatsz, 'H');*/
     }
 
@@ -1117,6 +1127,9 @@ void OS9DataPrint(struct options* opt)
     char* what = "* OS9 data area definitions";
     struct cmd_items Ci;
     long filePos = ftell(opt->ModFP);
+    parse_state state{0};
+    state.ModFP = opt->ModFP;
+    state.opt = opt;
 
     if (!modHeader->initDataHeaderOffset)
     {
@@ -1154,8 +1167,7 @@ void OS9DataPrint(struct options* opt)
         strcpy(Ci.params, "");
         Ci.cmd_wrd = 0;
         Ci.comment = "";
-        CmdEnt = PrevEnt = 0;
-        PrintLine(pseudcmd, &Ci, 'D', 0, 0, opt);
+        PrintLine(pseudcmd, &Ci, 'D', 0, opt);
 
         /*first, if first entry is not D000, rmb bytes up to first */
         srch = dta;
@@ -1170,10 +1182,10 @@ void OS9DataPrint(struct options* opt)
             strcpy(Ci.mnem, "ds.b");
             sprintf(Ci.params, "%ld", srch->myAddr);
             Ci.lblname = "";
-            PrintLine(pseudcmd, &Ci, 'D', 0, srch->myAddr, opt);
+            PrintLine(pseudcmd, &Ci, 'D', srch->myAddr, opt);
         }
 
-        ListData(dta, IDataBegin, 'D', opt);
+        ListData(dta, IDataBegin, 'D', &state);
 
         // If this is a roff, treat memorySize as infinite.
         if (modHeader == NULL || IDataBegin < modHeader->memorySize)
@@ -1181,7 +1193,7 @@ void OS9DataPrint(struct options* opt)
             dta = findlbl('D', IDataBegin);
             if (dta)
             {
-                ListInitData(dta, IDataCount, 'D', opt);
+                ListInitData(dta, IDataCount, 'D', &state);
             }
         }
     }
@@ -1194,9 +1206,8 @@ void OS9DataPrint(struct options* opt)
     strcpy(Ci.params, "");
     Ci.cmd_wrd = 0;
     Ci.comment = "";
-    PrintLine(pseudcmd, &Ci, 'D', CmdEnt, CmdEnt, opt);
+    PrintLine(pseudcmd, &Ci, 'D', state.CmdEnt, opt);
     BlankLine(opt);
-    CmdEnt = PrevEnt = 0;
     InProg = 1;
     fseek(opt->ModFP, filePos, SEEK_SET);
 }
@@ -1209,7 +1220,7 @@ void OS9DataPrint(struct options* opt)
  *         Label cClass                                      *
  * ******************************************************** */
 
-void ListData(Label* me, int upadr, char cClass, struct options* opt)
+void ListData(Label* me, int upadr, char cClass, struct parse_state* state)
 {
     struct cmd_items Ci;
     register int datasize;
@@ -1234,7 +1245,7 @@ void ListData(Label* me, int upadr, char cClass, struct options* opt)
 
     /*strcpy (pbf->lbnm, me->sname);*/
 
-    if (opt->IsROF && me->global())
+    if (state->opt->IsROF && me->global())
     {
         char* newName = strdup(me->name());
         strcat(newName, ":");
@@ -1289,7 +1300,7 @@ else
         strcpy(lbl, me->name());
         Ci.lblname = lbl;
 
-        if (opt->IsROF && me->global())
+        if (state->opt->IsROF && me->global())
         {
             strcat(Ci.lblname, ":");
         }
@@ -1313,9 +1324,9 @@ else
             }
         }*/
 
-        CmdEnt = me->myAddr;
-        PrevEnt = CmdEnt;
-        PrintLine(pseudcmd, &Ci, cClass, me->myAddr, (me->myAddr + datasize), opt);
+        state->CmdEnt = me->myAddr;
+        PrevEnt = state->CmdEnt;
+        PrintLine(pseudcmd, &Ci, cClass, me->myAddr, state->opt);
         me = label_getNext(me);
 
         /*if (me->RNext && (label_getMyAddr(me) < M_Mem))
@@ -1515,8 +1526,7 @@ static void TellLabels(Label* me, int flg, char cClass, int minval, struct optio
                     sprintf(Ci.params, "$%05lx", me->myAddr);
                 }
 
-                CmdEnt = PrevEnt = me->myAddr;
-                PrintLine(pseudcmd, &Ci, cClass, me->myAddr, me->myAddr + 1, opt);
+                PrintLine(pseudcmd, &Ci, cClass, me->myAddr, opt);
             }
         }
 

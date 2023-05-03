@@ -304,7 +304,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
     int ea_addr;
 
     dispstr[0] = '\0';
-    ea_addr = PCPos;
+    ea_addr = state->PCPos;
 
     /* Set up PBytSiz */
     switch (size)
@@ -380,7 +380,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             if (ew_b.displ != 0)
             {
                 // ew_b.displ -= 2;
-                if (LblCalc(dispstr, ew_b.displ, AM_A0 + reg, PCPos - 2, state->opt->IsROF))
+                if (LblCalc(dispstr, ew_b.displ, AM_A0 + reg, state->PCPos - 2, state->opt->IsROF))
                 {
                     label = dispstr;
                 }
@@ -430,7 +430,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         case 4: /* #<data> */
         {
             AMode = AM_IMM;
-            ref_ptr = PCPos;
+            ref_ptr = state->PCPos;
             ext1 = getnext_w(ci, state);
 
             switch (size)
@@ -493,7 +493,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 if (ew_b.displ != 0)
                 {
                     ew_b.displ -= 2;
-                    if (LblCalc(dispstr, ew_b.displ, AM_REL, PCPos - 2, state->opt->IsROF))
+                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF))
                     {
                         label = dispstr;
                     }
@@ -530,7 +530,7 @@ char getnext_b(struct cmd_items* ci, struct parse_state* state)
         filereadexit();
     }
 
-    ++PCPos;
+    state->PCPos++;
     /* We won't store this into the buffers
      * as it is not a command */
     return b;
@@ -549,7 +549,7 @@ int getnext_w(struct cmd_items* ci, struct parse_state* state)
     short w;
 
     w = fread_w(state->ModFP);
-    PCPos += 2;
+    state->PCPos += 2;
     ci->code[ci->wcount] = w;
     ci->wcount += 1;
     return w;
@@ -562,6 +562,6 @@ int getnext_w(struct cmd_items* ci, struct parse_state* state)
 void ungetnext_w(struct cmd_items* ci, struct parse_state* state)
 {
     fseek(state->ModFP, -2, SEEK_CUR);
-    PCPos -= 2;
+    state->PCPos -= 2;
     ci->wcount -= 1;
 }

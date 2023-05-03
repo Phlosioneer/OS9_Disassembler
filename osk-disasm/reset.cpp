@@ -34,8 +34,6 @@ void reset()
     // main_support.c
     PsectName = nullptr;
     Pass = 0;
-    PCPos = 0;
-    CmdEnt = 0;
     ExtBegin = 0;
 
     // rof.c

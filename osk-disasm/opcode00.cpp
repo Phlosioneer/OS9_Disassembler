@@ -448,7 +448,7 @@ int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
     register char* dot;
 
     EaString[0] = '\0';
-    LblCalc(EaString, ci->cmd_wrd & 0xff, AM_IMM, CmdEnt, state->opt->IsROF);
+    LblCalc(EaString, ci->cmd_wrd & 0xff, AM_IMM, state->CmdEnt, state->opt->IsROF);
     sprintf(ci->params, "#%s,d%d", EaString, (ci->cmd_wrd >> 9) & 7);
     strcpy(ci->mnem, op->name);
 
@@ -599,7 +599,7 @@ static int branch_displ(struct cmd_items* ci, int cmd_word, char* siz_suffix, st
 int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int displ;
-    register int jmp_base = PCPos;
+    register int jmp_base = state->PCPos;
     char siz[4];
 
     displ = branch_displ(ci, ci->cmd_wrd, siz, state);
@@ -619,11 +619,11 @@ int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
 
         if ((ref_addr == 0) || (ref_addr == 0xff))
         {
-            ref_addr = CmdEnt + 2;
+            ref_addr = state->CmdEnt + 2;
         }
         else
         {
-            ref_addr = CmdEnt + 1;
+            ref_addr = state->CmdEnt + 1;
         }
 
         if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
@@ -725,7 +725,7 @@ int bit_rotate_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct pa
 
 int br_cond(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int jmp_base = PCPos;
+    register int jmp_base = state->PCPos;
     register char* condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
     char siz[5];
     register int displ;
@@ -754,11 +754,11 @@ int br_cond(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
 
         if ((ref_addr == 0) || (ref_addr == 0xff))
         {
-            ref_addr = CmdEnt + 2;
+            ref_addr = state->CmdEnt + 2;
         }
         else
         {
-            ref_addr = CmdEnt + 1;
+            ref_addr = state->CmdEnt + 1;
         }
 
         if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
@@ -997,8 +997,8 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
         {
             if (Pass == 2)
             {
-                struct rof_extrn* vec_ref = find_extrn(refs_code, CmdEnt + 1);
-                struct rof_extrn* call_ref = find_extrn(refs_code, CmdEnt + 2);
+                struct rof_extrn* vec_ref = find_extrn(refs_code, state->CmdEnt + 1);
+                struct rof_extrn* call_ref = find_extrn(refs_code, state->CmdEnt + 2);
                 const char* callName = NULL;
 
                 if (call_ref != NULL)
@@ -1160,10 +1160,8 @@ int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
 
         /*process_label (ci, 'L', dest);*/
         AMode = AM_REL;
-        PCPos -= 2;
         EaString[0] = '\0';
-        LblCalc(EaString, offset, AM_REL, PCPos, state->opt->IsROF);
-        PCPos += 2;
+        LblCalc(EaString, offset, AM_REL, state->PCPos - 2, state->opt->IsROF);
         sprintf(ci->params, "d%d,%s", ci->cmd_wrd & 7, EaString);
 
         return 1;
