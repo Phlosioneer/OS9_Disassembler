@@ -65,7 +65,6 @@ int IDataBegin;
 int IDataCount;
 int HdrEnd;
 
-int AMode;
 int NowClass;
 int PBytSiz;
 
@@ -706,7 +705,8 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
         state->PCPos += db->size();
         ++cCount;
 
-        LblCalc(tmps, valu, AMode, state->PCPos - db->size(), state->opt->IsROF, state->Pass);
+        /* AMode = 0 to prevent LblCalc from defining class */
+        LblCalc(tmps, valu, 0, state->PCPos - db->size(), state->opt->IsROF, state->Pass);
 
         if (state->Pass == 2)
         {
@@ -779,7 +779,6 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
  */
 void NsrtBnds(const DataRegion* bp, struct parse_state* state)
 {
-    AMode = 0;      /* To prevent LblCalc from defining class */
     NowClass = '$'; // bp->b_class;
     PBytSiz = 1;    /* Default to one byte length */
 

@@ -1165,7 +1165,6 @@ int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
         offset = getnext_w(ci, state);
         /*dest  = br_from + offset;*/
 
-        AMode = AM_REL;
         char EaStringBuffer[200];
         EaStringBuffer[0] = '\0';
         LblCalc(EaStringBuffer, offset, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass);

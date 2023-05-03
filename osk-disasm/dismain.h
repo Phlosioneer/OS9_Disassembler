@@ -66,8 +66,6 @@ extern int IDataBegin;
 extern int IDataCount;
 extern int HdrEnd; /* The first byte past end of header, usefull for begin of Pass 2 */
 
-extern int AMode;
-extern int AMode_cmdfile;
 extern int NowClass;
 extern int PBytSiz;
 

@@ -340,7 +340,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
     case 5: /* d{16}(An) */
     {
         char* label = nullptr;
-        AMode = AM_A0 + reg;
         ext1 = getnext_w(ci, state);
 
         /* The system biases the data Pointer (a6) by 0x8000 bytes,
@@ -353,7 +352,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        if (LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF, state->Pass))
+        if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass))
         {
             label = dispstr;
         }
@@ -429,7 +428,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         }
         case 4: /* #<data> */
         {
-            AMode = AM_IMM;
             ref_ptr = state->PCPos;
             ext1 = getnext_w(ci, state);
 
@@ -464,7 +462,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
 
             // This uses too many global variables to be replaced by LiteralParam.
-            LblCalc(dispstr, ext1, AMode, ea_addr, state->opt->IsROF, state->Pass);
+            LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass);
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         }

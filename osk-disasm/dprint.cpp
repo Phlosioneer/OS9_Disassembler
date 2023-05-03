@@ -826,8 +826,6 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
 
         BlankLine(state->opt);
 
-        AMode = 0; /* Mode for Data             */
-
         curlbl = findlbl('D', idatbegin);
 
         while (idatcount > 0)
