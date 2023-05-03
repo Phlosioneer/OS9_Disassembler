@@ -89,20 +89,6 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_stat
     switch (op->id)
     {
     case 30:  /* chk */
-    case 137: /* chk 68020 */
-        switch (size)
-        {
-        case 2:
-            size = SIZ_LONG;
-            break;
-        case 3:
-            size = SIZ_WORD;
-            break;
-        default:
-            return 0;
-        }
-
-        break;
     case 70: /* divu */
     case 71: /* divs */
     case 79: /* mulu */
