@@ -10,7 +10,6 @@ struct options
     int PrintAllCode;
     char* CmdFileName;
     FILE* CmdFP;
-    int cpu;
     struct writer_handle* asmFile;
     int IsROF;
     /* Count of Label files specified     */

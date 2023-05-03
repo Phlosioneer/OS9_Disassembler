@@ -25,9 +25,6 @@
     <ClCompile Include="opcode00.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="opcodes020.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="rof.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -85,9 +82,6 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="opcode00.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="opcodes020.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="rof.h">

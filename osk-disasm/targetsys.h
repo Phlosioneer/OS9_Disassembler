@@ -92,7 +92,6 @@ memory locations, used for memory map purposes.
 /* ********************** */
 /* ********************** */
 /* ********************** */
-#define DEVICE 68000
 /* ********************** */
 /* ********************** */
 /* ********************** */
@@ -105,53 +104,6 @@ memory locations, used for memory map purposes.
    will be compiled  */
 
 /* NOTE: The 68HC000 should be defined as a 68000 */
-
-#if (DEVICE == 68040)
-
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-#define EMULATOR TRUE /* options are TRUE or FALSE */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-
-/* ***************** !!!!!!!!!!!!!!!!!!!!!!! ******************* */
-/* 	NOTE: This will provide entire 68881 support to 68040	 */
-/* ***************** !!!!!!!!!!!!!!!!!!!!!!! ******************* */
-
-#endif
-
-#if (DEVICE >= 68020)
-
-#if (DEVICE == 68040)
-#define COPROCESSOR TRUE
-#else
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-#define COPROCESSOR TRUE /* options are TRUE or FALSE */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-/* ********************** */
-
-/* ***************** !!!!!!!!!!!!!!!!!!!!!!! ******************* */
-/* 		NOTE: This is for entire 68881 support		 */
-/* ***************** !!!!!!!!!!!!!!!!!!!!!!! ******************* */
-
-#endif
-#endif
 
 /* ********************************************************************* */
 
@@ -169,60 +121,11 @@ memory locations, used for memory map purposes.
 /* ************************** END MEMMORY MAP ************************** */
 /* ********************************************************************* */
 
-#ifndef COPROCESSOR
-#define COPROCESSOR FALSE
-#endif
-
-#if (DEVICE == 68000)
-#ifndef COPROCESSOR
-#define COPROCESSOR FALSE
-#endif
-#endif
-#if (DEVICE == 68008)
-#define MAXINST 124
-#define COPROCESSOR FALSE
-#endif
-#if (DEVICE == 68010)
-#define MAXINST 130
-#define COPROCESSOR FALSE
-#endif
-#if (DEVICE == 68020)
-#define MAXINST 159
-#endif
-#if (DEVICE == 68030)
-#define MAXINST 171
-#endif
-#if (DEVICE == 68040)
-#define MAXINST 186 /* Note: This is the entire table */
-#endif
-
 #ifndef MAXINST
-/*#define DEVICE  68000*/
 #define MAXINST 124
 #endif
 
-#ifndef EMULATOR
-#define EMULATOR FALSE
-#endif
-
-#if (COPROCESSOR == TRUE || EMULATOR == TRUE)
-#define MAXCOPROCINST                                                                                                  \
-    41 /* NOTE: This will be changed to represent the                                                                  \
-entire table when the table is                                                                                         \
-implemented	*/
-#else
 #define MAXCOPROCINST 36
-#endif
-
-#if (DEVICE == 68040 || COPROCESSOR == TRUE)
-#define MAXREGS 75 /* most registers used by any one device */
-#endif
-
-#if (DEVICE == 68030)
-#ifndef MAXREGS
-#define MAXREGS 41 /* most registers used by any one device */
-#endif
-#endif
 
 #ifndef MAXREGS
 #define MAXREGS 33 /* most registers used by any one device */

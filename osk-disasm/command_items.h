@@ -32,7 +32,6 @@ struct cmd_items
 
 struct parse_state
 {
-    int cpu;
     FILE* ModFP;
 
     // Temporary?
@@ -41,10 +40,6 @@ struct parse_state
 
 int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, struct parse_state* state);
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
-int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode, int reg, int size,
-                               struct parse_state* state);
-void get_displ(struct cmd_items* ci, char* dst, int siz_flag, struct parse_state* state);
-int set_indirect_idx(char* dest, struct extWbrief* extW, int cpu);
 
 int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
 void regbyte(std::ostream& stream, unsigned char regmask, bool isAddress);
@@ -55,8 +50,6 @@ void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
 struct cmd_items* initcmditems(struct cmd_items* ci);
 
 // Unused
-int get_extends_common(struct cmd_items* ci, char* mnem, struct parse_state* state);
-int ctl_addrmodesonly(int mode, int reg);
 char getnext_b(struct cmd_items* ci, struct parse_state* state);
 
 extern struct cmd_items Instruction;

@@ -580,19 +580,7 @@ static int branch_displ(struct cmd_items* ci, int cmd_word, char* siz_suffix, st
         strcpy(siz_suffix, "w");
         break;
     case 0xff:
-        if (state->cpu < MC68020) return 0; /* Long branch not available for < 68020 */
-
-        displ = (getnext_w(ci, state) << 16) | (getnext_w(ci, state) & 0xffff);
-
-        if (displ & 1)
-        {
-            ungetnext_w(ci, state);
-            ungetnext_w(ci, state);
-            return 0;
-        }
-
-        strcpy(siz_suffix, "l");
-        break;
+        return 0; /* Long branch not available for < 68020 */
     default:
         if (displ & 1) return 0;
 
@@ -1266,12 +1254,8 @@ int ext_extb(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
         sufx = "l";
         break;
     case 0x1c0:
-        if (state->cpu < 2)
-        {
-            return 0;
-        }
-
-        sufx = "l";
+        /* m68020+ */
+        return 0;
     default:
         return 0;
     }

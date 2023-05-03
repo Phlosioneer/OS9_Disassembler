@@ -156,42 +156,6 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_stat
     return 0;
 }
 
-/*
- * Format a range of registers (``low'' to ``high'')
- * into ``s'', beginning with a ``slash'' if necessary.
- * ``ad'' specifies either address (A) or data (D) registers.
- */
-static char* regwrite(char* s, char* ad, int low, int high, int slash)
-{
-
-    if (slash) *s++ = '/';
-
-    if (high - low >= 1)
-    {
-        s += sprintf(s, "%s", ad);
-        *s++ = low + '0';
-        *s++ = '-';
-        s += sprintf(s, "%s", ad);
-        *s++ = high + '0';
-    }
-    else if (high - low == 1)
-    {
-        s += sprintf(s, "%s", ad);
-        *s++ = low + '0';
-        *s++ = '/';
-        s += sprintf(s, "%s", ad);
-        *s++ = high + '0';
-    }
-    else
-    {
-        s += sprintf(s, "%s", ad);
-        *s++ = high + '0';
-    }
-
-    *s = '\0';
-    return s;
-}
-
 static std::unique_ptr<RegisterSet> reglist(uint16_t regmask, int mode)
 {
     if (mode == 4)
@@ -296,7 +260,7 @@ int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
 /*
  * Retrieves the extended command word, and sets up
  *      the values.
- * Returns 1 if valid, 0 if cpu < 68020 && is Full Extended Word
+ * Returns 1 if valid, 0 if is Full Extended Word (m68020+ only)
  */
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state)
 {
@@ -304,7 +268,7 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg,
 
     ew = getnext_w(ci, state);
 
-    if ((state->cpu < 20) && (ew & 0x0100))
+    if (ew & 0x0100)
     {
         ungetnext_w(ci, state);
         return 0;
@@ -314,37 +278,13 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg,
     extW->isLong = (ew >> 11) & 1;
     extW->scale = (ew >> 9) & 3;
     extW->regno = (ew >> 12) & 7;
-    extW->isFull = (ew >> 8) & 1;
     extW->regNam = dispRegNam[(ew >> 15) & 1];
 
-    if (extW->isFull)
+    extW->displ = ew & 0xff;
+
+    if (extW->displ & 0x80)
     {
-        if (ew & 0x08) /* Bit 3 must be 0 */
-        {
-            ungetnext_w(ci, state);
-            return 0;
-        }
-
-        extW->iiSel = ew & 7;
-        extW->bs = (ew >> 7) & 1;
-        extW->is = (ew >> 6) & 1;
-
-        if ((extW->bdSize = (ew >> 4) & 3) == 0)
-        {
-            ungetnext_w(ci, state);
-            return 0;
-        }
-
-        extW->displ = 0;
-    }
-    else
-    {
-        extW->displ = ew & 0xff;
-
-        if (extW->displ & 0x80)
-        {
-            extW->displ = extW->displ | (-1 ^ 0xff);
-        }
+        extW->displ = extW->displ | (-1 ^ 0xff);
     }
 
     return 1;
@@ -425,10 +365,10 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 
         break;
     }
-    case 6: /* d{8}(An,Xn) or 68020-up */
+    case 6: /* d{8}(An,Xn) */
         if (get_ext_wrd(ci, &ew_b, mode, reg, state))
         {
-            if (state->cpu < 20 && ew_b.scale != 0)
+            if (ew_b.scale != 0)
             {
                 ungetnext_w(ci, state);
                 return 0;
@@ -445,15 +385,8 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                     label = dispstr;
                 }
             }
-            if (ew_b.isFull)
-            {
-                return process_extended_word_full(ci, ea, &ew_b, mode, reg, size, state);
-            }
-            else
-            {
-                param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, ew_b.scale, ew_b.displ,
-                                                         label);
-            }
+            param =
+                std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, ew_b.scale, ew_b.displ, label);
         }
         else
         {
@@ -549,7 +482,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         case 3: /* d8(PC,Xn) */
             if (get_ext_wrd(ci, &ew_b, mode, reg, state))
             {
-                if (state->cpu < 20 && ew_b.scale != 0)
+                if (ew_b.scale != 0)
                 {
                     ungetnext_w(ci, state);
                     return 0;
@@ -565,15 +498,8 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                         label = dispstr;
                     }
                 }
-                if (ew_b.isFull)
-                {
-                    return process_extended_word_full(ci, ea, &ew_b, mode, reg, size, state);
-                }
-                else
-                {
-                    param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, ew_b.scale,
-                                                             ew_b.displ, label);
-                }
+                param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, ew_b.scale,
+                                                         ew_b.displ, label);
             }
             else
             {
@@ -592,276 +518,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         return 1;
     }
     return 0;
-}
-
-/*
- * Process the extended word for indexed modes
- * WARNING: CODE IS NOT TESTED BY INTEGRATION TESTS.
- */
-int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode, int reg, int size,
-                               struct parse_state* state)
-{
-    char base_str[50];
-    char idx_reg[20];
-    char od_str[30];
-
-    /* Base Displacement */
-    base_str[0] = '\0';
-
-    /* Base Register */
-
-    if (ew->bdSize > 1)
-    {
-        int pcadj;
-
-        get_displ(ci, base_str, ew->bdSize, state);
-
-        if (mode == 7) /* Adjust for PC-Rel mode */
-        {
-            sscanf(base_str, "%d", &pcadj);
-            sprintf(base_str, "%d", pcadj - 2);
-        }
-    }
-
-    if (ew->bs == 0) /* If not suppressed ... */
-    {
-        char br_str[3];
-
-        if (strlen(base_str))
-        {
-            strcat(base_str, ",");
-        }
-
-        switch (mode)
-        {
-        case 6:
-            sprintf(br_str, "a%d", reg);
-            strcat(base_str, br_str);
-            break;
-        case 7:
-            strcat(base_str, "pc");
-        }
-    }
-
-    /* Index Register */
-    idx_reg[0] = '\0';
-
-    if (!ew->is)
-    {
-        sprintf(idx_reg, "%c%d.%c", ew->regNam, ew->regno, ew->isLong ? 'l' : 'w');
-
-        if (ew->scale)
-        {
-            register int s = 1;
-            register int m = ew->scale;
-
-            while (m--)
-            {
-                s *= 2;
-            }
-
-            sprintf(&idx_reg[strlen(idx_reg)], "*%d", s);
-        }
-    }
-
-    /* Outer Displacement */
-    od_str[0] = '\0';
-
-    if ((ew->iiSel & 3) > 1)
-    {
-        get_displ(ci, od_str, ew->iiSel & 3, state);
-    }
-
-    if (ew->is == 0)
-    {
-        switch (ew->iiSel & 4)
-        {
-        case 0: /* PreIndexed */
-            if ((strlen(base_str)) && (strlen(idx_reg)))
-            {
-                strcat(base_str, ",");
-                strcat(base_str, idx_reg);
-            }
-            else if (strlen(idx_reg)) /* no base_str */
-            {
-                strcpy(base_str, idx_reg);
-            }
-
-            if (strlen(od_str))
-            {
-                strcpy(idx_reg, od_str);
-            }
-            else
-            {
-                idx_reg[0] = '\0';
-            }
-
-            break;
-        default: /* PostIndexed */
-            if ((strlen(idx_reg)) && (strlen(od_str)))
-            {
-                strcat(idx_reg, ",");
-                strcat(idx_reg, od_str);
-            }
-            else if (strlen(od_str))
-            {
-                strcpy(idx_reg, od_str);
-            }
-        }
-    }
-    else /* else ew->is = 1 */
-    {
-        if (ew->iiSel >= 4)
-        {
-            while (ci->wcount)
-            {
-                ungetnext_w(ci, state);
-            }
-
-            return 0;
-        }
-
-        /* We have base_str already - empty string if no bd or reg */
-
-        if (strlen(od_str))
-        {
-            strcpy(idx_reg, od_str);
-        }
-    }
-
-    if (ew->iiSel & 7)
-    {
-        sprintf(dststr, "([%s]", base_str);
-    }
-    else
-    {
-        sprintf(dststr, "(%s", base_str);
-    }
-
-    if (strlen(idx_reg))
-    {
-        if (strlen(base_str) || (ew->iiSel & 3))
-        {
-            strcat(dststr, ",");
-        }
-
-        strcat(dststr, idx_reg);
-    }
-
-    strcat(dststr, ")");
-
-    return 1;
-}
-
-/*
- * get_displ() - Get the displacement for either the base displacement
- *          or the outer displacement, if not suppressed
- */
-void get_displ(struct cmd_items* ci, char* dst, int siz_flag, struct parse_state* state)
-{
-    switch (siz_flag)
-    {
-    case 2: /* Word Displacement */
-        sprintf(dst, "%d.w", getnext_w(ci, state));
-        break;
-    case 3: /* Long Displacement */
-        sprintf(dst, "%d", (getnext_w(ci, state) << 16) | (getnext_w(ci, state) & 0xffff));
-        break;
-    default:
-        break;
-    }
-}
-
-/*
- *     Sets up the string for the Index register for
- *     Indirect Addressing mode for either
- *     Address register or PC
- * Passed:  (1) dest - The location to store the string
- *          (2) extW - The extWbrief struct containing the
- *                     extended word information.
- * Returns: Pointer to the newly-filled dest
- *
- */
-int set_indirect_idx(char* dest, struct extWbrief* extW, int cpu)
-{
-
-    /* Scale not allowed for < 68020 */
-    /* Note: we might be able to ignore this */
-    if (cpu < 20)
-    {
-        if (extW->scale)
-        {
-            return 0;
-        }
-    }
-
-    sprintf(dest, "%c%d.%c", extW->regNam, extW->regno, extW->isLong ? 'l' : 'w');
-    /**dest = extW->regNam;
-    dest[1] = '\0';
-    sprintf (rgnum, "%d", extW->regno);
-    strcat (dest, rgnum);
-    strcat (dest, extW->isLong ? ".l" : ".w");*/
-
-    switch (extW->scale)
-    {
-    default:
-        break; /* No need to specify scale if it's 1 */
-    case 1:
-        strcat(dest, "*2");
-        break;
-    case 2:
-        strcat(dest, "*4");
-        break;
-    case 3:
-        strcat(dest, "*8");
-        break;
-    }
-
-    return 1;
-}
-
-/*
- * Gets the extended data, sets up the ea for calls
- *       where the size is the 3 MS=bits of the lower byte of the command,
- *       and the EA is the lower 5 bytes of the command word.
- * Passed: (1) - the command items structure
- *         (2) - the mnemonic for the call.  This routine adds the size
- *               descriptor
- */
-int get_extends_common(struct cmd_items* ci, char* mnem, struct parse_state* state)
-{
-    int mode, reg;
-    int size;
-    char addr_mode[20]; /* Destination for the opcode */
-
-    mode = (ci->cmd_wrd >> 3) & 7;
-    reg = ci->cmd_wrd & 7;
-    size = (ci->cmd_wrd >> 6) & 3;
-
-    get_eff_addr(ci, addr_mode, mode, reg, size, state);
-    getnext_w(ci, state);
-
-    if (size > 1)
-    {
-        getnext_w(ci, state);
-    }
-
-    return 1;
-}
-
-/*
- * Returns 0 if the addressing mode is anything but a Control addressing mode
- */
-int ctl_addrmodesonly(int mode, int reg)
-{
-    if ((mode < 2) || (mode == 4) || (mode == 8)) return 0;
-
-    if (mode == 7)
-    {
-        if (mode == 4) return 0;
-    }
-
-    return 1;
 }
 
 char getnext_b(struct cmd_items* ci, struct parse_state* state)

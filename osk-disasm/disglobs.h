@@ -52,11 +52,6 @@
 #endif
 
 #define MC68000 0
-#define MC68008 8
-#define MC68010 10
-#define MC68020 20
-#define MC68030 30
-#define MC68040 40
 
 enum
 {
@@ -96,7 +91,6 @@ enum
  */
 struct extWbrief
 {
-    int isFull;  /* 1 = 68020-type */
     char regNam; /* Index Register ('D' or 'A' */
     int regno;   /* Register # */
     int isLong;  /* Index size (W/L, 0 if sign-extended word */

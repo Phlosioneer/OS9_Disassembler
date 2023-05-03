@@ -68,6 +68,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -120,7 +123,6 @@
     <ClCompile Include="label.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="opcode00.cpp" />
-    <ClCompile Include="opcodes020.cpp" />
     <ClCompile Include="params.cpp" />
     <ClCompile Include="reset.cpp" />
     <ClCompile Include="textdef.cpp" />
@@ -140,7 +142,6 @@
     <ClInclude Include="label.h" />
     <ClInclude Include="modtypes.h" />
     <ClInclude Include="opcode00.h" />
-    <ClInclude Include="opcodes020.h" />
     <ClInclude Include="params.h" />
     <ClInclude Include="reset.h" />
     <ClInclude Include="writer.h" />

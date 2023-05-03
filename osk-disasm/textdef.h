@@ -28,8 +28,6 @@ of every command, general, print, getline,main, and assembley routine.
 #include "command_items.h"
 #include "commonsubs.h"
 #include "dismain.h"
-#include "opcode00.h"
-#include "opcodes020.h"
 
 extern const SIZETYPES sizefield[];
 extern const CONDITIONALS typecondition[];

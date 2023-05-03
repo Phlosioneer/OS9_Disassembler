@@ -1,5 +1,6 @@
 
 #include "textdef.h"
+#include "opcode00.h"
 
 extern const SIZETYPES sizefield[] = {
     {"bwl~~~~"}, /* entry 0  */
@@ -17,11 +18,7 @@ extern const SIZETYPES sizefield[] = {
     {"~l~~~~~"}, /* entry 12  */
     {"wwwww~~"}, /* entry 13  */
     {"~bwl~~~"}, /* entry 14  */
-#if (EMULATOR == TRUE || COPROCESSOR == TRUE)
-    {"lsxpwdb"}, /* entry 15  */
-#else
     {"lsx~wdb"}, /* entry 15  */
-#endif
     {"x~~~~~~"}, /* entry 16  */
     {"ls~~w~b"}, /* entry 17  */
     {"~~~p~~~"}, /* entry 18  */
@@ -147,16 +144,6 @@ extern const OPSTRUCTURE instr00[] =
      {"eori", 2, 8, 18, "0000101001111100", 0, 0, MC68000, 20, biti_reg},
      {"eori.", 0, 8, 0, "00001010xxxxxxxx", 7, 6, MC68000, 21, biti_size},
      {"cmpi.", 0, 8, 1, "00001100xxxxxxxx", 7, 6, MC68000, 22, biti_size},
-     /* MOVES 68010 */
-     {"moves.", 0, 25, 12, "00001110xxxxxxxx", 7, 6, MC68010, 125, cmd_moves},
-     /* MOVES 68010 */
-     /*{"moves.",   0,12,25,   "00001110xxxxxxxx",7,6, MC68010,  126,  notimplemented},*/
-     {"cmp2.", 0, 5, 25, "00000xx011xxxxxx", 10, 9, MC68020, 131, cmp2_chk2},
-     {"chk2.", 0, 5, 25, "00000xx011xxxxxx", 10, 9, MC68020, 132, cmp2_chk2},
-     {"rtm", 6, 25, 21, "000001101100xxxx", 4, 4, MC68020, 133, rtm_020},
-     {"callm", 6, 8, 5, "0000011011xxxxxx", 8, 8, MC68020, 134, cmd_callm},
-     {"cas.", 14, 37, 34, "00001xx011xxxxxx", 10, 9, MC68020, 135, cmd_cas},
-     {"cas2.", 10, 29, 21, "000011x011111100", 10, 9, MC68020, 136, cmd_cas2},
      {NULL, 0, 0, 0, NULL, 0, 0, 0, 0, NULL}};
 
 extern const OPSTRUCTURE instr01[] = {
@@ -219,37 +206,6 @@ extern const OPSTRUCTURE instr04[] = {
     {"jsr", 6, 5, 21, "0100111010xxxxxx", 0, 0, MC68000, 57, one_ea},
     {"jmp", 6, 5, 21, "0100111011xxxxxx", 0, 0, MC68000, 58, one_ea},
     {"ext.", 10, 4, 21, "01001000xx000xxx", 7, 6, MC68000, 106, ext_extb},
-    /* Following is 68010+ Instr */
-    /* MOVE from CCR */
-    {"move.", 2, 17, 0, "0100001011xxxxxx", 8, 8, MC68010, 127, move_ccr_sr},
-    /* RTD */
-    {"rtd", 6, 8, 21, "0100111001110100", 7, 6, MC68010, 128, cmd_rtd},
-    /* MOVEC */
-    /*{"movec.",   5,27,21,   "010011100111101x",2,2, MC68010,  129,  notimplemented},*/
-    /* BKPT */
-    {"bkpt", 6, 8, 21, "0100100001001xxx", 4, 4, MC68010, 130, trap},
-    /* CHK 68020 */
-    {"chk.", 5, 2, 4, "0100xxx100xxxxxx", 6, 6, MC68020, 137, reg_ea},
-    /* LINK LONG */
-    {"link.", 5, 3, 8, "0100100000001xxx", 4, 4, MC68020, 138, link_unlk},
-    /* EXTB */
-    {"extb.", 5, 4, 21, "0100100111000xxx", 9, 9, MC68020, 139, ext_extb},
-    /* MULS LONG */
-    {"mul", 5, 2, 4, "0100110000xxxxxx", 6, 6, MC68020, 140, muldiv_020},
-    /*{"muls.",    5,2,28,    "0100110000xxxxxx",6,6,  MC68020, 141,  notimplemented},*/
-    /* MULU LONG */
-    /*{"mulu.",    5,2,4,     "0100110000xxxxxx",6,6, MC68020,  142,  notimplemented},*/
-    /*{"mulu.",    5,2,28,    "0100110000xxxxxx",6,6, MC68020,  143,  notimplemented},*/
-    /* DIVU LONG */
-    {"div", 12, 2, 4, "0100110001xxxxxx", 6, 6, MC68020, 144, muldiv_020},
-    /*{"divu.",    12,2,28,   "0100110001xxxxxx",6,6, MC68020,  145,  notimplemented},*/
-    /* DIVUL LONG */
-    /*{"divul.",   12,2,28,   "0100110001xxxxxx",6,6, MC68020,  146,  notimplemented},*/
-    /* DIVS LONG */
-    /*{"divs.",    12,2,4,    "0100110001xxxxxx",6,6, MC68020,  147,  notimplemented},*/
-    /*{"divs.",    12,2,28,   "0100110001xxxxxx",6,6, MC68020,  148,  notimplemented},*/
-    /* DIVSL LONG */
-    /*{"divsl.",   12,2,28,   "0100110001xxxxxx",6,6, MC68020,  149,  notimplemented},*/
     {NULL, 0, 0, 0, NULL, 0, 0, 0, 0, NULL}};
 
 extern const OPSTRUCTURE instr05[] = {
@@ -262,10 +218,6 @@ extern const OPSTRUCTURE instr05[] = {
     {"subq.", 0, 8, 0, "0101xxx1xxxxxxxx", 7, 6, MC68000, 62, addq_subq},
     {"subq.", 7, 8, 3, "0101xxx1xxxxxxxx", 7, 6, MC68000, 63, addq_subq},
     {"addq.", 7, 8, 3, "0101xxx0xxxxxxxx", 7, 6, MC68000, 107, addq_subq},
-    /* TRAPcc */
-    {"trap~~", 6, 21, 21, "0101xxxx111111xx", 0, 0, MC68020, 150, cmd_trapcc},
-    /* TRAPcc */
-    /*{"trap~~.",  10,8,21,   "0101xxxx1111101x",1,0, MC68020,  151,  notimplemented},*/
     {NULL, 0, 0, 0, NULL, 0, 0, 0, 0, NULL}};
 
 extern const OPSTRUCTURE instr06[] = {{"bra.", 0, 23, 21, "01100000xxxxxxxx", 10, 10, MC68000, 64, bra_bsr},
@@ -288,12 +240,6 @@ extern const OPSTRUCTURE instr08[] = {
     /* OR  */
     {"or.", 0, 4, 12, "1000xxx1xxxxxxxx", 7, 6, MC68000, 120, add_sub},
     {"or.", 0, 2, 4, "1000xxx0xxxxxxxx", 7, 6, MC68000, 121, add_sub},
-    /* PACK */
-    {"pack", 6, 36, 35, "1000xxx101001xxx", 0, 0, MC68020, 152, notimplemented},
-    /*{"pack",     6,37,35,   "1000xxx101000xxx",0,0, MC68020,  153,  notimplemented},*/
-    /* UNPK */
-    {"unpk", 6, 36, 35, "1000xxx110001xxx", 0, 0, MC68020, 154, notimplemented},
-    /*{"unpk",     6,37,35,   "1000xxx110000xxx",0,0, MC68020,  155,  notimplemented},*/
     {NULL, 0, 0, 0, NULL, 0, 0, 0, 0, NULL}};
 
 extern const OPSTRUCTURE instr09[] = {
@@ -305,8 +251,6 @@ extern const OPSTRUCTURE instr09[] = {
     /* SUB */
     {"sub.", 0, 2, 4, "1001xxx0xxxxxxxx", 7, 6, MC68000, 122, add_sub},
     {"sub.", 7, 3, 4, "1001xxx0xxxxxxxx", 7, 6, MC68000, 123, add_sub},
-    /*#if ((DEVICE==68000) || (DEVICE==68008))*/
-    {"sub.", 0, 4, 12, "1001xxx1xxxxxxxx", 7, 6, MC68008, 124, add_sub},
     {NULL, 0, 0, 0, NULL, 0, 0, 0, 0, NULL}};
 
 extern const OPSTRUCTURE instr11[] = {{"cmpa.", 9, 10, 3, "1011xxxx11xxxxxx", 8, 7, MC68000, 75, cmp_cmpa},
@@ -379,265 +323,5 @@ extern const OPSTRUCTURE instr14[] = {
     {"lsr.", 11, 12, 21, "1110001011xxxxxx", 7, 6, MC68000, 117, bit_rotate_mem},
     {"lsr.", 0, 8, 4, "1110xxx0xx001xxx", 7, 6, MC68000, 118, bit_rotate_reg},
     {"lsr.", 0, 4, 4, "1110xxx0xx101xxx", 7, 6, MC68000, 119, bit_rotate_reg},
-    /* BITFIELD */
-    /* BFCHG and BFCLR and BFSET*/
-    {"bf~~~", 6, 32, 21, "11101xx011xxxxxx", 8, 8, MC68020, 156, bitfields_020},
-    /* BFTST */
-    /*{"bf~~~",    6,33,21,   "1110100011xxxxxx",8,8, MC68020,  157,  notimplemented},*/
-    /* BFEXTS and BFEXTU and BFFFO */
-    {"bf~~~", 6, 33, 4, "11101xx111xxxxxx", 8, 8, MC68020, 158, bitfields_020},
-    /* BFINS */
-    {"bf~~~", 6, 4, 32, "1110111111xxxxxx", 8, 8, MC68020, 159, bitfields_020},
     {NULL, 0, 0, 0, NULL, 0, 0, 0, 0, NULL}};
 /*#endif*/ /* end for OPSTRUCTURE */
-
-#if DEVICE >= 68030
-/* BITFIELD */
-/* BFINS */
-{"bf~~~", 6, 4, 32, "1110111111xxxxxx", 8, 8, MC68020, 159, notimplemented},
-
-    /* ******************************************************************** */
-    /* **************************68030 INSTRUCTIONS************************ */
-    /* ******************************************************************** */
-    /* ******************************************************************** */
-
-    /* PFLUSHA */
-    {"pflusha", 6, 21, 21, "1111000000xxxxxx", 0, 0, MC68030, 160, notimplemented},
-    /* PFLUSH */
-    {"pflush", 6, 30, 14, "1111000000xxxxxx", 0, 0, MC68030, 161, notimplemented},
-    {"pflush", 6, 30, 21, "1111000000xxxxxx", 0, 0, MC68030, 162, notimplemented},
-    /* PLOADR */
-    {"ploadr", 6, 38, 14, "1111000000xxxxxx", 0, 0, MC68030, 163, notimplemented},
-    /* PLOADW */
-    {"ploadw", 6, 38, 14, "1111000000xxxxxx", 0, 0, MC68030, 164, notimplemented},
-    /* PMOVE */
-    {"pmove", 6, 39, 14, "1111000000xxxxxx", 0, 0, MC68030, 165, notimplemented},
-    {"pmove", 6, 14, 39, "1111000000xxxxxx", 0, 0, MC68030, 166, notimplemented},
-    /* PMOVEFD */
-    {"pmovefd", 6, 14, 39, "1111000000xxxxxx", 0, 0, MC68030, 167, notimplemented},
-    /* PTESTR */
-    {"ptestr", 6, 40, 3, "1111000000xxxxxx", 0, 0, MC68030, 168, notimplemented},
-    {"ptestr", 6, 40, 21, "1111000000xxxxxx", 0, 0, MC68030, 169, notimplemented},
-    /* PTESTW */
-    {"ptestw", 6, 40, 3, "1111000000xxxxxx", 0, 0, MC68030, 170, notimplemented},
-
-#endif /* endif for 68030 OPSTRUCTURE */
-#if DEVICE == 68030
-{
-    "ptestw", 6, 40, 21, "1111000000xxxxxx", 0, 0, MC68030, 171, notimplemented
-}
-}
-;
-#endif /* end for OPSTRUCTURE */
-
-#if DEVICE >= 68040
-/* PTESTW */
-{"ptestw", 6, 40, 21, "1111000000xxxxxx", 0, 0, MC68040, 171, notimplemented},
-    /* PFLUSH */
-    {"pflush", 6, 41, 21, "11110101000xxxxx", 0, 0, MC68040, 172, notimplemented},
-    /* PFLUSHN */
-    {"pflushn", 6, 41, 21, "11110101000xxxxx", 0, 0, MC68040, 173, notimplemented},
-    /* PFLUSHA */
-    {"pflusha", 6, 21, 21, "11110101000xxxxx", 0, 0, MC68040, 174, notimplemented},
-    /* PFLUSHAN */
-    {"pflushan", 6, 21, 21, "11110101000xxxxx", 0, 0, MC68040, 175, notimplemented},
-    /* PTESTR */
-    {"ptestr", 6, 41, 21, "1111010101101xxx", 0, 0, MC68040, 176, notimplemented},
-    /* PTESTW */
-    {"ptestw", 6, 41, 21, "1111010101001xxx", 0, 0, MC68040, 177, notimplemented},
-    /* CINVL */
-    {"cinvl", 6, 42, 41, "11110100xx001xxx", 0, 0, MC68040, 178, notimplemented},
-    /* CINVP */
-    {"cinvp", 6, 42, 41, "11110100xx010xxx", 0, 0, MC68040, 179, notimplemented},
-    /* CINVA */
-    {"cinva", 6, 42, 21, "11110100xx011xxx", 0, 0, MC68040, 180, notimplemented},
-    /* CPUSHL */
-    {"cpushl", 6, 42, 41, "11110100xx101xxx", 0, 0, MC68040, 181, notimplemented},
-    /* CPUSHP */
-    {"cpushp", 6, 42, 41, "11110100xx110xxx", 0, 0, MC68040, 182, notimplemented},
-    /* CPUSHA */
-    {"cpusha", 6, 42, 21, "11110100xx111xxx", 0, 0, MC68040, 183, notimplemented},
-    /* MOVE16 */
-    {"move16", 6, 42, 42, "1111011000100xxx", 0, 0, MC68040, 184, notimplemented},
-    {"move16", 6, 43, 44, "11110110000xxxxx", 0, 0, MC68040, 185, notimplemented},
-/* MOVE16 */
-{
-    "move16", 6, 44, 43, "11110110000xxxxx", 0, 0, MC68040, 186, notimplemented
-}
-}
-;
-#endif /* endif for 68040 OPSTRUCTURE */
-
-#if (COPROCESSOR == TRUE || DEVICE == 68040)
-
-COPROCSTRUCTURE syntax2[] =
-    /* ******************************************************************** */
-    /* *********************68881/68882 INSTRUCTIONS*********************** */
-    /* ******************************************************************** */
-    {{"reserved", 13, 21, 21, 0},
-     {"reserved", 13, 21, 21, 1},
-     {"reserved", 13, 21, 21, 2},
-     /* FBcc */
-     /*3*/ {"fb~~.", 4, 23, 21, 3},
-     /* FDBcc */
-     /*4*/ {"fdb~~", 6, 4, 23, 4},
-     /* FMOVEM Registers to EA */
-     /*5*/ {"fmovem.", 16, 45, 6, 5},
-     /* FMOVEM Dn to EA */
-     /*6*/ {"fmovem.", 16, 4, 6, 6},
-     /* FMOVEM EA to Registers */
-     /*7*/ {"fmovem.", 16, 7, 45, 7},
-     /* FMOVEM EA to Dn */
-     /*8*/ {"fmovem.", 16, 7, 4, 8},
-     /* FNOP */
-     /*9*/ {"fnop", 6, 21, 21, 9},
-     /* FRESTORE */
-     /*10*/ {"frestore", 6, 7, 21, 10},
-     /* FSAVE */
-     /*11*/ {"fsave", 6, 6, 21, 11},
-     /* FScc */
-     /*12*/ {"fs~~.", 8, 0, 21, 12},
-     /* FTRAPcc */
-     /*13*/ {"ftrap~~", 6, 21, 21, 13},
-     /* FTRAPcc */
-     /*14*/ {"ftrap~~.", 10, 8, 21, 14},
-     /* FMOVE <ea>,FPm */
-     /*15*/ {"fmove.", 15, 48, 46, 15},
-     /*16*/ {"fmove.", 17, 4, 46, 16},
-     /* FMOVE FPm,<ea> */
-     /*17*/ {"fmove.", 19, 46, 48, 17},
-     /*18*/ {"fmove.", 17, 46, 4, 18},
-     /* FMOVE FPm,FPn */
-     /*19*/ {"fmove.", 16, 46, 46, 19},
-     /* FMOVE.L <ea>,FPcr */
-     /*20*/ {"fmove.", 5, 2, 50, 20},
-     /*21*/ {"fmove.", 5, 3, 52, 21},
-     /* FMOVE.L FPcr,<ea> */
-     /*22*/ {"fmove.", 5, 50, 0, 22},
-     /*23*/ {"fmove.", 5, 52, 3, 23},
-     /* FMOVEM.L <list>,<ea> */
-     /*24*/ {"fmovem.", 5, 50, 4, 24},
-     /*25*/ {"fmovem.", 5, 52, 3, 25},
-     /*26*/ {"fmovem.", 5, 54, 12, 26},
-     /* FMOVEM.L <ea>,<list> */
-     /*27*/ {"fmovem.", 5, 4, 50, 27},
-     /*28*/ {"fmovem.", 5, 3, 52, 28},
-     /*29*/ {"fmovem.", 5, 48, 54, 29},
-     /* MONADIC or DYADIC SEARCH*/
-     /*30*/ {"f~", 15, 48, 46, 30},
-     /*31*/ {"f~", 17, 4, 46, 31},
-     /*32*/ {"f~", 16, 46, 46, 32},
-     /*33*/ {"f~", 16, 46, 21, 33},
-     /* FTST */
-     /*34*/ {"ftst.", 15, 48, 21, 34},
-     /*35*/ {"ftst.", 17, 4, 21, 35},
-#endif /* endif for 68040 COPROCSTRUCTURE */
-
-#if (DEVICE + COPROCESSOR + EMULATOR == 68040)
-     /*36*/ {"ftst.", 16, 46, 21, 36}};
-#endif /* end for COPROCSTRUCTURE */
-
-#if ((COPROCESSOR == TRUE) || (EMULATOR == TRUE))
-/* FTST */
-/*36*/ {"ftst.", 16, 46, 21, 36},
-    /* FMOVE.P FPm,<ea>{Dn} or FPm,<ea>{#k} */
-    /*37*/ {"fmove.", 18, 46, 47, 37},
-    /* FMOVECR  CONSTANT ROM */
-    /*38*/ {"fmovecr.", 16, 8, 46, 38},
-    /* FSINCOS <ea>,FPc:FPs*/
-    /*39*/ {"fsincos.", 17, 4, 53, 39},
-    /*40*/ {"fsincos.", 15, 48, 53, 40},
-/* FSINCOS FPm,FPc:FPs*/
-/*41*/ {
-    "fsincos.", 16, 46, 53, 41
-}
-}
-;
-#endif /* endif for 68040 OPSTRUCTURE */
-
-#if (COPROCESSOR == TRUE || DEVICE == 68040)
-
-COPROCSTRUCTURE syntax2[] =
-    /* ******************************************************************** */
-    /* *********************68881/68882 INSTRUCTIONS*********************** */
-    /* ******************************************************************** */
-    {{"reserved", 13, 21, 21},
-     {"reserved", 13, 21, 21},
-     {"reserved", 13, 21, 21},
-     /* FBcc */
-     /*3*/ {"fb~~.", 4, 23, 21},
-     /* FDBcc */
-     /*4*/ {"fdb~~", 6, 4, 23},
-     /* FMOVEM Registers to EA */
-     /*5*/ {"fmovem.", 16, 45, 6},
-     /* FMOVEM Dn to EA */
-     /*6*/ {"fmovem.", 16, 4, 6},
-     /* FMOVEM EA to Registers */
-     /*7*/ {"fmovem.", 16, 7, 45},
-     /* FMOVEM EA to Dn */
-     /*8*/ {"fmovem.", 16, 7, 4},
-     /* FNOP */
-     /*9*/ {"fnop", 6, 21, 21},
-     /* FRESTORE */
-     /*10*/ {"frestore", 6, 7, 21},
-     /* FSAVE */
-     /*11*/ {"fsave", 6, 6, 21},
-     /* FScc */
-     /*12*/ {"fs~~.", 8, 0, 21},
-     /* FTRAPcc */
-     /*13*/ {"ftrap~~", 6, 21, 21},
-     /* FTRAPcc */
-     /*14*/ {"ftrap~~.", 10, 8, 21},
-     /* FMOVE <ea>,FPm */
-     /*15*/ {"fmove.", 15, 48, 46},
-     /*16*/ {"fmove.", 17, 4, 46},
-     /* FMOVE FPm,<ea> */
-     /*17*/ {"fmove.", 19, 46, 48},
-     /*18*/ {"fmove.", 17, 46, 4},
-     /* FMOVE FPm,FPn */
-     /*19*/ {"fmove.", 16, 46, 46},
-     /* FMOVE.L <ea>,FPcr */
-     /*20*/ {"fmove.", 5, 2, 50},
-     /*21*/ {"fmove.", 5, 3, 52},
-     /* FMOVE.L FPcr,<ea> */
-     /*22*/ {"fmove.", 5, 50, 0},
-     /*23*/ {"fmove.", 5, 52, 3},
-     /* FMOVEM.L <list>,<ea> */
-     /*24*/ {"fmovem.", 5, 50, 4},
-     /*25*/ {"fmovem.", 5, 52, 3},
-     /*26*/ {"fmovem.", 5, 54, 12},
-     /* FMOVEM.L <ea>,<list> */
-     /*27*/ {"fmovem.", 5, 4, 50},
-     /*28*/ {"fmovem.", 5, 3, 52},
-     /*29*/ {"fmovem.", 5, 48, 54},
-     /* MONADIC or DYADIC SEARCH*/
-     /*30*/ {"f~", 15, 48, 46},
-     /*31*/ {"f~", 17, 4, 46},
-     /*32*/ {"f~", 16, 46, 46},
-     /*33*/ {"f~", 16, 46, 21},
-     /* FTST */
-     /*34*/ {"ftst.", 15, 48, 21},
-     /*35*/ {"ftst.", 17, 4, 21},
-#endif /* endif for 68040 COPROCSTRUCTURE */
-
-#if (DEVICE + COPROCESSOR + EMULATOR == 68040)
-     /*36*/ {"ftst.", 16, 46, 21}};
-#endif /* end for COPROCSTRUCTURE */
-
-#if ((COPROCESSOR == TRUE) || (EMULATOR == TRUE))
-/* FTST */
-/*36*/ {"ftst.", 16, 46, 21},
-    /* FMOVE.P FPm,<ea>{Dn} or FPm,<ea>{#k} */
-    /*37*/ {"fmove.", 18, 46, 47},
-    /* FMOVECR  CONSTANT ROM */
-    /*38*/ {"fmovecr.", 16, 8, 46},
-    /* FSINCOS <ea>,FPc:FPs*/
-    /*39*/ {"fsincos.", 17, 4, 53},
-    /*40*/ {"fsincos.", 15, 48, 53},
-/* FSINCOS FPm,FPc:FPs*/
-/*41*/ {
-    "fsincos.", 16, 46, 53
-}
-}
-;
-#endif /* end for COPROCSTRUCTURE */

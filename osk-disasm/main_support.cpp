@@ -262,29 +262,6 @@ void do_opt(char* c, struct options* opt)
         }
 
         break;
-    case 'm': /* Target CPU */
-        pt = pass_eq(pt);
-
-        switch (v = strtol(pt, &pt, 10))
-        {
-        case 68000:
-        case 68008:
-        case 68010:
-        case 68020:
-            opt->cpu = v - 68000;
-            break;
-        case 0:
-        case 8:
-        case 10:
-        case 20:
-            opt->cpu = v;
-            break;
-        default:
-            fprintf(stderr, "Error: %d is not a valid CPU... Ignoring\n", v);
-            break;
-        }
-
-        break;
     case 'o': /* output asm src file */
         AsmFile = pass_eq(pt);
 

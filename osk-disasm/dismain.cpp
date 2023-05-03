@@ -34,8 +34,8 @@
 #include "modtypes.h"
 #include "textdef.h"
 #include <ctype.h>
-#include <string.h>
 #include <sstream>
+#include <string.h>
 
 #include "cmdfile.h"
 #include "command_items.h"
@@ -491,7 +491,6 @@ int dopass(int mypass, struct options* opt)
     }
 
     struct parse_state parseState;
-    parseState.cpu = opt->cpu;
     parseState.ModFP = opt->ModFP;
     parseState.opt = opt;
 
@@ -611,10 +610,12 @@ static int get_asmcmd(struct parse_state* state)
          * is sorted in ascending order.  Therefore, if a "cpulvl"
          * higher than "cpu" is encountered we can abort the search.
          */
+        /*
         if (curop->cpulvl > state->cpu)
         {
             return 0;
         }
+        */
 
         if (!error)
         {
@@ -633,28 +634,6 @@ static int get_asmcmd(struct parse_state* state)
             }
         }
     }
-
-#if (DEVICE == 68040 || COPROCESSOR == TRUE)
-    for (h = 3; h <= MAXCOPROCINST; h++)
-    {
-        error = FALSE;
-        j = fpmatch(start);
-        if (!error)
-        {
-            size = disassembleattempt(start, j);
-            if (size != 0) break;
-        }
-    }
-#endif
-    /*    if (size == 0)
-        {
-            writer_printf(stdout_writer, "\n%c%8x", HEXDEL, start);
-            writer_printf(stdout_writer, " %4X\t\t  DC.W", get16 (start));
-            writer_printf(stdout_writer, " \t\t?  ");
-            return (2);
-        }
-        else
-            return (size);*/
 
     return 0;
 }
@@ -749,12 +728,12 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
                 if (db->size() < 4)
                 {
                     temp.width(2);
-                    //xtrafmt = "%02x";
+                    // xtrafmt = "%02x";
                 }
                 else
                 {
                     temp.width(4);
-                    //xtrafmt = "%04x";
+                    // xtrafmt = "%04x";
                 }
                 xtrabytes << temp;
             }
@@ -773,7 +752,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
             if ((strlen(Ci.params) > 22) || findlbl('L', PCPos))
             {
                 PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
-                
+
                 printXtraBytes(xtrabytes.str());
                 xtrabytes = {};
 
@@ -811,7 +790,7 @@ void NsrtBnds(const DataRegion* bp, struct parse_state* state)
     {
     case DataRegion::DataSize::String:
         // TODO: Replace with a call to DoAsciiData.
-        //MovASC(bp->range.end - PCPos + 1, 'L', state);
+        // MovASC(bp->range.end - PCPos + 1, 'L', state);
         throw std::runtime_error("Explicit string region not supported yet.");
         break; /* bump PC  */
     case DataRegion::DataSize::Words:
