@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "dprint.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
@@ -141,36 +142,23 @@ static void singleCharData(std::ostream& dest, char ch)
     if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
     {
         dest << '\'' << ch << '\'';
-        // sprintf(mytmp, "'%c'", ch & 0x7f);
-        // strcat(dst, mytmp);
     }
     else
     {
         Label* pp = labelManager->getLabel('^', ch);
-        if (pp) /*if ((pp = FindLbl (ListRoot ('^'), ch & 0x7f)))*/
+        if (pp)
         {
             dest << pp->name();
-            // strcat(dst, pp->name());
         }
         else
         {
-            auto prevFill = dest.fill('0');
-            auto prevWidth = dest.width(2);
-            auto prevBase = dest.setf(std::ios_base::hex, std::ios_base::basefield);
-            dest << (int)ch;
-            dest.fill(prevFill);
-            dest.width(prevWidth);
-            dest.setf(prevBase, std::ios_base::basefield);
-
-            // sprintf(mytmp, "$%02x", ch & 0x7f);
-            // strcat(dst, mytmp);
+            dest << PrettyNumber<int>(ch).fill('0').width(2).hex();
         }
     }
 
     if (ch & 0x80)
     {
         dest << "+$80";
-        // strcat(dst, "+$80");
     }
 }
 
@@ -346,12 +334,6 @@ void Label::setName(const char* name)
  */
 static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod)
 {
-    auto prevFill = dest.fill();
-    auto prevWidth = dest.width();
-    auto prevBase = dest.flags() & std::ios_base::basefield;
-
-    // char tmp[10];
-    /*short decn = adr & 0xffff;*/
     int mask;
 
     /* Readjust class definition if necessary */
@@ -370,10 +352,9 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
         }
     }
 
+    PrettyNumber<int> format(0);
     switch (clas)
     {
-        // char *hexfmt;
-
     case '$': /* Hexadecimal notation */
         dest << '$';
         switch (amod)
@@ -393,41 +374,33 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
 
             if (abs(adr) <= 0xff)
             {
-                dest.fill('0');
-                dest.width(2);
+                dest << PrettyNumber<uint32_t>(adr).fill('0').width(2).hex();
                 // hexfmt = "%02x";
             }
             else if (abs(adr) <= 0xffff)
             {
-                dest.fill('0');
-                dest.width(4);
+                dest << PrettyNumber<uint32_t>(adr).fill('0').width(4).hex();
                 // hexfmt = "%04x";
             }
             else
             {
+                dest << PrettyNumber<uint32_t>(adr).hex();
                 // hexfmt = "%x";
             }
 
             break;
         case AM_LONG:
-            dest.fill('0');
-            dest.width(8);
+            dest << PrettyNumber<uint32_t>(adr).fill('0').width(8).hex();
             // hexfmt = "%08x";
             break;
         case AM_SHORT:
-            dest.fill('0');
-            dest.width(4);
+            dest << PrettyNumber<uint32_t>(adr).fill('0').width(4).hex();
             // hexfmt = "%04x";
             break;
         }
-
-        dest << std::hex << adr;
-        // sprintf (tmp, hexfmt, adr);
-        // sprintf (dest, "$%s", tmp);
         break;
     case '&': /* Decimal */
         dest << adr;
-        // sprintf (dest, "%d", adr);
         break;
     case '^': /* ASCII */
         //*dest = '\0';
@@ -471,10 +444,6 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
         // strcpy (dest, dl->inner->name());
         dest << dl->name();
     }
-
-    dest.fill(prevFill);
-    dest.width(prevWidth);
-    dest.setf(prevBase, std::ios_base::basefield);
 }
 
 /*

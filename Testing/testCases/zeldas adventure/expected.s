@@ -55,7 +55,7 @@ I$SetStt equ $8e
 I$Close equ $8f
 
 Prgrm set $1
-Objct set $01
+Objct set $1
 ReEnt set $80
 
  psect cdi_zelda.os9module_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc

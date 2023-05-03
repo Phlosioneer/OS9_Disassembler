@@ -5,6 +5,8 @@
 #include "label.h"
 #include "userdef.h"
 
+#include <string>
+
 struct cmd_items;
 
 /*
@@ -19,9 +21,116 @@ struct ireflist
     int dAddr;
 };
 
+template <typename T>
+class PrettyNumber;
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self);
+
+template<typename T>
+class PrettyNumber
+{
+  public:
+    PrettyNumber(T number)
+        : _number(number), _hasFill(false), _hasWidth(false), _forcePlusSign(false), _fill('0'), _width(0),
+          _format(Format::Unset)
+    {
+    }
+
+    PrettyNumber<T>& number(T number)
+    {
+        _number = number;
+        return *this;
+    }
+
+    PrettyNumber<T>& fill(char c)
+    {
+        _hasFill = true;
+        _fill = c;
+        return *this;
+    }
+
+    PrettyNumber<T>& width(size_t size)
+    {
+        _hasWidth = true;
+        _width = size;
+        return *this;
+    }
+
+    PrettyNumber<T>& decimal()
+    {
+        _format = Format::Decimal;
+        return *this;
+    }
+
+    PrettyNumber<T>& hex()
+    {
+        _format = Format::Hex;
+        return *this;
+    }
+
+    PrettyNumber<T>& showPlus()
+    {
+        _forcePlusSign = true;
+        return *this;
+    }
+
+  private:
+    enum class Format
+    {
+        Unset, Decimal, Hex
+    };
+
+    bool _hasFill;
+    bool _hasWidth;
+    bool _forcePlusSign;
+    char _fill;
+    Format _format;
+    size_t _width;
+    T _number;
+
+    friend std::ostream& operator<< <T>(std::ostream& os, const PrettyNumber<T>& self);
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
+{
+    auto prevFill = os.fill();
+    auto prevWidth = os.width();
+    auto prevFlags = os.flags();
+
+    if (self._hasFill) os.fill(self._fill);
+    if (self._hasWidth) os.width(self._width);
+    switch (self._format)
+    {
+    case PrettyNumber<T>::Format::Unset:
+        break;
+    case PrettyNumber<T>::Format::Decimal:
+        os.setf(std::ios_base::dec, std::ios_base::basefield);
+        break;
+    case PrettyNumber<T>::Format::Hex:
+        os.setf(std::ios_base::hex, std::ios_base::basefield);
+        break;
+    default:
+        throw std::exception();
+    }
+
+    if (self._forcePlusSign && self._number >= 0)
+    {
+        os << '+';
+    }
+    os << self._number;
+
+    if (self._hasFill) os.fill(prevFill);
+    if (self._hasWidth) os.width(prevWidth);
+    if (self._format != PrettyNumber<T>::Format::Unset) os.setf(prevFlags);
+
+    return os;
+}
+
 void PrintPsect(struct options* opt);
 void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int cmdlow, int cmdhi, struct options* opt);
-void printXtraBytes(char* data);
+void printXtraBytes(std::string& data);
 void ROFPsect(struct rof_header* rptr, struct options* opt);
 void WrtEnds(struct options* opt);
 void ParseIRefs(char rClass, struct options* opt);

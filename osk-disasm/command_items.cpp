@@ -596,6 +596,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 
 /*
  * Process the extended word for indexed modes
+ * WARNING: CODE IS NOT TESTED BY INTEGRATION TESTS.
  */
 int process_extended_word_full(struct cmd_items* ci, char* dststr, struct extWbrief* ew, int mode, int reg, int size,
                                struct parse_state* state)

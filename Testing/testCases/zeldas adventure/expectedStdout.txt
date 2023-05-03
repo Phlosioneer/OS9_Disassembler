@@ -55,7 +55,7 @@
    54  0008f 008f I$Close    equ    $8f        
    55
    56  00000 0001 Prgrm      set    $1         
-   57  00000 0001 Objct      set    $01        
+   57  00000 0001 Objct      set    $1         
    58  00000 0080 ReEnt      set    $80        
    59
    60  00000 0080            psect  cdi_zelda.os9module_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc 

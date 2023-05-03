@@ -53,7 +53,6 @@ struct modnam* modnam_find(struct modnam* pt, int desired);
 int dopass(int mypass, struct options* opt);
 int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
 void MovBytes(const DataRegion* bp, struct parse_state* state);
-void MovASC(int nb, char aclass, struct parse_state* state);
 void NsrtBnds(const DataRegion* bp, struct parse_state* state);
 
 struct module_header* module_new();

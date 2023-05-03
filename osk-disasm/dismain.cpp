@@ -35,6 +35,7 @@
 #include "textdef.h"
 #include <ctype.h>
 #include <string.h>
+#include <sstream>
 
 #include "cmdfile.h"
 #include "command_items.h"
@@ -524,21 +525,19 @@ int dopass(int mypass, struct options* opt)
                 if (opt->PrintAllCode && Instruction.wcount)
                 {
                     int count = Instruction.wcount;
-                    char codbuf[50];
+                    std::ostringstream codbuf;
                     int wpos = 0;
-                    /*printf("%6s", "");*/
-                    codbuf[0] = '\0';
 
                     while (count)
                     {
                         char tmpcod[10];
 
                         sprintf(tmpcod, "%04x ", (unsigned short)Instruction.code[wpos++]);
-                        strcat(codbuf, tmpcod);
+                        codbuf << tmpcod;
                         --count;
                     }
 
-                    printXtraBytes(codbuf);
+                    printXtraBytes(codbuf.str());
                 }
             }
         }
@@ -547,7 +546,10 @@ int dopass(int mypass, struct options* opt)
             if (Pass == 2)
             {
                 strcpy(Instruction.mnem, "dc.w");
-                sprintf(Instruction.params, "$%x", Instruction.cmd_wrd & 0xffff);
+                std::ostringstream params;
+                params << '$' << PrettyNumber<int>(Instruction.cmd_wrd & 0xffff).hex();
+                auto result = params.str();
+                strcpy(Instruction.params, result.c_str());
                 PrintLine(pseudcmd, &Instruction, 'L', CmdEnt, PCPos, opt);
                 CmdEnt = PCPos;
             }
@@ -667,30 +669,19 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
     char tmps[20];
     unsigned int valu;
     int bmask;
-    char xtrabytes[50];
+    std::ostringstream xtrabytes;
     int cCount = 0, maxLst;
-    char* xtrafmt;
 
     CmdEnt = PCPos;
 
     /* This may be temporary, and we may set PBytSiz
      * to the appropriate value */
-    *xtrabytes = '\0';
     strcpy(Ci.mnem, "dc");
     Ci.params[0] = '\0';
     Ci.lblname = "";
     Ci.comment = NULL;
     Ci.cmd_wrd = 0;
     PBytSiz = db->size(); // Unclear if this has side-effects outside of this func
-
-    if (db->size() < 4)
-    {
-        xtrafmt = "%02x";
-    }
-    else
-    {
-        xtrafmt = "%04x";
-    }
 
     switch (db->size())
     {
@@ -743,8 +734,6 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
         if (Pass == 2)
         {
-            char tmpval[10];
-
             if (cCount == 0)
             {
                 Ci.cmd_wrd = valu & bmask;
@@ -755,8 +744,19 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
             }
             else
             {
-                sprintf(tmpval, xtrafmt, valu & bmask);
-                strcat(xtrabytes, tmpval);
+                PrettyNumber<uint32_t> temp(valu & bmask);
+                temp.fill('0').hex();
+                if (db->size() < 4)
+                {
+                    temp.width(2);
+                    //xtrafmt = "%02x";
+                }
+                else
+                {
+                    temp.width(4);
+                    //xtrafmt = "%04x";
+                }
+                xtrabytes << temp;
             }
 
             ++cCount;
@@ -773,11 +773,9 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
             if ((strlen(Ci.params) > 22) || findlbl('L', PCPos))
             {
                 PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
-
-                if (strlen(xtrabytes))
-                {
-                    printXtraBytes(xtrabytes);
-                }
+                
+                printXtraBytes(xtrabytes.str());
+                xtrabytes = {};
 
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
@@ -796,120 +794,8 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
     {
         PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
 
-        if (strlen(xtrabytes))
-        {
-            printXtraBytes(xtrabytes);
-        }
+        printXtraBytes(xtrabytes.str());
     }
-}
-
-/*
- * Move nb byes fordcb" statement.
- * TODO: Not sure how to trigger this code for testing?
- */
-void MovASC(int nb, char aclass, struct parse_state* state)
-{
-    char oper_tmp[30];
-    struct cmd_items Ci;
-    int cCount = 0;
-
-    strcpy(Ci.mnem, "dc.b"); /* Default mnemonic to "fcc" */
-    CmdEnt = PCPos;
-    *oper_tmp = '\0';
-    Ci.cmd_wrd = 0;
-    Ci.comment = NULL;
-    Ci.lblname = "";
-
-    while (nb--)
-    {
-        register int x;
-        char c[6];
-
-        if ((strlen(oper_tmp) > 24) || (strlen(oper_tmp) && findlbl(aclass, PCPos)))
-        {
-            sprintf(Ci.params, "\"%s\"", oper_tmp);
-            PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
-            oper_tmp[0] = '\0';
-            CmdEnt = PCPos;
-            Ci.lblname = "";
-            Ci.cmd_wrd = 0;
-            Ci.wcount = 0;
-            cCount = 0;
-        }
-
-        x = fgetc(state->ModFP);
-        ++cCount;
-        ++PCPos;
-
-        if (isprint(x) && (x != '"'))
-        {
-            if (Pass == 2)
-            {
-                sprintf(c, "%c", x & 0x7f);
-                strcat(oper_tmp, c);
-
-                if (cCount < 16)
-                {
-                    Ci.cmd_wrd = (Ci.cmd_wrd << 8) | (x & 0xff);
-                }
-            } /* end if (Pass2) */
-        }
-        else /* then it's a control character */
-        {
-            if (Pass == 1)
-            {
-                if ((x & 0x7f) < 33)
-                {
-                    char lbl[10];
-                    sprintf(lbl, "ASC%02x", x);
-                    addlbl('^', x & 0xff, lbl);
-                }
-            }
-            else /* Pass 2 */
-            {
-                /* Print any unprinted ASCII characters */
-                if (strlen(oper_tmp))
-                {
-                    sprintf(Ci.params, "\"%s\"", oper_tmp);
-                    PrintLine(pseudcmd, &Ci, aclass, CmdEnt, CmdEnt, state->opt);
-                    Ci.params[0] = '\0';
-                    Ci.cmd_wrd = 0;
-                    Ci.lblname = "";
-                    oper_tmp[0] = '\0';
-                    cCount = 0;
-                    CmdEnt = PCPos - 1; /* We already have the byte */
-                }
-
-                if (isprint(x))
-                {
-                    sprintf(Ci.params, "'%c'", x);
-                }
-                else
-                {
-                    sprintf(Ci.params, "$%x", x);
-                }
-
-                Ci.cmd_wrd = x;
-                PrintLine(pseudcmd, &Ci, aclass, CmdEnt, PCPos, state->opt);
-                Ci.lblname = "";
-                Ci.params[0] = '\0';
-                Ci.cmd_wrd = 0;
-                cCount = 0;
-                CmdEnt = PCPos;
-            }
-        }
-    } /* end while (nb--) - all chars moved */
-
-    /* Finally clean up any remaining data. */
-    if ((Pass == 2) && (strlen(oper_tmp))) /* Clear out any pending string */
-    {
-        sprintf(Ci.params, "\"%s\"", oper_tmp);
-        PrintLine(pseudcmd, &Ci, 'L', CmdEnt, PCPos, state->opt);
-        Ci.lblname = "";
-        *oper_tmp = '\0';
-    }
-
-    CmdEnt = PCPos;
 }
 
 /*
@@ -924,10 +810,9 @@ void NsrtBnds(const DataRegion* bp, struct parse_state* state)
     switch (bp->type)
     {
     case DataRegion::DataSize::String:
-        /* Bugfix?  Pc was bp->b_lo...  that setup allowed going past
-         * the end if the lower bound was not right. */
-
-        MovASC(bp->range.end - PCPos + 1, 'L', state);
+        // TODO: Replace with a call to DoAsciiData.
+        //MovASC(bp->range.end - PCPos + 1, 'L', state);
+        throw std::runtime_error("Explicit string region not supported yet.");
         break; /* bump PC  */
     case DataRegion::DataSize::Words:
         PBytSiz = 2; /* Takes care of both Word & Long */

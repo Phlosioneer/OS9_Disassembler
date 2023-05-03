@@ -23,6 +23,7 @@
  *                                                                      *
  * ******************************************************************** */
 
+#include <sstream>
 #include <string.h>
 
 #include "cmdfile.h"
@@ -90,7 +91,7 @@ int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     char ea[30];
     int data;
 
-    EaString[0] = '\0';
+    std::ostringstream EaStringBuffer;
     reg = (ci->cmd_wrd) & 7;
 
     if ((ci->cmd_wrd & 0x023c) == 0x023c)
@@ -98,11 +99,11 @@ int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
         switch (ci->cmd_wrd)
         {
         case 0x023c:
-            strcpy(EaString, "ccr");
+            EaStringBuffer << "ccr";
             size = SIZ_BYTE;
             break;
         case 0x027c:
-            strcpy(EaString, "sr");
+            EaStringBuffer << "sr";
             size = SIZ_WORD;
         }
     }
@@ -162,17 +163,22 @@ int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
         break;
     }
 
-    if (strlen(EaString) == 0)
+    auto eaStringResult = EaStringBuffer.str();
+    if (eaStringResult.empty())
     {
-        if (!get_eff_addr(ci, EaString, mode, reg, SIZ_LONG, state))
+        char tmp[200];
+        if (!get_eff_addr(ci, tmp, mode, reg, SIZ_LONG, state))
         {
             return 0;
         }
+        eaStringResult = tmp;
     }
 
-    sprintf(ci->params, "%s,%s", ea, EaString);
-    strcpy(ci->mnem, op->name);
-    strcat(ci->mnem, SizSufx[size]);
+    auto params = (std::string(ea) + ",") + eaStringResult;
+    strcpy(ci->params, params.c_str());
+
+    auto mnem = std::string(op->name) + SizSufx[size];
+    strcpy(ci->mnem, mnem.c_str());
     return 1;
 }
 
@@ -231,12 +237,19 @@ int bit_dynamic(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse
                 if (mode > 1)
                     return 0;
         }*/
-
-    if (get_eff_addr(ci, EaString, mode, reg, SIZ_LONG, state))
+    char ea[200];
+    if (get_eff_addr(ci, ea, mode, reg, SIZ_LONG, state))
     {
-        sprintf(ci->params, "d%d,%s", (ci->cmd_wrd >> 9) & 7, EaString);
-        strcpy(ci->mnem, op->name);
-        strcat(ci->mnem, (mode == 0) ? "l" : "b");
+        std::ostringstream paramBuffer;
+        paramBuffer << 'd' << ((ci->cmd_wrd >> 9) & 7) << ',' << ea;
+        auto params = paramBuffer.str();
+        strcpy(ci->params, params.c_str());
+        //sprintf(ci->params, "d%d,%s", (ci->cmd_wrd >> 9) & 7, ea);
+        
+        auto mnem = std::string(op->name) + ((mode == 0) ? "l" : "b");
+        strcpy(ci->mnem, mnem.c_str());
+        //strcpy(ci->mnem, op->name);
+        //strcat(ci->mnem, (mode == 0) ? "l" : "b");
         return 1;
     }
 

@@ -103,6 +103,7 @@ void PrintPsect(struct options* opt)
     int c;
     struct cmd_items Ci;
     int pgWdthSave;
+    std::ostringstream psectParamBuffer;
 
     Ci.comment = "";
     strcpy(Ci.mnem, "set");
@@ -111,18 +112,18 @@ void PrintPsect(struct options* opt)
     /* Module name */
     if (PsectName)
     {
-        strcpy(EaString, PsectName);
+        psectParamBuffer << PsectName;
     }
     else if (strrchr(opt->ModFile, PATHSEP))
     {
-        strcpy(EaString, strrchr(opt->ModFile, PATHSEP) + 1);
+        psectParamBuffer << strrchr(opt->ModFile, PATHSEP) + 1;
     }
     else
     {
-        strcpy(EaString, opt->ModFile);
+        psectParamBuffer << opt->ModFile;
     }
 
-    strcat(EaString, "_a");
+    psectParamBuffer << "_a";
 
     /* Type/Language */
     InProg = 0; /* Inhibit Label Lookup */
@@ -130,7 +131,10 @@ void PrintPsect(struct options* opt)
     ProgType = modnam_find(ModTyps, (unsigned char)type)->name;
     Ci.cmd_wrd = type;
     Ci.lblname = ProgType;
-    sprintf(Ci.params, "$%x", type);
+    std::ostringstream paramBuffer;
+    paramBuffer << '$' << PrettyNumber<uint32_t>(type).hex();
+    auto params = paramBuffer.str();
+    strcpy(Ci.params, params.c_str());
     PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     /*hdrvals[0] = M_Type;*/
 
@@ -138,11 +142,14 @@ void PrintPsect(struct options* opt)
     ProgLang = modnam_find(ModLangs, (unsigned char)lang)->name;
     Ci.lblname = ProgLang;
     Ci.cmd_wrd = lang;
-    sprintf(Ci.params, "$%02x", lang);
+    paramBuffer = {};
+    paramBuffer << '$' << PrettyNumber<uint32_t>(lang).hex();
+    params = paramBuffer.str();
+    strcpy(Ci.params, params.c_str());
     PrintLine(pseudcmd, &Ci, CNULL, 0, 0, opt);
     /*hdrvals[1] = M_Lang;*/
 
-    sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%s", ProgType, ProgLang);
+    psectParamBuffer << ",(" << ProgType << "<<8)|" << ProgLang;
 
     /* Att/Rev */
     ProgAtts[0] = '\0';
@@ -171,19 +178,19 @@ void PrintPsect(struct options* opt)
     int revision = modHeader ? modHeader->revision : 0;
     int edition = modHeader ? modHeader->edition : 0;
     int execOffset = modHeader ? modHeader->execOffset : 0;
-    sprintf(&EaString[strlen(EaString)], ",(%s<<8)|%d", ProgAtts, revision);
-    sprintf(&EaString[strlen(EaString)], ",%d", edition);
-    strcat(EaString, ",0"); /* For the time being, don't add any stack */
-    sprintf(&EaString[strlen(EaString)], ",%s", findlbl('L', execOffset)->name());
+    psectParamBuffer << ",(" << ProgAtts << "<<8)|" << revision;
+    psectParamBuffer << ',' << edition;
+    psectParamBuffer << ",0"; /* For the time being, don't add any stack */
+    psectParamBuffer << ',' << findlbl('L', execOffset)->name();
 
     if (modHeader && modHeader->exceptionOffset)
     {
         Label* excep = findlbl('L', modHeader->exceptionOffset);
-        strcat(EaString, ",");
-        strcat(EaString, excep->name());
+        psectParamBuffer << ',' << excep->name();
     }
 
-    strcpy(Ci.params, EaString);
+    params = psectParamBuffer.str();
+    strcpy(Ci.params, params.c_str());
     strcpy(Ci.mnem, "psect");
     Ci.lblname = "";
     /* Be sure to have enough space to write psect */
@@ -328,12 +335,11 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
  * Print additional data bytes in line following main line          *
  * **************************************************************** */
 
-void printXtraBytes(char* data)
+void printXtraBytes(std::string& data)
 {
-    if (strlen(data))
+    if (!data.empty())
     {
-        writer_printf(stdout_writer, xtraFmt, data);
-        data[0] = '\0'; /* Reset data to empty string */
+        writer_printf(stdout_writer, xtraFmt, data.c_str());
     }
 }
 
@@ -595,7 +601,7 @@ static void dataprintHeader(const char* hdr, char klas, int isRemote, struct opt
     PrintLine(pseudcmd, &Ci, 'D', 0, 0, opt);
 }
 
-// Attempt to match an asci string within a data block.
+// Attempt to match an ascii string within a data block.
 //
 // This approach is way too greedy. It was completely broken in the oringal and
 // fixing it breaks a ton of other stuff.
@@ -888,11 +894,9 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
                 {
                     Label* mylbl;
                     struct ireflist* tmpref;
-                    char xtrabytes[10];
                     val = 0;
                     tmp[0] = '\0';
 
-                    xtrabytes[0] = '\0';
 
                     if (strlen(Ci.params))
                     {
@@ -930,7 +934,6 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct options* op
 
                     strcpy(Ci.mnem, "dc.l");
                     OutputLine(pseudcmd, &Ci, opt);
-                    printXtraBytes(xtrabytes);
                     CmdEnt = PCPos;
                     tmpref = IRefs;
                     IRefs = IRefs->Next;

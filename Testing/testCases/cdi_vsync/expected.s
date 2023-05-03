@@ -6,7 +6,7 @@ F$TLink equ $21
 I$WritLn equ $8c
 
 Prgrm set $1
-Objct set $01
+Objct set $1
 ReEnt set $80
 
  psect test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,cstart,ctrap

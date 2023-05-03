@@ -6,7 +6,7 @@
     5  0008c 008c I$WritLn   equ    $8c        
     6
     7  00000 0001 Prgrm      set    $1         
-    8  00000 0001 Objct      set    $01        
+    8  00000 0001 Objct      set    $1         
     9  00000 0080 ReEnt      set    $80        
    10
    11  00000 0080            psect  test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,cstart,ctrap 
