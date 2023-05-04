@@ -111,6 +111,9 @@
     <ClInclude Include="params.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="either.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="test\actual.s" />

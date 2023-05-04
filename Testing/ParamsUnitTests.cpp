@@ -5,6 +5,7 @@
 #include "CppUnitTestAssert.h"
 
 #include "params.h"
+#include "label.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -22,14 +23,15 @@ namespace UnitTests
 
 		TEST_METHOD(LiteralTest)
 		{
-			Assert::AreEqual(std::string("#0"), LiteralParam(0).toStr());
-			Assert::AreEqual(std::string("#5"), LiteralParam(5).toStr());
-			Assert::AreEqual(std::string("#10"), LiteralParam(10).toStr());
-			Assert::AreEqual(std::string("#100"), LiteralParam(100).toStr());
-			Assert::AreEqual(std::string("#70000"), LiteralParam(70000).toStr());
-			Assert::AreEqual(std::string("#-3"), LiteralParam(-3).toStr());
+			Assert::AreEqual(std::string("#0"), LiteralParam(FormattedNumber(0)).toStr());
+			Assert::AreEqual(std::string("#5"), LiteralParam(FormattedNumber(5)).toStr());
+			Assert::AreEqual(std::string("#10"), LiteralParam(FormattedNumber(10)).toStr());
+			Assert::AreEqual(std::string("#100"), LiteralParam(FormattedNumber(100)).toStr());
+			Assert::AreEqual(std::string("#70000"), LiteralParam(FormattedNumber(70000)).toStr());
+			Assert::AreEqual(std::string("#-3"), LiteralParam(FormattedNumber(-3)).toStr());
 
-			Assert::AreEqual(std::string("hello"), LiteralParam(0, "hello").toStr());
+			//Label test('L', 0, "hello");
+			Assert::AreEqual(std::string("hello"), LiteralParam(std::string("hello")).toStr());
 		}
 
 		TEST_METHOD(RegParamTest)
@@ -47,40 +49,31 @@ namespace UnitTests
 
 		TEST_METHOD(RegOffsetParamTest)
 		{
-			auto zeroOffset = RegOffsetParam(Register::A2, 0, nullptr);
+			auto zeroOffset = RegOffsetParam(Register::A2, FormattedNumber(0));
 			Assert::AreEqual(std::string("(a2)"), zeroOffset.toStr());
 			zeroOffset.setShouldForceZero(true);
 			Assert::AreEqual(std::string("0(a2)"), zeroOffset.toStr());
 
-			auto zeroLabel = RegOffsetParam(Register::A2, 0, "hello");
+			auto zeroLabel = RegOffsetParam(Register::A2, std::string("hello"));
 			Assert::AreEqual(std::string("hello(a2)"), zeroLabel.toStr());
 			zeroLabel.setShouldForceZero(true);
 			Assert::AreEqual(std::string("hello(a2)"), zeroLabel.toStr());
 
-			auto nonzeroOffset = RegOffsetParam(Register::REG_PC, 40, nullptr);
+			auto nonzeroOffset = RegOffsetParam(Register::REG_PC, FormattedNumber(40));
 			Assert::AreEqual(std::string("40(pc)"), nonzeroOffset.toStr());
 			zeroLabel.setShouldForceZero(true);
 			Assert::AreEqual(std::string("40(pc)"), nonzeroOffset.toStr());
 
-			auto zeroOffset2 = RegOffsetParam(Register::A2, Register::D5, OperandSize::Long, 0);
+			auto zeroOffset2 = RegOffsetParam(Register::A2, Register::D5, OperandSize::Long, FormattedNumber(0));
 			Assert::AreEqual(std::string("(a2,d5.l)"), zeroOffset2.toStr());
 			
-			auto zeroLabel2 = RegOffsetParam(Register::A2, Register::D5, OperandSize::Long, 0, 0, "hello");
+			auto zeroLabel2 = RegOffsetParam(Register::A2, Register::D5, OperandSize::Long, std::string("hello"));
 			Assert::AreEqual(std::string("hello(a2,d5.l)"), zeroLabel2.toStr());
 
-			auto nonzeroOffset2 = RegOffsetParam(Register::REG_PC, Register::D1, OperandSize::Word, 0, 40, nullptr);
+			auto nonzeroOffset2 = RegOffsetParam(Register::REG_PC, Register::D1, OperandSize::Word, FormattedNumber(40));
 			Assert::AreEqual(std::string("40(pc,d1.w)"), nonzeroOffset2.toStr());
 
-			auto scale = RegOffsetParam(Register::SP, Register::A3, OperandSize::Word, 2);
-			Assert::AreEqual(std::string("(sp,a3.w*4)"), scale.toStr());
-
-			auto badScale = [] { RegOffsetParam test(Register::A0, Register::D4, OperandSize::Word, 8); };
-			Assert::ExpectException<std::exception>(badScale);
-
-			auto badSize = [] { RegOffsetParam test(Register::A0, Register::D4, OperandSize::Byte, 0); };
-			Assert::ExpectException<std::exception>(badSize);
-
-			auto badBaseReg = [] { RegOffsetParam test(Register::REG_D0, 0, nullptr); };
+			auto badBaseReg = [] { RegOffsetParam test(Register::REG_D0, FormattedNumber(0)); };
 			Assert::ExpectException<std::exception>(badBaseReg);
 		}
 	};

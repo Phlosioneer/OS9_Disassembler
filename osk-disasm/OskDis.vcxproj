@@ -141,6 +141,7 @@
     <ClInclude Include="exit.h" />
     <ClInclude Include="label.h" />
     <ClInclude Include="modtypes.h" />
+    <ClInclude Include="either.h" />
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="params.h" />
     <ClInclude Include="reset.h" />

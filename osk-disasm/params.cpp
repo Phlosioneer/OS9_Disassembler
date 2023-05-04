@@ -1,7 +1,12 @@
 
 #include "params.h"
+#include "disglobs.h"
+#include "dismain.h"
 #include "dprint.h"
+#include "exit.h"
 #include "label.h"
+
+#pragma region Registers
 
 const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp", "pc",
                                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7"};
@@ -59,6 +64,8 @@ constexpr uint8_t getIndexUnchecked(Register reg)
 }
 
 } // namespace Registers
+
+#pragma endregion
 
 char getOperandSizeLetter(OperandSize size)
 {
@@ -322,6 +329,88 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
     return os;
 }
 
+FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas)
+{
+    int mask;
+
+    if (amod)
+    {
+        AMODE_BOUNDS_CHECK(amod);
+        clas = defaultLabelClasses[amod - 1];
+    }
+    else /* amod=0, it's a boundary def  */
+    {
+        if (NowClass)
+        {
+            clas = NowClass;
+        }
+        else
+        {
+            // Guess
+            clas = '@';
+        }
+    }
+
+    /* Readjust class definition if necessary */
+    if (clas == '@')
+    {
+        if (abs(value) < 9)
+        {
+            clas = '&';
+        }
+        else
+        {
+            clas = '$';
+        }
+    }
+
+    switch (clas)
+    {
+    case '$': /* Hexadecimal notation */
+        switch (amod)
+        {
+        default:
+            switch (PBytSiz)
+            {
+            case 1:
+                return FormattedNumber(value, OperandSize::Byte, clas);
+            case 2:
+                return FormattedNumber(value, OperandSize::Word, clas);
+            case 4:
+                return FormattedNumber(value, OperandSize::Long, clas);
+            default:
+                throw std::runtime_error("");
+            }
+
+            break;
+        case AM_LONG:
+            return FormattedNumber(value, OperandSize::Long, clas);
+        case AM_SHORT:
+            return FormattedNumber(value, OperandSize::Word, clas);
+        }
+        break;
+    case '&': /* Decimal */
+        return FormattedNumber(value, OperandSize::Long, clas);
+    case '^': /* ASCII */
+        return FormattedNumber(value, OperandSize::Byte, clas);
+    case '%': /* Binary */
+        if (value > 0xffff)
+        {
+            return FormattedNumber(value, OperandSize::Long, clas);
+        }
+        else if (value > 0xff)
+        {
+            return FormattedNumber(value, OperandSize::Word, clas);
+        }
+        else
+        {
+            return FormattedNumber(value, OperandSize::Byte, clas);
+        }
+    default:
+        throw std::runtime_error("Unexpected class!");
+    }
+}
+
 #pragma endregion
 
 #pragma region InstrParam
@@ -333,28 +422,33 @@ std::string InstrParam::toStr() const
     return stream.str();
 }
 
+std::ostream& operator<<(std::ostream& os, const InstrParam& self)
+{
+    self.format(os);
+    return os;
+}
+
 #pragma endregion
 
 #pragma region LiteralParam
 
-LiteralParam::LiteralParam(int32_t value) : LiteralParam(value, nullptr)
+LiteralParam::LiteralParam(std::string label) : value(label)
 {
 }
 
-LiteralParam::LiteralParam(int32_t value, const char* label)
-    : value(value), _hasLabel(label != nullptr), _label(label ? label : "")
+LiteralParam::LiteralParam(FormattedNumber number) : value(number)
 {
 }
 
 void LiteralParam::format(std::ostream& stream) const
 {
-    if (_hasLabel)
+    if (value.hasLeft())
     {
-        stream << _label;
+        stream << value.left();
     }
     else
     {
-        stream << '#' << value;
+        stream << '#' << value.right();
     }
 }
 
@@ -402,48 +496,37 @@ void RegParam::format(std::ostream& stream) const
 
 #pragma region AbsoluteAddrParam
 
-AbsoluteAddrParam::AbsoluteAddrParam(int32_t address, const char* label, OperandSize size)
-    : size(size), _hasLabel(label != nullptr), _address(address), _label(label)
+AbsoluteAddrParam::AbsoluteAddrParam(FormattedNumber address, OperandSize size) : value(address), size(size)
 {
-    if (size == OperandSize::Byte)
-    {
-        throw std::exception();
-    }
+    if (size == OperandSize::Byte) throw std::runtime_error("Byte absolute address not allowed");
+}
+
+AbsoluteAddrParam::AbsoluteAddrParam(std::string label, OperandSize size) : value(label), size(size)
+{
+    if (size == OperandSize::Byte) throw std::runtime_error("Byte absolute address not allowed");
 }
 
 void AbsoluteAddrParam::format(std::ostream& stream) const
 {
     stream << '(';
-    if (_hasLabel)
+    if (value.hasLeft())
     {
-        stream << _label;
+        stream << value.left();
     }
     else
     {
-        stream << _address;
+        stream << value.right();
     }
     stream << ')' << getOperandSizeSuffix(size);
-}
-
-int32_t AbsoluteAddrParam::address() const
-{
-    if (_hasLabel) throw std::runtime_error("Param does not have an address.");
-    return _address;
-}
-
-const std::string& AbsoluteAddrParam::label() const
-{
-    if (!_hasLabel) throw std::runtime_error("Param does not have a label.");
-    return _label;
 }
 
 #pragma endregion
 
 #pragma region RegOffsetParam
 
-RegOffsetParam::RegOffsetParam(Register addressReg, int32_t offset, const char* label)
+RegOffsetParam::RegOffsetParam(Register addressReg, FormattedNumber offset)
     : addressReg(addressReg), offset(offset), _hasOffsetReg(false), _offsetReg(), _offsetRegSize(OperandSize::Word),
-      _scale(0), _hasLabel(label != nullptr), _label(label ? label : ""), _forceZero(false)
+      _forceZero(false)
 {
     if (addressReg < Register::A0 || addressReg > Register::REG_PC)
     {
@@ -451,21 +534,37 @@ RegOffsetParam::RegOffsetParam(Register addressReg, int32_t offset, const char* 
     }
 }
 
-RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, unsigned int scale)
-    : RegOffsetParam(addressReg, offsetReg, offsetRegSize, scale, 0, nullptr)
+RegOffsetParam::RegOffsetParam(Register addressReg, std::string offsetLabel)
+    : addressReg(addressReg), offset(offsetLabel), _hasOffsetReg(false), _offsetReg(),
+      _offsetRegSize(OperandSize::Word), _forceZero(false)
 {
+    if (addressReg < Register::A0 || addressReg > Register::REG_PC)
+    {
+        throw std::exception();
+    }
 }
 
-RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, unsigned int scale,
-                               int32_t offset, const char* label)
+RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize,
+                               FormattedNumber offset)
     : addressReg(addressReg), offset(offset), _hasOffsetReg(true), _offsetReg(offsetReg), _offsetRegSize(offsetRegSize),
-      _scale(scale), _hasLabel(label != nullptr), _label(label ? label : ""), _forceZero(false)
+      _forceZero(false)
 {
     if (addressReg < Register::A0 || addressReg > Register::REG_PC)
     {
         throw std::exception();
     }
-    if (scale > 3)
+    if (offsetRegSize == OperandSize::Byte)
+    {
+        throw std::exception();
+    }
+}
+
+RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize,
+                               std::string offsetLabel)
+    : addressReg(addressReg), offset(offsetLabel), _hasOffsetReg(true), _offsetReg(offsetReg), _offsetRegSize(offsetRegSize),
+      _forceZero(false)
+{
+    if (addressReg < Register::A0 || addressReg > Register::REG_PC)
     {
         throw std::exception();
     }
@@ -477,19 +576,18 @@ RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandS
 
 void RegOffsetParam::format(std::ostream& stream) const
 {
-    if (_hasLabel)
+    if (offset.hasLeft())
     {
-        stream << _label;
+        stream << offset.left();
     }
-    else if (offset != 0 || _forceZero)
+    else if (offset.right().number != 0 || _forceZero)
     {
-        stream << offset;
+        stream << offset.right();
     }
     stream << '(' << Registers::getName(addressReg);
     if (_hasOffsetReg)
     {
         stream << ',' << Registers::getName(_offsetReg) << getOperandSizeSuffix(_offsetRegSize);
-        if (_scale != 0) stream << '*' << (1 << _scale);
     }
     stream << ')';
 }
@@ -498,12 +596,6 @@ Register RegOffsetParam::offsetReg() const
 {
     if (!_hasOffsetReg) throw std::exception();
     return _offsetReg;
-}
-
-const std::string& RegOffsetParam::label() const
-{
-    if (!_hasLabel) throw std::exception();
-    return _label;
 }
 
 #pragma endregion

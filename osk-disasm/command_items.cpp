@@ -88,7 +88,7 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_stat
     /* Eliminate illegal Addressing modes */
     switch (op->id)
     {
-    case 30:  /* chk */
+    case 30: /* chk */
     case 70: /* divu */
     case 71: /* divs */
     case 79: /* mulu */
@@ -312,7 +312,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 
     switch (mode)
     {
-        MODE_STR* a_pt;
     default:
         return 0;
     case 0: /* "Dn" */
@@ -326,8 +325,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
     case 5: /* d{16}(An) */
-    {
-        char* label = nullptr;
         ext1 = getnext_w(ci, state);
 
         /* The system biases the data Pointer (a6) by 0x8000 bytes,
@@ -340,25 +337,21 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        int amode = AM_A0 + reg;
-        if (LblCalc(dispstr, ext1, amode, ea_addr, state->opt->IsROF, state->Pass))
+        if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass))
         {
-            label = dispstr;
+            param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), std::string(dispstr));
         }
         else
         {
             // Temporary
-            PrintNumber(dispstr, ext1, amode, PBytSiz);
-            label = dispstr;
+            auto number = MakeFormattedNumber(ext1, AM_A0 + reg, PBytSiz);
+            param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), number);
         }
-
-        param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), ext1, label);
 
         // `0(An)` and `(An)` assemble to different instructions.
         ((RegOffsetParam*)param.get())->setShouldForceZero(true);
 
         break;
-    }
     case 6: /* d{8}(An,Xn) */
         if (get_ext_wrd(ci, &ew_b, mode, reg, state))
         {
@@ -370,24 +363,25 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             auto addressReg = Registers::makeAReg(reg);
             auto offsetReg = ew_b.regNam == 'a' ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
             auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
-            char* label = nullptr;
             if (ew_b.displ != 0)
             {
                 // ew_b.displ -= 2;
                 int amode = AM_A0 + reg;
                 if (LblCalc(dispstr, ew_b.displ, amode, state->PCPos - 2, state->opt->IsROF, state->Pass))
                 {
-                    label = dispstr;
+                    param =
+                        std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, std::string(dispstr));
                 }
                 else
                 {
-                    // Temporary
-                    PrintNumber(dispstr, ew_b.displ, amode, PBytSiz);
-                    label = dispstr;
+                    auto number = MakeFormattedNumber(ew_b.displ, amode, PBytSiz);
+                    param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, number);
                 }
             }
-            param =
-                std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, ew_b.scale, ew_b.displ, label);
+            else
+            {
+                param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, FormattedNumber(0));
+            }
         }
         else
         {
@@ -405,7 +399,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         case 0: /* (xxx).W */
         case 1: /* (xxx).L */
         {
-            char* label = nullptr;
             OperandSize opSize;
             int amode_local;
             if (reg == 0)
@@ -423,15 +416,14 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
             if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF, state->Pass))
             {
-                label = dispstr;
+                param = std::make_unique<AbsoluteAddrParam>(std::string(dispstr), opSize);
             }
             else
             {
-                // Temporary
-                PrintNumber(dispstr, ext1, amode_local, PBytSiz);
-                label = dispstr;
+                auto number = MakeFormattedNumber(ext1, amode_local, PBytSiz);
+                param = std::make_unique<AbsoluteAddrParam>(number, opSize);
             }
-            param = std::make_unique<AbsoluteAddrParam>(ext1, label, opSize);
+
             break;
         }
         case 4: /* #<data> */
@@ -465,35 +457,34 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 
             if (rof_setup_ref(refs_code, ref_ptr, dispstr, ext1))
             {
-                sprintf(ea, Mode07Strings[reg].str, dispstr);
-                return 1;
+                char temp[200];
+                temp[0] = '\0';
+                sprintf(temp, Mode07Strings[reg].str, dispstr);
+                param = std::make_unique<LiteralParam>(std::string(temp));
             }
-
-            // This uses too many global variables to be replaced by LiteralParam.
-            if (!LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass))
+            else if (LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass))
             {
-                PrintNumber(dispstr, ext1, AM_IMM, PBytSiz);
-            }
-            sprintf(ea, Mode07Strings[reg].str, dispstr);
-            return 1;
-        }
-        case 2: /* (d16,PC) */
-        {
-            char* label = nullptr;
-            ext1 = getnext_w(ci, state);
-            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
-            {
-                label = dispstr;
+                param = std::make_unique<LiteralParam>(std::string(dispstr));
             }
             else
             {
-                // Temporary
-                PrintNumber(dispstr, ext1, AM_REL, PBytSiz);
-                label = dispstr;
+                auto number = MakeFormattedNumber(ext1, AM_IMM, PBytSiz);
+                param = std::make_unique<LiteralParam>(number);
             }
-            param = std::make_unique<RegOffsetParam>(Register::REG_PC, ext1, label);
             break;
         }
+        case 2: /* (d16,PC) */
+            ext1 = getnext_w(ci, state);
+            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
+            {
+                param = std::make_unique<RegOffsetParam>(Register::REG_PC, std::string(dispstr));
+            }
+            else
+            {
+                auto number = MakeFormattedNumber(ext1, AM_REL, PBytSiz);
+                param = std::make_unique<RegOffsetParam>(Register::REG_PC, number);
+            }
+            break;
         case 3: /* d8(PC,Xn) */
             if (get_ext_wrd(ci, &ew_b, mode, reg, state))
             {
@@ -510,17 +501,21 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                     ew_b.displ -= 2;
                     if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
                     {
-                        label = dispstr;
+                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                                                                 std::string(dispstr));
                     }
                     else
                     {
-                        // Temporary
-                        PrintNumber(dispstr, ew_b.displ, AM_REL, PBytSiz);
-                        label = dispstr;
+                        // TODO: Is the -2 to displacement correct here?
+                        auto number = MakeFormattedNumber(ew_b.displ, AM_REL, PBytSiz);
+                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, number);
                     }
                 }
-                param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, ew_b.scale,
-                                                         ew_b.displ, label);
+                else
+                {
+                    param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                                                             FormattedNumber(0));
+                }
             }
             else
             {

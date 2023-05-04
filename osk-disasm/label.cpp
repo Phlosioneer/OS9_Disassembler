@@ -56,8 +56,6 @@ static_assert(sizeof(defaultDefaultLabelClasses) == AM_MAXMODES, "Wrong number o
 static_assert(sizeof(programDefaultLabelClasses) == AM_MAXMODES, "Wrong number of program labels");
 static_assert(sizeof(driverDefaultLabelClasses) == AM_MAXMODES, "Wrong number of driver labels");
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas);
-
 Label* label_getNext(Label* handle)
 {
     return labelManager->getCategory(handle->category)->getNextAfter(handle);
@@ -289,88 +287,6 @@ void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas)
 void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas)
 {
     dest << MakeFormattedNumber(value, amod, PBytSiz, clas);
-}
-
-FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas)
-{
-    int mask;
-
-    if (amod)
-    {
-        AMODE_BOUNDS_CHECK(amod);
-        clas = defaultLabelClasses[amod - 1];
-    }
-    else /* amod=0, it's a boundary def  */
-    {
-        if (NowClass)
-        {
-            clas = NowClass;
-        }
-        else
-        {
-            // Guess
-            clas = '@';
-        }
-    }
-
-    /* Readjust class definition if necessary */
-    if (clas == '@')
-    {
-        if (abs(value) < 9)
-        {
-            clas = '&';
-        }
-        else
-        {
-            clas = '$';
-        }
-    }
-
-    switch (clas)
-    {
-    case '$': /* Hexadecimal notation */
-        switch (amod)
-        {
-        default:
-            switch (PBytSiz)
-            {
-            case 1:
-                return FormattedNumber(value, OperandSize::Byte, clas);
-            case 2:
-                return FormattedNumber(value, OperandSize::Word, clas);
-            case 4:
-                return FormattedNumber(value, OperandSize::Long, clas);
-            default:
-                throw std::runtime_error("");
-            }
-
-            break;
-        case AM_LONG:
-            return FormattedNumber(value, OperandSize::Long, clas);
-        case AM_SHORT:
-            return FormattedNumber(value, OperandSize::Word, clas);
-        }
-        break;
-    case '&': /* Decimal */
-        return FormattedNumber(value, OperandSize::Long, clas);
-    case '^': /* ASCII */
-        return FormattedNumber(value, OperandSize::Byte, clas);
-    case '%': /* Binary */
-        if (value > 0xffff)
-        {
-            return FormattedNumber(value, OperandSize::Long, clas);
-        }
-        else if (value > 0xff)
-        {
-            return FormattedNumber(value, OperandSize::Word, clas);
-        }
-        else
-        {
-            return FormattedNumber(value, OperandSize::Byte, clas);
-        }
-    default:
-        throw std::runtime_error("Unexpected class!");
-    }
 }
 
 /*

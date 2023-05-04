@@ -7,6 +7,10 @@
 #include <stdexcept>
 #include <string>
 
+#include "either.h"
+
+class Label;
+
 enum class Register
 {
     A0,
@@ -111,7 +115,7 @@ inline std::ostream& operator<<(std::ostream& os, const RegisterSet& registers)
 class FormattedNumber
 {
   public:
-    FormattedNumber(int32_t number, OperandSize size, char labelClass);
+    FormattedNumber(int32_t number, OperandSize size = OperandSize::Long, char labelClass = '&');
 
     int32_t number;
     OperandSize size;
@@ -120,6 +124,13 @@ class FormattedNumber
 
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
+FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas = '\0');
+
+typedef Either<std::string, FormattedNumber> LabelOrNumber;
+
+class InstrParam;
+std::ostream& operator<<(std::ostream& os, const InstrParam& self);
+
 class InstrParam
 {
   public:
@@ -127,22 +138,20 @@ class InstrParam
 
     virtual void format(std::ostream& stream) const = 0;
     std::string toStr() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const InstrParam& self);
 };
 
 class LiteralParam : public InstrParam
 {
   public:
-    LiteralParam(int32_t value);
-    LiteralParam(int32_t value, const char* label);
+    LiteralParam(std::string label);
+    LiteralParam(FormattedNumber number);
     virtual ~LiteralParam() = default;
 
     virtual void format(std::ostream& stream) const override;
 
-    const int32_t value;
-
-  private:
-    const bool _hasLabel;
-    const std::string _label;
+    const LabelOrNumber value;
 };
 
 class RegParam : public InstrParam
@@ -161,37 +170,23 @@ class RegParam : public InstrParam
 class AbsoluteAddrParam : public InstrParam
 {
   public:
-    AbsoluteAddrParam(int32_t address, const char* label, OperandSize size);
+    AbsoluteAddrParam(std::string label, OperandSize size);
+    AbsoluteAddrParam(FormattedNumber address, OperandSize size);
     virtual ~AbsoluteAddrParam() = default;
 
     virtual void format(std::ostream& stream) const override;
 
-    inline bool hasLabel() const
-    {
-        return _hasLabel;
-    }
-    inline bool hasAddress() const
-    {
-        return !_hasLabel;
-    }
-    int32_t address() const;
-    const std::string& label() const;
-
+    const LabelOrNumber value;
     const OperandSize size;
-
-  private:
-    const bool _hasLabel;
-    const int32_t _address;
-    const std::string _label;
 };
 
 class RegOffsetParam : public InstrParam
 {
   public:
-    RegOffsetParam(Register addressReg, int32_t offset, const char* label);
-    RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, unsigned int scale);
-    RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, unsigned int scale,
-                   int32_t offset, const char* label);
+    RegOffsetParam(Register addressReg, FormattedNumber offset);
+    RegOffsetParam(Register addressReg, std::string offsetLabel);
+    RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, FormattedNumber offset);
+    RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, std::string offsetLabel);
     virtual ~RegOffsetParam() = default;
 
     virtual void format(std::ostream& stream) const override;
@@ -212,16 +207,13 @@ class RegOffsetParam : public InstrParam
     const std::string& label() const;
 
     const Register addressReg;
-    const int32_t offset;
+    const LabelOrNumber offset;
 
   private:
     const bool _hasOffsetReg;
     const Register _offsetReg;
     const OperandSize _offsetRegSize;
-    const int _scale;
-    const bool _hasLabel;
-    const std::string _label;
-
+    
     bool _forceZero;
 };
 
