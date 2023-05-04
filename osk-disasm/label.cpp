@@ -39,6 +39,7 @@
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
+#include "params.h"
 #include "rof.h"
 
 LabelManager* labelManager = new LabelManager();
@@ -54,6 +55,8 @@ char defaultLabelClasses[AM_MAXMODES];
 static_assert(sizeof(defaultDefaultLabelClasses) == AM_MAXMODES, "Wrong number of default labels");
 static_assert(sizeof(programDefaultLabelClasses) == AM_MAXMODES, "Wrong number of program labels");
 static_assert(sizeof(driverDefaultLabelClasses) == AM_MAXMODES, "Wrong number of driver labels");
+
+FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas);
 
 Label* label_getNext(Label* handle)
 {
@@ -104,36 +107,6 @@ char* lblstr(char lblclass, int lblval)
 {
     Label* label = labelManager->getLabel(lblclass, lblval);
     return label ? label->name() : "";
-}
-
-/*
- * Append a char in the desired printable format onto dst
- */
-static void singleCharData(std::ostream& dest, char ch)
-{
-    // char mytmp[10];
-
-    if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
-    {
-        dest << '\'' << ch << '\'';
-    }
-    else
-    {
-        Label* pp = labelManager->getLabel('^', ch);
-        if (pp)
-        {
-            dest << pp->name();
-        }
-        else
-        {
-            dest << PrettyNumber<int>(ch).fill('0').width(2).hex();
-        }
-    }
-
-    if (ch & 0x80)
-    {
-        dest << "+$80";
-    }
 }
 
 LabelManager::LabelManager(){};
@@ -315,11 +288,15 @@ void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas)
  */
 void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas)
 {
+    dest << MakeFormattedNumber(value, amod, PBytSiz, clas);
+}
+
+FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas)
+{
     int mask;
 
     if (amod)
     {
-        /*mainclass = DEFAULTCLASS;*/
         AMODE_BOUNDS_CHECK(amod);
         clas = defaultLabelClasses[amod - 1];
     }
@@ -340,9 +317,6 @@ void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas
     if (clas == '@')
     {
         if (abs(value) < 9)
-        /*if ( (adr <= 9) ||
-             ((PBytSiz == 1) && adr > 244) ||
-             ((PBytSiz == 2) && adr > 65526) )*/
         {
             clas = '&';
         }
@@ -352,94 +326,48 @@ void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas
         }
     }
 
-    PrettyNumber<int> format(0);
     switch (clas)
     {
     case '$': /* Hexadecimal notation */
-        dest << '$';
         switch (amod)
         {
         default:
             switch (PBytSiz)
             {
             case 1:
-                value &= 0xff;
-                break;
+                return FormattedNumber(value, OperandSize::Byte, clas);
             case 2:
-                value &= 0xffff;
-                break;
+                return FormattedNumber(value, OperandSize::Word, clas);
+            case 4:
+                return FormattedNumber(value, OperandSize::Long, clas);
             default:
-                break;
-            }
-
-            if (abs(value) <= 0xff)
-            {
-                dest << PrettyNumber<uint32_t>(value).fill('0').width(2).hex();
-                // hexfmt = "%02x";
-            }
-            else if (abs(value) <= 0xffff)
-            {
-                dest << PrettyNumber<uint32_t>(value).fill('0').width(4).hex();
-                // hexfmt = "%04x";
-            }
-            else
-            {
-                dest << PrettyNumber<uint32_t>(value).hex();
-                // hexfmt = "%x";
+                throw std::runtime_error("");
             }
 
             break;
         case AM_LONG:
-            dest << PrettyNumber<uint32_t>(value).fill('0').width(8).hex();
-            // hexfmt = "%08x";
-            break;
+            return FormattedNumber(value, OperandSize::Long, clas);
         case AM_SHORT:
-            dest << PrettyNumber<uint32_t>(value).fill('0').width(4).hex();
-            // hexfmt = "%04x";
-            break;
+            return FormattedNumber(value, OperandSize::Word, clas);
         }
         break;
     case '&': /* Decimal */
-        dest << value;
-        break;
+        return FormattedNumber(value, OperandSize::Long, clas);
     case '^': /* ASCII */
-        //*dest = '\0';
-
-        if (value > 0xff)
-        {
-            singleCharData(dest, value & 0xff);
-            dest << "*256+";
-            // movchr (dest, (adr >> 8) & 0xff);
-            // strcat (dest, "*256+");
-        }
-        singleCharData(dest, value & 0xff);
-
-        break;
+        return FormattedNumber(value, OperandSize::Byte, clas);
     case '%': /* Binary */
-        // strcpy (dest, "%");
-        dest << "%";
-
         if (value > 0xffff)
         {
-            mask = 0x80000000;
+            return FormattedNumber(value, OperandSize::Long, clas);
         }
         else if (value > 0xff)
         {
-            mask = 0x8000;
+            return FormattedNumber(value, OperandSize::Word, clas);
         }
         else
         {
-            mask = 0x80;
+            return FormattedNumber(value, OperandSize::Byte, clas);
         }
-
-        while (mask)
-        {
-            // strcat (dest, (mask & adr ? "1" : "0"));
-            dest << (mask & value ? '1' : '0');
-            mask >>= 1;
-        }
-
-        break;
     default:
         throw std::runtime_error("Unexpected class!");
     }

@@ -723,19 +723,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
             }
             else
             {
-                PrettyNumber<uint32_t> temp(valu & bmask);
-                temp.fill('0').hex();
-                if (db->size() < 4)
-                {
-                    temp.width(2);
-                    // xtrafmt = "%02x";
-                }
-                else
-                {
-                    temp.width(4);
-                    // xtrafmt = "%04x";
-                }
-                xtrabytes << temp;
+                xtrabytes << PrettyNumber<uint32_t>(valu & bmask).fill('0').hex().width(4);
             }
 
             ++cCount;

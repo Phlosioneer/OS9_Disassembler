@@ -70,6 +70,7 @@ constexpr uint8_t getIndexUnchecked(Register reg);
 
 char getOperandSizeLetter(OperandSize size);
 const char* getOperandSizeSuffix(OperandSize size);
+uint8_t getOperandSizeInBytes(OperandSize size);
 
 class RegisterSet
 {
@@ -106,6 +107,18 @@ inline std::ostream& operator<<(std::ostream& os, const RegisterSet& registers)
     registers.format(os);
     return os;
 }
+
+class FormattedNumber
+{
+  public:
+    FormattedNumber(int32_t number, OperandSize size, char labelClass);
+
+    int32_t number;
+    OperandSize size;
+    char labelClass;
+};
+
+std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
 class InstrParam
 {
@@ -184,10 +197,6 @@ class RegOffsetParam : public InstrParam
     inline bool hasOffsetReg() const
     {
         return _hasOffsetReg;
-    }
-    inline bool hasLabel() const
-    {
-        return _hasLabel;
     }
     Register offsetReg() const;
     const std::string& label() const;

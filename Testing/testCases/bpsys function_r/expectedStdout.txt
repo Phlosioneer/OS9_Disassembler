@@ -1,9 +1,10 @@
     0  00000 0000            psect  functions,$0,$0,0,0,function_table 
-    1  00000 0000 function_table: dc.w   set_gc_args,$00,$00,$0180 
-             0000180
-    2  00008 0228            dc.w   $0228,$0306,$00,$00,$7e 
-             30600007e
-    3  00012 0088            dc.w   $88        
+    1  00000 0000 function_table: dc.w   set_gc_args,$0000,$0000 
+             00000000
+    2  00006 0180            dc.w   $0180,$0228,$0306,$0000 
+             022803060000
+    3  0000e 0000            dc.w   $0000,$007e,$0088 
+             007e0088
     4  00014 48e7 driver_set_stat_dc: movem.l a0-a2/a4-a6,-(sp) 
     5  00018 4cfa            movem.l drawControlArgs(pc),a1-a2/a4-a6/d0 
     6  0001e 206a            movea.l 70(a2),a0  
@@ -37,245 +38,265 @@
    34  00086 4e75            rts               
    35  00088 3b6b get_init_confirm: move.w 4(a3),0(a5) 
    36  0008e 4e75            rts               
-   37  00090 0000 drawControlArgs: dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   38  0009c 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   39  000a8 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   40  000b4 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   41  000c0 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   42  000cc 0000            dc.w   $00,$00,$00,$00,$00 
+   37  00090 0000 drawControlArgs: dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   38  00098 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   39  000a0 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   40  000a8 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   41  000b0 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   42  000b8 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   43  000c0 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   44  000c8 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   45  000d0 0000            dc.w   $0000,$0000,$0000 
              00000000
-   43  000d6 0000 pointerArgs: dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   44  000e2 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   45  000ee 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   46  000fa 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   47  00106 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   48  00112 0000            dc.w   $00,$00,$00,$00,$00 
+   46  000d6 0000 pointerArgs: dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   47  000de 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   48  000e6 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   49  000ee 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   50  000f6 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   51  000fe 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   52  00106 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   53  0010e 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   54  00116 0000            dc.w   $0000,$0000,$0000 
              00000000
-   49  0011c 0000 graphicsCursorArgs: dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   50  00128 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   51  00134 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   52  00140 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   53  0014c 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   54  00158 0000            dc.w   $00,$00,$00,$00,$00 
+   55  0011c 0000 graphicsCursorArgs: dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   56  00124 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   57  0012c 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   58  00134 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   59  0013c 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   60  00144 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   61  0014c 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   62  00154 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   63  0015c 0000            dc.w   $0000,$0000,$0000 
              00000000
-   55  00162 0000 state:     dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   56  0016e 0000            dc.w   $00,$00,$00,$00,$00,$00 
-             0000000000
-   57  0017a 0000            dc.w   $00,$00,$00 
-             0000
-   58  00180 48e7 activate_program: movem.l a0-a1/d2-d4,-(sp) 
-   59  00184 226d            movea.l 32(a5),a1  
-   60  00188 b3eb            cmpa.l 14(a3),a1  
-   61  0018c 6600            bne.w  L0021e     
-   62  00190 3829            move.w 8(a1),d4   
-   63  00194 3004            move.w d4,d0      
-   64  00196 3239            move.w (function_table).l,d1 
-   65  0019c 3439            move.w (function_table).l,d2 
-   66  001a2 7604            moveq  #4,d3      
-   67  001a4 c669            and.w  0(a1),d3   
-   68  001a8 e48b            lsr.l  #2,d3      
-   69  001aa 6100            bsr.w  driverSetStat_DC 
-   70  001ae 6572            bcs.s  L00222     
-   71  001b0 3004            move.w d4,d0      
-   72  001b2 323c            move.w #86,d1     
-   73  001b6 343c            move.w #19,d2     
-   74  001ba 7602            moveq  #2,d3      
-   75  001bc c669            and.w  0(a1),d3   
-   76  001c0 e28b            lsr.l  #1,d3      
-   77  001c2 6100            bsr.w  driverSetStat_DC 
-   78  001c6 655a            bcs.s  L00222     
-   79  001c8 2600            move.l d0,d3      
-   80  001ca d669            add.w  6(a1),d3   
-   81  001ce 4aa9            tst.l  38(a1)     
-   82  001d2 6728            beq.s  L001fc     
-   83  001d4 3004            move.w d4,d0      
-   84  001d6 3239            move.w (function_table).l,d1 
-   85  001dc 3439            move.w (function_table).l,d2 
-   86  001e2 6100            bsr.w  driverSetStat_PT 
-   87  001e6 653a            bcs.s  L00222     
-   88  001e8 3004            move.w d4,d0      
-   89  001ea 3239            move.w (function_table).l,d1 
-   90  001f0 3439            move.w (function_table).l,d2 
-   91  001f6 6100            bsr.w  driverSetStat_GC 
-   92  001fa 6526            bcs.s  L00222     
-   93  001fc 3004 L001fc     move.w d4,d0      
-   94  001fe 3239            move.w (function_table).l,d1 
-   95  00204 3439            move.w (function_table).l,d2 
-   96  0020a 3629            move.w 2(a1),d3   
-   97  0020e 3829            move.w 4(a1),d4   
-   98  00212 6100            bsr.w  driverSetStat_DC 
-   99  00216 650a            bcs.s  L00222     
-  100  00218 6100            bsr.w  install_frame_tick_handler 
-  101  0021c 6504            bcs.s  L00222     
-  102  0021e 023c L0021e     andi   #0,ccr     
-  103  00222 4cdf L00222     movem.l (sp)+,a0-a1/d2-d4 
-  104  00226 4e75            rts               
-  105  00228 48e7 add_program: movem.l a1-a3/d2-d3,-(sp) 
-  106  0022c 2609            move.l a1,d3      
-  107  0022e 242d            move.l 32(a5),d2  
-  108  00232 b4ab            cmp.l  14(a3),d2  
-  109  00236 6750            beq.s  L00288     
-  110  00238 2442            movea.l d2,a2      
-  111  0023a 4aab            tst.l  14(a3)     
-  112  0023e 6700            beq.w  L0025a     
-  113  00242 6100            bsr.w  remove_program 
-  114  00246 4aab            tst.l  14(a3)     
-  115  0024a 6700            beq.w  L0025a     
-  116  0024e 226b            movea.l 14(a3),a1  
-  117  00252 2342            move.l d2,18(a1)  
-  118  00256 2549            move.l a1,14(a2)  
-  119  0025a 2742 L0025a     move.l d2,14(a3)  
-  120  0025e 7401            moveq  #1,d2      
-  121  00260 c56a            and.w  d2,0(a2)   
-  122  00264 2543            move.l d3,10(a2)  
-  123  00268 4aaa            tst.l  14(a2)     
-  124  0026c 6700            beq.w  L0027a     
-  125  00270 206a            movea.l 14(a2),a0  
-  126  00274 6100            bsr.w  notify_on_deactivate 
-  127  00278 6512            bcs.s  L0028c     
-  128  0027a 204a L0027a     movea.l a2,a0      
-  129  0027c 6100            bsr.w  notify_on_activate 
-  130  00280 650a            bcs.s  L0028c     
-  131  00282 6100            bsr.w  activate_program 
-  132  00286 6504            bcs.s  L0028c     
-  133  00288 023c L00288     andi   #0,ccr     
-  134  0028c 4cdf L0028c     movem.l (sp)+,a1-a3/d2-d3 
-  135  00290 4e75            rts               
-  136  00292 2228 notify_on_activate: move.l 22(a0),d1  
-  137  00296 6700            beq.w  L002e6     
-  138  0029a 6100            bsr.w  wait_for_event_lock 
-  139  0029e 203c            move.l #-33488896,d0 
-  140  002a4 2f0e            move.l a6,-(sp)   
-  141  002a6 2f28            move.l 26(a0),-(sp) 
-  142  002aa 6000            bra.w  L002c6     
-  143  002ae 2228 functions__notifyOnDeactivate: move.l 30(a0),d1  
-  144  002b2 6700            beq.w  L002e6     
-  145  002b6 6100            bsr.w  wait_for_event_lock 
-  146  002ba 203c            move.l #-33423360,d0 
-  147  002c0 2f0e            move.l a6,-(sp)   
-  148  002c2 2f28            move.l 34(a0),-(sp) 
-  149  002c6 2c6d L002c6     movea.l 56(a5),a6  
-  150  002ca 2068            movea.l 18(a0),a0  
-  151  002ce 4e90            jsr    (a0)       
-  152  002d0 588f            addq.l #4,sp      
-  153  002d2 2c5f            movea.l (sp)+,a6   
-  154  002d4 4a80            tst.l  d0         
-  155  002d6 6700            beq.w  L002e2     
-  156  002da 2200            move.l d0,d1      
-  157  002dc 003c            ori    #1,ccr     
-  158  002e0 4e75            rts               
-  159  002e2 023c L002e2     andi   #0,ccr     
-  160  002e6 4e75 L002e6     rts               
-  161  002e8 48e7 wait_for_event_lock: movem.l a0/d1,-(sp) 
-  162  002ec 2068            movea.l 46(a0),a0  
-  163  002f0 4a50 L002f0     tst.w  (a0)       
-  164  002f2 6700            beq.w  L00300     
-  165  002f6 7001            moveq  #1,d0      
-  166  002f8 4e40            os9    F$Sleep    
-  167  002fc 6000            bra.w  L002f0     
-  168  00300 4cdf L00300     movem.l (sp)+,a0/d1 
-  169  00304 4e75            rts               
-  170  00306 48e7 return_error: movem.l a1-a3/d2,-(sp) 
-  171  0030a 7201            moveq  #1,d1      
-  172  0030c 003c            ori    #1,ccr     
-  173  00310 4cdf            movem.l (sp)+,a1-a3/d2 
-  174  00314 4e75            rts               
-  175  00316 48e7 remove_program: movem.l a1-a3/d2-d4,-(sp) 
-  176  0031a 4aab            tst.l  14(a3)     
-  177  0031e 6764            beq.s  LAB_000003e2 
-  178  00320 246d            movea.l 32(a5),a2  
-  179  00324 b5eb            cmpa.l 14(a3),a2  
-  180  00328 664c            bne.s  LAB_000003d4 
-  181  0032a 204a            movea.l a2,a0      
-  182  0032c 6100            bsr.w  notify_on_deactivate 
-  183  00330 6556            bcs.s  LAB_000003e6 
-  184  00332 6100            bsr.w  remove_program_from_list 
-  185  00336 2b6b            move.l 14(a3),32(a5) 
-  186  0033c 6718            beq.s  LAB_000003b4 
-  187  0033e 6100            bsr.w  activate_program 
-  188  00342 6544            bcs.s  LAB_000003e6 
-  189  00344 2b4a            move.l a2,32(a5)  
-  190  00348 206b            movea.l 14(a3),a0  
-  191  0034c 6100            bsr.w  notify_on_activate 
-  192  00350 6536            bcs.s  LAB_000003e6 
-  193  00352 6000            bra.w  LAB_000003d8 
-  194  00356 6100 LAB_000003b4: bsr.w  install_frame_tick_handler 
-  195  0035a 652c            bcs.s  LAB_000003e6 
-  196  0035c 302a            move.w 8(a2),d0   
-  197  00360 323c            move.w #86,d1     
-  198  00364 343c            move.w #14,d2     
-  199  00368 4243            clr.w  d3         
-  200  0036a 4244            clr.w  d4         
-  201  0036c 6100            bsr.w  synthetic__executeDisplayProgram_DC 
-  202  00370 6516            bcs.s  LAB_000003e6 
-  203  00372 6000            bra.w  LAB_000003d8 
-  204  00376 6100 LAB_000003d4: bsr.w  remove_program_from_list 
-  205  0037a 74fe LAB_000003d8: moveq  #254,d2    
-  206  0037c c56a            and.w  d2,0(a2)   
-  207  00380 42aa            clr.l  10(a2)     
-  208  00384 023c LAB_000003e2: andi   #0,ccr     
-  209  00388 4cdf LAB_000003e6: movem.l (sp)+,a1-a3/d2-d4 
-  210  0038c 4e75            rts               
-  211  0038e 4aaa remove_program_from_list: tst.l  18(a2)     
-  212  00392 660e            bne.s  LAB_00000400 
-  213  00394 b5eb            cmpa.l 14(a3),a2  
-  214  00398 6612            bne.s  LAB_0000040a 
-  215  0039a 276a            move.l 14(a2),14(a3) 
-  216  003a0 600a            bra.s  LAB_0000040a 
-  217  003a2 226a LAB_00000400: movea.l 18(a2),a1  
-  218  003a6 236a            move.l 14(a2),14(a1) 
-  219  003ac 4aaa LAB_0000040a: tst.l  14(a2)     
-  220  003b0 670a            beq.s  LAB_0000041a 
-  221  003b2 226a            movea.l 14(a2),a1  
-  222  003b6 236a            move.l 18(a2),18(a1) 
-  223  003bc 42aa LAB_0000041a: clr.l  18(a2)     
-  224  003c0 42aa            clr.l  14(a2)     
-  225  003c4 4e75            rts               
-  226  003c6 48e7 handle_close: movem.l a1-a2/d2-d3,-(sp) 
-  227  003ca 2409            move.l a1,d2      
-  228  003cc 262b            move.l 14(a3),d3  
-  229  003d0 2003            move.l d3,d0      
-  230  003d2 6712 LAB_00000430: beq.s  LAB_00000444 
-  231  003d4 2440            movea.l d0,a2      
-  232  003d6 b4aa            cmp.l  10(a2),d2  
-  233  003da 6604            bne.s  LAB_0000043e 
-  234  003dc 6100            bsr.w  remove_program_from_list 
-  235  003e0 202a LAB_0000043e: move.l 14(a2),d0  
-  236  003e4 60ec            bra.s  LAB_00000430 
-  237  003e6 242b LAB_00000444: move.l 14(a3),d2  
-  238  003ea 6700            beq.w  LAB_0000046c 
-  239  003ee b682            cmp.l  d2,d3      
-  240  003f0 671c            beq.s  LAB_0000046c 
-  241  003f2 2042            movea.l d2,a0      
-  242  003f4 6100            bsr.w  notify_on_activate 
-  243  003f8 6518            bcs.s  LAB_00000470 
-  244  003fa 242d            move.l 32(a5),d2  
-  245  003fe 2b6b            move.l 14(a3),32(a5) 
-  246  00404 6100            bsr.w  activate_program 
-  247  00408 6508            bcs.s  LAB_00000470 
-  248  0040a 2b42            move.l d2,32(a5)  
-  249  0040e 023c LAB_0000046c: andi   #0,ccr     
-  250  00412 4cdf LAB_00000470: movem.l (sp)+,a1-a2/d2-d3 
-  251  00416 4e75            rts               
-  252  00418 206d set_ucm_path_desc: movea.l 32(a5),a0  
-  253  0041c 2149            move.l a1,10(a0)  
-  254  00420 4e75            rts               
-  255
-  256  00422 0000            ends              
-  256
+   64  00162 0000 state:     dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   65  0016a 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   66  00172 0000            dc.w   $0000,$0000,$0000,$0000 
+             000000000000
+   67  0017a 0000            dc.w   $0000,$0000,$0000 
+             00000000
+   68  00180 48e7 activate_program: movem.l a0-a1/d2-d4,-(sp) 
+   69  00184 226d            movea.l 32(a5),a1  
+   70  00188 b3eb            cmpa.l 14(a3),a1  
+   71  0018c 6600            bne.w  L0021e     
+   72  00190 3829            move.w 8(a1),d4   
+   73  00194 3004            move.w d4,d0      
+   74  00196 3239            move.w (function_table).l,d1 
+   75  0019c 3439            move.w (function_table).l,d2 
+   76  001a2 7604            moveq  #4,d3      
+   77  001a4 c669            and.w  0(a1),d3   
+   78  001a8 e48b            lsr.l  #2,d3      
+   79  001aa 6100            bsr.w  driverSetStat_DC 
+   80  001ae 6572            bcs.s  L00222     
+   81  001b0 3004            move.w d4,d0      
+   82  001b2 323c            move.w #86,d1     
+   83  001b6 343c            move.w #19,d2     
+   84  001ba 7602            moveq  #2,d3      
+   85  001bc c669            and.w  0(a1),d3   
+   86  001c0 e28b            lsr.l  #1,d3      
+   87  001c2 6100            bsr.w  driverSetStat_DC 
+   88  001c6 655a            bcs.s  L00222     
+   89  001c8 2600            move.l d0,d3      
+   90  001ca d669            add.w  6(a1),d3   
+   91  001ce 4aa9            tst.l  38(a1)     
+   92  001d2 6728            beq.s  L001fc     
+   93  001d4 3004            move.w d4,d0      
+   94  001d6 3239            move.w (function_table).l,d1 
+   95  001dc 3439            move.w (function_table).l,d2 
+   96  001e2 6100            bsr.w  driverSetStat_PT 
+   97  001e6 653a            bcs.s  L00222     
+   98  001e8 3004            move.w d4,d0      
+   99  001ea 3239            move.w (function_table).l,d1 
+  100  001f0 3439            move.w (function_table).l,d2 
+  101  001f6 6100            bsr.w  driverSetStat_GC 
+  102  001fa 6526            bcs.s  L00222     
+  103  001fc 3004 L001fc     move.w d4,d0      
+  104  001fe 3239            move.w (function_table).l,d1 
+  105  00204 3439            move.w (function_table).l,d2 
+  106  0020a 3629            move.w 2(a1),d3   
+  107  0020e 3829            move.w 4(a1),d4   
+  108  00212 6100            bsr.w  driverSetStat_DC 
+  109  00216 650a            bcs.s  L00222     
+  110  00218 6100            bsr.w  install_frame_tick_handler 
+  111  0021c 6504            bcs.s  L00222     
+  112  0021e 023c L0021e     andi   #0,ccr     
+  113  00222 4cdf L00222     movem.l (sp)+,a0-a1/d2-d4 
+  114  00226 4e75            rts               
+  115  00228 48e7 add_program: movem.l a1-a3/d2-d3,-(sp) 
+  116  0022c 2609            move.l a1,d3      
+  117  0022e 242d            move.l 32(a5),d2  
+  118  00232 b4ab            cmp.l  14(a3),d2  
+  119  00236 6750            beq.s  L00288     
+  120  00238 2442            movea.l d2,a2      
+  121  0023a 4aab            tst.l  14(a3)     
+  122  0023e 6700            beq.w  L0025a     
+  123  00242 6100            bsr.w  remove_program 
+  124  00246 4aab            tst.l  14(a3)     
+  125  0024a 6700            beq.w  L0025a     
+  126  0024e 226b            movea.l 14(a3),a1  
+  127  00252 2342            move.l d2,18(a1)  
+  128  00256 2549            move.l a1,14(a2)  
+  129  0025a 2742 L0025a     move.l d2,14(a3)  
+  130  0025e 7401            moveq  #1,d2      
+  131  00260 c56a            and.w  d2,0(a2)   
+  132  00264 2543            move.l d3,10(a2)  
+  133  00268 4aaa            tst.l  14(a2)     
+  134  0026c 6700            beq.w  L0027a     
+  135  00270 206a            movea.l 14(a2),a0  
+  136  00274 6100            bsr.w  notify_on_deactivate 
+  137  00278 6512            bcs.s  L0028c     
+  138  0027a 204a L0027a     movea.l a2,a0      
+  139  0027c 6100            bsr.w  notify_on_activate 
+  140  00280 650a            bcs.s  L0028c     
+  141  00282 6100            bsr.w  activate_program 
+  142  00286 6504            bcs.s  L0028c     
+  143  00288 023c L00288     andi   #0,ccr     
+  144  0028c 4cdf L0028c     movem.l (sp)+,a1-a3/d2-d3 
+  145  00290 4e75            rts               
+  146  00292 2228 notify_on_activate: move.l 22(a0),d1  
+  147  00296 6700            beq.w  L002e6     
+  148  0029a 6100            bsr.w  wait_for_event_lock 
+  149  0029e 203c            move.l #-33488896,d0 
+  150  002a4 2f0e            move.l a6,-(sp)   
+  151  002a6 2f28            move.l 26(a0),-(sp) 
+  152  002aa 6000            bra.w  L002c6     
+  153  002ae 2228 functions__notifyOnDeactivate: move.l 30(a0),d1  
+  154  002b2 6700            beq.w  L002e6     
+  155  002b6 6100            bsr.w  wait_for_event_lock 
+  156  002ba 203c            move.l #-33423360,d0 
+  157  002c0 2f0e            move.l a6,-(sp)   
+  158  002c2 2f28            move.l 34(a0),-(sp) 
+  159  002c6 2c6d L002c6     movea.l 56(a5),a6  
+  160  002ca 2068            movea.l 18(a0),a0  
+  161  002ce 4e90            jsr    (a0)       
+  162  002d0 588f            addq.l #4,sp      
+  163  002d2 2c5f            movea.l (sp)+,a6   
+  164  002d4 4a80            tst.l  d0         
+  165  002d6 6700            beq.w  L002e2     
+  166  002da 2200            move.l d0,d1      
+  167  002dc 003c            ori    #1,ccr     
+  168  002e0 4e75            rts               
+  169  002e2 023c L002e2     andi   #0,ccr     
+  170  002e6 4e75 L002e6     rts               
+  171  002e8 48e7 wait_for_event_lock: movem.l a0/d1,-(sp) 
+  172  002ec 2068            movea.l 46(a0),a0  
+  173  002f0 4a50 L002f0     tst.w  (a0)       
+  174  002f2 6700            beq.w  L00300     
+  175  002f6 7001            moveq  #1,d0      
+  176  002f8 4e40            os9    F$Sleep    
+  177  002fc 6000            bra.w  L002f0     
+  178  00300 4cdf L00300     movem.l (sp)+,a0/d1 
+  179  00304 4e75            rts               
+  180  00306 48e7 return_error: movem.l a1-a3/d2,-(sp) 
+  181  0030a 7201            moveq  #1,d1      
+  182  0030c 003c            ori    #1,ccr     
+  183  00310 4cdf            movem.l (sp)+,a1-a3/d2 
+  184  00314 4e75            rts               
+  185  00316 48e7 remove_program: movem.l a1-a3/d2-d4,-(sp) 
+  186  0031a 4aab            tst.l  14(a3)     
+  187  0031e 6764            beq.s  LAB_000003e2 
+  188  00320 246d            movea.l 32(a5),a2  
+  189  00324 b5eb            cmpa.l 14(a3),a2  
+  190  00328 664c            bne.s  LAB_000003d4 
+  191  0032a 204a            movea.l a2,a0      
+  192  0032c 6100            bsr.w  notify_on_deactivate 
+  193  00330 6556            bcs.s  LAB_000003e6 
+  194  00332 6100            bsr.w  remove_program_from_list 
+  195  00336 2b6b            move.l 14(a3),32(a5) 
+  196  0033c 6718            beq.s  LAB_000003b4 
+  197  0033e 6100            bsr.w  activate_program 
+  198  00342 6544            bcs.s  LAB_000003e6 
+  199  00344 2b4a            move.l a2,32(a5)  
+  200  00348 206b            movea.l 14(a3),a0  
+  201  0034c 6100            bsr.w  notify_on_activate 
+  202  00350 6536            bcs.s  LAB_000003e6 
+  203  00352 6000            bra.w  LAB_000003d8 
+  204  00356 6100 LAB_000003b4: bsr.w  install_frame_tick_handler 
+  205  0035a 652c            bcs.s  LAB_000003e6 
+  206  0035c 302a            move.w 8(a2),d0   
+  207  00360 323c            move.w #86,d1     
+  208  00364 343c            move.w #14,d2     
+  209  00368 4243            clr.w  d3         
+  210  0036a 4244            clr.w  d4         
+  211  0036c 6100            bsr.w  synthetic__executeDisplayProgram_DC 
+  212  00370 6516            bcs.s  LAB_000003e6 
+  213  00372 6000            bra.w  LAB_000003d8 
+  214  00376 6100 LAB_000003d4: bsr.w  remove_program_from_list 
+  215  0037a 74fe LAB_000003d8: moveq  #254,d2    
+  216  0037c c56a            and.w  d2,0(a2)   
+  217  00380 42aa            clr.l  10(a2)     
+  218  00384 023c LAB_000003e2: andi   #0,ccr     
+  219  00388 4cdf LAB_000003e6: movem.l (sp)+,a1-a3/d2-d4 
+  220  0038c 4e75            rts               
+  221  0038e 4aaa remove_program_from_list: tst.l  18(a2)     
+  222  00392 660e            bne.s  LAB_00000400 
+  223  00394 b5eb            cmpa.l 14(a3),a2  
+  224  00398 6612            bne.s  LAB_0000040a 
+  225  0039a 276a            move.l 14(a2),14(a3) 
+  226  003a0 600a            bra.s  LAB_0000040a 
+  227  003a2 226a LAB_00000400: movea.l 18(a2),a1  
+  228  003a6 236a            move.l 14(a2),14(a1) 
+  229  003ac 4aaa LAB_0000040a: tst.l  14(a2)     
+  230  003b0 670a            beq.s  LAB_0000041a 
+  231  003b2 226a            movea.l 14(a2),a1  
+  232  003b6 236a            move.l 18(a2),18(a1) 
+  233  003bc 42aa LAB_0000041a: clr.l  18(a2)     
+  234  003c0 42aa            clr.l  14(a2)     
+  235  003c4 4e75            rts               
+  236  003c6 48e7 handle_close: movem.l a1-a2/d2-d3,-(sp) 
+  237  003ca 2409            move.l a1,d2      
+  238  003cc 262b            move.l 14(a3),d3  
+  239  003d0 2003            move.l d3,d0      
+  240  003d2 6712 LAB_00000430: beq.s  LAB_00000444 
+  241  003d4 2440            movea.l d0,a2      
+  242  003d6 b4aa            cmp.l  10(a2),d2  
+  243  003da 6604            bne.s  LAB_0000043e 
+  244  003dc 6100            bsr.w  remove_program_from_list 
+  245  003e0 202a LAB_0000043e: move.l 14(a2),d0  
+  246  003e4 60ec            bra.s  LAB_00000430 
+  247  003e6 242b LAB_00000444: move.l 14(a3),d2  
+  248  003ea 6700            beq.w  LAB_0000046c 
+  249  003ee b682            cmp.l  d2,d3      
+  250  003f0 671c            beq.s  LAB_0000046c 
+  251  003f2 2042            movea.l d2,a0      
+  252  003f4 6100            bsr.w  notify_on_activate 
+  253  003f8 6518            bcs.s  LAB_00000470 
+  254  003fa 242d            move.l 32(a5),d2  
+  255  003fe 2b6b            move.l 14(a3),32(a5) 
+  256  00404 6100            bsr.w  activate_program 
+  257  00408 6508            bcs.s  LAB_00000470 
+  258  0040a 2b42            move.l d2,32(a5)  
+  259  0040e 023c LAB_0000046c: andi   #0,ccr     
+  260  00412 4cdf LAB_00000470: movem.l (sp)+,a1-a2/d2-d3 
+  261  00416 4e75            rts               
+  262  00418 206d set_ucm_path_desc: movea.l 32(a5),a0  
+  263  0041c 2149            move.l a1,10(a0)  
+  264  00420 4e75            rts               
+  265
+  266  00422 0000            ends              
+  266

@@ -292,6 +292,8 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
     dispstr[0] = '\0';
     ea_addr = state->PCPos;
 
+    OperandSize parsedSize;
+
     /* Set up PBytSiz */
     switch (size)
     {

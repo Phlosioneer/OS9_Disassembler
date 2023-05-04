@@ -1,5 +1,7 @@
 
 #include "params.h"
+#include "dprint.h"
+#include "label.h"
 
 const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp", "pc",
                                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7"};
@@ -70,6 +72,21 @@ const char* getOperandSizeSuffix(OperandSize size)
     auto i = static_cast<size_t>(size);
     if (i >= _countof(sizeSuffixes)) throw std::exception();
     return sizeSuffixes[i];
+}
+
+uint8_t getOperandSizeInBytes(OperandSize size)
+{
+    switch (size)
+    {
+    case OperandSize::Byte:
+        return 1;
+    case OperandSize::Word:
+        return 2;
+    case OperandSize::Long:
+        return 4;
+    default:
+        throw std::runtime_error("Unknown OperandSize variant");
+    }
 }
 
 #pragma region RegisterSet
@@ -209,6 +226,100 @@ void RegisterSet::formatRanges(std::ostream& stream, const std::bitset<8>& regis
     }
 
     if (hasPrintedDash) stream << Registers::getName(maker(i - 1));
+}
+
+#pragma endregion
+
+#pragma region FormattedNumber
+
+FormattedNumber::FormattedNumber(int32_t number, OperandSize size, char labelClass)
+    : number(number), size(size), labelClass(labelClass)
+{
+}
+
+/*
+ * Append a char in the desired printable format onto dst
+ */
+static void singleCharData(std::ostream& dest, char ch)
+{
+    if (isprint(ch & 0x7f) && ((ch & 0x7f) != ' '))
+    {
+        dest << '\'' << ch << '\'';
+    }
+    else
+    {
+        Label* pp = labelManager->getLabel('^', ch);
+        if (pp)
+        {
+            dest << pp->name();
+        }
+        else
+        {
+            dest << PrettyNumber<int>(ch).fill('0').width(2).hex();
+        }
+    }
+
+    if (ch & 0x80)
+    {
+        dest << "+$80";
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
+{
+    switch (self.labelClass)
+    {
+    case '$': /* Hexadecimal notation */
+        os << '$'
+           << PrettyNumber<int32_t>(self.number).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
+        break;
+    case '&': /* Decimal */
+        os << self.number;
+        break;
+    case '^': /* ASCII */
+        // TODO: This breaks if self.number > 0xFFFF.
+        // TODO: This ignores self.size
+        if (self.number > 0xff)
+        {
+            singleCharData(os, (self.number >> 8) & 0xff);
+            // TODO: This breaks if the character has 0x80 bit set. Need parentheses.
+            os << "*256+";
+        }
+        singleCharData(os, self.number & 0xff);
+
+        break;
+    case '%': /* Binary */
+    {
+        // TODO: This ignores self.size
+        int mask;
+        os << "%";
+
+        if (self.number > 0xffff)
+        {
+            mask = 0x80000000;
+        }
+        else if (self.number > 0xff)
+        {
+            mask = 0x8000;
+        }
+        else
+        {
+            mask = 0x80;
+        }
+
+        while (mask)
+        {
+            // strcat (dest, (mask & adr ? "1" : "0"));
+            os << (mask & self.number ? '1' : '0');
+            mask >>= 1;
+        }
+
+        break;
+    }
+    default:
+        throw std::runtime_error("Unexpected class!");
+    }
+    return os;
 }
 
 #pragma endregion
