@@ -112,7 +112,9 @@ Label* labelclass_getFirst(LabelCategory* handle);
 Label* findlbl(char lblclass, int lblval);
 char* lblstr(char lblclass, int lblval);
 Label* addlbl(char lblclass, int val, const char* newname);
-int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pass);
+bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass);
+void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas = '\0');
+void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas = '\0');
 
 extern LabelManager* labelManager;
 

@@ -453,7 +453,10 @@ int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
 
     char EaStringBuffer[200];
     EaStringBuffer[0] = '\0';
-    LblCalc(EaStringBuffer, ci->cmd_wrd & 0xff, AM_IMM, state->CmdEnt, state->opt->IsROF, state->Pass);
+    if (!LblCalc(EaStringBuffer, ci->cmd_wrd & 0xff, AM_IMM, state->CmdEnt, state->opt->IsROF, state->Pass))
+    {
+        PrintNumber(EaStringBuffer, ci->cmd_wrd & 0xff, AM_IMM, PBytSiz);
+    }
     sprintf(ci->params, "#%s,d%d", EaStringBuffer, (ci->cmd_wrd >> 9) & 7);
     strcpy(ci->mnem, op->name);
 
@@ -655,7 +658,10 @@ int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     //    }
     //}*/
 
-    LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass);
+    if (!LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass))
+    {
+        PrintNumber(ci->params, displ, AM_REL, PBytSiz);
+    }
 
     return 1;
 }
@@ -796,7 +802,10 @@ int br_cond(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     }
 
     /* We need to calculate the address here */
-    LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass);
+    if (!LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass))
+    {
+        PrintNumber(ci->params, displ, AM_REL, PBytSiz);
+    }
     /*sprintf (ci->params, "L%05x", jmp_base + displ);*/
 
     return 1;
@@ -1167,7 +1176,10 @@ int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
 
         char EaStringBuffer[200];
         EaStringBuffer[0] = '\0';
-        LblCalc(EaStringBuffer, offset, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass);
+        if (!LblCalc(EaStringBuffer, offset, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
+        {
+            PrintNumber(EaStringBuffer, offset, AM_REL, PBytSiz);
+        }
         sprintf(ci->params, "d%d,%s", ci->cmd_wrd & 7, EaStringBuffer);
 
         return 1;

@@ -338,8 +338,15 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass))
+        int amode = AM_A0 + reg;
+        if (LblCalc(dispstr, ext1, amode, ea_addr, state->opt->IsROF, state->Pass))
         {
+            label = dispstr;
+        }
+        else
+        {
+            // Temporary
+            PrintNumber(dispstr, ext1, amode, PBytSiz);
             label = dispstr;
         }
 
@@ -365,8 +372,15 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             if (ew_b.displ != 0)
             {
                 // ew_b.displ -= 2;
-                if (LblCalc(dispstr, ew_b.displ, AM_A0 + reg, state->PCPos - 2, state->opt->IsROF, state->Pass))
+                int amode = AM_A0 + reg;
+                if (LblCalc(dispstr, ew_b.displ, amode, state->PCPos - 2, state->opt->IsROF, state->Pass))
                 {
+                    label = dispstr;
+                }
+                else
+                {
+                    // Temporary
+                    PrintNumber(dispstr, ew_b.displ, amode, PBytSiz);
                     label = dispstr;
                 }
             }
@@ -409,6 +423,12 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             {
                 label = dispstr;
             }
+            else
+            {
+                // Temporary
+                PrintNumber(dispstr, ext1, amode_local, PBytSiz);
+                label = dispstr;
+            }
             param = std::make_unique<AbsoluteAddrParam>(ext1, label, opSize);
             break;
         }
@@ -448,7 +468,10 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
 
             // This uses too many global variables to be replaced by LiteralParam.
-            LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass);
+            if (!LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass))
+            {
+                PrintNumber(dispstr, ext1, AM_IMM, PBytSiz);
+            }
             sprintf(ea, Mode07Strings[reg].str, dispstr);
             return 1;
         }
@@ -458,6 +481,12 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             ext1 = getnext_w(ci, state);
             if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
             {
+                label = dispstr;
+            }
+            else
+            {
+                // Temporary
+                PrintNumber(dispstr, ext1, AM_REL, PBytSiz);
                 label = dispstr;
             }
             param = std::make_unique<RegOffsetParam>(Register::REG_PC, ext1, label);
@@ -479,6 +508,12 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                     ew_b.displ -= 2;
                     if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
                     {
+                        label = dispstr;
+                    }
+                    else
+                    {
+                        // Temporary
+                        PrintNumber(dispstr, ew_b.displ, AM_REL, PBytSiz);
                         label = dispstr;
                     }
                 }

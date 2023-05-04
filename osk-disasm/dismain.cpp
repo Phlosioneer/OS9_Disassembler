@@ -706,7 +706,10 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
         ++cCount;
 
         /* AMode = 0 to prevent LblCalc from defining class */
-        LblCalc(tmps, valu, 0, state->PCPos - db->size(), state->opt->IsROF, state->Pass);
+        if (!LblCalc(tmps, valu, 0, state->PCPos - db->size(), state->opt->IsROF, state->Pass))
+        {
+            PrintNumber(tmps, valu, 0, PBytSiz, NowClass);
+        }
 
         if (state->Pass == 2)
         {

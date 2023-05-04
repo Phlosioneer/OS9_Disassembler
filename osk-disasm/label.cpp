@@ -31,11 +31,11 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "dprint.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
 #include "dismain.h"
+#include "dprint.h"
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
@@ -299,21 +299,47 @@ void Label::setName(const char* name)
     }
 }
 
+void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas)
+{
+    std::ostringstream stream;
+    PrintNumber(stream, value, amod, PBytSiz, clas);
+    auto result = stream.str();
+    strcat(dest, result.c_str());
+}
+
 /*
- * Prints out the label to "dest", in the format needed.
+ * Prints out the number to "dest", in the format needed.
  * Passed : (1) dest - The string buffer into which to print the label.
  *          (2) clas - The Class Letter for the label.
  *          (3)  adr - The label's address.
- *          (4)   dl - ptr to the nlist tree for the label
  */
-static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod)
+void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas)
 {
     int mask;
+
+    if (amod)
+    {
+        /*mainclass = DEFAULTCLASS;*/
+        AMODE_BOUNDS_CHECK(amod);
+        clas = defaultLabelClasses[amod - 1];
+    }
+    else /* amod=0, it's a boundary def  */
+    {
+        if (NowClass)
+        {
+            clas = NowClass;
+        }
+        else
+        {
+            // Guess
+            clas = '@';
+        }
+    }
 
     /* Readjust class definition if necessary */
     if (clas == '@')
     {
-        if (abs(adr) < 9)
+        if (abs(value) < 9)
         /*if ( (adr <= 9) ||
              ((PBytSiz == 1) && adr > 244) ||
              ((PBytSiz == 2) && adr > 65526) )*/
@@ -337,67 +363,67 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
             switch (PBytSiz)
             {
             case 1:
-                adr &= 0xff;
+                value &= 0xff;
                 break;
             case 2:
-                adr &= 0xffff;
+                value &= 0xffff;
                 break;
             default:
                 break;
             }
 
-            if (abs(adr) <= 0xff)
+            if (abs(value) <= 0xff)
             {
-                dest << PrettyNumber<uint32_t>(adr).fill('0').width(2).hex();
+                dest << PrettyNumber<uint32_t>(value).fill('0').width(2).hex();
                 // hexfmt = "%02x";
             }
-            else if (abs(adr) <= 0xffff)
+            else if (abs(value) <= 0xffff)
             {
-                dest << PrettyNumber<uint32_t>(adr).fill('0').width(4).hex();
+                dest << PrettyNumber<uint32_t>(value).fill('0').width(4).hex();
                 // hexfmt = "%04x";
             }
             else
             {
-                dest << PrettyNumber<uint32_t>(adr).hex();
+                dest << PrettyNumber<uint32_t>(value).hex();
                 // hexfmt = "%x";
             }
 
             break;
         case AM_LONG:
-            dest << PrettyNumber<uint32_t>(adr).fill('0').width(8).hex();
+            dest << PrettyNumber<uint32_t>(value).fill('0').width(8).hex();
             // hexfmt = "%08x";
             break;
         case AM_SHORT:
-            dest << PrettyNumber<uint32_t>(adr).fill('0').width(4).hex();
+            dest << PrettyNumber<uint32_t>(value).fill('0').width(4).hex();
             // hexfmt = "%04x";
             break;
         }
         break;
     case '&': /* Decimal */
-        dest << adr;
+        dest << value;
         break;
     case '^': /* ASCII */
         //*dest = '\0';
 
-        if (adr > 0xff)
+        if (value > 0xff)
         {
-            singleCharData(dest, adr & 0xff);
+            singleCharData(dest, value & 0xff);
             dest << "*256+";
             // movchr (dest, (adr >> 8) & 0xff);
             // strcat (dest, "*256+");
         }
-        singleCharData(dest, adr & 0xff);
+        singleCharData(dest, value & 0xff);
 
         break;
     case '%': /* Binary */
         // strcpy (dest, "%");
         dest << "%";
 
-        if (adr > 0xffff)
+        if (value > 0xffff)
         {
             mask = 0x80000000;
         }
-        else if (adr > 0xff)
+        else if (value > 0xff)
         {
             mask = 0x8000;
         }
@@ -409,14 +435,13 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
         while (mask)
         {
             // strcat (dest, (mask & adr ? "1" : "0"));
-            dest << (mask & adr ? '1' : '0');
+            dest << (mask & value ? '1' : '0');
             mask >>= 1;
         }
 
         break;
     default:
-        // strcpy (dest, dl->inner->name());
-        dest << dl->name();
+        throw std::runtime_error("Unexpected class!");
     }
 }
 
@@ -427,7 +452,7 @@ static void PrintLbl(std::ostream& dest, char clas, int adr, Label* dl, int amod
  *          (3) amod - the AMode desired
  * This is NOT SAFE AT ALL.
  */
-int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pass)
+bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
 {
 
     int raw = adr /*& 0xffff */; /* Raw offset (postbyte) - was unsigned */
@@ -444,7 +469,7 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pa
     {
         if (IsRef(dst, curloc, adr, Pass))
         {
-            return 1;
+            return true;
         }
     }
 
@@ -466,15 +491,9 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pa
         }
         else
         {
-            return 0;
+            return false;
         }
     }
-
-    /* Attempt to restrict class 'L' */
-    /*if (mainclass == 'L')
-    {
-        raw &= 0x3ffff;
-    }*/
 
     if (Pass == 1)
     {
@@ -482,35 +501,27 @@ int LblCalc(char* dst, int adr, int amod, int curloc, int /*bool*/ isRof, int Pa
     }
     else
     { /*Pass2 */
-        // char tmpname[20];
-
         mylabel = findlbl(mainclass, raw);
-        if (mylabel)
+        if (strchr("^$@&%", mainclass))
         {
-            PrintLbl(dest, mainclass, raw, mylabel, amod);
-            // strcat (dst, tmpname);
+            return false;
+        }
+        else if (mylabel)
+        {
+            dest << mylabel->name();
         }
         else
-        { /* Special case for these */
-            if (strchr("^$@&%", mainclass))
-            {
-                PrintLbl(dest, mainclass, raw, mylabel, amod);
-                // strcat (dst, tmpname);
-            }
-            else
-            {
-                char t;
+        {
+            char t;
 
-                t = (mainclass ? mainclass : 'D');
-                fprintf(stderr, "Lookup error on Pass 2 (main)\n");
-                fprintf(stderr, "Cannot find %c - %05x\n", t, raw);
-                /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
-                exit(1);
-            }
+            t = (mainclass ? mainclass : 'D');
+            fprintf(stderr, "Lookup error on Pass 2 (main)\n");
+            fprintf(stderr, "Cannot find %c - %05x\n", t, raw);
+            /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
+            exit(1);
         }
     }
-cleanup:
     std::string destStr = dest.str();
     strcat(dst, destStr.c_str());
-    return 1;
+    return true;
 }
