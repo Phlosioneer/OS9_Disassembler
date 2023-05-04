@@ -72,10 +72,22 @@ namespace IntegrationTests
 			test.run();
 		}
 
+		// TODO: Make this a unit test
 		TEST_METHOD(PcScaleRoff)
 		{
 			reset();
 			IntegrationTestCase test("pc_scale_r");
+
+			test.run();
+		}
+
+		// TODO: Make this a unit test.
+		// The first movea.w uses the illegal-but-common size encoding of 0b01,
+		// while the second movea.w uses the proper 0b11 encoding.
+		TEST_METHOD(MoveaWRoff)
+		{
+			reset();
+			IntegrationTestCase test("movea_w_r");
 
 			test.run();
 		}

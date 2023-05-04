@@ -57,7 +57,14 @@ enum
 {
     SIZ_BYTE,
     SIZ_WORD,
-    SIZ_LONG
+    SIZ_LONG,
+    // This is technically a valid value, though the assemblers I have access to use
+    // SIZ_WORD incorrectly. For some instructions (including MOVEA) a size of 1 (SIZ_WORD)
+    // is illegal, and 3 is used to indicate sign-extended word.
+    //
+    // The processor seems to ignore the upper bit, and both SIZ_WORD and SIZ_WORD_SIGNX
+    // are odd.
+    SIZ_WORD_SIGNX
 };
 
 /* Addressing Modes */

@@ -1,0 +1,12 @@
+  nam  movea_w
+  use <OSKDEFS.D>
+
+Edition equ 0
+Typ_Lang equ (Sbrtn<<8)+Objct
+Attr_Rev equ ((ReEnt+SupStat)<<8)+0
+
+  psect  movea_w,Typ_Lang,Attr_Rev,Edition,0,main
+main:
+  movea.w d0,a0
+  dc.w $3040
+  ends
