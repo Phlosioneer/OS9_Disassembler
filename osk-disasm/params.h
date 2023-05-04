@@ -123,6 +123,8 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 class InstrParam
 {
   public:
+    virtual ~InstrParam() = default;
+
     virtual void format(std::ostream& stream) const = 0;
     std::string toStr() const;
 };
@@ -132,6 +134,8 @@ class LiteralParam : public InstrParam
   public:
     LiteralParam(int32_t value);
     LiteralParam(int32_t value, const char* label);
+    virtual ~LiteralParam() = default;
+
     virtual void format(std::ostream& stream) const override;
 
     const int32_t value;
@@ -146,6 +150,8 @@ class RegParam : public InstrParam
   public:
     RegParam(Register reg);
     RegParam(Register reg, RegParamMode mode);
+    virtual ~RegParam() = default;
+
     virtual void format(std::ostream& stream) const override;
 
     const Register reg;
@@ -156,6 +162,8 @@ class AbsoluteAddrParam : public InstrParam
 {
   public:
     AbsoluteAddrParam(int32_t address, const char* label, OperandSize size);
+    virtual ~AbsoluteAddrParam() = default;
+
     virtual void format(std::ostream& stream) const override;
 
     inline bool hasLabel() const
@@ -184,6 +192,8 @@ class RegOffsetParam : public InstrParam
     RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, unsigned int scale);
     RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize, unsigned int scale,
                    int32_t offset, const char* label);
+    virtual ~RegOffsetParam() = default;
+
     virtual void format(std::ostream& stream) const override;
     inline bool shouldForceZero() const
     {

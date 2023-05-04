@@ -23,7 +23,7 @@ class Writer
 {
   public:
     Writer();
-    ~Writer();
+    virtual ~Writer();
 
     virtual void close() = 0;
     size_t printf(const char* format, ...);
@@ -49,7 +49,7 @@ class FileWriter : public Writer
 {
   public:
     FileWriter(char* filename);
-    ~FileWriter();
+    virtual ~FileWriter();
 
     virtual void close() override;
     virtual size_t vprintf(const char* format, va_list args) override;
@@ -73,6 +73,7 @@ class StringWriter : public Writer
 {
   public:
     StringWriter();
+    virtual ~StringWriter() = default;
 
     virtual void close() override;
     virtual size_t vprintf(const char* format, va_list args) override;
