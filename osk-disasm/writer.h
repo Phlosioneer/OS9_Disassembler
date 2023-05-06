@@ -1,6 +1,6 @@
 
-#ifndef READER_H
-#define READER_H
+#ifndef WRITER_H
+#define WRITER_H
 
 class Writer;
 
@@ -105,4 +105,4 @@ void writer_flush(struct writer_handle* handle);
 // extern struct writer_handle* module_writer;
 extern struct writer_handle* stdout_writer;
 
-#endif
+#endif // WRITER_H
