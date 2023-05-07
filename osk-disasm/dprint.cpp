@@ -406,7 +406,6 @@ void ROFPsect(struct rof_header* rptr, struct options* opt)
     Label* nl;
     struct cmd_items Ci;
 
-    memset(&Ci, 0, sizeof(struct cmd_items));
     /*strcpy(Ci.instr, "");*/
     strcpy(Ci.params, "");
     Ci.lblname = "";
@@ -420,7 +419,7 @@ void ROFPsect(struct rof_header* rptr, struct options* opt)
     */
     char* params = rof_header_getPsectParams(rptr);
     strcpy(Ci.params, params);
-    free(params);
+    delete[] params;
 
     // nl = findlbl('L', rptr->code_begin);
     nl = findlbl('L', rof_header_getCodeAddress(rptr));
@@ -452,11 +451,10 @@ void WrtEnds(struct options* opt, int PCPos)
 {
     struct cmd_items Ci;
 
-    memset(&Ci, 0, sizeof(Ci));
     strcpy(Ci.mnem, "ends");
 
     BlankLine(opt);
-    //CmdEnt = PCPos; /* This should always work */
+    // CmdEnt = PCPos; /* This should always work */
     PrintFormatted(pseudcmd, &Ci, opt, PCPos);
 
     if (opt->asmFile)
@@ -476,18 +474,15 @@ void WrtEnds(struct options* opt, int PCPos)
 
 void ParseIRefs(char rClass, struct options* opt)
 {
-    register int rCount; /* The count for this block */
-    register int MSB;
+    uint16_t rCount; /* The count for this block */
+    uint32_t MSB;
 
     /* Get an initial reading */
 
-    if (fseek(opt->ModFP, modHeader->refTableOffset, SEEK_SET))
-    {
-        errexit("Fatal: Failed to seek to Initialized Refs location");
-    }
+    opt->Module->seekAbsolute(modHeader->refTableOffset);
 
-    MSB = fread_w(opt->ModFP) << 16;
-    rCount = fread_w(opt->ModFP);
+    MSB = ((uint32_t)opt->Module->read<uint16_t>()) << 16;
+    rCount = opt->Module->read<uint16_t>();
 
     while (MSB || rCount) /* This will get All blocks for the Location */
     {
@@ -495,9 +490,8 @@ void ParseIRefs(char rClass, struct options* opt)
         {
             struct ireflist *il, *ilpt;
 
-            il = (struct ireflist*)mem_alloc(sizeof(struct ireflist));
-            memset(il, 0, sizeof(struct ireflist));
-            il->dAddr = MSB | fread_w(opt->ModFP);
+            il = new ireflist();
+            il->dAddr = MSB | opt->Module->read<uint16_t>();
 
             if (IRefs) /* First entry? */
             {
@@ -516,7 +510,7 @@ void ParseIRefs(char rClass, struct options* opt)
                     {
                         if ((il->dAddr == ilpt->dAddr) || (il->dAddr == ilpt->Next->dAddr))
                         {
-                            free(il); /* We don't need this one */
+                            delete il;
                             il = NULL;
                             break;
                         }
@@ -543,8 +537,8 @@ void ParseIRefs(char rClass, struct options* opt)
             }
         }
 
-        MSB = fread_w(opt->ModFP);
-        rCount = fread_w(opt->ModFP);
+        MSB = ((uint32_t)opt->Module->read<uint16_t>()) << 16;
+        rCount = opt->Module->read<uint16_t>();
     }
 }
 
@@ -569,7 +563,6 @@ static void dataprintHeader(const char* hdr, char klas, int isRemote, struct opt
     struct cmd_items Ci;
 
     BlankLine(opt);
-    memset(&Ci, 0, sizeof(Ci));
 
     if (opt->IsUnformatted)
     {
@@ -603,9 +596,9 @@ static void dataprintHeader(const char* hdr, char klas, int isRemote, struct opt
 // This approach is way too greedy. It was completely broken in the oringal and
 // fixing it breaks a ton of other stuff.
 
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct parse_state* state)
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, char iClass, struct parse_state* state)
 {
-    register int count = bufEnd;
+    register unsigned int count = bufEnd;
     register const char* ch = buf;
     int hasAscii = 0;
 
@@ -657,8 +650,8 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
     }
 
     count = 0;
-    int consumedThisLine = 0;
-    int consumedByGroup = 0;
+    unsigned int consumedThisLine = 0;
+    unsigned int consumedByGroup = 0;
     char group[MAX_ASCII_LINE_LEN + 5];
     while (state->PCPos + consumedThisLine < bufEnd)
     {
@@ -674,7 +667,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass,
         else if (isprint((unsigned char)*buf))
         {
             // Compute how many characters we can use for this group.
-            int maxGroupLen;
+            unsigned int maxGroupLen;
             if (consumedThisLine == 0)
             {
                 // We can use the entire line, minus the two quotes.
@@ -789,18 +782,15 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
         curlbl = addlbl('D', state->PCPos, "");
     }
 
-    if (fseek(state->ModFP, 0x40l, SEEK_SET) != -1)
+    state->Module->seekAbsolute(0x40);
+    if (state->Module->size() > 0)
     {
-        int idatbegin, idatcount;
+        int32_t idatbegin, idatcount;
 
-        if (fseek(state->ModFP, (long)fread_l(state->ModFP), SEEK_SET) == -1)
-        {
-            fprintf(stderr, "Cannot seek to Init Data Buffer\n");
-            return;
-        }
+        state->Module->seekAbsolute(state->Module->read<uint32_t>());
 
-        idatbegin = fread_l(state->ModFP);
-        idatcount = fread_l(state->ModFP);
+        idatbegin = state->Module->read<uint32_t>(); // fread_l(state->ModFP);
+        idatcount = state->Module->read<uint32_t>(); // fread_l(state->ModFP);
 
         if (idatcount == 0)
         {
@@ -883,7 +873,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
             while (lblCount > 0)
             {
                 char tmp[20];
-                int val;
+                int32_t val;
 
                 if ((IRefs) && (state->PCPos == IRefs->dAddr))
                 {
@@ -891,7 +881,6 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                     struct ireflist* tmpref;
                     val = 0;
                     tmp[0] = '\0';
-
 
                     if (strlen(Ci.params))
                     {
@@ -902,7 +891,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                         Ci.params[0] = '\0';
                     }
 
-                    val = fread_l(state->ModFP);
+                    val = state->Module->read<uint32_t>();
                     state->PCPos += 4;
                     lblCount -= 4;
                     idatcount -= 4;
@@ -932,7 +921,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                     state->CmdEnt = state->PCPos;
                     tmpref = IRefs;
                     IRefs = IRefs->Next;
-                    free(tmpref);
+                    delete tmpref;
                     Ci.lblname = "";
                     Ci.params[0] = '\0';
                     /* Reset mnem to original status */
@@ -946,10 +935,10 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                     switch (PBytSiz)
                     {
                     case 1:
-                        sprintf(tmp, "$%02x", (fgetc(state->ModFP) & 0xff));
+                        sprintf(tmp, "$%02x", state->Module->read<uint8_t>());
                         break;
                     case 2:
-                        val = fread_w(state->ModFP);
+                        val = state->Module->read<uint16_t>();
                         sprintf(tmp, "$%04x", val & 0xffff);
                         break;
                     }
@@ -1019,7 +1008,7 @@ void ROFDataPrint(struct options* opt)
     if (srch)
     {
         parse_state state{0};
-        state.ModFP = opt->ModFP;
+        state.Module = opt->Module;
         state.opt = opt;
         state.Pass = 2;
 
@@ -1035,23 +1024,17 @@ void ROFDataPrint(struct options* opt)
     if (rof_header_getInitDataSize(ROFHd))
     {
         parse_state state{0};
-        state.ModFP = opt->ModFP;
+        state.Module = opt->Module;
         state.opt = opt;
         state.Pass = 2;
 
         dataprintHeader(idat, '_', FALSE, opt);
 
-        IBuf = (char*)mem_alloc((size_t)rof_header_getInitDataSize(ROFHd) + 1);
+        IBuf = new char[(size_t)rof_header_getInitDataSize(ROFHd) + 1];
 
-        if (fseek(opt->ModFP, IDataBegin, SEEK_SET))
-        {
-            errexit("Cannot Seek to begin of Initialized data");
-        }
+        opt->Module->seekAbsolute(IDataBegin);
 
-        if (fread(IBuf, rof_header_getInitDataSize(ROFHd), 1, opt->ModFP) < 1)
-        {
-            errexit("Cannot read Initialized data from file!");
-        }
+        opt->Module->readRaw(IBuf, rof_header_getInitDataSize(ROFHd));
 
         auto category2 = labelManager->getCategory('_');
         srch = category2 ? category2->getFirst() : NULL;
@@ -1064,7 +1047,7 @@ void ROFDataPrint(struct options* opt)
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
         /*ListInitData (srch, ROFHd.idatsz, '_');*/
-        free(IBuf);
+        delete[] IBuf;
         /*ListInitROF (dta, ROFHd.idatsz, '_');*/
     }
 
@@ -1073,7 +1056,7 @@ void ROFDataPrint(struct options* opt)
     if (srch)
     {
         parse_state state{0};
-        state.ModFP = opt->ModFP;
+        state.Module = opt->Module;
         state.opt = opt;
         state.Pass = 2;
 
@@ -1089,26 +1072,22 @@ void ROFDataPrint(struct options* opt)
     if (rof_header_getRemoteInitDataSize(ROFHd))
     {
         parse_state state{0};
-        state.ModFP = opt->ModFP;
+        state.Module = opt->Module;
         state.opt = opt;
         state.Pass = 2;
 
         int size = rof_header_getRemoteInitDataSize(ROFHd);
         dataprintHeader(idat, 'H', TRUE, opt);
 
-        IBuf = (char*)mem_alloc((size_t)size + 1);
-
-        if (fread(IBuf, size, 1, opt->ModFP) < 1)
-        {
-            errexit("Cannot read Remote Initialized data from file!");
-        }
+        IBuf = new char[(size_t)size + 1];
+        opt->Module->readRaw(IBuf, size);
 
         auto category4 = labelManager->getCategory('H');
         srch = category4 ? category4->getFirst() : NULL;
         ListInitROF("", refs_iremote, IBuf, size, 'H', &state);
         BlankLine(opt);
         /*ListInitData (srch, ROFHd.idatsz, 'H');*/
-        free(IBuf);
+        delete[] IBuf;
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
         /*ListInitROF (dta, ROFHd.idatsz, 'H');*/
@@ -1128,9 +1107,9 @@ void OS9DataPrint(struct options* opt)
     Label *dta, *srch;
     char* what = "* OS9 data area definitions";
     struct cmd_items Ci;
-    long filePos = ftell(opt->ModFP);
+    size_t filePos = opt->Module->position();
     parse_state state{0};
-    state.ModFP = opt->ModFP;
+    state.Module = opt->Module;
     state.opt = opt;
     state.Pass = 2;
 
@@ -1141,7 +1120,6 @@ void OS9DataPrint(struct options* opt)
     }
 
     InProg = 0; /* Stop looking for Inline program labels to substitute */
-    memset(&Ci, 0, sizeof(Ci));
     auto category = labelManager->getCategory('D');
     dta = category ? category->getFirst() : NULL;
 
@@ -1212,7 +1190,9 @@ void OS9DataPrint(struct options* opt)
     PrintLine(pseudcmd, &Ci, 'D', state.CmdEnt, opt);
     BlankLine(opt);
     InProg = 1;
-    fseek(opt->ModFP, filePos, SEEK_SET);
+    // Restore the stream to its original location
+    // fseek(opt->ModFP, filePos, SEEK_SET);
+    opt->Module->seekAbsolute(filePos);
 }
 
 /* ******************************************************** *
@@ -1227,8 +1207,6 @@ void ListData(Label* me, int upadr, char cClass, struct parse_state* state)
 {
     struct cmd_items Ci;
     register int datasize;
-
-    memset(&Ci, 0, sizeof(Ci));
 
     /* Process lower entries first */
 
@@ -1475,14 +1453,13 @@ static void TellLabels(Label* me, int flg, char cClass, int minval, struct optio
 {
     struct cmd_items Ci;
 
-    memset(&Ci, 0, sizeof(Ci));
     strcpy(Ci.mnem, "equ");
 
     while (me)
     {
         char lbl[100];
 
-        if ((flg < 0) || flg == me->stdName())
+        if ((flg < 0) || flg == (int)me->stdName())
         {
             /* Don't print real OS9 Data variables here */
 

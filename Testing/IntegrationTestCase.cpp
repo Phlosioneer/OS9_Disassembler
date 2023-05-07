@@ -84,7 +84,7 @@ void IntegrationTestCase::run()
 	{
 		options_addLabelFile(opt, labelFilePath.c_str());
 	}
-
+	readModuleFile(opt);
 	dopass(1, opt);
 	dopass(2, opt);
 

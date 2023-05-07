@@ -147,17 +147,3 @@ char* freadString(FILE* fp)
     std::string temp = buffer.str();
     return _strdup(temp.c_str());
 }
-
-// Cannot return null.
-void* mem_alloc(size_t size)
-{
-    void* addr;
-
-    addr = malloc(size);
-    if (!addr)
-    {
-        errexit("Failed to acquire requested memory");
-    }
-
-    return addr;
-}

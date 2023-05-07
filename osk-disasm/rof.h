@@ -48,6 +48,7 @@
 /* ROF header structure */
 
 #include "label.h"
+#include "reader.h"
 
 #include <stdio.h>
 
@@ -70,13 +71,14 @@ extern struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs
 extern struct rof_header* ROFHd;
 
 int RealEnt(struct options* opt, int CmdEnt);
-void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP);
-void getRofHdr(FILE* progpath, struct options* opt);
+void AddInitLbls(struct rof_extrn* tbl, char klas, BigEndianStream& Module);
+void getRofHdr(struct options* opt);
 void RofLoadInitData(void);
 char rof_class(int typ, int refTy);
-struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs);
+struct rof_extrn* find_extrn(struct rof_extrn* xtrn, unsigned int adrs);
 int rof_datasize(char cclass);
-void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct parse_state* state);
+void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, unsigned int isize, char iClass,
+                 struct parse_state* state);
 void setupROFPass(int Pass);
 int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, int curloc, int ival, int Pass);

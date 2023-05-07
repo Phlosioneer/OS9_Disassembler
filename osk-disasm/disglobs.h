@@ -98,15 +98,15 @@ enum
  */
 struct extWbrief
 {
-    char regNam; /* Index Register ('D' or 'A' */
-    int regno;   /* Register # */
-    int isLong;  /* Index size (W/L, 0 if sign-extended word */
-    int scale;   /* Scale  00 = 1, 01 = 2, 03 = 4, 11= 8 */
-    int displ;   /* Displacement (lower byte) */
-    int is;      /* Index Suppress */
-    int bs;      /* Base Displacement Suppress */
-    int bdSize;  /* BD Size */
-    int iiSel;   /* Index/Indirect Selection */
+    char regNam = '\0'; /* Index Register ('D' or 'A' */
+    int regno = 0;      /* Register # */
+    int isLong = 0;     /* Index size (W/L, 0 if sign-extended word */
+    int scale = 0;      /* Scale  00 = 1, 01 = 2, 03 = 4, 11= 8 */
+    int displ = 0;      /* Displacement (lower byte) */
+    int is = 0;         /* Index Suppress */
+    int bs = 0;         /* Base Displacement Suppress */
+    int bdSize = 0;     /* BD Size */
+    int iiSel = 0;      /* Index/Indirect Selection */
 };
 
 /* The following is part of the description for the full extended word */

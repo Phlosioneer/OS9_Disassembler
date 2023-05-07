@@ -58,12 +58,12 @@
 /* Some variables that are only used in one or two modules */
 int error;
 /*static int HdrLen;*/
-int CodeEnd;
+uint32_t CodeEnd;
 
 struct module_header* modHeader = NULL;
-int IDataBegin;
-int IDataCount;
-int HdrEnd;
+uint32_t IDataBegin;
+uint32_t IDataCount;
+size_t HdrEnd;
 
 int NowClass;
 int PBytSiz;
@@ -81,23 +81,17 @@ const OPSTRUCTURE* opmains[] = {instr00, instr01, instr02, /* Repeat 3 times for
 
 struct module_header* module_new()
 {
-    struct module_header* ret = (module_header*)malloc(sizeof(struct module_header));
-    if (!ret)
-    {
-        errexit("OoM");
-    }
-    memset(ret, 0, sizeof(struct module_header));
-    return ret;
+    return new module_header();
 }
 
 void module_destroy(struct module_header* module_)
 {
-    free(module_);
+    delete module_;
 }
 
 // Read the Driver initialization table and set up label names.
 // NOT ACTIVELY MAINTAINED.
-static void get_drvr_jmps(int mty, FILE* ModFP)
+static void get_drvr_jmps(int mty, BigEndianStream* Module)
 {
     throw std::runtime_error("driver modules aren't supported anymore");
     /*
@@ -145,30 +139,33 @@ static int get_modhead(struct options* opt)
     struct module_header* mod = module_new();
 
     // Need to be careful to avoid sign-extension.
-    mod->id = (unsigned short)fread_w(opt->ModFP);
+    // mod->id = (unsigned short)fread_w(opt->ModFP);
+    // opt->Module->readInto(mod->id);
+    mod->id = opt->Module->read<uint16_t>();
     switch (mod->id)
     {
     case 0x4afc:
-        mod->sysRev = fread_w(opt->ModFP);
-        mod->size = fread_l(opt->ModFP);
-        mod->owner = fread_l(opt->ModFP);
-        mod->nameOffset = fread_l(opt->ModFP);
-        mod->access = fread_w(opt->ModFP);
-        mod->type = fread_b(opt->ModFP);
-        mod->lang = fread_b(opt->ModFP);
-        mod->attributes = fread_b(opt->ModFP);
-        mod->revision = fread_b(opt->ModFP);
-        mod->edition = fread_w(opt->ModFP);
-        mod->usageOffset = fread_l(opt->ModFP);
-        mod->symbolTableOffset = fread_l(opt->ModFP);
+        mod->sysRev = opt->Module->read<uint16_t>();            // fread_w(opt->ModFP);
+        mod->size = opt->Module->read<uint32_t>();              // fread_l(opt->ModFP);
+        mod->owner = opt->Module->read<uint32_t>();             // fread_l(opt->ModFP);
+        mod->nameOffset = opt->Module->read<uint32_t>();        // fread_l(opt->ModFP);
+        mod->access = opt->Module->read<uint16_t>();            // fread_w(opt->ModFP);
+        mod->type = opt->Module->read<uint8_t>();               // fread_b(opt->ModFP);
+        mod->lang = opt->Module->read<uint8_t>();               // fread_b(opt->ModFP);
+        mod->attributes = opt->Module->read<uint8_t>();         // fread_b(opt->ModFP);
+        mod->revision = opt->Module->read<uint8_t>();           // fread_b(opt->ModFP);
+        mod->edition = opt->Module->read<uint16_t>();           // fread_w(opt->ModFP);
+        mod->usageOffset = opt->Module->read<uint32_t>();       // fread_l(opt->ModFP);
+        mod->symbolTableOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
 
         /* We have 14 bytes that are not used */
-        if (fseek(opt->ModFP, 14, SEEK_CUR) != 0)
+        /* if (fseek(opt->ModFP, 14, SEEK_CUR) != 0)
         {
             errexit("Cannot Seek to file location");
-        }
+        }*/
+        opt->Module->seekRelative(14);
 
-        mod->parity = fread_w(opt->ModFP);
+        mod->parity = opt->Module->read<uint16_t>(); // fread_w(opt->ModFP);
 
         /* Now get any further Mod-type specific headers */
         switch (mod->type)
@@ -178,11 +175,11 @@ static int get_modhead(struct options* opt)
         case MT_TRAPLIB:
         case MT_FILEMAN:
         case MT_DEVDRVR:
-            mod->execOffset = fread_l(opt->ModFP);
+            mod->execOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
 
             /* Add label for Exception Handler, if applicable */
             /* Only for specific Module Types??? */
-            mod->exceptionOffset = fread_l(opt->ModFP);
+            mod->exceptionOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
             if (mod->exceptionOffset)
             {
                 addlbl('L', mod->exceptionOffset, "");
@@ -194,36 +191,39 @@ static int get_modhead(struct options* opt)
 
             if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
             {
-                mod->memorySize = fread_l(opt->ModFP);
+                mod->memorySize = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
 
                 if (mod->type == MT_TRAPLIB || mod->type == MT_PROGRAM)
                 {
-                    mod->stackSize = fread_l(opt->ModFP);
-                    mod->initDataHeaderOffset = fread_l(opt->ModFP);
-                    mod->refTableOffset = fread_l(opt->ModFP);
+                    mod->stackSize = opt->Module->read<uint32_t>();            // fread_l(opt->ModFP);
+                    mod->initDataHeaderOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
+                    mod->refTableOffset = opt->Module->read<uint32_t>();       // fread_l(opt->ModFP);
 
                     if (mod->type == MT_TRAPLIB)
                     {
-                        mod->initRoutineOffset = fread_l(opt->ModFP);
-                        mod->terminationRoutineOffset = fread_l(opt->ModFP);
+                        mod->initRoutineOffset = opt->Module->read<uint32_t>();        // fread_l(opt->ModFP);
+                        mod->terminationRoutineOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
                     }
                 }
             }
 
-            HdrEnd = ftell(opt->ModFP);
+            HdrEnd = opt->Module->position();
 
             if ((mod->type == MT_DEVDRVR) || (mod->type == MT_FILEMAN))
             {
-                fseek(opt->ModFP, mod->execOffset, SEEK_SET);
-                get_drvr_jmps(mod->type, opt->ModFP);
+                // fseek(opt->ModFP, mod->execOffset, SEEK_SET);
+                opt->Module->seekAbsolute(mod->execOffset);
+                get_drvr_jmps(mod->type, opt->Module);
             }
 
             if (mod->initDataHeaderOffset)
             {
                 // Read the init data header.
-                fseek(opt->ModFP, mod->initDataHeaderOffset, SEEK_SET);
-                IDataBegin = fread_l(opt->ModFP);
-                IDataCount = fread_l(opt->ModFP);
+                // fseek(opt->ModFP, mod->initDataHeaderOffset, SEEK_SET);
+                opt->Module->seekAbsolute(mod->initDataHeaderOffset);
+                IDataBegin = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
+                IDataCount = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
+
                 /* Insure we have an entry for the first Initialized Data */
                 addlbl('D', IDataBegin, "");
                 CodeEnd = mod->initDataHeaderOffset;
@@ -236,8 +236,11 @@ static int get_modhead(struct options* opt)
         }
 
         // Check if the file is complete.
-        fseek(opt->ModFP, 0, SEEK_END);
-        if (ftell(opt->ModFP) < mod->size)
+        // fseek(opt->ModFP, 0, SEEK_END);
+        opt->Module->seekAbsolute(0);
+
+        // ftell(opt->ModFP)
+        if (opt->Module->size() < mod->size)
         {
             errexit("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
         }
@@ -247,7 +250,7 @@ static int get_modhead(struct options* opt)
     case 0xdead:
         module_destroy(mod);
         modHeader = NULL;
-        getRofHdr(opt->ModFP, opt);
+        getRofHdr(opt);
         break;
     default:
         errexit("Unknown module type");
@@ -391,15 +394,8 @@ int dopass(int Pass, struct options* opt)
 {
     if (Pass == 1)
     {
-        if (opt->ModFP)
-        {
-            fclose(opt->ModFP);
-        }
-        opt->ModFP = fopen(opt->ModFile, BINREAD);
-        if (!opt->ModFP)
-        {
-            errexit("Cannot open Module file for read");
-        }
+        // opt->ModFP = fopen(opt->ModFile, BINREAD);
+        opt->Module->reset();
 
         get_modhead(opt);
         strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
@@ -471,16 +467,13 @@ int dopass(int Pass, struct options* opt)
     /* NOTE: This is just a temporary kludge The begin _SHOULD_ be
              the first byte past the end of the header, but until
              we get bounds working, we'll do  this. */
-    if (fseek(opt->ModFP, HdrEnd, SEEK_SET) != 0)
-    {
-        errexit("FIle Seek Error");
-    }
+    opt->Module->seekAbsolute(HdrEnd);
 
     struct parse_state parseState
     {
         0
     };
-    parseState.ModFP = opt->ModFP;
+    parseState.Module = opt->Module;
     parseState.opt = opt;
     parseState.Pass = Pass;
     if (opt->IsROF)
@@ -499,7 +492,8 @@ int dopass(int Pass, struct options* opt)
 
         instrNum += 1;
 
-        memset(&Instruction, 0, sizeof(Instruction));
+        // memset(&Instruction, 0, sizeof(Instruction));
+        Instruction = {};
         parseState.CmdEnt = parseState.PCPos;
 
         /* NOTE: The 6809 version did an "if" and it apparently worked,
@@ -623,9 +617,10 @@ static int get_asmcmd(struct parse_state* state)
             }
             else
             {
-                if (ftell(state->ModFP) != RealEnt(state->opt, state->CmdEnt) + 2)
+                // if (ftell(state->ModFP) != RealEnt(state->opt, state->CmdEnt) + 2)
+                if (state->Module->position() != (size_t)RealEnt(state->opt, state->CmdEnt) + 2)
                 {
-                    fseek(state->ModFP, RealEnt(state->opt, state->CmdEnt) + 2, SEEK_SET);
+                    state->Module->seekAbsolute((size_t)RealEnt(state->opt, state->CmdEnt) + 2);
                     state->PCPos = state->CmdEnt + 2;
                     initcmditems(&Instruction);
                 }
@@ -690,13 +685,13 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
         switch (db->size())
         {
         case 1:
-            valu = fread_b(state->ModFP);
+            valu = state->Module->read<uint8_t>();
             break;
         case 2:
-            valu = fread_w(state->ModFP);
+            valu = state->Module->read<uint16_t>();
             break;
         case 4:
-            valu = fread_l(state->ModFP);
+            valu = state->Module->read<uint32_t>();
             break;
         default:
             errexit("Unexpected byte size");

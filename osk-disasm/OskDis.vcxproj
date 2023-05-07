@@ -124,6 +124,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="opcode00.cpp" />
     <ClCompile Include="params.cpp" />
+    <ClCompile Include="reader.cpp" />
     <ClCompile Include="reset.cpp" />
     <ClCompile Include="textdef.cpp" />
     <ClCompile Include="writer.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="either.h" />
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="params.h" />
+    <ClInclude Include="reader.h" />
     <ClInclude Include="reset.h" />
     <ClInclude Include="writer.h" />
     <ClInclude Include="rof.h" />

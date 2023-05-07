@@ -49,40 +49,38 @@
  * ************************* */
 struct rof_header
 {
-    int sync;
-    short ty_lan, /* Type/Language */
-        att_rev,  /* Attribute/Revision word */
-        valid,    /* Nonzero if valid */
-        series;   /* Assembler version used to compile */
-    char rdate[6];
-    short edition;
-    int statstorage,   /* Size of static variable storage */
-        idatsz,        /* Size of initialized data */
-        codsz,         /* Size of the object code  */
-        stksz,         /* Size of stack required   */
-        code_begin,    /* Offset to entry point of object code   */
-        utrap,         /* Offset to unitialized trap entry point */
-        remotestatsiz, /* Size of remote static storage   */
-        remoteidatsiz, /* Size of remote initialized data */
-        debugsiz;      /* Size of the debug   */
-    char* rname;       /* Ptr to module name  */
+    uint32_t sync = 0;
+    uint16_t ty_lan = 0, /* Type/Language */
+        att_rev = 0,     /* Attribute/Revision word */
+        valid = 0,       /* Nonzero if valid */
+        series = 0;      /* Assembler version used to compile */
+    std::vector<uint8_t> rdate{};
+    uint16_t edition = 0;
+    uint32_t statstorage = 0, /* Size of static variable storage */
+        idatsz = 0,           /* Size of initialized data */
+        codsz = 0,            /* Size of the object code  */
+        stksz = 0,            /* Size of stack required   */
+        code_begin = 0,       /* Offset to entry point of object code   */
+        utrap = 0,            /* Offset to unitialized trap entry point */
+        remotestatsiz = 0,    /* Size of remote static storage   */
+        remoteidatsiz = 0,    /* Size of remote initialized data */
+        debugsiz = 0;         /* Size of the debug   */
+    std::string rname{};      /* Ptr to module name  */
 };
 
 struct rof_extrn
 {
-    int hasName;
-    union {
-        char* nam;
-        Label* lbl;
-    } EName;
-    /*  void *EName;*/     /* External name                    */
-    char dstClass;         /* Class for referenced item NUll if extern */
-    int Type;              /* Type Flag                        */
-    int Ofst;              /* Offset into code                 */
-    int Extrn;             /* Flag that it's an external ref   */
-    struct rof_extrn *EUp, /* Previous Ref for entire list     */
-        *ENext,            /* Next Reference for All externs   */
-        *MyNext;           /* Next ref for this name.  If NULL, we can free EName */
+    int hasName = 0;
+    std::string nam{};
+    Label* lbl = nullptr;
+    /*  void *EName;*/               /* External name                    */
+    char dstClass = '\0';            /* Class for referenced item NUll if extern */
+    uint16_t Type = 0;               /* Type Flag                        */
+    uint32_t Ofst = 0;               /* Offset into code                 */
+    int Extrn = 0;                   /* Flag that it's an external ref   */
+    struct rof_extrn *EUp = nullptr, /* Previous Ref for entire list     */
+        *ENext = nullptr,            /* Next Reference for All externs   */
+            *MyNext = nullptr;       /* Next ref for this name.  If NULL, we can free EName */
 };
 
 struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremote,
@@ -90,15 +88,11 @@ struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremot
     *codeRefs_sav;
 struct rof_header* ROFHd = NULL;
 
-static void get_refs(char* vname, int count, int ref_typ, char* codebuffer, FILE* ModFP);
+static void get_refs(std::string& vname, int count, int ref_typ, char* codebuffer, BigEndianStream* Module);
 
 void extern_def_destroy(struct rof_extrn* handle)
 {
-    if (handle->hasName)
-    {
-        free(handle->EName.nam);
-    }
-    free(handle);
+    delete handle;
 }
 
 const char* extern_def_name(struct rof_extrn* handle)
@@ -107,16 +101,12 @@ const char* extern_def_name(struct rof_extrn* handle)
     {
         errexit("Cannot access name of label; not implemented yet");
     }
-    return handle->EName.nam;
+    return handle->nam.c_str();
 }
 
 void rof_header_destroy(struct rof_header* handle)
 {
-    if (handle->rname)
-    {
-        free(handle->rname);
-    }
-    free(handle);
+    delete handle;
 }
 
 int rof_header_getCodeAddress(struct rof_header* handle)
@@ -146,10 +136,10 @@ int rof_header_getRemoteInitDataSize(struct rof_header* handle)
 
 char* rof_header_getPsectParams(struct rof_header* handle)
 {
-    char* ret = (char*)calloc(100, sizeof(char));
+    char* ret = new char[100];
     if (!ret) errexit("OoM");
-    snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname, handle->ty_lan >> 8, handle->ty_lan & 0xff, handle->edition,
-             handle->stksz);
+    snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname.c_str(), handle->ty_lan >> 8, handle->ty_lan & 0xff,
+             handle->edition, handle->stksz);
     ret[99] = '\0';
     return ret;
 }
@@ -167,42 +157,29 @@ int RealEnt(struct options* opt, int CmdEnt)
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
  * positioned to the begin of the initialized data list for this particular vsect.
  */
-void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP)
+void AddInitLbls(struct rof_extrn* tbl, char klas, BigEndianStream& Module)
 {
-    char *dataBuf, *ptr;
-    register int refVal;
-
-    dataBuf = (char*)mem_alloc((size_t)dataSiz + 1);
-
-    if (fread(dataBuf, dataSiz, 1, ModFP) == -1)
-    {
-        fprintf(stderr, "AddInitLbls(): Failed to read in data for Init Data Buffer");
-        exit(errno);
-    }
+    uint32_t refVal;
 
     while (tbl)
     {
         if (!tbl->Extrn)
         {
-            ptr = &(dataBuf[tbl->Ofst]);
+            Module.seekAbsolute(tbl->Ofst);
 
             switch (REFSIZ(tbl->Type))
             {
             case 1: /*SIZ_BYTE:*/
-                refVal = *ptr & 0xff;
-                --dataSiz;
+                refVal = Module.read<uint8_t>();
                 break;
             case 2: /*SIZ_WORD:*/
-                refVal = bufReadW(&ptr);
-                dataSiz -= 2;
+                refVal = Module.read<uint16_t>();
                 break;
             default:
-                refVal = bufReadL(&ptr);
-                /*refVal = fread_l(ModFP);*/
-                dataSiz -= 4;
+                refVal = Module.read<uint32_t>();
             }
             tbl->hasName = FALSE;
-            tbl->EName.lbl = addlbl(tbl->dstClass, refVal, "");
+            tbl->lbl = addlbl(tbl->dstClass, refVal, "");
         }
 
         tbl = tbl->ENext;
@@ -212,48 +189,49 @@ void AddInitLbls(struct rof_extrn* tbl, int dataSiz, char klas, FILE* ModFP)
 /*
  * Read and interpret rof header
  */
-void getRofHdr(FILE* progpath, struct options* opt)
+void getRofHdr(struct options* opt)
 {
-    int glbl_cnt, ext_count, count; /* Generic counter */
-    int local_count;
+    uint16_t glbl_cnt, count; /* Generic counter */
     char* codeBuf;
 
-    opt->IsROF = TRUE;            /* Flag that module is an ROF module */
-    fseek(progpath, 0, SEEK_SET); /* Start all over */
+    opt->IsROF = TRUE;    /* Flag that module is an ROF module */
+    opt->Module->reset(); /* Start all over */
 
     /* get header data */
-    ROFHd = (rof_header*)malloc(sizeof(struct rof_header));
+    ROFHd = new rof_header();
     if (!ROFHd)
     {
         errexit("OoM");
     }
-    memset(ROFHd, 0, sizeof(struct rof_header));
     /*ROFHd->sync = (M_ID << 16) | (fread_w(ModFP) & 0xffff); */
-    ROFHd->sync = fread_l(progpath);
+    ROFHd->sync = opt->Module->read<uint32_t>(); // fread_l(progpath);
 
     if (ROFHd->sync != 0xdeadface)
     {
         errexit("Illegal ROF Module sync bytes");
     }
 
-    ROFHd->ty_lan = fread_w(progpath);
-    ROFHd->att_rev = fread_w(progpath); /* Attribute/Revision word */
-    ROFHd->valid = fread_w(progpath);   /* Nonzero if valid */
-    ROFHd->series = fread_w(progpath);  /* Assembler version used to compile */
-    fread(ROFHd->rdate, sizeof(ROFHd->rdate), 1, progpath);
-    ROFHd->edition = fread_w(progpath);
-    ;
-    ROFHd->statstorage = fread_l(progpath);   /* Size of static variable storage */
-    ROFHd->idatsz = fread_l(progpath);        /* Size of initialized data */
-    ROFHd->codsz = fread_l(progpath);         /* Size of the object code  */
-    ROFHd->stksz = fread_l(progpath);         /* Size of stack required   */
-    ROFHd->code_begin = fread_l(progpath);    /* Offset to entry point of object code   */
-    ROFHd->utrap = fread_l(progpath);         /* Offset to unitialized trap entry point */
-    ROFHd->remotestatsiz = fread_l(progpath); /* Size of remote static storage   */
-    ROFHd->remoteidatsiz = fread_l(progpath); /* Size of remote initialized data */
-    ROFHd->debugsiz = fread_l(progpath);      /* Size of the debug   */
+    ROFHd->ty_lan = opt->Module->read<uint16_t>();  // fread_w(progpath)
+    ROFHd->att_rev = opt->Module->read<uint16_t>(); // fread_w(progpath); /* Attribute/Revision word */
+    ROFHd->valid = opt->Module->read<uint16_t>();   // fread_w(progpath);   /* Nonzero if valid */
+    ROFHd->series = opt->Module->read<uint16_t>();  // fread_w(progpath);  /* Assembler version used to compile */
+    opt->Module->readVec(ROFHd->rdate, 6);
+    // fread(ROFHd->rdate, sizeof(ROFHd->rdate), 1, progpath);
+    ROFHd->edition = opt->Module->read<uint16_t>(); // fread_w(progpath);
 
-    ROFHd->rname = freadString(progpath);
+    ROFHd->statstorage = opt->Module->read<uint32_t>(); // fread_l(progpath);   /* Size of static variable storage */
+    ROFHd->idatsz = opt->Module->read<uint32_t>();      // fread_l(progpath);        /* Size of initialized data */
+    ROFHd->codsz = opt->Module->read<uint32_t>();       // fread_l(progpath);         /* Size of the object code  */
+    ROFHd->stksz = opt->Module->read<uint32_t>();       // fread_l(progpath);         /* Size of stack required   */
+    ROFHd->code_begin =
+        opt->Module->read<uint32_t>(); // fread_l(progpath);    /* Offset to entry point of object code   */
+    ROFHd->utrap =
+        opt->Module->read<uint32_t>(); // fread_l(progpath);         /* Offset to unitialized trap entry point */
+    ROFHd->remotestatsiz = opt->Module->read<uint32_t>(); // fread_l(progpath); /* Size of remote static storage   */
+    ROFHd->remoteidatsiz = opt->Module->read<uint32_t>(); // fread_l(progpath); /* Size of remote initialized data */
+    ROFHd->debugsiz = opt->Module->read<uint32_t>();      // fread_l(progpath);      /* Size of the debug   */
+
+    ROFHd->rname = opt->Module->read<std::string>(); // freadString(progpath);
 
     /* Set ModData to an unreasonable high number so ListData
      * won't do it's thing...
@@ -265,20 +243,19 @@ void getRofHdr(FILE* progpath, struct options* opt)
     /* ************************************************ *
      * Get the Global definitions                       *
      * ************************************************ */
-    count = glbl_cnt = fread_w(progpath);
+    count = glbl_cnt = opt->Module->read<uint16_t>(); // fread_w(progpath);
 
     while (count--)
     {
-        char* name;
-        Label* me;
-        int adrs;
-        int typ;
+        std::string name;
+        uint16_t typ;
+        uint32_t adrs;
 
-        name = freadString(progpath);
-        typ = fread_w(progpath);
-        adrs = fread_l(progpath);
+        name = opt->Module->read<std::string>(); // freadString(progpath);
+        typ = opt->Module->read<uint16_t>();     // fread_w(progpath);
+        adrs = opt->Module->read<uint32_t>();    // fread_l(progpath);
 
-        me = addlbl(rof_class(typ, REFGLBL), adrs, name);
+        Label* me = addlbl(rof_class(typ, REFGLBL), adrs, name.c_str());
         if (me)
         {
             me->setGlobal(true);
@@ -286,63 +263,49 @@ void getRofHdr(FILE* progpath, struct options* opt)
     }
 
     /* Code section... read, or save file position   */
-    HdrEnd = ftell(progpath);
+    HdrEnd = opt->Module->position();
     CodeEnd = ROFHd->codsz;
 
     /* Read code into buffer for get_refs() while we're here */
 
-    codeBuf = (char*)mem_alloc((size_t)ROFHd->codsz + 1);
-    if (fread(codeBuf, ROFHd->codsz, 1, progpath) == -1)
-    {
-        fprintf(stderr, "Failed to read code buffer\n");
-    }
-
-    /*idp_begin = code_begin + rofptr->codsz;
-    indp_begin = idp_begin + rofptr->idpsz;*/
-
-    /*if (fseek (progpath, ROFHd->codsz, SEEK_CUR) == -1)
-    {
-        fprintf (stderr, "rofhdr(): Seek error on module\n");
-        exit (errno);
-    }*/
+    codeBuf = new char[(size_t)ROFHd->codsz + 1];
+    opt->Module->readRaw(codeBuf, ROFHd->codsz);
 
     /* ********************************** *
      *    Initialized data Section        *
      * ********************************** */
 
     IDataCount = ROFHd->idatsz;
-    IDataBegin = ftell(progpath);
+    IDataBegin = opt->Module->position();
 
     /* ********************************** *
      *    External References Section     *
      * ********************************** */
 
-    if (fseek(progpath, IDataBegin + ROFHd->idatsz + ROFHd->remoteidatsiz + ROFHd->debugsiz, SEEK_SET) == -1)
-    {
-        fprintf(stderr, "rofhdr(): Seek error on module\n");
-        exit(errno);
-    }
+    opt->Module->seekAbsolute((size_t)IDataBegin + ROFHd->idatsz + ROFHd->remoteidatsiz + ROFHd->debugsiz);
 
-    for (ext_count = fread_w(progpath); ext_count > 0; ext_count--)
+    for (auto ext_count = opt->Module->read<uint16_t>(); ext_count > 0; ext_count--)
     {
-        char* _name;
-        int refcount;
+        std::string _name;
+        uint16_t refcount;
 
-        _name = freadString(progpath);
-        refcount = fread_w(progpath);
+        _name = opt->Module->read<std::string>();
+        refcount = opt->Module->read<uint16_t>();
+        //_name = freadString(progpath);
+        // refcount = fread_w(progpath);
 
         /* Get the individual occurrences for this name */
 
-        get_refs(_name, refcount, REFXTRN, NULL, opt->ModFP);
+        get_refs(_name, refcount, REFXTRN, NULL, opt->Module);
     }
 
     /* *************************** *
      *    Local variables...       *
      * *************************** */
 
-    local_count = fread_w(progpath);
-    get_refs("", local_count, REFLOCAL, codeBuf, opt->ModFP);
-    free(codeBuf);
+    auto local_count = opt->Module->read<uint16_t>();
+    get_refs(std::string(), local_count, REFLOCAL, codeBuf, opt->Module);
+    delete[] codeBuf;
 
     /* Now we need to add labels for these refs */
 
@@ -350,18 +313,16 @@ void getRofHdr(FILE* progpath, struct options* opt)
     /* Do this after everything else is done */
     /* NOTE: We may need to save current ftell() to restore it after this */
 
-    if (fseek(progpath, IDataBegin, SEEK_SET) == -1)
-    {
-        errexit("RofLoadInitData() : Failed to seek to begin of Init Data");
-    }
+    opt->Module->seekAbsolute(IDataBegin);
 
-    AddInitLbls(refs_idata, ROFHd->idatsz, '_', opt->ModFP);
-    AddInitLbls(refs_iremote, ROFHd->idatsz, 'H', opt->ModFP);
+    AddInitLbls(refs_idata, '_', opt->Module->fork(ROFHd->idatsz));
+    AddInitLbls(refs_iremote, 'H', opt->Module->fork(ROFHd->remoteidatsiz));
 
     /* Now we're ready to disassemble the code */
 
     /* Position to begin of Code section */
-    fseek(progpath, HdrEnd, SEEK_SET);
+    opt->Module->seekAbsolute(HdrEnd);
+    // fseek(progpath, HdrEnd, SEEK_SET);
 }
 
 void RofLoadInitData(void)
@@ -477,18 +438,18 @@ char rof_class(int typ, int refTy)
  *          count - number of entries to process
  *          1 if external, 0 if local
  */
-static void get_refs(char* vname, int count, int ref_typ, char* code_buf, FILE* ModFP)
+static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf, BigEndianStream* Module)
 {
     struct rof_extrn* prevRef = NULL;
     char myClass;
-    unsigned int _ty;
-    int _ofst;
+    uint16_t _ty;
+    uint32_t _ofst;
     struct rof_extrn *new_ref, *curRef, **base = 0;
 
     for (; count > 0; count--)
     {
-        _ty = fread_w(ModFP);
-        _ofst = fread_l(ModFP);
+        _ty = Module->read<uint16_t>();   // fread_w(ModFP);
+        _ofst = Module->read<uint32_t>(); // fread_l(ModFP);
 
         /* Skip Debug refs */
         if (ref_typ == REFLOCAL)
@@ -527,8 +488,7 @@ static void get_refs(char* vname, int count, int ref_typ, char* code_buf, FILE* 
         }
         else*/
         {
-            new_ref = (struct rof_extrn*)mem_alloc(sizeof(struct rof_extrn));
-            memset(new_ref, 0, sizeof(struct rof_extrn));
+            new_ref = new rof_extrn();
 
             new_ref->Type = _ty;
             new_ref->Ofst = _ofst;
@@ -596,7 +556,7 @@ static void get_refs(char* vname, int count, int ref_typ, char* code_buf, FILE* 
             if (new_ref->Extrn)
             {
                 new_ref->hasName = TRUE;
-                new_ref->EName.nam = vname;
+                new_ref->nam = vname;
                 new_ref->hasName = TRUE;
             }
             else
@@ -620,7 +580,7 @@ static void get_refs(char* vname, int count, int ref_typ, char* code_buf, FILE* 
                         dstVal = bufReadL(&pt);
                     }
                     new_ref->hasName = FALSE;
-                    new_ref->EName.lbl = addlbl(new_ref->dstClass, dstVal, "");
+                    new_ref->lbl = addlbl(new_ref->dstClass, dstVal, "");
                 }
             }
         } /* end "if (ref_typ == REFXTRN)" */
@@ -633,7 +593,7 @@ static void get_refs(char* vname, int count, int ref_typ, char* code_buf, FILE* 
  *          (2) adrs - Address to match
  * Pure function.
  */
-struct rof_extrn* find_extrn(struct rof_extrn* xtrn, int adrs)
+struct rof_extrn* find_extrn(struct rof_extrn* xtrn, unsigned int adrs)
 {
     /*int found = 0;*/
 
@@ -687,14 +647,12 @@ int rof_datasize(char cclass)
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
-static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBuf, int blkEnd, char cclass,
+static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBuf, unsigned int blkEnd, char cclass,
                          struct parse_state* state)
 {
     /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
     char lblString[200];
-
-    memset(&Ci, 0, sizeof(struct cmd_items));
 
     /* Insert Label if applicable */
 
@@ -742,11 +700,11 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
 
             if ((*refsList)->Extrn)
             {
-                strcpy(Ci.params, (*refsList)->EName.nam);
+                strcpy(Ci.params, (*refsList)->nam.c_str());
             }
             else
             {
-                strcpy(Ci.params, (*refsList)->EName.lbl->name());
+                strcpy(Ci.params, (*refsList)->lbl->name());
             }
 
             PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
@@ -829,12 +787,13 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
  *          (2) mycount - count of elements in this sect.
  *          (3) class   - Label Class letter
  */
-void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, int isize, char iClass, struct parse_state* state)
+void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, unsigned int isize, char iClass,
+                 struct parse_state* state)
 {
     auto category = labelManager->getCategory(iClass);
     Label* lblList = category ? category->getFirst() : NULL;
 
-    while (state->PCPos < (isize))
+    while (state->PCPos < isize)
     {
         register int blkEnd;
 
@@ -881,7 +840,7 @@ int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val)
 {
     if (find_extrn(ref, addrs))
     {
-        strcpy(dest, find_extrn(ref, addrs)->EName.nam);
+        strcpy(dest, find_extrn(ref, addrs)->nam.c_str());
 
         if (val != 0)
         {
@@ -914,7 +873,7 @@ char* IsRef(char* dst, int curloc, int ival, int Pass)
         {
             if (refs_code->Extrn)
             {
-                strcpy(dst, refs_code->EName.nam);
+                strcpy(dst, refs_code->nam.c_str());
                 retVal = dst;
 
                 if (ival)
@@ -929,7 +888,7 @@ char* IsRef(char* dst, int curloc, int ival, int Pass)
             else
             {
                 // Pretty sure this is a bug, and it's supposed to be strcpy().
-                strcat(dst, refs_code->EName.lbl->name());
+                strcat(dst, refs_code->lbl->name());
                 retVal = dst;
             }
 
@@ -948,7 +907,7 @@ char* IsRef(char* dst, int curloc, int ival, int Pass)
                 ep_tmp->EUp = NULL;
             }
 
-            free(refs_code);
+            delete refs_code;
             refs_code = ep_tmp;
         }
     } /* End "if (refs_code && (refs_code->Ofst == val)) */

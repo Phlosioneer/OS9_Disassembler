@@ -18,7 +18,8 @@ struct ireflist
 {
     struct ireflist* Prev;
     struct ireflist* Next;
-    int dAddr;
+    // I think this should be uint32_t
+    int32_t dAddr;
 };
 
 template <typename T>
@@ -135,7 +136,7 @@ void ROFPsect(struct rof_header* rptr, struct options* opt);
 void WrtEnds(struct options* opt, int PCPos);
 void ParseIRefs(char rClass, struct options* opt);
 void GetIRefs(struct options* opt);
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, int bufEnd, char iClass, struct parse_state* state);
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, char iClass, struct parse_state* state);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
 void ListData(Label* me, int upadr, char cClass, struct parse_state* state);

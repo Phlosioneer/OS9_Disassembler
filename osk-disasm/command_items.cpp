@@ -539,9 +539,9 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 char getnext_b(struct cmd_items* ci, struct parse_state* state)
 
 {
-    char b;
+    char b = state->Module->read<char>();
 
-    if (fread(&b, 1, 1, state->ModFP) < 1)
+    if (state->Module->eof())
     {
         filereadexit();
     }
@@ -562,9 +562,11 @@ char getnext_b(struct cmd_items* ci, struct parse_state* state)
  */
 int getnext_w(struct cmd_items* ci, struct parse_state* state)
 {
-    short w;
-
-    w = fread_w(state->ModFP);
+    int16_t w = state->Module->read<int16_t>();
+    if (state->Module->eof())
+    {
+        filereadexit();
+    }
     state->PCPos += 2;
     ci->code[ci->wcount] = w;
     ci->wcount += 1;
@@ -577,7 +579,7 @@ int getnext_w(struct cmd_items* ci, struct parse_state* state)
  */
 void ungetnext_w(struct cmd_items* ci, struct parse_state* state)
 {
-    fseek(state->ModFP, -2, SEEK_CUR);
+    state->Module->undo();
     state->PCPos -= 2;
     ci->wcount -= 1;
 }

@@ -49,6 +49,9 @@
     <ClCompile Include="params.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="reader.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -112,6 +115,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="either.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="reader.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

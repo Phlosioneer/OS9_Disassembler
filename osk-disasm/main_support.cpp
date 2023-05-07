@@ -30,6 +30,7 @@
 #include "disglobs.h"
 #include "userdef.h"
 #include <ctype.h>
+#include <fstream>
 #include <string.h>
 
 #include "cmdfile.h"
@@ -52,13 +53,7 @@ int ExtBegin; /* The position of the begin of the extended list (for PC-Relative
 
 struct options* options_new()
 {
-    struct options* ret = (struct options*)malloc(sizeof(struct options));
-    if (ret == 0)
-    {
-        errexit("OoM");
-    }
-    memset(ret, 0, sizeof(struct options));
-
+    auto ret = new options();
     ret->PgWidth = 80;
 
     return ret;
@@ -66,18 +61,18 @@ struct options* options_new()
 
 void options_destroy(struct options* opt)
 {
-    if (opt->CmdFileName) free(opt->CmdFileName);
+    if (opt->CmdFileName) delete[] opt->CmdFileName;
     if (opt->CmdFP) fclose(opt->CmdFP);
     if (opt->asmFile) writer_close(opt->asmFile);
-    if (opt->DefDir) free(opt->DefDir);
-    if (opt->ModFile) free(opt->ModFile);
-    if (opt->ModFP) fclose(opt->ModFP);
+    if (opt->DefDir) delete[] opt->DefDir;
+    if (opt->ModFile) delete[] opt->ModFile;
+    if (opt->Module) delete opt->Module;
+    // if (opt->ModFP) fclose(opt->ModFP);
     for (int i = 0; i < opt->LblFilz; i++)
     {
-        free(opt->LblFNam[i]);
+        delete[] opt->LblFNam[i];
     }
-    memset(opt, 0, sizeof(struct options));
-    free(opt);
+    delete opt;
 }
 
 void options_addLabelFile(struct options* opt, const char* name)
@@ -139,7 +134,16 @@ struct options* getoptions(int argc, char** argv)
         }
     }
 
+    readModuleFile(ret);
+
     return ret;
+}
+
+void readModuleFile(options* opt)
+{
+    std::ifstream moduleFile(opt->ModFile, std::ifstream::binary);
+    std::vector<char> buffer{std::istreambuf_iterator<char>(moduleFile), std::istreambuf_iterator<char>()};
+    opt->Module = new BigEndianStream(std::move(buffer));
 }
 
 /*

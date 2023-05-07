@@ -31,7 +31,4 @@ unsigned short bufReadW(char** pt);
 unsigned int bufReadL(char** pt);
 char* freadString(FILE* fp);
 
-// Memory
-void* mem_alloc(size_t size);
-
 #endif

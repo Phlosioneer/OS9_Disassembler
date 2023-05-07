@@ -1108,7 +1108,7 @@
   966  0004c 7a65            moveq  #101,d5    
   967  0004e 6c64            bge.s  L000b4     
   968  00050 6100            bsr.w  L02d98     
-  969  00052 cccccccc L00052     equ    *-2        
+  969  00052 0000 L00052     equ    *-2        
   970  00054 8010            or.b   (a0),d0    
   971  00056 2d46            move.l d6,D00014(a6) 
   972  0005a 3d43            move.w d3,D00018(a6) 
@@ -1139,7 +1139,7 @@
   997  000ac 6076            bra.s  L00124     
   998  000ae 43e8 L000ae     lea.l  4(a0),a1   
   999  000b2 2d49            move.l a1,D00b6a(a6) 
- 1000  000b4 cccccccc L000b4     equ    *-2        
+ 1000  000b4 0000 L000b4     equ    *-2        
  1001  000b6 7400            moveq  #0,d2      
  1002  000b8 2260 L000b8     movea.l -(a0),a1   
  1003  000ba 2e09            move.l a1,d7      
@@ -1248,7 +1248,7 @@
  1106  001f0 4e75            rts               
  1107  001f2 4afb            dc.w   $4afb      
  1108  001f4 0050            ori.w  #10794,(a0) 
- 1109  001f6 cccccccc L001f6     equ    *-2        
+ 1109  001f6 0000 L001f6     equ    *-2        
  1110  001f8 2a2a            move.l 8275(a2),d5 
  1111  001fc 7461            moveq  #97,d2     
  1112  001fe 636b            dc.w   $636b      
@@ -1277,7 +1277,7 @@
  1135  00236 202a L00236     move.l 10794(a2),d0 
  1136  0023a 2a20            move.l -(a0),d5   
  1137  0023c 006d            ori.w  #24948,26624(a5) 
- 1138  0023d cccccccc L0023d     equ    *-5        
+ 1138  0023d 0000 L0023d     equ    *-5        
  1139  00242 0000 L00242     ori.b  #0,d0      
  1140  00246 223c            move.l #64,d1     
  1141  0024c 2f08 L0024c     move.l a0,-(sp)   
@@ -1298,7 +1298,7 @@
  1156  0027e d1ce            adda.l a6,a0      
  1157  00280 6100            bsr.w  L0019a     
  1158  00284 4e40            os9    F$Exit     
- 1159  00286 cccccccc L00286     equ    *-2        
+ 1159  00286 0000 L00286     equ    *-2        
  1160  00288 4e40            os9    F$Exit     
  1161  0028c 12d8 L0028c     move.b (a0)+,(a1)+ 
  1162  0028e 66fc L0028e     bne.s  L0028c     
@@ -1409,7 +1409,7 @@
  1267  003b2 d040            add.w  d0,d0      
  1268  003b4 303b            move.w L003ba(pc,d0.w),d0 
  1269  003b8 4efb            jmp    L003ba(pc,d0.w) 
- 1270  003ba cccccccc L003ba     equ    *-2        
+ 1270  003ba 0000 L003ba     equ    *-2        
  1271  003bc ff9e            dc.w   $ff9e      
  1272  003be ff88            dc.w   $ff88      
  1273  003c0 ffa2            dc.w   $ffa2      
@@ -1681,7 +1681,7 @@
  1539  00744 d040            add.w  d0,d0      
  1540  00746 303b            move.w L0074c(pc,d0.w),d0 
  1541  0074a 4efb            jmp    L0074c(pc,d0.w) 
- 1542  0074c cccccccc L0074c     equ    *-2        
+ 1542  0074c 0000 L0074c     equ    *-2        
  1543  0074e 003a            dc.w   $3a        
  1544  00750 fcb8            dc.w   $fcb8      
  1545  00752 fccc            dc.w   $fccc      
@@ -2466,7 +2466,7 @@
  2324  011a4 2068            movea.l 4830(a0),a0 
  2325  011a8 4868            pea    4(a0)      
  2326  011ac 4878            pea    (256).w    
- 2327  011ae cccccccc L011ae     equ    *-2        
+ 2327  011ae 0000 L011ae     equ    *-2        
  2328  011b0 42a7            clr.l  -(sp)      
  2329  011b2 206e            movea.l D00028(a6),a0 
  2330  011b6 3028            move.w 14(a0),d0  
@@ -3218,7 +3218,7 @@
  3076  01bc8 d040            add.w  d0,d0      
  3077  01bca 303b            move.w L01bd0(pc,d0.w),d0 
  3078  01bce 4efb            jmp    L01bd0(pc,d0.w) 
- 3079  01bd0 cccccccc L01bd0     equ    *-2        
+ 3079  01bd0 0000 L01bd0     equ    *-2        
  3080  01bd2 ffda            dc.w   $ffda      
  3081  01bd4 ffc2            dc.w   $ffc2      
  3082  01bd6 ffd2            dc.w   $ffd2      
@@ -3689,7 +3689,7 @@
  3547  0222e d040            add.w  d0,d0      
  3548  02230 303b            move.w L02236(pc,d0.w),d0 
  3549  02234 4efb            jmp    L02236(pc,d0.w) 
- 3550  02236 cccccccc L02236     equ    *-2        
+ 3550  02236 0000 L02236     equ    *-2        
  3551  02238 ff88            dc.w   $ff88      
  3552  0223a ffb8            dc.w   $ffb8      
  3553  0223c ffa4            dc.w   $ffa4      
@@ -3961,83 +3961,83 @@
  3819  0259e 6473            dc.w   $6473      
  3820  025a0 6831            dc.w   $6831      
  3821  025a2 0065            ori.w  #28260,-(a5) 
- 3822  025a3 cccccccc L025a3     equ    *-3        
+ 3822  025a3 0000 L025a3     equ    *-3        
  3823  025a6 7368            dc.w   $7368      
  3824  025a8 3200            move.w d0,d1      
  3825  025aa 656e L025aa     bcs.s  L0261a     
  3826  025ac 6473            dc.w   $6473      
  3827  025ae 6833            dc.w   $6833      
  3828  025b0 0065            ori.w  #28260,-(a5) 
- 3829  025b1 cccccccc L025b1     equ    *-3        
+ 3829  025b1 0000 L025b1     equ    *-3        
  3830  025b4 7368            dc.w   $7368      
  3831  025b6 3400            move.w d0,d2      
  3832  025b8 656e L025b8     bcs.s  L02628     
  3833  025ba 6473            dc.w   $6473      
  3834  025bc 6835            dc.w   $6835      
  3835  025be 0065            ori.w  #28260,-(a5) 
- 3836  025bf cccccccc L025bf     equ    *-3        
+ 3836  025bf 0000 L025bf     equ    *-3        
  3837  025c2 7368            dc.w   $7368      
  3838  025c4 3600            move.w d0,d3      
  3839  025c6 656e L025c6     bcs.s  L02636     
  3840  025c8 6473            dc.w   $6473      
  3841  025ca 6837            dc.w   $6837      
  3842  025cc 0067            ori.w  #13106,-(sp) 
- 3843  025cd cccccccc L025cd     equ    *-3        
+ 3843  025cd 0000 L025cd     equ    *-3        
  3844  025d0 006c            ori.w  #14336,31285(a4) 
- 3845  025d1 cccccccc L025d1     equ    *-5        
- 3846  025d4 cccccccc L025d4     equ    *-2        
+ 3845  025d1 0000 L025d1     equ    *-5        
+ 3846  025d4 0000 L025d4     equ    *-2        
  3847  025d6 0073            dc.w   $73        
- 3848  025d7 cccccccc L025d7     equ    *-1        
+ 3848  025d7 0000 L025d7     equ    *-1        
  3849  025d8 3500            move.w d0,-(a2)   
  3850  025da 7232 L025da     moveq  #50,d1     
  3851  025dc 3900            move.w d0,-(a4)   
  3852  025de 6162 L025de     bsr.s  L02642     
  3853  025e0 3137            move.w 103(sp,d0.w),-(a0) 
- 3854  025e3 cccccccc L025e3     equ    *-1        
+ 3854  025e3 0000 L025e3     equ    *-1        
  3855  025e4 6c31            dc.w   $6c31      
  3856  025e6 007a            dc.w   $7a        
- 3857  025e7 cccccccc L025e7     equ    *-1        
+ 3857  025e7 0000 L025e7     equ    *-1        
  3858  025e8 656c            bcs.s  L02656     
  3859  025ea 6461            dc.w   $6461      
  3860  025ec 0064            ori.w  #26995,-(a4) 
- 3861  025ed cccccccc L025ed     equ    *-3        
+ 3861  025ed 0000 L025ed     equ    *-3        
  3862  025f0 706c            moveq  #108,d0    
  3863  025f2 6179            dc.w   $6179      
  3864  025f4 0069            ori.w  #28262,28416(a1) 
- 3865  025f5 cccccccc L025f5     equ    *-5        
+ 3865  025f5 0000 L025f5     equ    *-5        
  3866  025fa 7472 L025fa     moveq  #114,d2    
  3867  025fc 6565            dc.w   $6565      
  3868  025fe 0063            ori.w  #31075,-(a3) 
- 3869  025ff cccccccc L025ff     equ    *-3        
+ 3869  025ff 0000 L025ff     equ    *-3        
  3870  02602 6c65            dc.w   $6c65      
  3871  02604 0076            dc.w   $76        
- 3872  02605 cccccccc L02605     equ    *-1        
+ 3872  02605 0000 L02605     equ    *-1        
  3873  02606 6f69            dc.w   $6f69      
  3874  02608 6365            dc.w   $6365      
  3875  0260a 0070            dc.w   $70        
- 3876  0260b cccccccc L0260b     equ    *-1        
+ 3876  0260b 0000 L0260b     equ    *-1        
  3877  0260c 6c61 L0260c     dc.w   $6c61      
  3878  0260e 793b            dc.w   $793b      
  3879  02610 006f            ori.w  #26214,29541(sp) 
- 3880  02611 cccccccc L02611     equ    *-5        
+ 3880  02611 0000 L02611     equ    *-5        
  3881  02616 7473            moveq  #115,d2    
  3882  02618 0075            ori.w  #28001,(a5,d7.w) 
- 3883  02619 cccccccc L02619     equ    *-5        
- 3884  0261a cccccccc L0261a     equ    *-4        
+ 3883  02619 0000 L02619     equ    *-5        
+ 3884  0261a 0000 L0261a     equ    *-4        
  3885  0261e 6f6d L0261e     dc.w   $6f6d      
  3886  02620 6170            bsr.s  L02692     
  3887  02622 002a            dc.w   $2a        
- 3888  02623 cccccccc L02623     equ    *-1        
+ 3888  02623 0000 L02623     equ    *-1        
  3889  02624 2a2a            move.l 10794(a2),d5 
  3890  02628 2a2a L02628     move.l 10794(a2),d5 
  3891  0262c 2a2a            move.l 10794(a2),d5 
  3892  02630 2a2a            move.l 10794(a2),d5 
  3893  02634 2a2a            move.l 10794(a2),d5 
- 3894  02636 cccccccc L02636     equ    *-2        
+ 3894  02636 0000 L02636     equ    *-2        
  3895  02638 2a2a            move.l 10794(a2),d5 
  3896  0263c 2a0d            move.l a5,d5      
  3897  0263e 0045            ori.w  #28276,d5  
- 3898  0263f cccccccc L0263f     equ    *-3        
+ 3898  0263f 0000 L0263f     equ    *-3        
  3899  02642 6572 L02642     bcs.s  L026b6     
  3900  02644 696e            bvs.s  L026b4     
  3901  02646 6720            beq.s  L02668     
@@ -4046,17 +4046,17 @@
  3904  0264c 2025            move.l -(a5),d0   
  3905  0264e 730d            dc.w   $730d      
  3906  02650 002a            dc.w   $2a        
- 3907  02651 cccccccc L02651     equ    *-1        
+ 3907  02651 0000 L02651     equ    *-1        
  3908  02652 2a2a            move.l 10794(a2),d5 
  3909  02656 2a2a L02656     move.l 10794(a2),d5 
  3910  0265a 2a2a            move.l 10794(a2),d5 
  3911  0265e 2a2a            move.l 10794(a2),d5 
  3912  02662 2a2a            move.l 10794(a2),d5 
  3913  02666 2a2a            move.l 10794(a2),d5 
- 3914  02668 cccccccc L02668     equ    *-2        
+ 3914  02668 0000 L02668     equ    *-2        
  3915  0266a 2a0d            move.l a5,d5      
  3916  0266c 0072            ori.w  #28001,(a2,d7.w) 
- 3917  0266d cccccccc L0266d     equ    *-5        
+ 3917  0266d 0000 L0266d     equ    *-5        
  3918  02672 4e55 L02672     link.w A5,#0      
  3919  02676 48e7            movem.l a0/a2-a3/d0-d1/d4-d7,-(sp) 
  3920  0267a 282f            move.l 48(sp),d4  
@@ -4066,7 +4066,7 @@
  3924  0268a 2004            move.l d4,d0      
  3925  0268c d085            add.l  d5,d0      
  3926  0268e 0c80            cmpi.l #256,d0    
- 3927  02692 cccccccc L02692     equ    *-2        
+ 3927  02692 0000 L02692     equ    *-2        
  3928  02694 6e00            bgt.w  L027a4     
  3929  02698 4a84            tst.l  d4         
  3930  0269a 6d00            blt.w  L027a4     
@@ -4077,7 +4077,7 @@
  3935  026ac 2f40            move.l d0,16(sp)  
  3936  026b0 202f            move.l 332(sp),d0 
  3937  026b4 2f40 L026b4     move.l d0,28(sp)  
- 3938  026b6 cccccccc L026b6     equ    *-2        
+ 3938  026b6 0000 L026b6     equ    *-2        
  3939  026b8 2f40 L026b8     move.l d0,24(sp)  
  3940  026bc 700b            moveq  #11,d0     
  3941  026be 2f40            move.l d0,8(sp)   
@@ -4349,7 +4349,7 @@
  4207  029fc d040            add.w  d0,d0      
  4208  029fe 303b            move.w L02a04(pc,d0.w),d0 
  4209  02a02 4efb            jmp    L02a04(pc,d0.w) 
- 4210  02a04 cccccccc L02a04     equ    *-2        
+ 4210  02a04 0000 L02a04     equ    *-2        
  4211  02a06 ffd6            dc.w   $ffd6      
  4212  02a08 ffd6            dc.w   $ffd6      
  4213  02a0a ffda            dc.w   $ffda      
@@ -4607,7 +4607,7 @@
  4465  02d38 6465            dc.w   $6465      
  4466  02d3a 7363            dc.w   $7363      
  4467  02d3c 0063            ori.w  #29552,-(a3) 
- 4468  02d3d cccccccc L02d3d     equ    *-3        
+ 4468  02d3d 0000 L02d3d     equ    *-3        
  4469  02d40 5f67            subq.w #7,-(sp)   
  4470  02d42 726f            moveq  #111,d1    
  4471  02d44 7570            dc.w   $7570      
@@ -6054,7 +6054,7 @@
  5912  03f46 206e            movea.l D00028(a6),a0 
  5913  03f4a 2028            move.l 6914(a0),d0 
  5914  03f4e 4eae            jsr    D017f0(a6) 
- 5915  03f50 cccccccc L03f50     equ    *-2        
+ 5915  03f50 0000 L03f50     equ    *-2        
  5916  03f52 026e            andi.w #-257,D011ba(a6) 
  5917  03f58 41fa            lea.l  L059d9(pc),a0 
  5918  03f5c 2208            move.l a0,d1      
@@ -8175,51 +8175,51 @@
  8033  05986 4e5d            unlk   A5         
  8034  05988 4e75            rts               
  8035  0598a 0073 L0598a     ori.w  #12594,(a3,d3.w) 
- 8036  0598b cccccccc L0598b     equ    *-5        
+ 8036  0598b 0000 L0598b     equ    *-5        
  8037  05990 7332 L05990     dc.w   $7332      
  8038  05992 3233            move.w 115(a3,d0.w),d1 
- 8039  05995 cccccccc L05995     equ    *-1        
+ 8039  05995 0000 L05995     equ    *-1        
  8040  05996 3332            move.w (a2,d3.w),-(a1) 
  8041  0599a 7334 L0599a     dc.w   $7334      
  8042  0599c 3231            move.w 115(a1,d0.w),d1 
- 8043  0599f cccccccc L0599f     equ    *-1        
+ 8043  0599f 0000 L0599f     equ    *-1        
  8044  059a0 3532            dc.w   $3532      
  8045  059a2 3400            move.w d0,d2      
  8046  059a4 7336 L059a4     dc.w   $7336      
  8047  059a6 3237            move.w 115(sp,d0.w),d1 
- 8048  059a9 cccccccc L059a9     equ    *-1        
+ 8048  059a9 0000 L059a9     equ    *-1        
  8049  059aa 3732            dc.w   $3732      
  8050  059ac 3200            move.w d0,d1      
  8051  059ae 6732 L059ae     beq.s  L059e2     
  8052  059b0 3300            move.w d0,-(a1)   
  8053  059b2 7331 L059b2     dc.w   $7331      
  8054  059b4 3031            move.w 115(a1,d0.w),d0 
- 8055  059b7 cccccccc L059b7     equ    *-1        
+ 8055  059b7 0000 L059b7     equ    *-1        
  8056  059b8 3230            dc.w   $3230      
  8057  059ba 3100            move.w d0,-(a0)   
  8058  059bc 7333 L059bc     dc.w   $7333      
  8059  059be 3031            move.w 115(a1,d0.w),d0 
- 8060  059c1 cccccccc L059c1     equ    *-1        
+ 8060  059c1 0000 L059c1     equ    *-1        
  8061  059c2 3430            dc.w   $3430      
  8062  059c4 3100            move.w d0,-(a0)   
  8063  059c6 7335 L059c6     dc.w   $7335      
  8064  059c8 3031            move.w 115(a1,d0.w),d0 
- 8065  059cb cccccccc L059cb     equ    *-1        
+ 8065  059cb 0000 L059cb     equ    *-1        
  8066  059cc 3630            dc.w   $3630      
  8067  059ce 3100            move.w d0,-(a0)   
  8068  059d0 7337 L059d0     dc.w   $7337      
  8069  059d2 3031            move.w 103(a1,d0.w),d0 
- 8070  059d5 cccccccc L059d5     equ    *-1        
+ 8070  059d5 0000 L059d5     equ    *-1        
  8071  059d6 6c31            dc.w   $6c31      
  8072  059d8 007a            dc.w   $7a        
- 8073  059d9 cccccccc L059d9     equ    *-1        
+ 8073  059d9 0000 L059d9     equ    *-1        
  8074  059da 6400            dc.w   $6400      
  8075  059dc 7a73 L059dc     moveq  #115,d5    
  8076  059de 705f            moveq  #95,d0     
  8077  059e0 6361            dc.w   $6361      
  8078  059e2 7374 L059e2     dc.w   $7374      
  8079  059e4 007a            dc.w   $7a        
- 8080  059e5 cccccccc L059e5     equ    *-1        
+ 8080  059e5 0000 L059e5     equ    *-1        
  8081  059e6 7370            dc.w   $7370      
  8082  059e8 5f64            subq.w #7,-(a4)   
  8083  059ea 6573            dc.w   $6573      
@@ -9753,15 +9753,15 @@
  9611  06d44 6b65 L06d44     dc.w   $6b65      
  9612  06d46 7973            dc.w   $7973      
  9613  06d48 0066            ori.w  #28526,-(a6) 
- 9614  06d49 cccccccc L06d49     equ    *-3        
+ 9614  06d49 0000 L06d49     equ    *-3        
  9615  06d4c 7400            moveq  #0,d2      
  9616  06d4e 6b65 L06d4e     dc.w   $6b65      
  9617  06d50 7973            dc.w   $7973      
  9618  06d52 0066            ori.w  #27745,-(a6) 
- 9619  06d53 cccccccc L06d53     equ    *-3        
+ 9619  06d53 0000 L06d53     equ    *-3        
  9620  06d56 6d65            dc.w   $6d65      
  9621  06d58 0065            ori.w  #28276,-(a5) 
- 9622  06d59 cccccccc L06d59     equ    *-3        
+ 9622  06d59 0000 L06d59     equ    *-3        
  9623  06d5c 0000            dc.w   $0         
  9624  06d5e 4e55 L06d5e     link.w A5,#0      
  9625  06d62 48e7            movem.l a0/a2-a3/d0-d1/d4-d6,-(sp) 
@@ -10294,12 +10294,12 @@
 10152  07462 6372 L07462     bls.s  L074d6     
 10153  07464 6564            bcs.s  L074ca     
 10154  07466 0067            ori.w  #24942,-(sp) 
-10155  07467 cccccccc L07467     equ    *-3        
+10155  07467 0000 L07467     equ    *-3        
 10156  0746a 3500            move.w d0,-(a2)   
 10157  0746c 6761 L0746c     dc.w   $6761      
 10158  0746e 6e34            bgt.s  L074a4     
 10159  07470 0067            ori.w  #24942,-(sp) 
-10160  07471 cccccccc L07471     equ    *-3        
+10160  07471 0000 L07471     equ    *-3        
 10161  07474 335f            move.w (sp)+,26880(a1) 
 10162  07478 4e55 L07478     link.w A5,#0      
 10163  0747c 48e7            movem.l a0/a2-a4/d0-d1/d4-d7,-(sp) 
@@ -12172,41 +12172,41 @@
 12030  08c8a 3200            move.w d0,d1      
 12031  08c8c 6539 L08c8c     dc.w   $6539      
 12032  08c8e 0063            ori.w  #14080,-(a3) 
-12033  08c8f cccccccc L08c8f     equ    *-3        
+12033  08c8f 0000 L08c8f     equ    *-3        
 12034  08c92 6a31 L08c92     dc.w   $6a31      
 12035  08c94 3000            move.w d0,d0      
 12036  08c96 7332 L08c96     dc.w   $7332      
 12037  08c98 3134            move.w 115(a4,d0.w),-(a0) 
-12038  08c9b cccccccc L08c9b     equ    *-1        
+12038  08c9b 0000 L08c9b     equ    *-1        
 12039  08c9c 3431 L08c9c     dc.w   $3431      
 12040  08c9e 3500            move.w d0,-(a2)   
 12041  08ca0 7336 L08ca0     dc.w   $7336      
 12042  08ca2 3133            move.w 107(a3,d0.w),-(a0) 
-12043  08ca5 cccccccc L08ca5     equ    *-1        
+12043  08ca5 0000 L08ca5     equ    *-1        
 12044  08ca6 3139            move.w (7761249).l,-(a0) 
-12045  08ca9 cccccccc L08ca9     equ    *-3        
+12045  08ca9 0000 L08ca9     equ    *-3        
 12046  08cac 7000            moveq  #0,d0      
 12047  08cae 6f6d L08cae     dc.w   $6f6d      
 12048  08cb0 6170            bsr.s  L08d22     
 12049  08cb2 0061            ori.w  #28001,-(a1) 
-12050  08cb3 cccccccc L08cb3     equ    *-3        
-12051  08cb4 cccccccc L08cb4     equ    *-2        
+12050  08cb3 0000 L08cb3     equ    *-3        
+12051  08cb4 0000 L08cb4     equ    *-2        
 12052  08cb6 7000            moveq  #0,d0      
 12053  08cb8 6761 L08cb8     dc.w   $6761      
 12054  08cba 6e32            bgt.s  L08cee     
 12055  08cbc 0067            ori.w  #24942,-(sp) 
-12056  08cbd cccccccc L08cbd     equ    *-3        
+12056  08cbd 0000 L08cbd     equ    *-3        
 12057  08cc0 0067            ori.w  #24942,-(sp) 
-12058  08cc1 cccccccc L08cc1     equ    *-3        
+12058  08cc1 0000 L08cc1     equ    *-3        
 12059  08cc4 5f69            subq.w #7,115(a1) 
-12060  08cc7 cccccccc L08cc7     equ    *-1        
+12060  08cc7 0000 L08cc7     equ    *-1        
 12061  08cc8 7472            moveq  #114,d2    
 12062  08cca 007a            dc.w   $7a        
-12063  08ccb cccccccc L08ccb     equ    *-1        
+12063  08ccb 0000 L08ccb     equ    *-1        
 12064  08ccc 696e            bvs.s  L08d3c     
 12065  08cce 6974            bvs.s  L08d44     
 12066  08cd0 006c            ori.w  #25959,24940(a4) 
-12067  08cd1 cccccccc L08cd1     equ    *-5        
+12067  08cd1 0000 L08cd1     equ    *-5        
 12068  08cd6 0000            dc.w   $0         
 12069  08cd8 4e55 L08cd8     link.w A5,#0      
 12070  08cdc 48e7            movem.l a0/d0,-(sp) 
@@ -12214,7 +12214,7 @@
 12072  08ce4 2028            move.l 4(a0),d0   
 12073  08ce8 4eae            jsr    D01a36(a6) 
 12074  08cec 4eae            jsr    D01a4e(a6) 
-12075  08cee cccccccc L08cee     equ    *-2        
+12075  08cee 0000 L08cee     equ    *-2        
 12076  08cf0 7000            moveq  #0,d0      
 12077  08cf2 4eae            jsr    D01958(a6) 
 12078  08cf6 4ced            movem.l -4(a5),a0  
@@ -13010,13 +13010,13 @@
 12868  098be 7072            moveq  #114,d0    
 12869  098c0 6573            dc.w   $6573      
 12870  098c2 007a            dc.w   $7a        
-12871  098c3 cccccccc L098c3     equ    *-1        
+12871  098c3 0000 L098c3     equ    *-1        
 12872  098c4 656c            bcs.s  L09932     
 12873  098c6 6461            dc.w   $6461      
 12874  098c8 2e72            dc.w   $2e72      
 12875  098ca 7466            moveq  #102,d2    
 12876  098cc 007a            dc.w   $7a        
-12877  098cd cccccccc L098cd     equ    *-1        
+12877  098cd 0000 L098cd     equ    *-1        
 12878  098ce 656c            bcs.s  L0993c     
 12879  098d0 6461            dc.w   $6461      
 12880  098d2 5f72            dc.w   $5f72      
@@ -13039,21 +13039,21 @@
 12897  098f4 652e            bcs.s  L09924     
 12898  098f6 7274            moveq  #116,d1    
 12899  098f8 6600            bne.w  L10870     
-12900  098fa cccccccc L098fa     equ    *-2        
+12900  098fa 0000 L098fa     equ    *-2        
 12901  098fc 6572            bcs.s  L09970     
 12902  098fe 2e72            dc.w   $2e72      
 12903  09900 7466            moveq  #102,d2    
 12904  09902 0075            dc.w   $75        
-12905  09903 cccccccc L09903     equ    *-1        
+12905  09903 0000 L09903     equ    *-1        
 12906  09904 6e64 L09904     bgt.s  L0996a     
 12907  09906 6572            bcs.s  L0997a     
 12908  09908 2e72            dc.w   $2e72      
 12909  0990a 7466            moveq  #102,d2    
 12910  0990c 005a            ori.w  #25964,(a2)+ 
-12911  0990d cccccccc L0990d     equ    *-3        
+12911  0990d 0000 L0990d     equ    *-3        
 12912  09910 6461            dc.w   $6461      
 12913  09912 002f            dc.w   $2f        
-12914  09913 cccccccc L09913     equ    *-1        
+12914  09913 0000 L09913     equ    *-1        
 12915  09914 6e76 L09914     bgt.s  L0998c     
 12916  09916 722f            moveq  #47,d1     
 12917  09918 7a65            moveq  #101,d5    
@@ -13062,13 +13062,13 @@
 12920  0991e 6e76 L0991e     bgt.s  L09996     
 12921  09920 7269            moveq  #105,d1    
 12922  09922 0064            ori.w  #29300,-(a4) 
-12923  09923 cccccccc L09923     equ    *-3        
-12924  09924 cccccccc L09924     equ    *-2        
+12923  09923 0000 L09923     equ    *-3        
+12924  09924 0000 L09924     equ    *-2        
 12925  09926 0000            dc.w   $0         
 12926  09928 4e55 L09928     link.w A5,#0      
 12927  0992c 48e7            movem.l a0/a2-a3/d0-d1/d4,-(sp) 
 12928  09930 206e            movea.l D0002c(a6),a0 
-12929  09932 cccccccc L09932     equ    *-2        
+12929  09932 0000 L09932     equ    *-2        
 12930  09934 2468            movea.l 226(a0),a2 
 12931  09938 206e            movea.l D00028(a6),a0 
 12932  0993c 203c L0993c     move.l #158,d0    
@@ -13088,17 +13088,17 @@
 12946  09962 306a            movea.w 8(a2),a0   
 12947  09966 2f08            move.l a0,-(sp)   
 12948  09968 306a            movea.w 6(a2),a0   
-12949  0996a cccccccc L0996a     equ    *-2        
+12949  0996a 0000 L0996a     equ    *-2        
 12950  0996c 2f08            move.l a0,-(sp)   
 12951  0996e 306a            movea.w 4(a2),a0   
-12952  09970 cccccccc L09970     equ    *-2        
+12952  09970 0000 L09970     equ    *-2        
 12953  09972 2f08            move.l a0,-(sp)   
 12954  09974 7020            moveq  #32,d0     
 12955  09976 d0ae            add.l  D0002c(a6),d0 
 12956  0997a 2200 L0997a     move.l d0,d1      
 12957  0997c 7070            moveq  #112,d0    
 12958  0997e d0ae            add.l  D0002c(a6),d0 
-12959  09980 cccccccc L09980     equ    *-2        
+12959  09980 0000 L09980     equ    *-2        
 12960  09982 6100            bsr.w  L07478     
 12961  09986 4fef            lea.l  28(sp),a7  
 12962  0998a 5284 L0998a     addq.l #1,d4      
@@ -14656,7 +14656,7 @@
 14514  0aea4 4e5d            unlk   A5         
 14515  0aea6 4e75            rts               
 14516  0aea8 3030 L0aea8     move.w 102(a0,d0.w),d0 
-14517  0aeab cccccccc L0aeab     equ    *-1        
+14517  0aeab 0000 L0aeab     equ    *-1        
 14518  0aeac 6f6e            ble.s  L0af1c     
 14519  0aeae 7400            moveq  #0,d2      
 14520  0aeb0 7369 L0aeb0     dc.w   $7369      
@@ -14666,15 +14666,15 @@
 14524  0aeb8 6265            dc.w   $6265      
 14525  0aeba 6c73            dc.w   $6c73      
 14526  0aebc 0069            ori.w  #28278,105(a1) 
-14527  0aebd cccccccc L0aebd     equ    *-5        
-14528  0aec1 cccccccc L0aec1     equ    *-1        
+14527  0aebd 0000 L0aebd     equ    *-5        
+14528  0aec1 0000 L0aec1     equ    *-1        
 14529  0aec2 6e76            bgt.s  L0af3a     
 14530  0aec4 0068            ori.w  #28532,104(a0) 
-14531  0aec5 cccccccc L0aec5     equ    *-5        
-14532  0aec9 cccccccc L0aec9     equ    *-1        
+14531  0aec5 0000 L0aec5     equ    *-5        
+14532  0aec9 0000 L0aec9     equ    *-1        
 14533  0aeca 6f74            ble.s  L0af40     
 14534  0aecc 0069            ori.w  #28278,25966(a1) 
-14535  0aecd cccccccc L0aecd     equ    *-5        
+14535  0aecd 0000 L0aecd     equ    *-5        
 14536  0aed2 7400            moveq  #0,d2      
 14537  0aed4 4e55 L0aed4     link.w A5,#0      
 14538  0aed8 48e7            movem.l a2/d0-d1/d4-d7,-(sp) 
@@ -14707,7 +14707,7 @@
 14565  0af1c 2800 L0af1c     move.l d0,d4      
 14566  0af1e 7030            moveq  #48,d0     
 14567  0af20 d02f            add.b  1(sp),d0   
-14568  0af22 cccccccc L0af22     equ    *-2        
+14568  0af22 0000 L0af22     equ    *-2        
 14569  0af24 1580            move.b d0,(a2,d7.l) 
 14570  0af28 5287            addq.l #1,d7      
 14571  0af2a 4a84 L0af2a     tst.l  d4         
@@ -14719,7 +14719,7 @@
 14577  0af38 602a            bra.s  L0af64     
 14578  0af3a 202f L0af3a     move.l 2(sp),d0   
 14579  0af3e 1f72            move.b (a2,d0.l),1(sp) 
-14580  0af40 cccccccc L0af40     equ    *-4        
+14580  0af40 0000 L0af40     equ    *-4        
 14581  0af44 2007            move.l d7,d0      
 14582  0af46 90af            sub.l  2(sp),d0   
 14583  0af4a 222f            move.l 2(sp),d1   
@@ -14950,7 +14950,7 @@
 14808  0b1d8 d040            add.w  d0,d0      
 14809  0b1da 303b            move.w L0b1e0(pc,d0.w),d0 
 14810  0b1de 4efb            jmp    L0b1e0(pc,d0.w) 
-14811  0b1e0 cccccccc L0b1e0     equ    *-2        
+14811  0b1e0 0000 L0b1e0     equ    *-2        
 14812  0b1e2 ff86            dc.w   $ff86      
 14813  0b1e4 ffac            dc.w   $ffac      
 14814  0b1e6 ff56            dc.w   $ff56      
@@ -15488,7 +15488,7 @@
 15346  0b888 7375            dc.w   $7375      
 15347  0b88a 7265            moveq  #101,d1    
 15348  0b88c 006d            ori.w  #24944,12288(a5) 
-15349  0b88d cccccccc L0b88d     equ    *-5        
+15349  0b88d 0000 L0b88d     equ    *-5        
 15350  0b892 4e55 L0b892     link.w A5,#0      
 15351  0b896 48e7            movem.l a0/a2-a4/d0-d1/d4,-(sp) 
 15352  0b89a 2440            movea.l d0,a2      
@@ -16202,7 +16202,7 @@
 16060  0c1fc 2f30            move.l 32(a0,d0.l),-(sp) 
 16061  0c200 206e L0c200     movea.l D00028(a6),a0 
 16062  0c204 3028            move.w 12(a0),d0  
-16063  0c206 cccccccc L0c206     equ    *-2        
+16063  0c206 0000 L0c206     equ    *-2        
 16064  0c208 48c0            ext.l  d0         
 16065  0c20a e788            lsl.l  #3,d0      
 16066  0c20c 206e            movea.l D00028(a6),a0 
@@ -16513,7 +16513,7 @@
 16371  0c66c 7069 L0c66c     moveq  #105,d0    
 16372  0c66e 6d61            dc.w   $6d61      
 16373  0c670 0070            dc.w   $70        
-16374  0c671 cccccccc L0c671     equ    *-1        
+16374  0c671 0000 L0c671     equ    *-1        
 16375  0c672 696d            dc.w   $696d      
 16376  0c674 615f            dc.w   $615f      
 16377  0c676 6900            dc.w   $6900      
@@ -16831,7 +16831,7 @@
 16689  0cac0 422f            clr.b  53(sp)     
 16690  0cac4 1f7c            move.b #91,52(sp) 
 16691  0caca 206f            movea.l 48(sp),a0  
-16692  0cacc cccccccc L0cacc     equ    *-2        
+16692  0cacc 0000 L0cacc     equ    *-2        
 16693  0cace 2f28            move.l 16(a0),-(sp) 
 16694  0cad2 206f            movea.l 52(sp),a0  
 16695  0cad6 4868            pea    28(a0)     
@@ -18087,10 +18087,10 @@
 17945  0dc10 4c45            dc.w   $4c45      
 17946  0dc12 5449            addq.w #2,a1      
 17947  0dc14 4e47            tcall  $07,0068   
-17948  0dc17 cccccccc L0dc17     equ    *-1        
+17948  0dc17 0000 L0dc17     equ    *-1        
 17949  0dc18 6f77            dc.w   $6f77      
 17950  0dc1a 0063            ori.w  #29285,-(a3) 
-17951  0dc1b cccccccc L0dc1b     equ    *-3        
+17951  0dc1b 0000 L0dc1b     equ    *-3        
 17952  0dc1e 6400            dc.w   $6400      
 17953  0dc20 5859 L0dc20     addq.w #4,(a1)+   
 17954  0dc22 5a4e            addq.w #5,a6      
@@ -18101,27 +18101,27 @@
 17959  0dc2c 4e56            link.w A6,#18766  
 17960  0dc30 434f            dc.w   $434f      
 17961  0dc32 0058            ori.w  #22862,(a0)+ 
-17962  0dc33 cccccccc L0dc33     equ    *-3        
+17962  0dc33 0000 L0dc33     equ    *-3        
 17963  0dc36 4f47            dc.w   $4f47      
 17964  0dc38 4f58            dc.w   $4f58      
 17965  0dc3a 5949            subq.w #4,a1      
 17966  0dc3c 4e56            link.w A6,#77     
-17967  0dc3f cccccccc L0dc3f     equ    *-1        
+17967  0dc3f 0000 L0dc3f     equ    *-1        
 17968  0dc40 5642            addq.w #3,d2      
 17969  0dc42 4152            dc.w   $4152      
 17970  0dc44 4943            dc.w   $4943      
 17971  0dc46 4b4d            dc.w   $4b4d      
 17972  0dc48 414e            dc.w   $414e      
 17973  0dc4a 0063            ori.w  #26739,-(a3) 
-17974  0dc4b cccccccc L0dc4b     equ    *-3        
+17974  0dc4b 0000 L0dc4b     equ    *-3        
 17975  0dc4e 0063            ori.w  #26739,-(a3) 
-17976  0dc4f cccccccc L0dc4f     equ    *-3        
+17976  0dc4f 0000 L0dc4f     equ    *-3        
 17977  0dc52 006e            ori.w  #24941,D0e573(a6) 
-17978  0dc53 cccccccc L0dc53     equ    *-5        
+17978  0dc53 0000 L0dc53     equ    *-5        
 17979  0dc58 006e            ori.w  #24941,D0e573(a6) 
-17980  0dc59 cccccccc L0dc59     equ    *-5        
+17980  0dc59 0000 L0dc59     equ    *-5        
 17981  0dc5e 0066            ori.w  #28526,-(a6) 
-17982  0dc5f cccccccc L0dc5f     equ    *-3        
+17982  0dc5f 0000 L0dc5f     equ    *-3        
 17983  0dc62 7400            moveq  #0,d2      
 17984  0dc64 6f66 L0dc64     ble.s  L0dccc     
 17985  0dc66 6673            dc.w   $6673      
@@ -18134,7 +18134,7 @@
 17992  0dc74 726d L0dc74     moveq  #109,d1    
 17993  0dc76 6170            bsr.s  L0dce8     
 17994  0dc78 0072            ori.w  #28001,(a2,d7.w) 
-17995  0dc79 cccccccc L0dc79     equ    *-5        
+17995  0dc79 0000 L0dc79     equ    *-5        
 17996  0dc7e 4e55 L0dc7e     link.w A5,#0      
 17997  0dc82 48e7            movem.l a0/d0-d1,-(sp) 
 17998  0dc86 7001            moveq  #1,d0      
@@ -18158,18 +18158,18 @@
 18016  0dcc6 4e5d            unlk   A5         
 18017  0dcc8 4e75            rts               
 18018  0dcca 4e55 L0dcca     link.w A5,#0      
-18019  0dccc cccccccc L0dccc     equ    *-2        
+18019  0dccc 0000 L0dccc     equ    *-2        
 18020  0dcce 48e7            movem.l a0/a2-a3/d0-d1,-(sp) 
 18021  0dcd2 7052            moveq  #82,d0     
 18022  0dcd4 d0ae            add.l  D00028(a6),d0 
 18023  0dcd8 2440            movea.l d0,a2      
 18024  0dcda 707a            moveq  #122,d0    
 18025  0dcdc d0ae            add.l  D00028(a6),d0 
-18026  0dcde cccccccc L0dcde     equ    *-2        
+18026  0dcde 0000 L0dcde     equ    *-2        
 18027  0dce0 2640            movea.l d0,a3      
 18028  0dce2 6100            bsr.w  L0c834     
 18029  0dce6 206e            movea.l D00028(a6),a0 
-18030  0dce8 cccccccc L0dce8     equ    *-2        
+18030  0dce8 0000 L0dce8     equ    *-2        
 18031  0dcea 4268            clr.w  9826(a0)   
 18032  0dcee 206e            movea.l D00028(a6),a0 
 18033  0dcf2 4268            clr.w  9824(a0)   
@@ -19223,13 +19223,13 @@
 19081  0eb94 7a69 L0eb94     moveq  #105,d5    
 19082  0eb96 3200            move.w d0,d1      
 19083  0eb98 5f69 L0eb98     subq.w #7,122(a1) 
-19084  0eb9b cccccccc L0eb9b     equ    *-1        
+19084  0eb9b 0000 L0eb9b     equ    *-1        
 19085  0eb9c 6933            dc.w   $6933      
 19086  0eb9e 007a            dc.w   $7a        
-19087  0eb9f cccccccc L0eb9f     equ    *-1        
+19087  0eb9f 0000 L0eb9f     equ    *-1        
 19088  0eba0 6931            dc.w   $6931      
 19089  0eba2 0063            ori.w  #24947,-(a3) 
-19090  0eba3 cccccccc L0eba3     equ    *-3        
+19090  0eba3 0000 L0eba3     equ    *-3        
 19091  0eba6 7400            moveq  #0,d2      
 19092  0eba8 4e55 L0eba8     link.w A5,#0      
 19093  0ebac 48e7            movem.l d0,-(sp)   
@@ -19716,7 +19716,7 @@
 19574  0f15c 5a65 L0f15c     addq.w #5,-(a5)   
 19575  0f15e 6c64            bge.s  L0f1c4     
 19576  0f160 6100            bsr.w  L120d0     
-19577  0f162 cccccccc L0f162     equ    *-2        
+19577  0f162 0000 L0f162     equ    *-2        
 19578  0f164 7672            moveq  #114,d3    
 19579  0f166 2f7a            move.l L156d4(pc),25697(sp) 
 19580  0f16c 2e6e            movea.l D0f672(a6),sp 
@@ -19724,7 +19724,7 @@
 19582  0f172 5a65 L0f172     addq.w #5,-(a5)   
 19583  0f174 6c64            bge.s  L0f1da     
 19584  0f176 6100            bsr.w  L120e6     
-19585  0f178 cccccccc L0f178     equ    *-2        
+19585  0f178 0000 L0f178     equ    *-2        
 19586  0f17a 7672            moveq  #114,d3    
 19587  0f17c 2f7a            move.l L156ea(pc),25697(sp) 
 19588  0f182 2e6e            movea.l D0f672(a6),sp 
@@ -19732,7 +19732,7 @@
 19590  0f188 5a65 L0f188     addq.w #5,-(a5)   
 19591  0f18a 6c64            bge.s  L0f1f0     
 19592  0f18c 6100            bsr.w  L120fc     
-19593  0f18e cccccccc L0f18e     equ    *-2        
+19593  0f18e 0000 L0f18e     equ    *-2        
 19594  0f190 7672            moveq  #114,d3    
 19595  0f192 2f7a            move.l L15700(pc),25697(sp) 
 19596  0f198 2e6e            movea.l D0f672(a6),sp 
@@ -19746,7 +19746,7 @@
 19604  0f1aa 5a65 L0f1aa     addq.w #5,-(a5)   
 19605  0f1ac 6c64            bge.s  L0f212     
 19606  0f1ae 6100            bsr.w  L1211e     
-19607  0f1b0 cccccccc L0f1b0     equ    *-2        
+19607  0f1b0 0000 L0f1b0     equ    *-2        
 19608  0f1b2 7672            moveq  #114,d3    
 19609  0f1b4 2f7a            move.l L15722(pc),25697(sp) 
 19610  0f1ba 2e6e            movea.l D0f672(a6),sp 
@@ -19776,12 +19776,12 @@
 19634  0f200 4e5d            unlk   A5         
 19635  0f202 4e75            rts               
 19636  0f204 4e55 L0f204     link.w A5,#0      
-19637  0f206 cccccccc L0f206     equ    *-2        
+19637  0f206 0000 L0f206     equ    *-2        
 19638  0f208 48e7            movem.l a2-a4/d0-d2/d4-d5,-(sp) 
 19639  0f20c 2440            movea.l d0,a2      
 19640  0f20e 2641            movea.l d1,a3      
 19641  0f210 286f            movea.l 40(sp),a4  
-19642  0f212 cccccccc L0f212     equ    *-2        
+19642  0f212 0000 L0f212     equ    *-2        
 19643  0f214 282f            move.l 44(sp),d4  
 19644  0f218 7a00            moveq  #0,d5      
 19645  0f21a 6048            bra.s  L0f264     
@@ -21504,7 +21504,7 @@
 21362  1092a 4e5d            unlk   A5         
 21363  1092c 4e75            rts               
 21364  1092e 5f32 L1092e     subq.b #7,95(a2,d0.w) 
-21365  10931 cccccccc L10931     equ    *-1        
+21365  10931 0000 L10931     equ    *-1        
 21366  10932 6900            dc.w   $6900      
 21367  10934 4e55 L10934     link.w A5,#0      
 21368  10938 48e7            movem.l a0/d0-d1,-(sp) 
@@ -23446,7 +23446,7 @@
 23304  120de 6100            bsr.w  L11f08     
 23305  120e2 4884 L120e2     ext.w  d4         
 23306  120e4 c9fc            muls   #6,d4      
-23307  120e6 cccccccc L120e6     equ    *-2        
+23307  120e6 0000 L120e6     equ    *-2        
 23308  120e8 1004            move.b d4,d0      
 23309  120ea 4880            ext.w  d0         
 23310  120ec d16c            add.w  d0,2(a4)   
@@ -24017,7 +24017,7 @@
 23875  127e6 d040            add.w  d0,d0      
 23876  127e8 303b            move.w L127ee(pc,d0.w),d0 
 23877  127ec 4efb            jmp    L127ee(pc,d0.w) 
-23878  127ee cccccccc L127ee     equ    *-2        
+23878  127ee 0000 L127ee     equ    *-2        
 23879  127f0 ffcc            dc.w   $ffcc      
 23880  127f2 ffac            dc.w   $ffac      
 23881  127f4 ffb4            dc.w   $ffb4      
@@ -24273,7 +24273,7 @@
 24131  12ae6 206e            movea.l D00028(a6),a0 
 24132  12aea 9168            dc.w   $9168      
 24133  12aec 13f4            move.b 10(a4,d6.w),(805642350).l 
-24134  12af0 cccccccc L12af0     equ    *-4        
+24134  12af0 0000 L12af0     equ    *-4        
 24135  12af4 8028            or.b   -11928(a0),d0 
 24136  12af8 15ea            dc.w   $15ea      
 24137  12afa 4eae            jsr    D01aea(a6) 
@@ -24431,44 +24431,44 @@
 24289  12cea 3200            move.w d0,d1      
 24290  12cec 6c38 L12cec     bge.s  L12d26     
 24291  12cee 007a            dc.w   $7a        
-24292  12cef cccccccc L12cef     equ    *-1        
+24292  12cef 0000 L12cef     equ    *-1        
 24293  12cf0 3500            move.w d0,-(a2)   
 24294  12cf2 7335 L12cf2     dc.w   $7335      
 24295  12cf4 0071            ori.w  #12857,97(a1,d0.w) 
-24296  12cf5 cccccccc L12cf5     equ    *-5        
-24297  12cf9 cccccccc L12cf9     equ    *-1        
+24296  12cf5 0000 L12cf5     equ    *-5        
+24297  12cf9 0000 L12cf9     equ    *-1        
 24298  12cfa 6231            dc.w   $6231      
 24299  12cfc 3700            move.w d0,-(a3)   
 24300  12cfe 6237 L12cfe     dc.w   $6237      
 24301  12d00 0073            dc.w   $73        
-24302  12d01 cccccccc L12d01     equ    *-1        
+24302  12d01 0000 L12d01     equ    *-1        
 24303  12d02 705f            moveq  #95,d0     
 24304  12d04 6465            dc.w   $6465      
 24305  12d06 7363            dc.w   $7363      
 24306  12d08 0073            dc.w   $73        
-24307  12d09 cccccccc L12d09     equ    *-1        
+24307  12d09 0000 L12d09     equ    *-1        
 24308  12d0a 705f            moveq  #95,d0     
 24309  12d0c 6465            dc.w   $6465      
 24310  12d0e 7363            dc.w   $7363      
 24311  12d10 0073            dc.w   $73        
-24312  12d11 cccccccc L12d11     equ    *-1        
+24312  12d11 0000 L12d11     equ    *-1        
 24313  12d12 705f            moveq  #95,d0     
 24314  12d14 6772            beq.s  L12d88     
 24315  12d16 6f75            dc.w   $6f75      
 24316  12d18 7073            moveq  #115,d0    
 24317  12d1a 0073            dc.w   $73        
-24318  12d1b cccccccc L12d1b     equ    *-1        
+24318  12d1b 0000 L12d1b     equ    *-1        
 24319  12d1c 705f            moveq  #95,d0     
 24320  12d1e 7665            moveq  #101,d3    
 24321  12d20 6374            bls.s  L12d96     
 24322  12d22 6f72            ble.s  L12d96     
 24323  12d24 0073            dc.w   $73        
-24324  12d25 cccccccc L12d25     equ    *-1        
+24324  12d25 0000 L12d25     equ    *-1        
 24325  12d26 705f L12d26     moveq  #95,d0     
 24326  12d28 7461            moveq  #97,d2     
 24327  12d2a 626c            bhi.s  L12d98     
 24328  12d2c 6500            bcs.w  L1a09e     
-24329  12d2e cccccccc L12d2e     equ    *-2        
+24329  12d2e 0000 L12d2e     equ    *-2        
 24330  12d30 5f63            subq.w #7,-(a3)   
 24331  12d32 6173            dc.w   $6173      
 24332  12d34 7400            moveq  #0,d2      
@@ -24502,7 +24502,7 @@
 24360  12d82 660a            bne.s  L12d8e     
 24361  12d84 220a            move.l a2,d1      
 24362  12d86 202b            move.l 4(a3),d0   
-24363  12d88 cccccccc L12d88     equ    *-2        
+24363  12d88 0000 L12d88     equ    *-2        
 24364  12d8a 6100            bsr.w  L10dbc     
 24365  12d8e 4ced L12d8e     movem.l -16(a5),a0/a2-a3/d4 
 24366  12d94 4e5d            unlk   A5         
@@ -26167,7 +26167,7 @@
 26025  14220 4e75            rts               
 26026  14222 5456 L14222     addq.w #2,(a6)    
 26027  14224 0054            ori.w  #22016,(a4) 
-26028  14225 cccccccc L14225     equ    *-3        
+26028  14225 0000 L14225     equ    *-3        
 26029  14228 3632 L14228     dc.w   $3632      
 26030  1422a 3500            move.w d0,-(a2)   
 26031  1422c 3632 L1422c     dc.w   $3632      
@@ -26644,7 +26644,7 @@
 26502  147a8 d040            add.w  d0,d0      
 26503  147aa 303b            move.w L147b0(pc,d0.w),d0 
 26504  147ae 4efb            jmp    L147b0(pc,d0.w) 
-26505  147b0 cccccccc L147b0     equ    *-2        
+26505  147b0 0000 L147b0     equ    *-2        
 26506  147b2 ff28            dc.w   $ff28      
 26507  147b4 ff9a            dc.w   $ff9a      
 26508  147b6 ffac            dc.w   $ffac      
@@ -26707,7 +26707,7 @@
 26565  14862 5f64            subq.w #7,-(a4)   
 26566  14864 6573            dc.w   $6573      
 26567  14866 6300            bls.w  L1bbd8     
-26568  14868 cccccccc L14868     equ    *-2        
+26568  14868 0000 L14868     equ    *-2        
 26569  1486a 5f67            subq.w #7,-(sp)   
 26570  1486c 726f            moveq  #111,d1    
 26571  1486e 7570            dc.w   $7570      
@@ -26735,7 +26735,7 @@
 26593  148ba 41ee            lea.l  D001d6(a6),a0 
 26594  148be d088            add.l  a0,d0      
 26595  148c0 2f40            move.l d0,16(sp)  
-26596  148c2 cccccccc L148c2     equ    *-2        
+26596  148c2 0000 L148c2     equ    *-2        
 26597  148c4 206f            movea.l 24(sp),a0  
 26598  148c8 4a90            tst.l  (a0)       
 26599  148ca 6762            beq.s  L1492e     
@@ -26745,7 +26745,7 @@
 26603  148d6 2340            move.l d0,268(a1) 
 26604  148da 2f40            move.l d0,20(sp)  
 26605  148de 202f            move.l 16(sp),d0  
-26606  148e0 cccccccc L148e0     equ    *-2        
+26606  148e0 0000 L148e0     equ    *-2        
 26607  148e2 5880            addq.l #4,d0      
 26608  148e4 2f40            move.l d0,12(sp)  
 26609  148e8 42af            clr.l  4(sp)      
@@ -27736,15 +27736,15 @@
 27594  156e0 6000            bra.w  L156e6     
 27595  156e4 4e71            nop               
 27596  156e6 4ced L156e6     movem.l -4(a5),a0  
-27597  156ea cccccccc L156ea     equ    *-2        
+27597  156ea 0000 L156ea     equ    *-2        
 27598  156ec 4e5d            unlk   A5         
 27599  156ee 4e75            rts               
 27600  156f0 7200 L156f0     moveq  #0,d1      
 27601  156f2 7200 L156f2     moveq  #0,d1      
 27602  156f4 6c00 L156f4     bge.w  L1ccf6     
-27603  156f6 cccccccc L156f6     equ    *-2        
+27603  156f6 0000 L156f6     equ    *-2        
 27604  156f8 6100 L156f8     bsr.w  L1bafa     
-27605  156fa cccccccc L156fa     equ    *-2        
+27605  156fa 0000 L156fa     equ    *-2        
 27606  156fc 4e55 L156fc     link.w A5,#0      
 27607  15700 48e7 L15700     movem.l a0/d0-d1,-(sp) 
 27608  15704 203c            move.l #-76,d0    
@@ -29168,7 +29168,7 @@
 29026  16ac2 d040            add.w  d0,d0      
 29027  16ac4 303b            move.w L16aca(pc,d0.w),d0 
 29028  16ac8 4efb            jmp    L16aca(pc,d0.w) 
-29029  16aca cccccccc L16aca     equ    *-2        
+29029  16aca 0000 L16aca     equ    *-2        
 29030  16acc ffc6            dc.w   $ffc6      
 29031  16ace ffba            dc.w   $ffba      
 29032  16ad0 ffd2            dc.w   $ffd2      
@@ -29923,7 +29923,7 @@
 29781  174ae 9682            sub.l  d2,d3      
 29782  174b0 e58b            lsl.l  #2,d3      
 29783  174b2 4efb            jmp    L174b4(pc,d3.l) 
-29784  174b4 cccccccc L174b4     equ    *-2        
+29784  174b4 0000 L174b4     equ    *-2        
 29785  174b6 24c4            move.l d4,(a2)+   
 29786  174b8 5889            addq.l #4,a1      
 29787  174ba 24c4            move.l d4,(a2)+   
@@ -30139,7 +30139,7 @@
 29997  17670 9682            sub.l  d2,d3      
 29998  17672 e58b            lsl.l  #2,d3      
 29999  17674 4efb            jmp    L17676(pc,d3.l) 
-30000  17676 cccccccc L17676     equ    *-2        
+30000  17676 0000 L17676     equ    *-2        
 30001  17678 24db            move.l (a3)+,(a2)+ 
 30002  1767a 5889            addq.l #4,a1      
 30003  1767c 24db            move.l (a3)+,(a2)+ 
@@ -30478,7 +30478,7 @@
 30336  179d4 9682            sub.l  d2,d3      
 30337  179d6 e78b            lsl.l  #3,d3      
 30338  179d8 4efb            jmp    L179da(pc,d3.l) 
-30339  179da cccccccc L179da     equ    *-2        
+30339  179da 0000 L179da     equ    *-2        
 30340  179dc 2c19            move.l (a1)+,d6   
 30341  179de cc84            and.l  d4,d6      
 30342  179e0 8c85            or.l   d5,d6      
@@ -30920,7 +30920,7 @@
 30778  17d6e 9682            sub.l  d2,d3      
 30779  17d70 e38b            lsl.l  #1,d3      
 30780  17d72 4efb            jmp    L17d74(pc,d3.l) 
-30781  17d74 cccccccc L17d74     equ    *-2        
+30781  17d74 0000 L17d74     equ    *-2        
 30782  17d76 24d9            move.l (a1)+,(a2)+ 
 30783  17d78 24d9            move.l (a1)+,(a2)+ 
 30784  17d7a 24d9            move.l (a1)+,(a2)+ 
@@ -31932,7 +31932,7 @@
 31790  188a8 2a2e L188a8     move.l D0ee76(a6),d5 
 31791  188ac 7269            moveq  #105,d1    
 31792  188ae 002f            dc.w   $2f        
-31793  188af cccccccc L188af     equ    *-1        
+31793  188af 0000 L188af     equ    *-1        
 31794  188b0 6e76            bgt.s  L18928     
 31795  188b2 7200            moveq  #0,d1      
 31796  188b4 2f6e L188b4     move.l D0f672(a6),12032(sp) 
@@ -32915,7 +32915,7 @@
 32773  1942a 7673            moveq  #115,d3    
 32774  1942c 796e            dc.w   $796e      
 32775  1942e 6300            bls.w  L1f794     
-32776  19430 cccccccc L19430     equ    *-2        
+32776  19430 0000 L19430     equ    *-2        
 32777  19432 695f            dc.w   $695f      
 32778  19434 7673            moveq  #115,d3    
 32779  19436 796e            dc.w   $796e      
@@ -35211,7 +35211,7 @@
 35069  1ae5c 3500            move.w d0,-(a2)   
 35070  1ae5e 5456 L1ae5e     addq.w #2,(a6)    
 35071  1ae60 0036            dc.w   $36        
-35072  1ae61 cccccccc L1ae61     equ    *-1        
+35072  1ae61 0000 L1ae61     equ    *-1        
 35073  1ae62 3235            move.w (a5,d0.w),d1 
 35074  1ae66 4e55 L1ae66     link.w A5,#0      
 35075  1ae6a 48e7            movem.l a0/a2-a4/d0-d1/d4-d5,-(sp) 
@@ -38082,7 +38082,7 @@
 37940  1ccea 4ced            movem.l 8(a5),a0-a1/d3-d4 
 37941  1ccf0 4e40            os9    I$SetStt   
 37942  1ccf4 4cdf            movem.l (sp)+,a1/d3-d4 
-37943  1ccf6 cccccccc L1ccf6     equ    *-2        
+37943  1ccf6 0000 L1ccf6     equ    *-2        
 37944  1ccf8 6000            bra.w  L1d66e     
 37945  1ccfc 4e55            link.w A5,#0      
 37946  1cd00 48e7            movem.l a0/d1-d2,-(sp) 

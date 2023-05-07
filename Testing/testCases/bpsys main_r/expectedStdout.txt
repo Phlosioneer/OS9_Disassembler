@@ -45,20 +45,20 @@
    44  00050 0008            dc.w   $8         
    45  00052 0032            ori.b  #98,104(a2,d0.w) 
    46  00058 47fa init:      lea.l  state(pc),a3 
-   47  0005a cccccccc L0005a     equ    *-2        
+   47  0005a 0000 L0005a     equ    *-2        
    48  0005c 0c6b            cmpi.w #-16657,2(a3) 
    49  00062 6700 L00062     beq.w  L00080     
    50  00066 7000            moveq  #0,d0      
    51  00068 377c            move.w #-16657,2(a3) 
-   52  0006c cccccccc L0006c     equ    *-2        
+   52  0006c 0000 L0006c     equ    *-2        
    53  0006e 3740            move.w d0,0(a3)   
    54  00072 3740            move.w d0,6(a3)   
    55  00076 2740            move.l d0,14(a3)  
    56  0007a 377c            move.w #4641,4(a3) 
-   57  0007c cccccccc L0007c     equ    *-4        
+   57  0007c 0000 L0007c     equ    *-4        
    58  00080 4e75 L00080     rts               
    59  00082 222d set_stat:  move.l 8(a5),d1   
-   60  00084 cccccccc L00084     equ    *-2        
+   60  00084 0000 L00084     equ    *-2        
    61  00086 0c41 L00086     cmpi.w #16896,d1  
    62  0008a 6520 L0008a     bcs.s  L000ac     
    63  0008c 0c41            cmpi.w #16916,d1  
@@ -68,7 +68,7 @@
    67  0009a 47fa            lea.l  function_table(pc),a3 
    68  0009e 92bc            sub.l  #16896,d1  
    69  000a4 307b            movea.w (pc,d1.l),a0 
-   70  000a6 cccccccc L000a6     equ    *-2        
+   70  000a6 0000 L000a6     equ    *-2        
    71  000a8 4efb            jmp    (pc,a0.l)  
    72  000ac 206a L000ac     movea.l 70(a2),a0  
    73  000b0 4ed0            jmp    (a0)       

@@ -33,7 +33,7 @@
    29  00078 266a            movea.l 74(a2),a3  
    30  0007c 60ca            bra.s  pt_gc_common_call 
    31  0007e 41fa get_credits: lea.l  L00080(pc),a0 
-   32  00080 cccccccc L00080     equ    *-2        
+   32  00080 0000 L00080     equ    *-2        
    33  00082 2b48            move.l a0,0(a5)   
    34  00086 4e75            rts               
    35  00088 3b6b get_init_confirm: move.w 4(a3),0(a5) 

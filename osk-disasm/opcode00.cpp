@@ -244,12 +244,12 @@ int bit_dynamic(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse
         paramBuffer << 'd' << ((ci->cmd_wrd >> 9) & 7) << ',' << ea;
         auto params = paramBuffer.str();
         strcpy(ci->params, params.c_str());
-        //sprintf(ci->params, "d%d,%s", (ci->cmd_wrd >> 9) & 7, ea);
-        
+        // sprintf(ci->params, "d%d,%s", (ci->cmd_wrd >> 9) & 7, ea);
+
         auto mnem = std::string(op->name) + ((mode == 0) ? "l" : "b");
         strcpy(ci->mnem, mnem.c_str());
-        //strcpy(ci->mnem, op->name);
-        //strcat(ci->mnem, (mode == 0) ? "l" : "b");
+        // strcpy(ci->mnem, op->name);
+        // strcat(ci->mnem, (mode == 0) ? "l" : "b");
         return 1;
     }
 
@@ -999,8 +999,8 @@ int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
 
 int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int vector = ci->cmd_wrd & 0x0f;
-    register int syscall = getnext_w(ci, state);
+    unsigned int vector = ci->cmd_wrd & 0x0f;
+    unsigned int syscall = getnext_w(ci, state);
     unsigned int sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
     unsigned int mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
@@ -1019,7 +1019,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
 
                 if (call_ref != NULL)
                 {
-                    register int x;
+                    unsigned int x;
 
                     // callName = call_ref->EName.nam;
                     callName = extern_def_name(call_ref);
@@ -1040,7 +1040,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
                 {
                     // register char *vN = vec_ref->EName.nam;
                     const char* vN = extern_def_name(vec_ref);
-                    register int x;
+                    unsigned int x;
 
                     for (x = 0; x < mathCallCount; x++)
                     {
