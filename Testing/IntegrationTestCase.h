@@ -16,6 +16,7 @@ public:
 	std::string labelFilePath;
 	std::string inputFilePath;
 	std::string commandFilePath;
+	std::string psectName;
 	std::ifstream expectedOutputFile;
 	std::ifstream expectedStdOutFile;
 

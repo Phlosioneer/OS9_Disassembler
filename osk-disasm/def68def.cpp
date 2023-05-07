@@ -9,6 +9,7 @@
 
 #include "dismain.h"
 #include "userdef.h"
+#include "def68def.h"
 
 /* ********************************************* */
 /* ROUTINE: TABLEMATCH							 */
@@ -16,11 +17,7 @@
 
 const OPSTRUCTURE* tablematch(int opword, const OPSTRUCTURE* entry)
 {
-    /*extern OPSTRUCTURE syntax1[];*/
-    int Bmatch;
     int j, b, c;
-
-    Bmatch = 1;
 
     for (j = 15; j > 3; j--)
     {
@@ -31,17 +28,11 @@ const OPSTRUCTURE* tablematch(int opword, const OPSTRUCTURE* entry)
 
             if (b || c)
             {
-                Bmatch = 0; /* MATCH FLAG IS SET TO FALSE */
-                break;
+                return nullptr;
             }
         }
 
         opword = opword >> 1;
-    }
-
-    if (Bmatch == 0)
-    {
-        error = TRUE;
     }
 
     return entry;

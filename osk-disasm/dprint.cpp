@@ -109,9 +109,9 @@ void PrintPsect(struct options* opt)
     BlankLine(opt);
 
     /* Module name */
-    if (PsectName)
+    if (!opt->psectName.empty())
     {
-        psectParamBuffer << PsectName;
+        psectParamBuffer << opt->psectName;
     }
     else if (strrchr(opt->ModFile.c_str(), PATHSEP))
     {
@@ -126,7 +126,7 @@ void PrintPsect(struct options* opt)
 
     /* Type/Language */
     InProg = 0; /* Inhibit Label Lookup */
-    int type = modHeader ? modHeader->type : 0;
+    int type = opt->modHeader ? opt->modHeader->type : 0;
     ProgType = modnam_find(ModTyps, (unsigned char)type)->name;
     Ci.cmd_wrd = type;
     Ci.lblname = ProgType;
@@ -137,7 +137,7 @@ void PrintPsect(struct options* opt)
     PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
     /*hdrvals[0] = M_Type;*/
 
-    int lang = modHeader ? modHeader->lang : 0;
+    int lang = opt->modHeader ? opt->modHeader->lang : 0;
     ProgLang = modnam_find(ModLangs, (unsigned char)lang)->name;
     Ci.lblname = ProgLang;
     Ci.cmd_wrd = lang;
@@ -155,7 +155,7 @@ void PrintPsect(struct options* opt)
 
     for (c = 0; ModAtts[c].val; c++)
     {
-        if (modHeader && (modHeader->attributes & 0xff) & ModAtts[c].val)
+        if (opt->modHeader && (opt->modHeader->attributes & 0xff) & ModAtts[c].val)
         {
             if (strlen(ProgAtts))
             {
@@ -174,17 +174,17 @@ void PrintPsect(struct options* opt)
         }
     }
 
-    int revision = modHeader ? modHeader->revision : 0;
-    int edition = modHeader ? modHeader->edition : 0;
-    int execOffset = modHeader ? modHeader->execOffset : 0;
+    int revision = opt->modHeader ? opt->modHeader->revision : 0;
+    int edition = opt->modHeader ? opt->modHeader->edition : 0;
+    int execOffset = opt->modHeader ? opt->modHeader->execOffset : 0;
     psectParamBuffer << ",(" << ProgAtts << "<<8)|" << revision;
     psectParamBuffer << ',' << edition;
     psectParamBuffer << ",0"; /* For the time being, don't add any stack */
     psectParamBuffer << ',' << findlbl('L', execOffset)->name();
 
-    if (modHeader && modHeader->exceptionOffset)
+    if (opt->modHeader && opt->modHeader->exceptionOffset)
     {
-        Label* excep = findlbl('L', modHeader->exceptionOffset);
+        Label* excep = findlbl('L', opt->modHeader->exceptionOffset);
         psectParamBuffer << ',' << excep->name();
     }
 
@@ -401,7 +401,7 @@ static void NonBoundsLbl(char cClass, struct options* opt, int CmdEnt)
  * ROFPsect() - writes out psect                 *
  * Passed: rof_header *rptr                         *
  * ********************************************* */
-void ROFPsect(struct rof_header* rptr, struct options* opt)
+void ROFPsect(struct options* opt)
 {
     Label* nl;
     struct cmd_items Ci;
@@ -417,12 +417,12 @@ void ROFPsect(struct rof_header* rptr, struct options* opt)
                                                 rptr->stksz
             );
     */
-    char* params = rof_header_getPsectParams(rptr);
+    char* params = rof_header_getPsectParams(opt->ROFHd.get());
     strcpy(Ci.params, params);
     delete[] params;
 
     // nl = findlbl('L', rptr->code_begin);
-    nl = findlbl('L', rof_header_getCodeAddress(rptr));
+    nl = findlbl('L', opt->ROFHd->code_begin);
     if (nl)
     {
         strcat(Ci.params, nl->name());
@@ -432,7 +432,7 @@ void ROFPsect(struct rof_header* rptr, struct options* opt)
     {
         char oc[10];
 
-        sprintf(oc, "$%04x", rof_header_getCodeAddress(rptr));
+        sprintf(oc, "$%04x", opt->ROFHd->code_begin);
         strcat(Ci.params, oc);
         /*OPHCAT ((int)(rptr->modent));*/
     }
@@ -479,7 +479,7 @@ void ParseIRefs(char rClass, struct options* opt)
 
     /* Get an initial reading */
 
-    opt->Module->seekAbsolute(modHeader->refTableOffset);
+    opt->Module->seekAbsolute(opt->modHeader->refTableOffset);
 
     MSB = ((uint32_t)opt->Module->read<uint16_t>()) << 16;
     rCount = opt->Module->read<uint16_t>();
@@ -552,7 +552,7 @@ void GetIRefs(struct options* opt)
 {
     if (!opt->IsROF)
     {
-        if (modHeader->refTableOffset == 0) return;
+        if (opt->modHeader->refTableOffset == 0) return;
 
         ParseIRefs('L', opt);
     }
@@ -1016,12 +1016,12 @@ void ROFDataPrint(struct options* opt)
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        ListData(srch, rof_header_getUninitDataSize(ROFHd), 'D', &state);
+        ListData(srch, opt->ROFHd->statstorage, 'D', &state);
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
     }
 
-    if (rof_header_getInitDataSize(ROFHd))
+    if (opt->ROFHd->idatsz)
     {
         parse_state state{0};
         state.Module = opt->Module.get();
@@ -1030,18 +1030,18 @@ void ROFDataPrint(struct options* opt)
 
         dataprintHeader(idat, '_', FALSE, opt);
 
-        IBuf = new char[(size_t)rof_header_getInitDataSize(ROFHd) + 1];
+        IBuf = new char[(size_t)opt->ROFHd->idatsz + 1];
 
         opt->Module->seekAbsolute(IDataBegin);
 
-        opt->Module->readRaw(IBuf, rof_header_getInitDataSize(ROFHd));
+        opt->Module->readRaw(IBuf, opt->ROFHd->idatsz);
 
         auto category2 = labelManager->getCategory('_');
         srch = category2 ? category2->getFirst() : NULL;
 
-        if (rof_header_getInitDataSize(ROFHd))
+        if (opt->ROFHd->idatsz)
         {
-            ListInitROF("", refs_idata, IBuf, rof_header_getInitDataSize(ROFHd), '_', &state);
+            ListInitROF("", refs_idata, IBuf, opt->ROFHd->idatsz, '_', &state);
         }
 
         BlankLine(opt);
@@ -1064,19 +1064,19 @@ void ROFDataPrint(struct options* opt)
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        ListData(srch, rof_header_getRemoteUninitDataSize(ROFHd), 'G', &state);
+        ListData(srch, opt->ROFHd->remotestatsiz, 'G', &state);
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
     }
 
-    if (rof_header_getRemoteInitDataSize(ROFHd))
+    if (opt->ROFHd->remoteidatsiz)
     {
         parse_state state{0};
         state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
 
-        int size = rof_header_getRemoteInitDataSize(ROFHd);
+        int size = opt->ROFHd->remoteidatsiz;
         dataprintHeader(idat, 'H', TRUE, opt);
 
         IBuf = new char[(size_t)size + 1];
@@ -1113,9 +1113,9 @@ void OS9DataPrint(struct options* opt)
     state.opt = opt;
     state.Pass = 2;
 
-    if (!modHeader->initDataHeaderOffset)
+    if (!opt->modHeader->initDataHeaderOffset)
     {
-        IDataBegin = modHeader->memorySize;
+        IDataBegin = opt->modHeader->memorySize;
         IDataCount = 0;
     }
 
@@ -1169,7 +1169,7 @@ void OS9DataPrint(struct options* opt)
         ListData(dta, IDataBegin, 'D', &state);
 
         // If this is a roff, treat memorySize as infinite.
-        if (modHeader == NULL || IDataBegin < modHeader->memorySize)
+        if (opt->modHeader == NULL || IDataBegin < opt->modHeader->memorySize)
         {
             dta = findlbl('D', IDataBegin);
             if (dta)
@@ -1363,9 +1363,9 @@ void WrtEquates(int stdflg, struct options* opt)
                  * last real data element*/
 
                 /* if (!(me = FindLbl (me, M_Mem)))*/
-                if (modHeader)
+                if (opt->modHeader)
                 {
-                    me = findlbl(NowClass, modHeader->memorySize);
+                    me = findlbl(NowClass, opt->modHeader->memorySize);
                     if (!me)
                     {
                         continue;
@@ -1410,7 +1410,7 @@ void WrtEquates(int stdflg, struct options* opt)
             minval = 0; /* Default to "print all" */
 
             // Added OR to satisfy VS null checker.
-            if (opt->IsROF || !modHeader)
+            if (opt->IsROF || !opt->modHeader)
             {
                 /*minval = rof_datasize (NowClass);*/
 
@@ -1429,13 +1429,13 @@ void WrtEquates(int stdflg, struct options* opt)
             {
                 if (NowClass == 'D')
                 {
-                    minval = modHeader->memorySize + 1;
+                    minval = opt->modHeader->memorySize + 1;
                 }
                 else
                 {
                     if (NowClass == 'L')
                     {
-                        minval = modHeader->size + 1;
+                        minval = opt->modHeader->size + 1;
                     }
                 }
             }

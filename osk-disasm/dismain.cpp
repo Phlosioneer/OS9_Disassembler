@@ -55,12 +55,6 @@
 #define strcasecmp strcmp
 #endif
 
-/* Some variables that are only used in one or two modules */
-int error;
-/*static int HdrLen;*/
-uint32_t CodeEnd;
-
-struct module_header* modHeader = NULL;
 uint32_t IDataBegin;
 uint32_t IDataCount;
 size_t HdrEnd;
@@ -68,7 +62,7 @@ size_t HdrEnd;
 int NowClass;
 int PBytSiz;
 
-static int get_asmcmd(struct parse_state* state);
+static bool get_asmcmd(struct parse_state* state);
 
 static const char* DrvrJmps[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
 
@@ -78,16 +72,6 @@ static const char* FmanJmps[] = {"Open",  "Create", "Makdir",  "Chgdir",  "Delet
 const OPSTRUCTURE* opmains[] = {instr00, instr01, instr02, /* Repeat 3 times for 3 move sizes */
                                 instr03, instr04, instr05, instr06, instr07, instr08, instr09, NULL, /* No instr 010 */
                                 instr11, instr12, instr13, instr14, NULL};
-
-struct module_header* module_new()
-{
-    return new module_header();
-}
-
-void module_destroy(struct module_header* module_)
-{
-    delete module_;
-}
 
 // Read the Driver initialization table and set up label names.
 // NOT ACTIVELY MAINTAINED.
@@ -136,7 +120,7 @@ static int get_modhead(struct options* opt)
 {
     /* Get standard (common to all modules) header fields */
 
-    struct module_header* mod = module_new();
+    auto mod = std::make_unique<module_header>();
 
     // Need to be careful to avoid sign-extension.
     // mod->id = (unsigned short)fread_w(opt->ModFP);
@@ -226,12 +210,12 @@ static int get_modhead(struct options* opt)
 
                 /* Insure we have an entry for the first Initialized Data */
                 addlbl('D', IDataBegin, "");
-                CodeEnd = mod->initDataHeaderOffset;
+                mod->CodeEnd = mod->initDataHeaderOffset;
             }
             else
             {
                 /* This may be incorrect */
-                CodeEnd = mod->size - 3;
+                mod->CodeEnd = mod->size - 3;
             }
         }
 
@@ -244,12 +228,10 @@ static int get_modhead(struct options* opt)
         {
             errexit("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
         }
-        modHeader = mod;
+        opt->modHeader = std::move(mod);
 
         break;
     case 0xdead:
-        module_destroy(mod);
-        modHeader = NULL;
         getRofHdr(opt);
         break;
     default:
@@ -392,23 +374,24 @@ static void GetLabels(struct options* opt) /* Read the labelfiles */
  */
 int dopass(int Pass, struct options* opt)
 {
+    uint32_t CodeEnd;
     if (Pass == 1)
     {
         opt->Module->reset();
 
         get_modhead(opt);
         strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
-        if (modHeader)
+        if (opt->modHeader)
         {
-            addlbl('L', modHeader->execOffset, NULL);
+            addlbl('L', opt->modHeader->execOffset, NULL);
 
             /* Set Default Addressing Modes according to Module Type */
-            if (modHeader->type == MT_PROGRAM)
+            if (opt->modHeader->type == MT_PROGRAM)
             {
                 // strcpy(DfltLbls, "&&&&&&D&&&&L");
                 strncpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
             }
-            else if (modHeader->type == MT_DEVDRVR)
+            else if (opt->modHeader->type == MT_DEVDRVR)
             {
                 /*  Init/Term:
                      (a1)=Device Dscr
@@ -453,7 +436,7 @@ int dopass(int Pass, struct options* opt)
 
         if (opt->IsROF)
         {
-            ROFPsect(ROFHd, opt);
+            ROFPsect(opt);
             ROFDataPrint(opt);
         }
         else
@@ -478,10 +461,12 @@ int dopass(int Pass, struct options* opt)
     if (opt->IsROF)
     {
         parseState.PCPos = 0;
+        CodeEnd = opt->ROFHd->CodeEnd;
     }
     else
     {
         parseState.PCPos = HdrEnd;
+        CodeEnd = opt->modHeader->CodeEnd;
     }
 
     int instrNum = -1;
@@ -563,7 +548,7 @@ int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struc
     return 0;
 }
 
-static int get_asmcmd(struct parse_state* state)
+static bool get_asmcmd(struct parse_state* state)
 {
     register const OPSTRUCTURE* optbl;
 
@@ -591,8 +576,6 @@ static int get_asmcmd(struct parse_state* state)
     {
         const OPSTRUCTURE* curop = &optbl[j];
 
-        error = FALSE;
-
         if (!(curop->name)) break;
 
         curop = tablematch(opword, curop);
@@ -608,7 +591,7 @@ static int get_asmcmd(struct parse_state* state)
         }
         */
 
-        if (!error)
+        if (curop)
         {
             if (curop->opfunc(&Instruction, curop->id, curop, state))
             {
@@ -625,9 +608,10 @@ static int get_asmcmd(struct parse_state* state)
                 }
             }
         }
+
     }
 
-    return 0;
+    return false;
 }
 
 /*

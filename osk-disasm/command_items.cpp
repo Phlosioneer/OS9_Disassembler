@@ -331,7 +331,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
          * so compensate
          */
 
-        if (reg == 6 && modHeader && modHeader->type == MT_PROGRAM)
+        if (reg == 6 && !state->opt->IsROF && state->opt->modHeader->type == MT_PROGRAM)
         {
             ext1 += 0x8000;
         }

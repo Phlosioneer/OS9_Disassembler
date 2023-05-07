@@ -25,7 +25,8 @@ IntegrationTestCase::IntegrationTestCase(std::string caseName)
 	expectedOutputFilePath(basePath + "expected.s"),
 	expectedStdOutFilePath(basePath + "expectedStdout.txt"),
 	expectedOutputFile(expectedOutputFilePath),
-	expectedStdOutFile(expectedStdOutFilePath)
+	expectedStdOutFile(expectedStdOutFilePath),
+	psectName()
 {
 	inputFilePath = basePath + "test.module";
 	commandFilePath = basePath + "commands.json";
@@ -73,7 +74,7 @@ void IntegrationTestCase::run()
 	opt->CmdFP = nullptr;
 	opt->asmFile = moduleOutput.handle();
 	stdout_writer = standardOutput.handle();
-
+	opt->psectName = psectName;
 	if (!labelFilePath.empty())
 	{
 		opt->labelFiles.push_back(labelFilePath);

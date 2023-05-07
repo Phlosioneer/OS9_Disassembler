@@ -15,7 +15,7 @@ namespace IntegrationTests
 		{
 			reset();
 			IntegrationTestCase test("zeldas adventure");
-			PsectName = "cdi_zelda.os9module";
+			test.psectName = "cdi_zelda.os9module";
 			test.run();
 		}
 
@@ -23,8 +23,7 @@ namespace IntegrationTests
 		{
 			reset();
 			IntegrationTestCase test("cdi_vsync");
-			PsectName = "test.os9";
-
+			test.psectName = "test.os9";
 			test.run();
 		}
 	};

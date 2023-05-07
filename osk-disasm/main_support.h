@@ -8,6 +8,8 @@
 #include <memory>
 
 #include "reader.h"
+#include "rof.h"
+#include "dismain.h"
 
 struct options
 {
@@ -22,7 +24,11 @@ struct options
     bool IsUnformatted = false;
     std::string DefDir{};
     std::string ModFile{};
+    std::string psectName{};
     std::unique_ptr<BigEndianStream> Module{};
+
+    std::unique_ptr<rof_header> ROFHd;
+    std::unique_ptr<module_header> modHeader;
 
     ~options();
 };
@@ -33,8 +39,5 @@ FILE* build_path(const std::string& p, char* faccs, struct options* opt);
 void do_opt(char* c, struct options* opt);
 char* pass_eq(char* p);
 void readModuleFile(options* opt);
-
-extern char* PsectName;
-extern int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
 
 #endif

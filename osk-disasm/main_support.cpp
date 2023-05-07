@@ -49,9 +49,6 @@
 #define R_OK 4
 #endif
 
-char* PsectName = NULL;
-int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
-
 options::~options()
 {
     if (CmdFP) fclose(CmdFP);

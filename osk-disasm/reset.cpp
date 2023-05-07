@@ -18,22 +18,9 @@ void reset()
     // cmdfile.c
     allRegions.clear();
 
-    // dismain.c
-    if (modHeader)
-    {
-        module_destroy(modHeader);
-    }
-    modHeader = nullptr;
-    error = 0;
-    CodeEnd = 0;
-
     // dprint.c
     PrevEnt = 0;
     LinNum = 0;
-
-    // main_support.c
-    PsectName = nullptr;
-    ExtBegin = 0;
 
     // rof.c
     refs_data = nullptr;
