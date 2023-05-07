@@ -49,7 +49,7 @@ RegionManager allRegions;
 void do_cmd_file(struct options* opt)
 {
     /* We will do our check for a specification for the CmdFile here */
-    if (!opt->CmdFileName)
+    if (opt->CmdFileName.empty())
     {
         return;
     }

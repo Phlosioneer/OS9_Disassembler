@@ -62,19 +62,13 @@ void IntegrationTestCase::run()
 	StringWriter moduleOutput;
 	StringWriter standardOutput;
 
-	// TODO: The three files are copied by going to properties, setting content to YES,
-	// and setting the other field to "copy file". This is an awful sysem but it works
-	// for now.
-	//ModFile = "cdi_zelda.os9module";
-
-	options* opt = options_new();
-	opt->ModFile = _strdup(inputFilePath.c_str());
+	auto opt = new options();
+	opt->ModFile = inputFilePath;
 	if (!commandFilePath.empty()) {
-		//opt->CmdFP = fopen(commandFilePath.c_str(), BINREAD);
-		opt->CmdFileName = _strdup(commandFilePath.c_str());
+		opt->CmdFileName = commandFilePath;
 	}
 	else {
-		opt->CmdFileName = nullptr;
+		opt->CmdFileName.clear();
 	}
 	opt->CmdFP = nullptr;
 	opt->asmFile = moduleOutput.handle();
@@ -82,7 +76,7 @@ void IntegrationTestCase::run()
 
 	if (!labelFilePath.empty())
 	{
-		options_addLabelFile(opt, labelFilePath.c_str());
+		opt->labelFiles.push_back(labelFilePath);
 	}
 	readModuleFile(opt);
 	dopass(1, opt);
@@ -91,7 +85,7 @@ void IntegrationTestCase::run()
 	opt->asmFile = nullptr;
 	stdout_writer = nullptr;
 
-	options_destroy(opt);
+	delete opt;
 
 	std::string temp2 = standardOutput.result();
 	//Logger::WriteMessage(temp2.c_str());

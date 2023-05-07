@@ -113,9 +113,9 @@ void PrintPsect(struct options* opt)
     {
         psectParamBuffer << PsectName;
     }
-    else if (strrchr(opt->ModFile, PATHSEP))
+    else if (strrchr(opt->ModFile.c_str(), PATHSEP))
     {
-        psectParamBuffer << strrchr(opt->ModFile, PATHSEP) + 1;
+        psectParamBuffer << strrchr(opt->ModFile.c_str(), PATHSEP) + 1;
     }
     else
     {
@@ -1008,7 +1008,7 @@ void ROFDataPrint(struct options* opt)
     if (srch)
     {
         parse_state state{0};
-        state.Module = opt->Module;
+        state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
 
@@ -1024,7 +1024,7 @@ void ROFDataPrint(struct options* opt)
     if (rof_header_getInitDataSize(ROFHd))
     {
         parse_state state{0};
-        state.Module = opt->Module;
+        state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
 
@@ -1056,7 +1056,7 @@ void ROFDataPrint(struct options* opt)
     if (srch)
     {
         parse_state state{0};
-        state.Module = opt->Module;
+        state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
 
@@ -1072,7 +1072,7 @@ void ROFDataPrint(struct options* opt)
     if (rof_header_getRemoteInitDataSize(ROFHd))
     {
         parse_state state{0};
-        state.Module = opt->Module;
+        state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
 
@@ -1109,7 +1109,7 @@ void OS9DataPrint(struct options* opt)
     struct cmd_items Ci;
     size_t filePos = opt->Module->position();
     parse_state state{0};
-    state.Module = opt->Module;
+    state.Module = opt->Module.get();
     state.opt = opt;
     state.Pass = 2;
 

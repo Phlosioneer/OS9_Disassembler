@@ -213,7 +213,7 @@ static int get_modhead(struct options* opt)
             {
                 // fseek(opt->ModFP, mod->execOffset, SEEK_SET);
                 opt->Module->seekAbsolute(mod->execOffset);
-                get_drvr_jmps(mod->type, opt->Module);
+                get_drvr_jmps(mod->type, opt->Module.get());
             }
 
             if (mod->initDataHeaderOffset)
@@ -367,11 +367,11 @@ static void GetLabels(struct options* opt) /* Read the labelfiles */
 
     /* Now read in label files specified on the command line */
 
-    for (x = 0; x < opt->LblFilz; x++)
+    for (const auto& filename : opt->labelFiles)
     {
         register FILE* inpath;
 
-        inpath = build_path(opt->LblFNam[x], BINREAD, opt);
+        inpath = build_path(filename, BINREAD, opt);
         if (inpath)
         {
             RdLblFile(inpath);
@@ -379,7 +379,7 @@ static void GetLabels(struct options* opt) /* Read the labelfiles */
         }
         else
         {
-            fprintf(stderr, "ERROR! cannot open Label File %s for read\n", opt->LblFNam[x]);
+            fprintf(stderr, "ERROR! cannot open Label File %s for read\n", filename.c_str());
         }
     }
 }
@@ -394,7 +394,6 @@ int dopass(int Pass, struct options* opt)
 {
     if (Pass == 1)
     {
-        // opt->ModFP = fopen(opt->ModFile, BINREAD);
         opt->Module->reset();
 
         get_modhead(opt);
@@ -473,7 +472,7 @@ int dopass(int Pass, struct options* opt)
     {
         0
     };
-    parseState.Module = opt->Module;
+    parseState.Module = opt->Module.get();
     parseState.opt = opt;
     parseState.Pass = Pass;
     if (opt->IsROF)

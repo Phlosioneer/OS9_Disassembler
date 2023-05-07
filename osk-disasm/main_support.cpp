@@ -32,6 +32,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <string.h>
+#include <string>
 
 #include "cmdfile.h"
 #include "commonsubs.h"
@@ -51,37 +52,10 @@
 char* PsectName = NULL;
 int ExtBegin; /* The position of the begin of the extended list (for PC-Relative addressing) */
 
-struct options* options_new()
+options::~options()
 {
-    auto ret = new options();
-    ret->PgWidth = 80;
-
-    return ret;
-}
-
-void options_destroy(struct options* opt)
-{
-    if (opt->CmdFileName) delete[] opt->CmdFileName;
-    if (opt->CmdFP) fclose(opt->CmdFP);
-    if (opt->asmFile) writer_close(opt->asmFile);
-    if (opt->DefDir) delete[] opt->DefDir;
-    if (opt->ModFile) delete[] opt->ModFile;
-    if (opt->Module) delete opt->Module;
-    // if (opt->ModFP) fclose(opt->ModFP);
-    for (int i = 0; i < opt->LblFilz; i++)
-    {
-        delete[] opt->LblFNam[i];
-    }
-    delete opt;
-}
-
-void options_addLabelFile(struct options* opt, const char* name)
-{
-    if (opt->LblFilz >= MAX_LBFIL)
-    {
-        errexit("Too many label files!");
-    }
-    opt->LblFNam[opt->LblFilz++] = _strdup(name);
+    if (CmdFP) fclose(CmdFP);
+    if (asmFile) writer_close(asmFile);
 }
 
 /*
@@ -99,7 +73,7 @@ void usage(void)
     fprintf(stderr, "%s%s    8 - 68008\n", tab, tab);
     fprintf(stderr, "%s%s   20 - 68020\n", tab, tab);
     fprintf(stderr, "\n%s-o=<filename>%sWrite an assembler source file\n", tab, tab);
-    fprintf(stderr, "%s-s      Specify a label file (%d allowed)\n", tab, MAX_LBFIL);
+    fprintf(stderr, "%s-s      Specify a label file\n", tab);
     fprintf(stderr, "%s-u      print unformatted listing (without line #, headers or blank lines\n", tab);
     fprintf(stderr, "%s-?, -h  Show this help\n", tab);
 }
@@ -110,31 +84,31 @@ void usage(void)
  *        doesn't seem to be available in Windows, so we'll do it
  *        the old-fashioned way.
  */
-struct options* getoptions(int argc, char** argv)
+std::unique_ptr<options> getoptions(int argc, char** argv)
 {
     register int count;
-    struct options* ret = options_new();
+    auto ret = std::make_unique<options>();
 
     for (count = 1; count < argc; count++)
     {
         if (argv[count][0] == '-')
         { /* It's an option */
-            do_opt(&argv[count][1], ret);
+            do_opt(&argv[count][1], ret.get());
         }
         else
         {
-            if (ret->ModFile != NULL)
+            if (!ret->ModFile.empty())
             {
                 /* I think we did handle multiple files in the 6809 version
                    If so, we'll fix that later*/
                 errexit("Only One File can be processed");
             }
 
-            ret->ModFile = strdup(argv[count]);
+            ret->ModFile = argv[count];
         }
     }
 
-    readModuleFile(ret);
+    readModuleFile(ret.get());
 
     return ret;
 }
@@ -143,20 +117,20 @@ void readModuleFile(options* opt)
 {
     std::ifstream moduleFile(opt->ModFile, std::ifstream::binary);
     std::vector<char> buffer{std::istreambuf_iterator<char>(moduleFile), std::istreambuf_iterator<char>()};
-    opt->Module = new BigEndianStream(std::move(buffer));
+    opt->Module = std::make_unique<BigEndianStream>(std::move(buffer));
 }
 
 /*
  * Verify that the path is a valid path.
  *    If the path is not valid, try some alternatives.
  */
-FILE* build_path(char* p, char* faccs, struct options* opt)
+FILE* build_path(const std::string& p, char* faccs, struct options* opt)
 {
     char tmpnam[100];
     char* c;
     FILE* fp;
 
-    fp = fopen(p, faccs);
+    fp = fopen(p.c_str(), faccs);
     if (fp)
     {
         return fp;
@@ -169,7 +143,7 @@ FILE* build_path(char* p, char* faccs, struct options* opt)
         {
             /* We will make some assumptions here..
              * We will assume the path is in the form "~/..."*/
-            sprintf(tmpnam, "%s%s", c, &p[1]);
+            sprintf(tmpnam, "%s%s", c, p.c_str() + 1);
 
             fp = fopen(tmpnam, faccs);
             if (fp)
@@ -183,9 +157,9 @@ FILE* build_path(char* p, char* faccs, struct options* opt)
         }
     }
 
-    if (opt->DefDir)
+    if (!opt->DefDir.empty())
     {
-        sprintf(tmpnam, "%s/%s", opt->DefDir, p);
+        sprintf(tmpnam, "%s/%s", opt->DefDir.c_str(), p.c_str());
 
         fp = fopen(tmpnam, faccs);
         if (fp)
@@ -194,7 +168,7 @@ FILE* build_path(char* p, char* faccs, struct options* opt)
         }
     }
 
-    if (opt->CmdFileName && strlen(opt->CmdFileName))
+    if (!opt->CmdFileName.empty())
     {
         char dirpath[256];
         char fname[256];
@@ -203,13 +177,13 @@ FILE* build_path(char* p, char* faccs, struct options* opt)
         char drv[3];
         char ext[256];
 
-        _splitpath(p, drv, dirpath, fname, ext);
+        _splitpath(p.c_str(), drv, dirpath, fname, ext);
         relpath = (strlen(drv) + strlen(dirpath));
 
         if (relpath == 0)
         {
-            _splitpath(opt->CmdFileName, drv, dirpath, fname, ext);
-            _makepath(tmpnam, drv, dirpath, p, NULL);
+            _splitpath(opt->CmdFileName.c_str(), drv, dirpath, fname, ext);
+            _makepath(tmpnam, drv, dirpath, p.c_str(), NULL);
         }
         else
         {
@@ -245,19 +219,19 @@ void do_opt(char* c, struct options* opt)
         opt->PrintAllCode = 1; /* Print all code words */
         break;
     case 'c': /* Specify Command file */
-        if (opt->CmdFileName)
+        if (!opt->CmdFileName.empty())
         {
             fprintf(stderr, "Command file already defined\n");
             fprintf(stderr, "Ignoring %s\n", pass_eq(pt));
         }
         else
         {
-            opt->CmdFileName = strdup(pass_eq(pt));
+            opt->CmdFileName = pass_eq(pt);
 
             opt->CmdFP = build_path(opt->CmdFileName, BINREAD, opt);
             if (!opt->CmdFP)
             {
-                fprintf(stderr, "*** Failed to open Command file %s***\n", opt->CmdFileName);
+                fprintf(stderr, "*** Failed to open Command file %s***\n", opt->CmdFileName.c_str());
                 fprintf(stderr, "Continuing without using the Command file\n");
             }
         }
@@ -299,25 +273,13 @@ void do_opt(char* c, struct options* opt)
 
         break;*/
     case 'r': /* File is an ROF file */
-        opt->IsROF = 1;
+        opt->IsROF = true;
         break;
     case 's': /* Label file name       */
-        if (opt->LblFilz < MAX_LBFIL)
-        {
-            pt = pass_eq(pt);
+        pt = pass_eq(pt);
 
-            if (*pt)
-            {
-                /* In the OS9 version we used build_path here,
-                 * but let's try waiting till we read the file
-                 */
-                options_addLabelFile(opt, pt);
-            }
-        }
-        else
-        {
-            fprintf(stderr, "Max label files allotted -- Ignoring \'%s\'\n", pass_eq(pt));
-        }
+        if (*pt) opt->labelFiles.push_back(std::string(pt));
+
         break;
     case 'g': /* tabs (g-print-capable) */
         /*tabinit ();*/
@@ -339,18 +301,12 @@ void do_opt(char* c, struct options* opt)
 
         break;
     case 'u': /* Translate to upper-case */
-        opt->IsUnformatted = 1;
+        opt->IsUnformatted = true;
         /*UpCase = 1;*/
         break;
     case 'd':
         pt = pass_eq(pt);
-
-        opt->DefDir = strdup(pt);
-        if (!opt->DefDir)
-        {
-            fprintf(stderr, "Cannot allocate memory for Defs dirname\n");
-            exit(1);
-        }
+        opt->DefDir = pt;
 
         break;
     /*case 'z':

@@ -194,7 +194,7 @@ void getRofHdr(struct options* opt)
     uint16_t glbl_cnt, count; /* Generic counter */
     char* codeBuf;
 
-    opt->IsROF = TRUE;    /* Flag that module is an ROF module */
+    opt->IsROF = true;    /* Flag that module is an ROF module */
     opt->Module->reset(); /* Start all over */
 
     /* get header data */
@@ -296,7 +296,7 @@ void getRofHdr(struct options* opt)
 
         /* Get the individual occurrences for this name */
 
-        get_refs(_name, refcount, REFXTRN, NULL, opt->Module);
+        get_refs(_name, refcount, REFXTRN, NULL, opt->Module.get());
     }
 
     /* *************************** *
@@ -304,7 +304,7 @@ void getRofHdr(struct options* opt)
      * *************************** */
 
     auto local_count = opt->Module->read<uint16_t>();
-    get_refs(std::string(), local_count, REFLOCAL, codeBuf, opt->Module);
+    get_refs(std::string(), local_count, REFLOCAL, codeBuf, opt->Module.get());
     delete[] codeBuf;
 
     /* Now we need to add labels for these refs */
