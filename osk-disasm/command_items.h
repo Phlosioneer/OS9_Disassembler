@@ -21,13 +21,13 @@ struct cmd_items
 {
     int cmd_wrd = 0; // The single effective address word (the command)
     // char lblname[LABEL_LEN];
-    char* lblname = nullptr;
+    std::string lblname{};
     char mnem[MNEM_LEN]{};
     short code[CODE_LEN]{};
     int wcount = 0;            // The count of words in the instrct/.(except sea)
     char params[OPCODE_LEN]{}; // Possibly ovesized, but just to be safe
     // char comment[COMMENT_LEN];     // Inline comment - NULL if none
-    char* comment = nullptr;
+    char* comment = "";
     extWbrief extend{}; // The extended command (if present)
 };
 

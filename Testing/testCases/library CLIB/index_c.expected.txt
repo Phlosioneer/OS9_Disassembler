@@ -1,0 +1,32 @@
+    0  00000 0000            psect  index_c,$0,$0,0,0,index 
+    1  00000 4e55 index:     link.w A5,#0      
+    2  00004 48e7            movem.l a2/d0-d1/d4,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 2801            move.l d1,d4      
+    5  0000c b812 L0000c     cmp.b  (a2),d4    
+    6  0000e 6604            bne.s  L00014     
+    7  00010 200a            move.l a2,d0      
+    8  00012 6006            bra.s  L0001a     
+    9  00014 4a1a L00014     tst.b  (a2)+      
+   10  00016 66f4            bne.s  L0000c     
+   11  00018 7000            moveq  #0,d0      
+   12  0001a 4ced L0001a     movem.l -8(a5),a2/d4 
+   13  00020 4e5d            unlk   A5         
+   14  00022 4e75            rts               
+   15  00024 4e55 rindex:    link.w A5,#0      
+   16  00028 48e7            movem.l a2-a3/d0-d1/d4,-(sp) 
+   17  0002c 2440            movea.l d0,a2      
+   18  0002e 2801            move.l d1,d4      
+   19  00030 97cb            suba.l a3,a3      
+   20  00032 b812 L00032     cmp.b  (a2),d4    
+   21  00034 6602            bne.s  L00038     
+   22  00036 264a            movea.l a2,a3      
+   23  00038 4a1a L00038     tst.b  (a2)+      
+   24  0003a 66f6            bne.s  L00032     
+   25  0003c 200b            move.l a3,d0      
+   26  0003e 4ced            movem.l -12(a5),a2-a3/d4 
+   27  00044 4e5d            unlk   A5         
+   28  00046 4e75            rts               
+   29
+   30  00048 0000            ends              
+   30

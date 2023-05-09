@@ -453,9 +453,12 @@ int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
 
     char EaStringBuffer[200];
     EaStringBuffer[0] = '\0';
-    if (!LblCalc(EaStringBuffer, ci->cmd_wrd & 0xff, AM_IMM, state->CmdEnt, state->opt->IsROF, state->Pass))
+    // The immediate value is at address+1
+    auto immParamValue = ci->cmd_wrd & 0xff;
+    auto immParamAddress = state->CmdEnt + 1;
+    if (!LblCalc(EaStringBuffer, immParamValue, AM_IMM, immParamAddress, state->opt->IsROF, state->Pass))
     {
-        PrintNumber(EaStringBuffer, ci->cmd_wrd & 0xff, AM_IMM, PBytSiz);
+        PrintNumber(EaStringBuffer, immParamValue, AM_IMM, PBytSiz);
     }
     sprintf(ci->params, "#%s,d%d", EaStringBuffer, (ci->cmd_wrd >> 9) & 7);
     strcpy(ci->mnem, op->name);
@@ -1231,13 +1234,19 @@ int cmd_exg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     char regnameDst = 'd';
     char* dot;
 
-    switch ((ci->cmd_wrd >> 3) & 0x1f)
+    int opMode = (ci->cmd_wrd >> 3) & 0x1f;
+    switch (opMode)
     {
     case 0x08:
+        // Both are data registers
         break;
-    case 0x81:
+    case 0x09:
+        // Both are address registers
         regnameSrc = 'a';
+        regnameDst = 'a';
+        break;
     case 0x11:
+        // Source is data, dest is address
         regnameDst = 'a';
         break;
     default:

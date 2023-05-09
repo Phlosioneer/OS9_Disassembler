@@ -1,0 +1,5 @@
+    0  00000 0000            psect  tidyup_a,$0,$0,0,0,_tidyup 
+    1  00000 4e75 _tidyup:   rts               
+    2
+    3  00002 0000            ends              
+    3

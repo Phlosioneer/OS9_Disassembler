@@ -1,0 +1,23 @@
+    0  00000 0000            psect  dev_a,$0,$0,0,0,attach 
+    1  00000 4e55 attach:    link.w A5,#0      
+    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    3  00008 2040            movea.l d0,a0      
+    4  0000a 2001            move.l d1,d0      
+    5  0000c 2f0a            move.l a2,-(sp)   
+    6  0000e 4e40            os9    I$Attach   
+    7  00012 204a            movea.l a2,a0      
+    8  00014 245f            movea.l (sp)+,a2   
+    9  00016 6500            dc.w   $6500      
+   10  00018 0000            dc.w   $0         
+   11  0001a 2008            move.l a0,d0      
+   12  0001c 6000            bra.w  _sysret    
+   13  00020 4e55 detach:    link.w A5,#0      
+   14  00024 48e7            movem.l a0/d1-d2,-(sp) 
+   15  00028 204a            movea.l a2,a0      
+   16  0002a 2440            movea.l d0,a2      
+   17  0002c 4e40            os9    I$Detach   
+   18  00030 2448            movea.l a0,a2      
+   19  00032 6000            bra.w  _sysret    
+   20
+   21  00036 0000            ends              
+   21

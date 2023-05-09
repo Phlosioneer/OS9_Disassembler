@@ -51,6 +51,8 @@
 #include "reader.h"
 
 #include <stdio.h>
+#include <map>
+#include <memory>
 
 struct cmd_items;
 struct rof_header;
@@ -95,6 +97,9 @@ struct rof_header
 
 struct rof_extrn
 {
+    rof_extrn() = default;
+    rof_extrn(uint16_t type, uint32_t offset, bool isExternal);
+
     int hasName = 0;
     std::string nam{};
     Label* lbl = nullptr;
@@ -108,21 +113,21 @@ struct rof_extrn
             *MyNext = nullptr;       /* Next ref for this name.  If NULL, we can free EName */
 };
 
-extern struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremote,
-    *extrns, /* Generic external pointer */
-    *codeRefs_sav;
+typedef std::map<uint32_t, rof_extrn> refmap;
+
+extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns; /* Generic external pointer */
 
 int RealEnt(struct options* opt, int CmdEnt);
-void AddInitLbls(struct rof_extrn* tbl, char klas, BigEndianStream& Module);
+void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module);
 void getRofHdr(struct options* opt);
 void RofLoadInitData(void);
 char rof_class(int typ, int refTy);
-struct rof_extrn* find_extrn(struct rof_extrn* xtrn, unsigned int adrs);
+struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
 int rof_datasize(char cclass, struct options* opt);
-void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, unsigned int isize, char iClass,
+void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, char iClass,
                  struct parse_state* state);
 void setupROFPass(int Pass);
-int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val);
+int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, int curloc, int ival, int Pass);
 const char* extern_def_name(struct rof_extrn* handle);
 char* rof_header_getPsectParams(struct rof_header* handle);

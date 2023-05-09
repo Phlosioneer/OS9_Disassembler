@@ -17,15 +17,13 @@ class Label
 {
   public:
     Label(char category, int value, const char* name);
+    Label(char category, int value, const std::string& name);
 
-    const char category;
-    const long myAddr;
-
-    inline char* name()
+    inline const std::string& name() const
     {
         return _name;
     }
-    inline bool stdName()
+    inline bool stdName() const
     {
         return _stdName;
     }
@@ -33,7 +31,7 @@ class Label
     {
         _stdName = isStdName;
     }
-    inline bool global()
+    inline bool global() const
     {
         return _global;
     }
@@ -43,12 +41,21 @@ class Label
     }
 
     void setName(const char* newName);
+    void setName(std::string newName);
+
+    std::string nameWithColon() const;
+
+    const char category;
+    const long myAddr;
 
   private:
-    char _name[LBLLEN + 1];
+    std::string _name;
 
+    bool _nameIsDefault;
     bool _stdName;
     bool _global;
+
+    static std::string makeDefaultName(char category, long value);
 };
 
 class LabelCategory
@@ -74,6 +81,11 @@ class LabelCategory
     void printAll();
     Label* getNextAfter(Label* label);
     Label* getFirst();
+
+    inline size_t size() const
+    {
+        return _labels.size();
+    }
 
   private:
     // This list is always sorted by address / value.
@@ -110,7 +122,6 @@ Label* label_getNext(Label* handle);
 Label* labelclass_getFirst(LabelCategory* handle);
 
 Label* findlbl(char lblclass, int lblval);
-char* lblstr(char lblclass, int lblval);
 Label* addlbl(char lblclass, int val, const char* newname);
 bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass);
 void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas = '\0');

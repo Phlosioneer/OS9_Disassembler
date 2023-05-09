@@ -1,0 +1,43 @@
+    0  00000 0000            psect  getenv_c,$0,$0,0,0,L00000 
+    1  00000 4e55 L00000     link.w A5,#0      
+    2  00004 48e7            movem.l a2-a3/d0-d1,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 2641            movea.l d1,a3      
+    5  0000c 6006            bra.s  L00014     
+    6  0000e 0c1a L0000e     cmpi.b #61,(a2)+  
+    7  00012 6712            beq.s  L00026     
+    8  00014 1012 L00014     move.b (a2),d0    
+    9  00016 b01b            cmp.b  (a3)+,d0   
+   10  00018 67f4            beq.s  L0000e     
+   11  0001a 4a12            tst.b  (a2)       
+   12  0001c 660c            bne.s  L0002a     
+   13  0001e 0c2b            cmpi.b #61,-1(a3) 
+   14  00024 6604            bne.s  L0002a     
+   15  00026 200b L00026     move.l a3,d0      
+   16  00028 6002            bra.s  L0002c     
+   17  0002a 7000 L0002a     moveq  #0,d0      
+   18  0002c 4ced L0002c     movem.l -8(a5),a2-a3 
+   19  00032 4e5d            unlk   A5         
+   20  00034 4e75            rts               
+   21  00036 4e55 getenv:    link.w A5,#0      
+   22  0003a 48e7            movem.l a2-a4/d0-d1,-(sp) 
+   23  0003e 2440            movea.l d0,a2      
+   24  00040 266e            movea.l environ(a6),a3 
+   25  00044 6010            bra.s  L00056     
+   26  00046 221b L00046     move.l (a3)+,d1   
+   27  00048 200a            move.l a2,d0      
+   28  0004a 61b4            bsr.s  L00000     
+   29  0004c 2840            movea.l d0,a4      
+   30  0004e 4a80            tst.l  d0         
+   31  00050 6704            beq.s  L00056     
+   32  00052 200c            move.l a4,d0      
+   33  00054 6006            bra.s  L0005c     
+   34  00056 4a93 L00056     tst.l  (a3)       
+   35  00058 66ec            bne.s  L00046     
+   36  0005a 7000            moveq  #0,d0      
+   37  0005c 4ced L0005c     movem.l -16(a5),a2-a4/d1 
+   38  00062 4e5d            unlk   A5         
+   39  00064 4e75            rts               
+   40
+   41  00066 0000            ends              
+   41

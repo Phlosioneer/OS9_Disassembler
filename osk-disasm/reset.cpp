@@ -23,11 +23,10 @@ void reset()
     LinNum = 0;
 
     // rof.c
-    refs_data = nullptr;
-    refs_idata = nullptr;
-    refs_remote = nullptr;
-    refs_iremote = nullptr;
-    refs_code = nullptr;
-    extrns = nullptr;
-    codeRefs_sav = nullptr;
+    refs_data.clear();
+    refs_idata.clear();
+    refs_remote.clear();
+    refs_iremote.clear();
+    refs_code.clear();
+    extrns.clear();
 }

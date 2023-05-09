@@ -91,4 +91,39 @@ namespace IntegrationTests
 			test.run();
 		}
 	};
+
+	TEST_CLASS(StandardLibraryTests)
+	{
+	public:
+		TEST_METHOD(LibraryCLIB)
+		{
+			const std::vector<std::string> filenames
+			{
+				"_pkpaths", "_utdummy", "abs_a", "access_a", "alarm_a",
+				"asctime_c", "atof_c", "atoi_c", "atol_c", "atou_c",
+				"case_c", "cdiv_a", "cfinish_a", "change_a", "chcodes_c",
+				"clock_c", "cmul_a", "color_a", "defdrive_c", "dev_a", 
+				"dir_a", "direct_c", "errmsg_c", "events_a", "fflush_c",
+				"findstr_c", "fopen_c", "fread_c", "frexp_c", "fseek_c",
+				"fwrite_c", "getc_c", "getenv_c", "gets_c", "globals_a",
+				"id_a", "index_c", "initarg_a", "intercept_a", "io_a",
+				"iobinit_c", "ldexp_c", "mem_a", "memchr_c", "memcmp_c",
+				"memcpy_c", "memory_c", "memset_a", "misc_a", "mktemp_c",
+				"mod_a", "modloadp_c", "os9exec_c", "pfinits_c", "printf_c",
+				"process_a", "profdummy_a", "putc_c", "puts_c", "qsort_c",
+				"scanf_c", "setjmp_a", "sigmask_a", "ss_stat_a", "stat_a",
+				"strass_c", "strings_c", "stringsn_c", "strtod_c", "strtol_c",
+				"strtoul_c", "syscommon_a", "system_c", "tidyup_a", "time_a",
+				"time_c", "trigs_c"
+			};
+
+			for (const auto& name : filenames)
+			{
+				reset();
+				IntegrationTestCase test("library CLIB", name);
+
+				test.run();
+			}
+		}
+	};
 }

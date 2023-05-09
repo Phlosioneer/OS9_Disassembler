@@ -1,0 +1,61 @@
+    0  00000 0000            psect  io_a,$0,$0,0,0,read 
+    1  00000 4e55 read:      link.w A5,#0      
+    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    3  00008 2041            movea.l d1,a0      
+    4  0000a 222d            move.l 8(a5),d1   
+    5  0000e 4e40            os9    I$Read     
+    6  00012 6420            bcc.s  L00034     
+    7  00014 0c41 L00014     cmpi.w #E$EOF,d1  
+    8  00018 6600            dc.w   $6600      
+    9  0001a 0000            dc.w   $0         
+   10  0001c 6000            bra.w  _sysret0   
+   11  00020 4e55 readln:    link.w A5,#0      
+   12  00024 48e7            movem.l a0/d1-d2,-(sp) 
+   13  00028 2041            movea.l d1,a0      
+   14  0002a 222d            move.l 8(a5),d1   
+   15  0002e 4e40            os9    I$ReadLn   
+   16  00032 65e0            bcs.s  L00014     
+   17  00034 2001 L00034     move.l d1,d0      
+   18  00036 6000            bra.w  _sysret    
+   19  0003a 4e55 write:     link.w A5,#0      
+   20  0003e 48e7            movem.l a0/d1-d2,-(sp) 
+   21  00042 2041            movea.l d1,a0      
+   22  00044 222d            move.l 8(a5),d1   
+   23  00048 4e40            os9    I$Write    
+   24  0004c 64e6            bcc.s  L00034     
+   25  0004e 6000            bra.w  _os9err    
+   26  00052 4e55 writeln:   link.w A5,#0      
+   27  00056 48e7            movem.l a0/d1-d2,-(sp) 
+   28  0005a 2041            movea.l d1,a0      
+   29  0005c 222d            move.l 8(a5),d1   
+   30  00060 4e40            os9    I$WritLn   
+   31  00064 64ce            bcc.s  L00034     
+   32  00066 6000            bra.w  _os9err    
+   33  0006a 4e55 lseek:     link.w A5,#0      
+   34  0006e 48e7            movem.l a0/d1-d2,-(sp) 
+   35  00072 122d            move.b 11(a5),d1  
+   36  00076 6726            beq.s  L0009e     
+   37  00078 0c01            cmpi.b #1,d1      
+   38  0007c 6716            beq.s  L00094     
+   39  0007e 0c01            cmpi.b #2,d1      
+   40  00082 6706            beq.s  L0008a     
+   41  00084 7200            moveq  #E$BMode,d1 
+   42  00086 6000 L00086     bra.w  _os9err    
+   43  0008a 7200 L0008a     moveq  #SS_Size,d1 
+   44  0008c 4e40            os9    I$GetStt   
+   45  00090 640e            bcc.s  L000a0     
+   46  00092 60f2            bra.s  L00086     
+   47  00094 7200 L00094     moveq  #SS_Pos,d1 
+   48  00096 4e40            os9    I$GetStt   
+   49  0009a 6404            bcc.s  L000a0     
+   50  0009c 60e8            bra.s  L00086     
+   51  0009e 7400 L0009e     moveq  #0,d2      
+   52  000a0 d497 L000a0     add.l  (sp),d2    
+   53  000a2 2202            move.l d2,d1      
+   54  000a4 4e40            os9    I$Seek     
+   55  000a8 65dc            bcs.s  L00086     
+   56  000aa 2001            move.l d1,d0      
+   57  000ac 6000            bra.w  _sysret    
+   58
+   59  000b0 0000            ends              
+   59

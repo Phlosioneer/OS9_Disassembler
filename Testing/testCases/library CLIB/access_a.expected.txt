@@ -1,0 +1,92 @@
+    0  00000 0000            psect  access_a,$0,$0,0,0,access 
+    1  00000 4e55 access:    link.w A5,#0      
+    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    3  00008 2040            movea.l d0,a0      
+    4  0000a 3001            move.w d1,d0      
+    5  0000c 4e40            os9    I$Open     
+    6  00010 6500            dc.w   $6500      
+    7  00012 0000            dc.w   $0         
+    8  00014 4e40            os9    I$Close    
+    9  00018 6000            bra.w  _sysret0   
+   10  0001c 4e55 open:      link.w A5,#0      
+   11  00020 48e7            movem.l a0/d1-d2,-(sp) 
+   12  00024 2040            movea.l d0,a0      
+   13  00026 3001            move.w d1,d0      
+   14  00028 7400            moveq  #0,d2      
+   15  0002a 4e40            os9    I$Open     
+   16  0002e 6000            bra.w  _sysret    
+   17  00032 4e55 close:     link.w A5,#0      
+   18  00036 48e7            movem.l a0/d1-d2,-(sp) 
+   19  0003a 4e40            os9    I$Close    
+   20  0003e 6000            bra.w  _sysret    
+   21  00042 4e55 mknod:     link.w A5,#0      
+   22  00046 48e7            movem.l a0/d1-d2,-(sp) 
+   23  0004a 2040            movea.l d0,a0      
+   24  0004c 7000            moveq  #Write_,d0 
+   25  0004e 7400            moveq  #0,d2      
+   26  00050 4e40 L00050     os9    I$MakDir   
+   27  00054 6000            bra.w  _sysret0   
+   28  00058 4e55 makdir:    link.w A5,#0      
+   29  0005c 48e7            movem.l a0/d1-d2,-(sp) 
+   30  00060 2040            movea.l d0,a0      
+   31  00062 2001            move.l d1,d0      
+   32  00064 222f            move.l 20(sp),d1  
+   33  00068 242f            move.l 24(sp),d2  
+   34  0006c 60e2            bra.s  L00050     
+   35  0006e 4e55 create:    link.w A5,#0      
+   36  00072 48e7            movem.l a0/d1-d2,-(sp) 
+   37  00076 2040            movea.l d0,a0      
+   38  00078 3001            move.w d1,d0      
+   39  0007a 222f            move.l 20(sp),d1  
+   40  0007e 242f            move.l 24(sp),d2  
+   41  00082 4e40            os9    I$Create   
+   42  00086 6000            bra.w  _sysret    
+   43  0008a 4e55 creat:     link.w A5,#0      
+   44  0008e 48e7            movem.l a0/d0-d2,-(sp) 
+   45  00092 2040            movea.l d0,a0      
+   46  00094 3001            move.w d1,d0      
+   47  00096 0241            andi.w #PExec_,d1 
+   48  0009a 0041            ori.w  #Write_,d1 
+   49  0009e 7400            moveq  #0,d2      
+   50  000a0 4e40            os9    I$Create   
+   51  000a4 205f            movea.l (sp)+,a0   
+   52  000a6 6400            dc.w   $6400      
+   53  000a8 0000            dc.w   $0         
+   54  000aa 0c01            cmpi.b #E$CEF,d1  
+   55  000ae 6600            dc.w   $6600      
+   56  000b0 0000            dc.w   $0         
+   57  000b2 302f            move.w 2(sp),d0   
+   58  000b6 6b00            dc.w   $6b00      
+   59  000b8 0000            dc.w   $0         
+   60  000ba 0240            andi.w #Write_,d0 
+   61  000be 4e40            os9    I$Open     
+   62  000c2 6500            dc.w   $6500      
+   63  000c4 0000            dc.w   $0         
+   64  000c6 7400            moveq  #0,d2      
+   65  000c8 7200            moveq  #SS_Size,d1 
+   66  000ca 4e40            os9    I$SetStt   
+   67  000ce 6400            dc.w   $6400      
+   68  000d0 0000            dc.w   $0         
+   69  000d2 3401            move.w d1,d2      
+   70  000d4 4e40            os9    I$Close    
+   71  000d8 3202            move.w d2,d1      
+   72  000da 6000            bra.w  _os9err    
+   73  000de 4e55 unlinkx:   link.w A5,#0      
+   74  000e2 48e7            movem.l a0/d1-d2,-(sp) 
+   75  000e6 2040            movea.l d0,a0      
+   76  000e8 3001            move.w d1,d0      
+   77  000ea 4e40            os9    I$Delete   
+   78  000ee 6000            bra.w  _sysret0   
+   79  000f2 4e55 unlink:    link.w A5,#0      
+   80  000f6 48e7            movem.l a0/d1-d2,-(sp) 
+   81  000fa 2040            movea.l d0,a0      
+   82  000fc 7000            moveq  #Write_,d0 
+   83  000fe 4e40            os9    I$Delete   
+   84  00102 6000            bra.w  _sysret0   
+   85  00106 4e55 dup:       link.w A5,#0      
+   86  0010a 48e7            movem.l a0/d1-d2,-(sp) 
+   87  0010e 4e40            os9    I$Dup      
+   88  00112 6000            bra.w  _sysret    
+   89
+   90  00116 0000            ends              
+   90

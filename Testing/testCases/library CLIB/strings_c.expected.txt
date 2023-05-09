@@ -1,0 +1,107 @@
+    0  00000 0000            psect  strings_c,$0,$0,0,0,strcmp 
+    1  00000 2f08 strcmp:    move.l a0,-(sp)   
+    2  00002 2040            movea.l d0,a0      
+    3  00004 b300            eor.b  d1,d0      
+    4  00006 0800            btst.l #0,d0      
+    5  0000a 6652            bne.s  L0005e     
+    6  0000c 0801            btst.l #0,d1      
+    7  00010 c389            exg    d1,a1      
+    8  00012 6718            beq.s  L0002c     
+    9  00014 b109            cmpm.b (a1)+,(a0)+ 
+   10  00016 6530            bcs.s  L00048     
+   11  00018 6220            bhi.s  L0003a     
+   12  0001a 4a28            tst.b  -1(a0)     
+   13  0001e 660c            bne.s  L0002c     
+   14  00020 6034            bra.s  L00056     
+   15  00022 4a00 L00022     tst.b  d0         
+   16  00024 6730            beq.s  L00056     
+   17  00026 0c40            cmpi.w #255,d0    
+   18  0002a 632a            bls.s  L00056     
+   19  0002c 3018 L0002c     move.w (a0)+,d0   
+   20  0002e b059            cmp.w  (a1)+,d0   
+   21  00030 67f0            beq.s  L00022     
+   22  00032 650e            bcs.s  L00042     
+   23  00034 0c40            cmpi.w #255,d0    
+   24  00038 6316            bls.s  L00050     
+   25  0003a 7001 L0003a     moveq  #1,d0      
+   26  0003c 205f            movea.l (sp)+,a0   
+   27  0003e c389            exg    d1,a1      
+   28  00040 4e75            rts               
+   29  00042 0c40 L00042     cmpi.w #255,d0    
+   30  00046 6308            bls.s  L00050     
+   31  00048 70ff L00048     moveq  #255,d0    
+   32  0004a 205f            movea.l (sp)+,a0   
+   33  0004c c389            exg    d1,a1      
+   34  0004e 4e75            rts               
+   35  00050 4a29 L00050     tst.b  -2(a1)     
+   36  00054 66f2            bne.s  L00048     
+   37  00056 7000 L00056     moveq  #0,d0      
+   38  00058 205f            movea.l (sp)+,a0   
+   39  0005a c389            exg    d1,a1      
+   40  0005c 4e75            rts               
+   41  0005e c389 L0005e     exg    d1,a1      
+   42  00060 7000            moveq  #0,d0      
+   43  00062 1018 L00062     move.b (a0)+,d0   
+   44  00064 b019            cmp.b  (a1)+,d0   
+   45  00066 56c8            dbne   d0,L00062  
+   46  0006a 65dc            bcs.s  L00048     
+   47  0006c 5240            addq.w #1,d0      
+   48  0006e 205f            movea.l (sp)+,a0   
+   49  00070 c389            exg    d1,a1      
+   50  00072 4e75            rts               
+   51  00074 2f08 strlen:    move.l a0,-(sp)   
+   52  00076 2040            movea.l d0,a0      
+   53  00078 4a18 L00078     tst.b  (a0)+      
+   54  0007a 670c            beq.s  L00088     
+   55  0007c 4a18            tst.b  (a0)+      
+   56  0007e 6708            beq.s  L00088     
+   57  00080 4a18            tst.b  (a0)+      
+   58  00082 6704            beq.s  L00088     
+   59  00084 4a18            tst.b  (a0)+      
+   60  00086 66f0            bne.s  L00078     
+   61  00088 91c0 L00088     suba.l d0,a0      
+   62  0008a 2008            move.l a0,d0      
+   63  0008c 5380            subq.l #1,d0      
+   64  0008e 205f            movea.l (sp)+,a0   
+   65  00090 4e75            rts               
+   66  00092 2f08 strcpy:    move.l a0,-(sp)   
+   67  00094 2040            movea.l d0,a0      
+   68  00096 c389            exg    d1,a1      
+   69  00098 10d9 L00098     move.b (a1)+,(a0)+ 
+   70  0009a 670c            beq.s  L000a8     
+   71  0009c 10d9            move.b (a1)+,(a0)+ 
+   72  0009e 6708            beq.s  L000a8     
+   73  000a0 10d9            move.b (a1)+,(a0)+ 
+   74  000a2 6704            beq.s  L000a8     
+   75  000a4 10d9            move.b (a1)+,(a0)+ 
+   76  000a6 66f0            bne.s  L00098     
+   77  000a8 205f L000a8     movea.l (sp)+,a0   
+   78  000aa c389            exg    d1,a1      
+   79  000ac 4e75            rts               
+   80  000ae 2f08 strcat:    move.l a0,-(sp)   
+   81  000b0 2040            movea.l d0,a0      
+   82  000b2 c389            exg    d1,a1      
+   83  000b4 4a18 L000b4     tst.b  (a0)+      
+   84  000b6 670c            beq.s  L000c4     
+   85  000b8 4a18            tst.b  (a0)+      
+   86  000ba 6708            beq.s  L000c4     
+   87  000bc 4a18            tst.b  (a0)+      
+   88  000be 6704            beq.s  L000c4     
+   89  000c0 4a18            tst.b  (a0)+      
+   90  000c2 66f0            bne.s  L000b4     
+   91  000c4 1159 L000c4     move.b (a1)+,-1(a0) 
+   92  000c8 66ce            bne.s  L00098     
+   93  000ca 60dc            bra.s  L000a8     
+   94  000cc 2f08 strhcpy:   move.l a0,-(sp)   
+   95  000ce 2040            movea.l d0,a0      
+   96  000d0 c389            exg    d1,a1      
+   97  000d2 10d9 L000d2     move.b (a1)+,(a0)+ 
+   98  000d4 6afc            bpl.s  L000d2     
+   99  000d6 4210            clr.b  (a0)       
+  100  000d8 0220            andi.b #127,-(a0) 
+  101  000dc 205f            movea.l (sp)+,a0   
+  102  000de c389            exg    d1,a1      
+  103  000e0 4e75            rts               
+  104
+  105  000e2 0000            ends              
+  105

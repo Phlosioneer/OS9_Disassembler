@@ -1,0 +1,19 @@
+    0  00000 0000            psect  atof_c,$0,$0,0,0,atof 
+    1  00000 4e55 atof:      link.w A5,#0      
+    2  00004 48e7            movem.l a2/d0-d1/d4,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 518f            subq.l #8,sp      
+    5  0000c 282e            move.l errno(a6),d4 
+    6  00010 7200            moveq  #0,d1      
+    7  00012 200a            move.l a2,d0      
+    8  00014 6100            bsr.w  strtod     
+    9  00018 48d7            movem.l d0-d1,(sp) 
+   10  0001c 2d44            move.l d4,errno(a6) 
+   11  00020 4cd7            movem.l (sp),d0-d1 
+   12  00024 508f            addq.l #8,sp      
+   13  00026 4ced            movem.l -8(a5),a2/d4 
+   14  0002c 4e5d            unlk   A5         
+   15  0002e 4e75            rts               
+   16
+   17  00030 0000            ends              
+   17

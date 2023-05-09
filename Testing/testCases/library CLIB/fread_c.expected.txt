@@ -1,0 +1,28 @@
+    0  00000 0000            psect  fread_c,$0,$0,0,0,fread 
+    1  00000 4e55 fread:     link.w A5,#0      
+    2  00004 48e7            movem.l a2-a3/d0-d1/d4-d6,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 266f            movea.l 40(sp),a3  
+    5  0000e 7a00            moveq  #0,d5      
+    6  00010 601c            bra.s  L0002e     
+    7  00012 282f L00012     move.l 4(sp),d4   
+    8  00016 6010            bra.s  L00028     
+    9  00018 200b L00018     move.l a3,d0      
+   10  0001a 6100            bsr.w  getc       
+   11  0001e 2c00            move.l d0,d6      
+   12  00020 72ff            moveq  #255,d1    
+   13  00022 b280            cmp.l  d0,d1      
+   14  00024 670e            beq.s  L00034     
+   15  00026 14c6            move.b d6,(a2)+   
+   16  00028 5384 L00028     subq.l #1,d4      
+   17  0002a 6cec            bge.s  L00018     
+   18  0002c 5285            addq.l #1,d5      
+   19  0002e baaf L0002e     cmp.l  36(sp),d5  
+   20  00032 6dde            blt.s  L00012     
+   21  00034 2005 L00034     move.l d5,d0      
+   22  00036 4ced            movem.l -20(a5),a2-a3/d4-d6 
+   23  0003c 4e5d            unlk   A5         
+   24  0003e 4e75            rts               
+   25
+   26  00040 0000            ends              
+   26

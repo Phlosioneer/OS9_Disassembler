@@ -1,0 +1,61 @@
+    0  00000 0000            psect  strtol_c,$0,$0,0,0,strtol 
+    1  00000 4e55 strtol:    link.w A5,#0      
+    2  00004 48e7            movem.l a0/a2-a3/d0-d1/d4-d6,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 2641            movea.l d1,a3      
+    5  0000c 282f            move.l 40(sp),d4  
+    6  00010 7a00            moveq  #0,d5      
+    7  00012 7c00            moveq  #0,d6      
+    8  00014 101a L00014     move.b (a2)+,d0   
+    9  00016 4880            ext.w  d0         
+   10  00018 48c0            ext.l  d0         
+   11  0001a 41ee            lea.l  _chcodes(a6),a0 
+   12  0001e 1030            move.b (a0,d0.l),d0 
+   13  00022 4880            ext.w  d0         
+   14  00024 0800            btst.l #4,d0      
+   15  00028 66ea            bne.s  L00014     
+   16  0002a 6006            bra.s  L00032     
+   17  0002c 5285 L0002c     addq.l #1,d5      
+   18  0002e 528a L0002e     addq.l #1,a2      
+   19  00030 6010            bra.s  L00042     
+   20  00032 1022 L00032     move.b -(a2),d0   
+   21  00034 4880            ext.w  d0         
+   22  00036 0c40            cmpi.w #43,d0     
+   23  0003a 67f2            beq.s  L0002e     
+   24  0003c 0c40            cmpi.w #45,d0     
+   25  00040 67ea            beq.s  L0002c     
+   26  00042 42ae L00042     clr.l  errno(a6)  
+   27  00046 2f04            move.l d4,-(sp)   
+   28  00048 220b            move.l a3,d1      
+   29  0004a 200a            move.l a2,d0      
+   30  0004c 6100            bsr.w  strtoul    
+   31  00050 588f            addq.l #4,sp      
+   32  00052 2c00            move.l d0,d6      
+   33  00054 0cae            cmpi.l #256,errno(a6) 
+   34  0005c 6714            beq.s  L00072     
+   35  0005e 4a85            tst.l  d5         
+   36  00060 6708            beq.s  L0006a     
+   37  00062 0c86            cmpi.l #-2147483648,d6 
+   38  00068 6208            bhi.s  L00072     
+   39  0006a 0c86 L0006a     cmpi.l #2147483647,d6 
+   40  00070 631e            bls.s  L00090     
+   41  00072 4a85 L00072     tst.l  d5         
+   42  00074 6708            beq.s  L0007e     
+   43  00076 203c            move.l #-2147483648,d0 
+   44  0007c 6006            bra.s  L00084     
+   45  0007e 203c L0007e     move.l #2147483647,d0 
+   46  00084 2c00 L00084     move.l d0,d6      
+   47  00086 2d7c            move.l #256,errno(a6) 
+   48  0008e 600a            bra.s  L0009a     
+   49  00090 4a85 L00090     tst.l  d5         
+   50  00092 6706            beq.s  L0009a     
+   51  00094 2006            move.l d6,d0      
+   52  00096 4480            neg.l  d0         
+   53  00098 2c00            move.l d0,d6      
+   54  0009a 2006 L0009a     move.l d6,d0      
+   55  0009c 4ced            movem.l -24(a5),a0/a2-a3/d4-d6 
+   56  000a2 4e5d            unlk   A5         
+   57  000a4 4e75            rts               
+   58
+   59  000a6 0000            ends              
+   59

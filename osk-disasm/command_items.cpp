@@ -69,7 +69,7 @@ struct cmd_items* initcmditems(struct cmd_items* ci)
     ci->wcount = 0;
     ci->params[0] = '\0';
     ci->comment = NULL;
-    ci->lblname = NULL; // I added this line
+    ci->lblname.clear(); // I added this line
     return ci;
 }
 
@@ -513,8 +513,18 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 }
                 else
                 {
-                    param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
-                                                             FormattedNumber(0));
+                    // The PC-1 is due to the 8-bit offset placed in the 2nd byte of the brief
+                    // extension word.
+                    if (state->opt->IsROF && IsRef(dispstr, state->PCPos - 1, 0, state->Pass))
+                    {
+                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                                                                 std::string(dispstr));
+                    }
+                    else
+                    {
+                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                                                                 FormattedNumber(0));
+                    }
                 }
             }
             else

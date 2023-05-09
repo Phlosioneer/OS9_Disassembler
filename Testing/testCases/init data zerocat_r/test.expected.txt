@@ -1,0 +1,49 @@
+    0  00000 0000            psect  zeroCat_c,$0,$0,0,0,L00000 
+    1
+    2 * Initialized Data (Class"_")
+    3
+    4  00000 0000            vsect             
+    5  00000 0000 zeroCategory: dc.l   $00000000  
+    6  00004 0000            dc.l   $000a0000  
+    7  00008 0000            dc.l   _defaultEventHandler 
+    8  0000c 0000            dc.l   zeroCategory 
+    9  00010 0000            dc.w   $0000      
+   10  00012 0000            dc.l   _defaultEventHandler 
+   11  00016 0000            dc.l   zeroCategory 
+   12  0001a 0000            dc.w   $0000      
+   13  0001c 0000 _zeroCategoryExtraHandlers: dc.l   _defaultEventHandler 
+   14  00020 0000            dc.l   zeroCategory 
+   15  00024 0000            dc.w   $0000      
+   16  00026 0000            dc.l   _panicEventHandler 
+   17  0002a 0000            dc.w   $0000      
+   18  0002c 0000            dc.w   $0100      
+   19  0002e 0000            dc.w   $0000      
+   20  00030 0000            dc.l   _panicEventHandler 
+   21  00034 0000            dc.w   $0000      
+   22  00036 0000            dc.w   $0000      
+   23  00038 0000            dc.w   $0000      
+   24  0003a 0000            dc.l   _defaultEventHandler 
+   25  0003e 0000            dc.l   zeroCategory 
+   26  00042 0000            dc.w   $0100      
+   27  00044 0000            dc.l   _defaultEventHandler 
+   28  00048 0000            dc.l   zeroCategory 
+   29  0004c 0000            dc.w   $0000      
+   30  0004e 0000            dc.l   _defaultEventHandler 
+   31  00052 0000            dc.l   zeroCategory 
+   32  00056 0000            dc.w   $0000      
+   33  00058 0000            dc.l   _defaultEventHandler 
+   34  0005c 0000            dc.l   zeroCategory 
+   35  00060 0000            dc.w   $0000      
+   36  00062 0000            dc.l   _defaultEventHandler 
+   37  00066 0000            dc.l   zeroCategory 
+   38  0006a 0000            dc.w   $0000      
+   39  0006c 0000            dc.l   _defaultEventHandler 
+   40  00070 0000            dc.l   zeroCategory 
+   41  00074 0000            dc.w   $0100      
+   42
+   43
+   44  00076 0000            ends              
+   44
+   45
+   46  00000 0000            ends              
+   46

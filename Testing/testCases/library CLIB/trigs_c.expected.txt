@@ -1,0 +1,144 @@
+    0  00000 0000            psect  trigs_c,$0,$0,0,0,L00000 
+    1  00000 3d06 L00000     move.w d6,-(a6)   
+    2  00002 849b            or.l   (a3)+,d2   
+    3  00004 86a1            or.l   -(a1),d3   
+    4  00006 2b9c            dc.w   $2b9c      
+    5  00008 3fe0            dc.w   $3fe0      
+    6  0000a 0000            ori.b  #0,d0      
+    7  0000e 0000            dc.w   $0         
+    8  00010 48e7 sin:       movem.l d2-d3,-(sp) 
+    9  00014 4cfa            movem.l L00000(pc),d2-d3 
+   10  0001a 4e40            dc.w   $4e40      
+   11  0001c 0000            dc.w   $0         
+   12  0001e 4cdf            movem.l (sp)+,d2-d3 
+   13  00022 4e75            rts               
+   14  00024 48e7 cos:       movem.l d2-d3,-(sp) 
+   15  00028 4cfa            movem.l L00000(pc),d2-d3 
+   16  0002e 4e40            dc.w   $4e40      
+   17  00030 0000            dc.w   $0         
+   18  00032 4cdf            movem.l (sp)+,d2-d3 
+   19  00036 4e75            rts               
+   20  00038 48e7 tan:       movem.l d2-d3,-(sp) 
+   21  0003c 4cfa            movem.l L00000(pc),d2-d3 
+   22  00042 4e40            dc.w   $4e40      
+   23  00044 0000            dc.w   $0         
+   24  00046 4cdf            movem.l (sp)+,d2-d3 
+   25  0004a 4e75            rts               
+   26  0004c 48e7 asin:      movem.l d2-d3,-(sp) 
+   27  00050 4cfa            movem.l L00000(pc),d2-d3 
+   28  00056 4e40            dc.w   $4e40      
+   29  00058 0000            dc.w   $0         
+   30  0005a 4cdf            movem.l (sp)+,d2-d3 
+   31  0005e 4e75            rts               
+   32  00060 48e7 acos:      movem.l d2-d3,-(sp) 
+   33  00064 4cfa            movem.l L00000(pc),d2-d3 
+   34  0006a 4e40            dc.w   $4e40      
+   35  0006c 0000            dc.w   $0         
+   36  0006e 4cdf            movem.l (sp)+,d2-d3 
+   37  00072 4e75            rts               
+   38  00074 48e7 atan:      movem.l d2-d3,-(sp) 
+   39  00078 4cfa            movem.l L00000(pc),d2-d3 
+   40  0007e 4e40            dc.w   $4e40      
+   41  00080 0000            dc.w   $0         
+   42  00082 4cdf            movem.l (sp)+,d2-d3 
+   43  00086 4e75            rts               
+   44  00088 48e7 exp:       movem.l d2-d3,-(sp) 
+   45  0008c 4cfa            movem.l L00000(pc),d2-d3 
+   46  00092 4e40            dc.w   $4e40      
+   47  00094 0000            dc.w   $0         
+   48  00096 4cdf            movem.l (sp)+,d2-d3 
+   49  0009a 4e75            rts               
+   50  0009c 48e7 log:       movem.l d2-d3,-(sp) 
+   51  000a0 4cfa            movem.l L00000(pc),d2-d3 
+   52  000a6 4e40            dc.w   $4e40      
+   53  000a8 0000            dc.w   $0         
+   54  000aa 4cdf            movem.l (sp)+,d2-d3 
+   55  000ae 4e75            rts               
+   56  000b0 48e7 log10:     movem.l d2-d3,-(sp) 
+   57  000b4 4cfa            movem.l L00000(pc),d2-d3 
+   58  000ba 4e40            dc.w   $4e40      
+   59  000bc 0000            dc.w   $0         
+   60  000be 4cdf            movem.l (sp)+,d2-d3 
+   61  000c2 4e75            rts               
+   62  000c4 48e7 pow:       movem.l d2-d5,-(sp) 
+   63  000c8 4cef            movem.l 20(sp),d2-d3 
+   64  000ce 4cfa            movem.l L00000(pc),d4-d5 
+   65  000d4 4e40            dc.w   $4e40      
+   66  000d6 0000            dc.w   $0         
+   67  000d8 4cdf            movem.l (sp)+,d2-d5 
+   68  000dc 4e75            rts               
+   69  000de 48e7 sqrt:      movem.l d2-d3,-(sp) 
+   70  000e2 4cfa            movem.l L00000(pc),d2-d3 
+   71  000e8 4e40            dc.w   $4e40      
+   72  000ea 0000            dc.w   $0         
+   73  000ec 4cdf            movem.l (sp)+,d2-d3 
+   74  000f0 4e75            rts               
+   75  000f2 48e7 floor:     movem.l d2-d3,-(sp) 
+   76  000f6 4a80            tst.l  d0         
+   77  000f8 6c0e            bge.s  L00108     
+   78  000fa 4e40            dc.w   $4e40      
+   79  000fc 0000            dc.w   $0         
+   80  000fe 4a82            tst.l  d2         
+   81  00100 670a            beq.s  L0010c     
+   82  00102 4e40            dc.w   $4e40      
+   83  00104 0000            dc.w   $0         
+   84  00106 6004            bra.s  L0010c     
+   85  00108 4e40 L00108     dc.w   $4e40      
+   86  0010a 0000            dc.w   $0         
+   87  0010c 4cdf L0010c     movem.l (sp)+,d2-d3 
+   88  00110 4e75            rts               
+   89  00112 48e7 ceil:      movem.l d2-d3,-(sp) 
+   90  00116 4a80            tst.l  d0         
+   91  00118 670e            beq.s  L00128     
+   92  0011a 0840            bchg.l #31,d0     
+   93  0011e 61d2            bsr.s  floor      
+   94  00120 4a80            tst.l  d0         
+   95  00122 6704            beq.s  L00128     
+   96  00124 0840            bchg.l #31,d0     
+   97  00128 4cdf L00128     movem.l (sp)+,d2-d3 
+   98  0012c 4e75            rts               
+   99  0012e 0880 fabs:      bclr.l #31,d0     
+  100  00132 4e75            rts               
+  101  00134 48e7 modf:      movem.l a0/d2-d3,-(sp) 
+  102  00138 4e40            dc.w   $4e40      
+  103  0013a 0000            dc.w   $0         
+  104  0013c 206f            movea.l 16(sp),a0  
+  105  00140 48d0            movem.l d0-d1,(a0) 
+  106  00144 2002            move.l d2,d0      
+  107  00146 2203            move.l d3,d1      
+  108  00148 4cdf            movem.l (sp)+,a0/d2-d3 
+  109  0014c 4e75            rts               
+  110  0014e 48e7 hypot:     movem.l d2-d5,-(sp) 
+  111  00152 4cef            movem.l 20(sp),d2-d3 
+  112  00158 0880            bclr.l #31,d0     
+  113  0015c 0882            bclr.l #31,d2     
+  114  00160 4e40            dc.w   $4e40      
+  115  00162 0000            dc.w   $0         
+  116  00164 6b04            bmi.s  L0016a     
+  117  00166 c142            exg    d0,d2      
+  118  00168 c343            exg    d1,d3      
+  119  0016a 48ef L0016a     movem.l d2-d3,20(sp) 
+  120  00170 4a82            tst.l  d2         
+  121  00172 6606            bne.s  L0017a     
+  122  00174 2002            move.l d2,d0      
+  123  00176 2203            move.l d3,d1      
+  124  00178 6024            bra.s  L0019e     
+  125  0017a 4e40 L0017a     dc.w   $4e40      
+  126  0017c 0000            dc.w   $0         
+  127  0017e 2400            move.l d0,d2      
+  128  00180 2601            move.l d1,d3      
+  129  00182 4e40            dc.w   $4e40      
+  130  00184 0000            dc.w   $0         
+  131  00186 4e40            dc.w   $4e40      
+  132  00188 0000            dc.w   $0         
+  133  0018a 4cfa            movem.l L00000(pc),d2-d3 
+  134  00190 4e40            dc.w   $4e40      
+  135  00192 0000            dc.w   $0         
+  136  00194 4cef            movem.l 20(sp),d2-d3 
+  137  0019a 4e40            dc.w   $4e40      
+  138  0019c 0000            dc.w   $0         
+  139  0019e 4cdf L0019e     movem.l (sp)+,d2-d5 
+  140  001a2 4e75            rts               
+  141
+  142  001a4 0000            ends              
+  142

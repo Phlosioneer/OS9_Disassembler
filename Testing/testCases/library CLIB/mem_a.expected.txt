@@ -1,0 +1,114 @@
+    0  00000 0000            psect  mem_a,$0,$0,0,0,ebrk 
+    1
+    2 * Uninitialized Data (Class "D")
+    3
+    4  00000 0000            vsect             
+    5  00000 0000 D00000     ds.b   4          
+    6  00004 0000 D00004     ds.b   4          
+    7  00008 0000 _srqsiz:   ds.b   4          
+    8
+    9
+   10  00000 0000            ends              
+   10
+   11
+   12 * Initialized Data (Class"_")
+   13
+   14  00000 0000            vsect             
+   15  00000 0000 _memmins:  dc.l   $00002000  
+   16
+   17
+   18  00004 0000            ends              
+   18
+   19  00000 4e55 ebrk:      link.w A5,#0      
+   20  00004 48e7            movem.l a0/d1-d2,-(sp) 
+   21  00008 2200            move.l d0,d1      
+   22  0000a 6606            bne.s  L00012     
+   23  0000c 7200            moveq  #E$BMode,d1 
+   24  0000e 6000            bra.w  _os9err    
+   25  00012 5281 L00012     addq.l #1,d1      
+   26  00014 c23c            and.b  #254,d1    
+   27  00018 242e            move.l D00004(a6),d2 
+   28  0001c 9481            sub.l  d1,d2      
+   29  0001e 6510            bcs.s  L00030     
+   30  00020 202e            move.l D00000(a6),d0 
+   31  00024 d3ae            add.l  d1,D00000(a6) 
+   32  00028 93ae            dc.w   $93ae      
+   33  0002a 0004            dc.w   $4         
+   34  0002c 6000            bra.w  L000b0     
+   35  00030 202e L00030     move.l _memmins(a6),d0 
+   36  00034 b081            cmp.l  d1,d0      
+   37  00036 6202            bhi.s  L0003a     
+   38  00038 2001            move.l d1,d0      
+   39  0003a 204a L0003a     movea.l a2,a0      
+   40  0003c 4e40            os9    F$SRqMem   
+   41  00040 c548            exg    a2,a0      
+   42  00042 6500            dc.w   $6500      
+   43  00044 0000            dc.w   $0         
+   44  00046 2d48            move.l a0,D00000(a6) 
+   45  0004a 2d40            move.l d0,D00004(a6) 
+   46  0004e d1ae            add.l  d0,_totmem(a6) 
+   47  00052 60be            bra.s  L00012     
+   48  00054 4e55 ibrk:      link.w A5,#0      
+   49  00058 48e7            movem.l a0/d1-d2,-(sp) 
+   50  0005c 2200            move.l d0,d1      
+   51  0005e 5281            addq.l #1,d1      
+   52  00060 c23c            and.b  #254,d1    
+   53  00064 2401            move.l d1,d2      
+   54  00066 d2ae            add.l  _mtop(a6),d1 
+   55  0006a 6512            bcs.s  L0007e     
+   56  0006c b2ae            cmp.l  _stbot(a6),d1 
+   57  00070 640c            bcc.s  L0007e     
+   58  00072 202e            move.l _mtop(a6),d0 
+   59  00076 2d41            move.l d1,_mtop(a6) 
+   60  0007a 2202            move.l d2,d1      
+   61  0007c 6032            bra.s  L000b0     
+   62  0007e 7200 L0007e     moveq  #E$MemFul,d1 
+   63  00080 6000            bra.w  _os9err    
+   64  00084 4e55 sbrk:      link.w A5,#0      
+   65  00088 48e7            movem.l a0/d1-d2,-(sp) 
+   66  0008c 5280            addq.l #1,d0      
+   67  0008e c03c            and.b  #254,d0    
+   68  00092 2200            move.l d0,d1      
+   69  00094 d0ae            add.l  _sbsize(a6),d0 
+   70  00098 2049            movea.l a1,a0      
+   71  0009a 4e40            os9    F$Mem      
+   72  0009e c348            exg    a1,a0      
+   73  000a0 6500            dc.w   $6500      
+   74  000a2 0000            dc.w   $0         
+   75  000a4 2d40            move.l d0,_sbsize(a6) 
+   76  000a8 d3ae            add.l  d1,_totmem(a6) 
+   77  000ac 2008            move.l a0,d0      
+   78  000ae 9081            sub.l  d1,d0      
+   79  000b0 2040 L000b0     movea.l d0,a0      
+   80  000b2 7400            moveq  #0,d2      
+   81  000b4 e489            lsr.l  #2,d1      
+   82  000b6 6406            bcc.s  L000be     
+   83  000b8 30c2            move.w d2,(a0)+   
+   84  000ba 6002            bra.s  L000be     
+   85  000bc 20c2 L000bc     move.l d2,(a0)+   
+   86  000be 51c9 L000be     dbra   d1,L000bc  
+   87  000c2 5241            addq.w #1,d1      
+   88  000c4 5381            subq.l #1,d1      
+   89  000c6 64f4            bcc.s  L000bc     
+   90  000c8 2000            move.l d0,d0      
+   91  000ca 6000            bra.w  _sysret    
+   92  000ce 4e55 _srqmem:   link.w A5,#-4     
+   93  000d2 2e8a            move.l a2,(sp)    
+   94  000d4 4e40            os9    F$SRqMem   
+   95  000d8 651c            bcs.s  L000f6     
+   96  000da 2d40            move.l d0,_srqsiz(a6) 
+   97  000de 200a            move.l a2,d0      
+   98  000e0 246d L000e0     movea.l -4(a5),a2  
+   99  000e4 4e5d            unlk   A5         
+  100  000e6 4e75            rts               
+  101  000e8 4e55 _srtmem:   link.w A5,#-4     
+  102  000ec 2e8a            move.l a2,(sp)    
+  103  000ee 2441            movea.l d1,a2      
+  104  000f0 4e40            os9    F$SRtMem   
+  105  000f4 64ea            bcc.s  L000e0     
+  106  000f6 70ff L000f6     moveq  #255,d0    
+  107  000f8 2d41            move.l d1,errno(a6) 
+  108  000fc 60e2            bra.s  L000e0     
+  109
+  110  000fe 0000            ends              
+  110

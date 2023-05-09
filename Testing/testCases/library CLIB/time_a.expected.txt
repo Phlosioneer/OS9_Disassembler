@@ -1,0 +1,88 @@
+    0  00000 0000            psect  time_a,$0,$0,0,0,setime 
+    1  00000 4e55 setime:    link.w A5,#0      
+    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    3  00008 2040            movea.l d0,a0      
+    4  0000a 7200            moveq  #0,d1      
+    5  0000c 1210            move.b (a0),d1    
+    6  0000e d27c            add.w  #1900,d1   
+    7  00012 4841            swap.w d1         
+    8  00014 1228            move.b 1(a0),d1   
+    9  00018 e141            asl.w  #8,d1      
+   10  0001a 1228            move.b 2(a0),d1   
+   11  0001e 7000            moveq  #0,d0      
+   12  00020 1028            move.b 3(a0),d0   
+   13  00024 4840            swap.w d0         
+   14  00026 1028            move.b 4(a0),d0   
+   15  0002a e140            asl.w  #8,d0      
+   16  0002c 1028            move.b 5(a0),d0   
+   17  00030 4e40            os9    F$STime    
+   18  00034 6500            dc.w   $6500      
+   19  00036 0000            dc.w   $0         
+   20  00038 2008            move.l a0,d0      
+   21  0003a 6000            bra.w  _sysret    
+   22  0003e 4e55 getime:    link.w A5,#0      
+   23  00042 48e7            movem.l a0/d1-d3,-(sp) 
+   24  00046 2040            movea.l d0,a0      
+   25  00048 7000            moveq  #0,d0      
+   26  0004a 4e40            os9    F$Time     
+   27  0004e 652c            bcs.s  L0007c     
+   28  00050 2408            move.l a0,d2      
+   29  00052 4841            swap.w d1         
+   30  00054 927c            sub.w  #1900,d1   
+   31  00058 10c1            move.b d1,(a0)+   
+   32  0005a 4841            swap.w d1         
+   33  0005c e159            rol.w  #8,d1      
+   34  0005e 10c1            move.b d1,(a0)+   
+   35  00060 e159            rol.w  #8,d1      
+   36  00062 10c1            move.b d1,(a0)+   
+   37  00064 4840            swap.w d0         
+   38  00066 10c0            move.b d0,(a0)+   
+   39  00068 4840            swap.w d0         
+   40  0006a e158            rol.w  #8,d0      
+   41  0006c 10c0            move.b d0,(a0)+   
+   42  0006e e158            rol.w  #8,d0      
+   43  00070 10c0            move.b d0,(a0)+   
+   44  00072 2002            move.l d2,d0      
+   45  00074 4cdf L00074     movem.l (sp)+,a0/d1-d3 
+   46  00078 4e5d            unlk   A5         
+   47  0007a 4e75            rts               
+   48  0007c 70ff L0007c     moveq  #255,d0    
+   49  0007e 2d41            move.l d1,errno(a6) 
+   50  00082 60f0            bra.s  L00074     
+   51  00084 4e55 _sysdate:  link.w A5,#0      
+   52  00088 48e7            movem.l a0-a1/d1-d3,-(sp) 
+   53  0008c 7400            moveq  #0,d2      
+   54  0008e 4e40            os9    F$Time     
+   55  00092 6520            bcs.s  L000b4     
+   56  00094 206d            movea.l -20(a5),a0 
+   57  00098 2080            move.l d0,(a0)    
+   58  0009a 41ed            lea.l  8(a5),a0   
+   59  0009e 2258            movea.l (a0)+,a1   
+   60  000a0 2281            move.l d1,(a1)    
+   61  000a2 2258            movea.l (a0)+,a1   
+   62  000a4 3282            move.w d2,(a1)    
+   63  000a6 2250            movea.l (a0),a1    
+   64  000a8 2283            move.l d3,(a1)    
+   65  000aa 7000 L000aa     moveq  #0,d0      
+   66  000ac 4cdf            movem.l (sp)+,a0-a1/d1-d3 
+   67  000b0 4e5d            unlk   A5         
+   68  000b2 4e75            rts               
+   69  000b4 70ff L000b4     moveq  #255,d0    
+   70  000b6 2d41            move.l d1,errno(a6) 
+   71  000ba 60ee            bra.s  L000aa     
+   72  000bc 4e55 _julian:   link.w A5,#0      
+   73  000c0 48e7            movem.l a0/d1-d2,-(sp) 
+   74  000c4 2f09            move.l a1,-(sp)   
+   75  000c6 2040            movea.l d0,a0      
+   76  000c8 2241            movea.l d1,a1      
+   77  000ca 2010            move.l (a0),d0    
+   78  000cc 2211            move.l (a1),d1    
+   79  000ce 4e40            os9    F$Julian   
+   80  000d2 6500            bcs.w  L000da     
+   81  000d6 2080            move.l d0,(a0)    
+   82  000d8 2281            move.l d1,(a1)    
+   83  000da 225f L000da     movea.l (sp)+,a1   
+   84  000dc 6000            bra.w  _sysret    
+   85
+   86  000e0 0000            ends              
+   86

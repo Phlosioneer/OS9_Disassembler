@@ -21,25 +21,32 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 const std::string TEST_CASE_PATH("../../Testing/testCases/");
 
 IntegrationTestCase::IntegrationTestCase(std::string caseName)
-	: caseName(caseName), basePath(TEST_CASE_PATH + caseName + "/"),
-	expectedOutputFilePath(basePath + "expected.s"),
-	expectedStdOutFilePath(basePath + "expectedStdout.txt"),
-	expectedOutputFile(expectedOutputFilePath),
-	expectedStdOutFile(expectedStdOutFilePath),
+	: IntegrationTestCase(caseName, "test")
+{
+}
+
+IntegrationTestCase::IntegrationTestCase(std::string folderName, std::string fileName)
+	: caseName(folderName + "::" + fileName),
+	folderName(folderName),
+	fileName(fileName),
+	basePath(TEST_CASE_PATH + folderName + "/"),
+	expectedAsmOutputFilePath(basePath + fileName + ".expected.s"),
+	expectedStdOutputFilePath(basePath + fileName + ".expected.txt"),
+	labelFilePath(basePath + fileName + ".labels.s"),
+	inputFilePath(basePath + fileName + ".r"),
+	commandFilePath(basePath + fileName + ".commands.json"),
+	actualAsmOutputFilePath(basePath + fileName + ".actual.s"),
+	actualStdOutputFilePath(basePath + fileName + ".actual.txt"),
 	psectName()
 {
-	inputFilePath = basePath + "test.module";
-	commandFilePath = basePath + "commands.json";
-	labelFilePath = basePath + "labels.s";
-
 	std::ifstream moduleExists{ inputFilePath };
 	if (!moduleExists.good()) {
-		// Try test.r
-		inputFilePath = basePath + "test.r";
+		// Try test.module
+		inputFilePath = basePath + fileName + ".module";
 		moduleExists.open(inputFilePath);
 		if (!moduleExists.good()) {
 			// Try test.os9
-			inputFilePath = basePath + "test.os9";
+			inputFilePath = basePath + fileName + ".os9";
 			moduleExists.open(inputFilePath);
 			if (!moduleExists.good()) {
 				throw std::exception("File not found. Checked test.module, test.r, test.os9");
@@ -88,18 +95,78 @@ void IntegrationTestCase::run()
 
 	delete opt;
 
-	std::string temp2 = standardOutput.result();
-	//Logger::WriteMessage(temp2.c_str());
-	std::istringstream actualStdOut(temp2);
-	assertStreamsEqual(expectedStdOutFile, actualStdOut, "Standard Output");
+	std::string prefix = "[" + caseName + "] ";
 
-	std::string temp1 = moduleOutput.result();
-	//Logger::WriteMessage(temp1.c_str());
-	std::istringstream actualOutputFile(temp1);
-	assertStreamsEqual(expectedOutputFile, actualOutputFile, "Output File");
+	std::string standardOutputString = standardOutput.result();
+	std::string asmOutputString = moduleOutput.result();
+
+	// Write the actual files.
+	try {
+		std::ofstream actualStdOutputFile(actualStdOutputFilePath);
+		if (actualStdOutputFile.good())
+		{
+			actualStdOutputFile << standardOutputString;
+		}
+		std::ofstream actualAsmOutputFile(actualAsmOutputFilePath);
+		if (actualAsmOutputFile.good())
+		{
+			actualAsmOutputFile << asmOutputString;
+		}
+		auto message = prefix + "Actual test output written successfully.\n";
+		Logger::WriteMessage(message.c_str());
+	}
+	catch (std::exception e) {
+		std::ostringstream messageBuffer;
+		messageBuffer << prefix << "Error while writing .actual files: "
+			<< e.what() << "\n";
+		auto message = messageBuffer.str();
+		Logger::WriteMessage(message.c_str());
+	}
+
+	// Check stdout first. It's much easier to track down errors by PC address.
+	// Scoped to auto-close the ifstream.
+	{
+		std::ifstream expectedStdOutputFile(expectedStdOutputFilePath);
+		if (expectedStdOutputFile.good())
+		{
+			//Logger::WriteMessage(temp2.c_str());
+			std::istringstream actualStdOut(standardOutputString);
+			assertStreamsEqual(expectedStdOutputFile, actualStdOut, prefix + "Standard Output");
+			expectedStdOutputFile.close();
+		}
+		else
+		{
+			auto message = prefix + "Unable to locate " + expectedStdOutputFilePath + "; generating it.\n";
+			Logger::WriteMessage(message.c_str());
+			expectedStdOutputFile.close();
+			std::ofstream newFile(expectedStdOutputFilePath);
+			newFile << standardOutputString;
+		}
+	}
+
+	// Then check assembly output.
+	// Scoped to auto-close the ifstream.
+	{
+		std::ifstream expectedAsmOutputFile(expectedAsmOutputFilePath);
+		if (expectedAsmOutputFile.good())
+		{
+			//Logger::WriteMessage(temp1.c_str());
+			std::istringstream actualOutputFile(asmOutputString);
+			assertStreamsEqual(expectedAsmOutputFile, actualOutputFile, prefix + "Output File");
+			expectedAsmOutputFile.close();
+		}
+		else
+		{
+			auto message = prefix + "Unable to locate" + expectedAsmOutputFilePath + "; generating it.\n";
+			Logger::WriteMessage(message.c_str());
+			expectedAsmOutputFile.close();
+			std::ofstream newFile(expectedAsmOutputFilePath);
+			newFile << asmOutputString;
+		}
+	}
 }
 
-void assertStreamsEqual(std::istream& expected, std::istream& actual, const char* file)
+void assertStreamsEqual(std::istream& expected, std::istream& actual, const std::string& prefix)
 {
 	std::string expectedLine, actualLine;
 	int lineNumber = 0;
@@ -109,7 +176,7 @@ void assertStreamsEqual(std::istream& expected, std::istream& actual, const char
 		bool hasActualLine = (bool)std::getline(actual, actualLine);
 
 		if (hasExpectedLine && lineNumber == 0 && expectedLine.size() >= 2) {
-			auto message = formatMessage("%s: File is encoded with a utf-16 BOM (Byte Order Mark), likely inserted by a redirect `>` from powershell. Re-encode the file as utf-8 or ascii using notepad++.", file);
+			auto message = formatMessage("%s: File is encoded with a utf-16 BOM (Byte Order Mark), likely inserted by a redirect `>` from powershell. Re-encode the file as utf-8 or ascii using notepad++.", prefix);
 			auto encoding = expectedLine.substr(0, 2);
 			Assert::AreNotEqual(encoding, std::string("\xEF\xBB"), message.get());
 			Assert::AreNotEqual(encoding, std::string("\xFE\xFF"), message.get());
@@ -117,17 +184,17 @@ void assertStreamsEqual(std::istream& expected, std::istream& actual, const char
 		}
 
 		if (hasExpectedLine && hasActualLine) {
-			auto message = formatMessage("%s: Mismatch on line %d", file, lineNumber);
+			auto message = formatMessage("%s: Mismatch on line %d", prefix.c_str(), lineNumber);
 			Assert::AreEqual(expectedLine, actualLine, message.get());
 		}
 		else if (hasExpectedLine) {
 			auto message = formatMessage("%s: Expected string '%s' on line %d, found End of File.",
-				file, expectedLine.c_str(), lineNumber);
+				prefix.c_str(), expectedLine.c_str(), lineNumber);
 			Assert::Fail(message.get());
 		}
 		else if (hasActualLine) {
 			auto message = formatMessage("%s: Expected End of File, but found '%s' on line %d.",
-				file, actualLine.c_str(), lineNumber);
+				prefix.c_str(), actualLine.c_str(), lineNumber);
 			Assert::Fail(message.get());
 		}
 		else {

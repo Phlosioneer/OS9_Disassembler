@@ -724,7 +724,7 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
-                Ci.lblname = NULL;
+                Ci.lblname.clear();
                 state->CmdEnt = state->PCPos /* _ PBytSiz*/;
                 cCount = 0;
             }

@@ -1,0 +1,82 @@
+    0  00000 0000            psect  cdi_bpsys,$2,$1,0,0,$0050 
+    1
+    2 * Uninitialized Data (Class "D")
+    3
+    4  00000 0000            vsect             
+    5
+    6
+    7  00000 0000            ends              
+    7
+    8  00000 4d2e credits:   dc.w   $4d2e      
+    9  00002 4172            dc.w   $4172      
+   10  00004 6d65            dc.w   $6d65      
+   11  00006 6e64            bgt.s  L0006c     
+   12  00008 6172            bsr.s  L0007c     
+   13  0000a 697a            bvs.s  L00086     
+   14  0000c 2c4c            movea.l a4,a6      
+   15  0000e 2e42            movea.l d2,sp      
+   16  00010 6172            bsr.s  L00084     
+   17  00012 6e65            dc.w   $6e65      
+   18  00014 732c            dc.w   $732c      
+   19  00016 4a2e            tst.b  D04b65(a6) 
+   20  0001a 7373            dc.w   $7373      
+   21  0001c 656c            bcs.s  L0008a     
+   22  0001e 6d61            dc.w   $6d61      
+   23  00020 6e2c            bgt.s  L0004e     
+   24  00022 532e            subq.b #1,D04d63(a6) 
+   25  00026 436c            dc.w   $436c      
+   26  00028 656c            bcs.s  L00096     
+   27  0002a 6c61            dc.w   $6c61      
+   28  0002c 6e2c            bgt.s  L0005a     
+   29  0002e 522e            addq.b #1,D04d6f(a6) 
+   30  00032 6f72            ble.s  L000a6     
+   31  00034 652c            bcs.s  L00062     
+   32  00036 542e            addq.b #2,D04e75(a6) 
+   33  0003a 7474            moveq  #116,d2    
+   34  0003c 2c4a            movea.l a2,a6      
+   35  0003e 2e50            movea.l (a0),sp    
+   36  00040 6965            dc.w   $6965      
+   37  00042 7369            dc.w   $7369      
+   38  00044 6e67            dc.w   $6e67      
+   39  00046 2c4a            movea.l a2,a6      
+   40  00048 2e52            movea.l (a2),sp    
+   41  0004a 6f74            ble.s  L000c0     
+   42  0004c 7465            moveq  #101,d2    
+   43  0004e 7200 L0004e     moveq  #0,d1      
+   44  00050 0008            dc.w   $8         
+   45  00052 0032            ori.b  #98,104(a2,d0.w) 
+   46  00058 47fa init:      lea.l  state(pc),a3 
+   47  0005a 0000 L0005a     equ    *-2        
+   48  0005c 0c6b            cmpi.w #-16657,2(a3) 
+   49  00062 6700 L00062     beq.w  L00080     
+   50  00066 7000            moveq  #0,d0      
+   51  00068 377c            move.w #-16657,2(a3) 
+   52  0006c 0000 L0006c     equ    *-2        
+   53  0006e 3740            move.w d0,0(a3)   
+   54  00072 3740            move.w d0,6(a3)   
+   55  00076 2740            move.l d0,14(a3)  
+   56  0007a 377c            move.w #4641,4(a3) 
+   57  0007c 0000 L0007c     equ    *-4        
+   58  00080 4e75 L00080     rts               
+   59  00082 222d set_stat:  move.l 8(a5),d1   
+   60  00084 0000 L00084     equ    *-2        
+   61  00086 0c41 L00086     cmpi.w #16896,d1  
+   62  0008a 6520 L0008a     bcs.s  L000ac     
+   63  0008c 0c41            cmpi.w #16916,d1  
+   64  00090 641a            bcc.s  L000ac     
+   65  00092 41fa            lea.l  drawControlArgs(pc),a0 
+   66  00096 48d0 L00096     movem.l a1-a2/a4-a6/d0,(a0) 
+   67  0009a 47fa            lea.l  function_table(pc),a3 
+   68  0009e 92bc            sub.l  #16896,d1  
+   69  000a4 307b            movea.w function_table(pc,d1.l),a0 
+   70  000a6 0000 L000a6     equ    *-2        
+   71  000a8 4efb            jmp    function_table(pc,a0.l) 
+   72  000ac 206a L000ac     movea.l 70(a2),a0  
+   73  000b0 4ed0            jmp    (a0)       
+   74  000b2 206a get_stat:  movea.l 74(a2),a0  
+   75  000b6 4ed0            jmp    (a0)       
+   76  000b8 6100 close:     bsr.w  handle_close 
+   77  000bc 4e75            rts               
+   78
+   79  000be 0000            ends              
+   79

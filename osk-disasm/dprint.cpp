@@ -191,7 +191,7 @@ void PrintPsect(struct options* opt)
     params = psectParamBuffer.str();
     strcpy(Ci.params, params.c_str());
     strcpy(Ci.mnem, "psect");
-    Ci.lblname = "";
+    Ci.lblname.clear();
     /* Be sure to have enough space to write psect */
     pgWdthSave = opt->PgWidth;
     opt->PgWidth = 200;
@@ -210,19 +210,19 @@ void PrintPsect(struct options* opt)
 static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
 {
     Label* nl;
-    char lbl[100];
 
     if (InProg)
     {
         nl = findlbl('L', CmdEnt);
         if (nl)
         {
-            strcpy(lbl, nl->name());
-            ci->lblname = lbl;
-
             if (opt->IsROF && nl->global())
             {
-                strcat(lbl, ":");
+                ci->lblname = nl->nameWithColon();
+            }
+            else
+            {
+                ci->lblname = nl->name();
             }
         }
     }
@@ -231,14 +231,21 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
 
     if (opt->asmFile)
     {
-        writer_printf(opt->asmFile, "%s %s %s", ci->lblname, ci->mnem, ci->params);
+        std::ostringstream line;
+        line << ci->lblname << ' ' << ci->mnem << ' ' << ci->params;
+        
+        //writer_printf(opt->asmFile, "%s %s %s", ci->lblname.c_str(), ci->mnem, ci->params);
 
         if (ci->comment && strlen(ci->comment))
         {
-            writer_printf(opt->asmFile, " %s", ci->comment);
+            line << ' ' << ci->comment;
+            //writer_printf(opt->asmFile, " %s", ci->comment);
         }
 
-        writer_printf(opt->asmFile, "\n");
+        //writer_printf(opt->asmFile, "\n");
+        line << '\n';
+
+        opt->asmFile->inner->write(line.str());
     }
 }
 
@@ -288,7 +295,6 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
 
     /* make sure any non-initialized fields don't create Segfault */
 
-    if (!ci->lblname) ci->lblname = "";
     /*if ( ! ci->mnem)        strcpy(ci->mnem, "");
     if ( ! ci->params)     strcpy(ci->params, "");*/
     if (!ci->comment) ci->comment = "";
@@ -297,12 +303,12 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
     {
         if (opt->IsUnformatted)
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname, ci->mnem,
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(), ci->mnem,
                                ci->params, ci->comment);
         }
         else
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
                                ci->mnem, ci->params, ci->comment);
         }
     }
@@ -310,12 +316,12 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
     {
         if (opt->IsUnformatted)
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname, ci->mnem,
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(), ci->mnem,
                                ci->params, ci->comment);
         }
         else
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname,
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
                                ci->mnem, ci->params, ci->comment);
         }
     }
@@ -358,13 +364,15 @@ static void NonBoundsLbl(char cClass, struct options* opt, int CmdEnt)
             nl = findlbl(cClass, x);
             if (nl)
             {
-                char lbl[100];
-                strcpy(lbl, nl->name());
-                Ci.lblname = lbl;
+                
 
                 if (opt->IsROF && nl->global())
                 {
-                    strcat(Ci.lblname, ":");
+                    Ci.lblname = nl->nameWithColon();
+                }
+                else
+                {
+                    Ci.lblname = nl->name();
                 }
 
                 if (x > CmdEnt)
@@ -379,18 +387,18 @@ static void NonBoundsLbl(char cClass, struct options* opt, int CmdEnt)
                 /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
                 if (opt->IsUnformatted)
                 {
-                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->myAddr, Ci.cmd_wrd, Ci.lblname, Ci.mnem, Ci.params,
+                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->myAddr, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem, Ci.params,
                                   "");
                 }
                 else
                 {
-                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->myAddr, Ci.cmd_wrd, Ci.lblname, Ci.mnem,
+                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->myAddr, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
                                   Ci.params, "");
                 }
 
                 if (opt->asmFile)
                 {
-                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname, Ci.mnem, Ci.params);
+                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname.c_str(), Ci.mnem, Ci.params);
                 }
             }
         }
@@ -408,7 +416,6 @@ void ROFPsect(struct options* opt)
 
     /*strcpy(Ci.instr, "");*/
     strcpy(Ci.params, "");
-    Ci.lblname = "";
     strcpy(Ci.mnem, "psect");
     /*sprintf(Ci.params, "%s,$%x,$%x,%d,%d,", rptr->rname,
                                                 rptr->ty_lan >> 8,
@@ -425,7 +432,7 @@ void ROFPsect(struct options* opt)
     nl = findlbl('L', opt->ROFHd->code_begin);
     if (nl)
     {
-        strcat(Ci.params, nl->name());
+        strcat(Ci.params, nl->name().c_str());
         /*OPSCAT(nl->sname);*/
     }
     else
@@ -579,7 +586,7 @@ static void dataprintHeader(const char* hdr, char klas, int isRemote, struct opt
 
     if (opt->asmFile)
     {
-        writer_printf(opt->asmFile, "%c", klas);
+        writer_printf(opt->asmFile, "* %c", klas);
     }
 
     BlankLine(opt);
@@ -732,7 +739,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, cha
             PrintLine(pseudcmd, ci, iClass, state->CmdEnt, state->opt);
             state->CmdEnt = state->PCPos;
             PrevEnt = state->PCPos;
-            ci->lblname = "";
+            ci->lblname.clear();
             ci->params[0] = '\0';
 
             // Then copy the whole group to the start of the next line.
@@ -750,7 +757,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, cha
         PrintLine(pseudcmd, ci, iClass, state->CmdEnt, state->opt);
         state->CmdEnt = state->PCPos;
         PrevEnt = state->PCPos;
-        ci->lblname = "";
+        ci->lblname.clear();
         ci->params[0] = '\0';
     }
 
@@ -769,9 +776,6 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
     char* what = "* Initialized Data Definitions";
     Label *curlbl, *prevlbl;
 
-    Ci.cmd_wrd = Ci.wcount = 0;
-    Ci.comment = Ci.lblname = "";
-    Ci.mnem[0] = Ci.params[0] = '\0';
     NowClass = 'D';
     state->PCPos = IDataBegin; /* MovBytes/MovASC use PCPos */
     state->CmdEnt = state->PCPos;
@@ -821,7 +825,6 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
         while (idatcount > 0)
         {
             register int lblCount, ppos;
-            char lbl[100];
 
             /* Get byte count for this label */
             if (!curlbl)
@@ -843,12 +846,14 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
 
             state->CmdEnt = state->PCPos; /* Save Entry Point */
             ppos = lblCount;
-            strcpy(lbl, ldf->name());
-            Ci.lblname = lbl;
 
             if (state->opt->IsROF && ldf->global())
             {
-                strcat(Ci.lblname, ":");
+                Ci.lblname = ldf->nameWithColon();
+            }
+            else
+            {
+                Ci.lblname = ldf->name();
             }
 
             /* We might ought to provide for longs, but it might
@@ -885,7 +890,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                     if (strlen(Ci.params))
                     {
                         OutputLine(pseudcmd, &Ci, state->opt, state->CmdEnt);
-                        Ci.lblname = "";
+                        Ci.lblname.clear();
                         PrintCleanup(state->CmdEnt);
                         state->CmdEnt = state->PCPos;
                         Ci.params[0] = '\0';
@@ -909,7 +914,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                     mylbl = findlbl('L', val);
                     if (mylbl)
                     {
-                        strcat(Ci.params, mylbl->name());
+                        strcat(Ci.params, mylbl->name().c_str());
                     }
                     else
                     {
@@ -922,7 +927,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                     tmpref = IRefs;
                     IRefs = IRefs->Next;
                     delete tmpref;
-                    Ci.lblname = "";
+                    Ci.lblname.clear();
                     Ci.params[0] = '\0';
                     /* Reset mnem to original status */
                     strcpy(Ci.mnem, PBytSiz == 1 ? "dc.b" : "dc.w");
@@ -959,7 +964,7 @@ static void ListInitData(Label* ldf, int nBytes, char lclass, struct parse_state
                         OutputLine(pseudcmd, &Ci, state->opt, state->CmdEnt);
                         PrintCleanup(state->CmdEnt);
                         state->CmdEnt = state->PCPos;
-                        Ci.lblname = "";
+                        Ci.lblname.clear();
                         Ci.params[0] = '\0';
                         Ci.wcount = 0;
                     }
@@ -997,10 +1002,10 @@ void ROFDataPrint(struct options* opt)
     Label* srch;
 
     /*char dattmp[5];*/
-    const char* udat = "* Uninitialized Data (Class \"%c\")";
+    const char* udat = "* Uninitialized Data (Class \"%c\")\n";
     // TODO: Change this to add a space. The reference exe will also have to be
     // patched.
-    const char* idat = "* Initialized Data (Class\"%c\")";
+    const char* idat = "* Initialized Data (Class\"%c\")\n";
 
     InProg = 0;
     auto category = labelManager->getCategory('D');
@@ -1162,7 +1167,7 @@ void OS9DataPrint(struct options* opt)
         {
             strcpy(Ci.mnem, "ds.b");
             sprintf(Ci.params, "%ld", srch->myAddr);
-            Ci.lblname = "";
+            Ci.lblname.clear();
             PrintLine(pseudcmd, &Ci, 'D', srch->myAddr, opt);
         }
 
@@ -1226,13 +1231,6 @@ void ListData(Label* me, int upadr, char cClass, struct parse_state* state)
 
     /*strcpy (pbf->lbnm, me->sname);*/
 
-    if (state->opt->IsROF && me->global())
-    {
-        char* newName = strdup(me->name());
-        strcat(newName, ":");
-        me->setName(newName);
-    }
-
     /*if (me->RNext)
     {
         srch = me->RNext;*/       /* Find smallest entry in that list */
@@ -1260,8 +1258,6 @@ else
 
     while (me)
     {
-        char lbl[100];
-
         if (me->myAddr >= upadr)
         {
             break;
@@ -1278,12 +1274,14 @@ else
 
         strcpy(Ci.mnem, "ds.b");
         sprintf(Ci.params, "%d", datasize);
-        strcpy(lbl, me->name());
-        Ci.lblname = lbl;
 
         if (state->opt->IsROF && me->global())
         {
-            strcat(Ci.lblname, ":");
+            Ci.lblname = me->nameWithColon();
+        }
+        else
+        {
+            Ci.lblname = me->name();
         }
         /*if (label_getMyAddr(me) != upadr)
         {
@@ -1457,8 +1455,6 @@ static void TellLabels(Label* me, int flg, char cClass, int minval, struct optio
 
     while (me)
     {
-        char lbl[100];
-
         if ((flg < 0) || flg == (int)me->stdName())
         {
             /* Don't print real OS9 Data variables here */
@@ -1488,13 +1484,15 @@ static void TellLabels(Label* me, int flg, char cClass, int minval, struct optio
                     BlankLine(opt);
                 }
 
-                strcpy(lbl, me->name());
-                Ci.lblname = lbl;
                 Ci.cmd_wrd = me->myAddr;
 
                 if (opt->IsROF && me->global())
                 {
-                    strcat(Ci.lblname, ":");
+                    Ci.lblname = me->nameWithColon();
+                }
+                else
+                {
+                    Ci.lblname = me->name();
                 }
 
                 if (strchr("!^", cClass))

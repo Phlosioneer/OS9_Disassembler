@@ -1,0 +1,1 @@
+Yes, this roff file is genuinely empty. I have no idea why.

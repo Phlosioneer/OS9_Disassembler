@@ -1,0 +1,15 @@
+    0  00000 0000            psect  atol_c,$0,$0,0,0,atol 
+    1  00000 4e55 atol:      link.w A5,#0      
+    2  00004 48e7            movem.l a2/d0-d1,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 4878 L0000a     pea    (L0000a).w 
+    5  0000e 7200            moveq  #0,d1      
+    6  00010 200a            move.l a2,d0      
+    7  00012 6100            bsr.w  strtol     
+    8  00016 588f            addq.l #4,sp      
+    9  00018 4ced            movem.l -8(a5),a2/d1 
+   10  0001e 4e5d            unlk   A5         
+   11  00020 4e75            rts               
+   12
+   13  00022 0000            ends              
+   13

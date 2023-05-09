@@ -1,0 +1,10 @@
+{
+	"ranges": [
+		{
+			"type": "data",
+			"size": "byte",
+			"start": 100,
+			"end": 208
+		}
+	]
+}

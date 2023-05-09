@@ -1,0 +1,83 @@
+    0  00000 0000            psect  memcpy_c,$0,$0,0,0,memmove 
+    1  00000 4e55 memmove:   link.w A5,#0      
+    2  00004 48e7            movem.l a0-a2/d0-d2,-(sp) 
+    3  00008 2040            movea.l d0,a0      
+    4  0000a 2441            movea.l d1,a2      
+    5  0000c 242d            move.l 8(a5),d2   
+    6  00010 6702            beq.s  L00014     
+    7  00012 610a            bsr.s  L0001e     
+    8  00014 4ced L00014     movem.l -24(a5),a0-a2/d0-d2 
+    9  0001a 4e5d            unlk   A5         
+   10  0001c 4e75            rts               
+   11  0001e 4a82 L0001e     tst.l  d2         
+   12  00020 674a            beq.s  L0006c     
+   13  00022 b1ca            cmpa.l a2,a0      
+   14  00024 6248            bhi.s  L0006e     
+   15  00026 6744            beq.s  L0006c     
+   16  00028 300a            move.w a2,d0      
+   17  0002a 0800            btst.l #0,d0      
+   18  0002e 6704            beq.s  L00034     
+   19  00030 10da            move.b (a2)+,(a0)+ 
+   20  00032 5382            subq.l #1,d2      
+   21  00034 3008 L00034     move.w a0,d0      
+   22  00036 0800            btst.l #0,d0      
+   23  0003a 6624            bne.s  L00060     
+   24  0003c e28a            lsr.l  #1,d2      
+   25  0003e 6406            bcc.s  L00046     
+   26  00040 6104            bsr.s  L00046     
+   27  00042 10da            move.b (a2)+,(a0)+ 
+   28  00044 4e75            rts               
+   29  00046 e28a L00046     lsr.l  #1,d2      
+   30  00048 6406            bcc.s  L00050     
+   31  0004a 30da            move.w (a2)+,(a0)+ 
+   32  0004c 6002            bra.s  L00050     
+   33  0004e 20da L0004e     move.l (a2)+,(a0)+ 
+   34  00050 51ca L00050     dbra   d2,L0004e  
+   35  00054 5242            addq.w #1,d2      
+   36  00056 5382            subq.l #1,d2      
+   37  00058 64f4            bcc.s  L0004e     
+   38  0005a 7400            moveq  #0,d2      
+   39  0005c 4e75            rts               
+   40  0005e 10da L0005e     move.b (a2)+,(a0)+ 
+   41  00060 51ca L00060     dbra   d2,L0005e  
+   42  00064 5242            addq.w #1,d2      
+   43  00066 5382            subq.l #1,d2      
+   44  00068 64f4            bcc.s  L0005e     
+   45  0006a 7400            moveq  #0,d2      
+   46  0006c 4e75 L0006c     rts               
+   47  0006e d5c2 L0006e     adda.l d2,a2      
+   48  00070 d1c2            adda.l d2,a0      
+   49  00072 300a            move.w a2,d0      
+   50  00074 0800            btst.l #0,d0      
+   51  00078 6704            beq.s  L0007e     
+   52  0007a 1122            move.b -(a2),-(a0) 
+   53  0007c 5382            subq.l #1,d2      
+   54  0007e 3008 L0007e     move.w a0,d0      
+   55  00080 0800            btst.l #0,d0      
+   56  00084 6624            bne.s  L000aa     
+   57  00086 e28a            lsr.l  #1,d2      
+   58  00088 6406            bcc.s  L00090     
+   59  0008a 6104            bsr.s  L00090     
+   60  0008c 1122            move.b -(a2),-(a0) 
+   61  0008e 4e75            rts               
+   62  00090 e28a L00090     lsr.l  #1,d2      
+   63  00092 6406            bcc.s  L0009a     
+   64  00094 3122            move.w -(a2),-(a0) 
+   65  00096 6002            bra.s  L0009a     
+   66  00098 2122 L00098     move.l -(a2),-(a0) 
+   67  0009a 51ca L0009a     dbra   d2,L00098  
+   68  0009e 5242            addq.w #1,d2      
+   69  000a0 5382            subq.l #1,d2      
+   70  000a2 64f4            bcc.s  L00098     
+   71  000a4 7400            moveq  #0,d2      
+   72  000a6 4e75            rts               
+   73  000a8 1122 L000a8     move.b -(a2),-(a0) 
+   74  000aa 51ca L000aa     dbra   d2,L000a8  
+   75  000ae 5242            addq.w #1,d2      
+   76  000b0 5382            subq.l #1,d2      
+   77  000b2 64f4            bcc.s  L000a8     
+   78  000b4 7400            moveq  #0,d2      
+   79  000b6 4e75            rts               
+   80
+   81  000b8 0000            ends              
+   81

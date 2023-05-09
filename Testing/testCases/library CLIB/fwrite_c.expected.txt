@@ -1,0 +1,30 @@
+    0  00000 0000            psect  fwrite_c,$0,$0,0,0,fwrite 
+    1  00000 4e55 fwrite:    link.w A5,#0      
+    2  00004 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
+    3  00008 2440            movea.l d0,a2      
+    4  0000a 266f            movea.l 36(sp),a3  
+    5  0000e 7800            moveq  #0,d4      
+    6  00010 6024            bra.s  L00036     
+    7  00012 7a00 L00012     moveq  #0,d5      
+    8  00014 6014            bra.s  L0002a     
+    9  00016 220b L00016     move.l a3,d1      
+   10  00018 101a            move.b (a2)+,d0   
+   11  0001a 4880            ext.w  d0         
+   12  0001c 48c0            ext.l  d0         
+   13  0001e 6100            bsr.w  putc       
+   14  00022 082b            btst.b #5,13(a3)  
+   15  00028 6612            bne.s  L0003c     
+   16  0002a 2005 L0002a     move.l d5,d0      
+   17  0002c 5285            addq.l #1,d5      
+   18  0002e b0af            cmp.l  4(sp),d0   
+   19  00032 6de2            blt.s  L00016     
+   20  00034 5284            addq.l #1,d4      
+   21  00036 b8af L00036     cmp.l  32(sp),d4  
+   22  0003a 6dd6            blt.s  L00012     
+   23  0003c 2004 L0003c     move.l d4,d0      
+   24  0003e 4ced            movem.l -16(a5),a2-a3/d4-d5 
+   25  00044 4e5d            unlk   A5         
+   26  00046 4e75            rts               
+   27
+   28  00048 0000            ends              
+   28

@@ -25,27 +25,38 @@
  * ******************************************************************** */
 
 #include "rof.h"
-#include "disglobs.h"
-#include "userdef.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
+#include <algorithm>
 
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
+#include "disglobs.h"
 #include "dismain.h"
 #include "dprint.h"
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
+#include "userdef.h"
 #include "writer.h"
 
+/*
 struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremote,
-    *extrns, /* Generic external pointer */
+    *extrns, // Generic external pointer
     *codeRefs_sav;
+*/
+
+refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns;
 
 static void get_refs(std::string& vname, int count, int ref_typ, char* codebuffer, BigEndianStream* Module);
+
+rof_extrn::rof_extrn(uint16_t type, uint32_t offset, bool isExternal) : Type(type), Ofst(offset), Extrn((int)isExternal)
+{
+}
 
 const char* extern_def_name(struct rof_extrn* handle)
 {
@@ -79,17 +90,17 @@ int RealEnt(struct options* opt, int CmdEnt)
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
  * positioned to the begin of the initialized data list for this particular vsect.
  */
-void AddInitLbls(struct rof_extrn* tbl, char klas, BigEndianStream& Module)
+void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module)
 {
     uint32_t refVal;
 
-    while (tbl)
+    for (auto& it : tbl)
     {
-        if (!tbl->Extrn)
+        if (!it.second.Extrn)
         {
-            Module.seekAbsolute(tbl->Ofst);
+            Module.seekAbsolute(it.second.Ofst);
 
-            switch (REFSIZ(tbl->Type))
+            switch (REFSIZ(it.second.Type))
             {
             case 1: /*SIZ_BYTE:*/
                 refVal = Module.read<uint8_t>();
@@ -100,11 +111,9 @@ void AddInitLbls(struct rof_extrn* tbl, char klas, BigEndianStream& Module)
             default:
                 refVal = Module.read<uint32_t>();
             }
-            tbl->hasName = FALSE;
-            tbl->lbl = addlbl(tbl->dstClass, refVal, "");
+            it.second.hasName = FALSE;
+            it.second.lbl = addlbl(it.second.dstClass, refVal, "");
         }
-
-        tbl = tbl->ENext;
     }
 }
 
@@ -357,7 +366,8 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
     char myClass;
     uint16_t _ty;
     uint32_t _ofst;
-    struct rof_extrn *new_ref, *curRef, **base = 0;
+    // struct rof_extrn *new_ref, *curRef, **base = 0;
+    refmap* base;
 
     for (; count > 0; count--)
     {
@@ -401,87 +411,25 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
         }
         else*/
         {
-            new_ref = new rof_extrn();
-
-            new_ref->Type = _ty;
-            new_ref->Ofst = _ofst;
-            new_ref->Extrn = (ref_typ == REFXTRN);
-
-            if (prevRef)
-            {
-                prevRef->MyNext = new_ref;
-            }
+            rof_extrn new_ref(_ty, _ofst, ref_typ == REFXTRN);
 
             /*base = &refs_data;*/ /* For the time being, let's try to just use one list for all refs */
 
-            /* If this tree has not yet been initialized, simply set the
-             * base pointer to this entry (as the first)
-             */
-
-            if (!*base)
+            if (new_ref.Extrn)
             {
-                *base = new_ref;
-            }
-
-            /* If we get here, this particular tree has alreay been started,
-             * so find where to put the new entry.  Note, for starters, let's
-             * assume that each entry will be unique, that is, this location
-             * won't be here
-             */
-
-            else /* We have entries, insert it into the proper place */
-            {
-                curRef = *base;
-                /*extrns = *base;*/ /* Use the global externs pointer */
-
-                if (_ofst < curRef->Ofst)
-                {
-                    new_ref->ENext = curRef;
-                    curRef->EUp = new_ref;
-                    *base = new_ref;
-                }
-                else
-                {
-                    while ((curRef->ENext) && (_ofst > curRef->ENext->Ofst))
-                    {
-                        curRef = curRef->ENext;
-                    }
-
-                    /*if (curRef->Ofst > _ofst)
-                    {
-                        curRef = curRef->EUp;
-                    }*/
-
-                    if (curRef->ENext)
-                    {
-                        curRef->ENext->EUp = new_ref;
-                    }
-
-                    new_ref->ENext = curRef->ENext;
-                    new_ref->EUp = curRef;
-                    curRef->ENext = new_ref;
-                }
-
-            } /* *base != NULL */
-
-            prevRef = new_ref;
-
-            if (new_ref->Extrn)
-            {
-                new_ref->hasName = TRUE;
-                new_ref->nam = vname;
-                new_ref->hasName = TRUE;
+                new_ref.hasName = TRUE;
+                new_ref.nam = vname;
             }
             else
             {
                 register int dstVal;
-                char* pt = &(code_buf[new_ref->Ofst]);
+                char* pt = &(code_buf[new_ref.Ofst]);
 
-                new_ref->dstClass = rof_class(_ty, REFGLBL);
+                new_ref.dstClass = rof_class(_ty, REFGLBL);
 
                 if ((ref_typ == REFLOCAL) && (myClass == 'L'))
                 {
-                    switch ((new_ref->Type >> 3) & 3)
+                    switch (REFSIZ(new_ref.Type))
                     {
                     case 1:
                         dstVal = *pt & 0xff;
@@ -492,10 +440,22 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
                     default:
                         dstVal = bufReadL(&pt);
                     }
-                    new_ref->hasName = FALSE;
-                    new_ref->lbl = addlbl(new_ref->dstClass, dstVal, "");
+                    new_ref.hasName = FALSE;
+                    new_ref.lbl = addlbl(new_ref.dstClass, dstVal, "");
+                }
+                else
+                {
+                    // These are local refs; they indicate a label's value should be subbed
+                    // into the expression. DoDataBlock should handle this automatically for
+                    // data references by just existing in the refmap. Not sure about code references?
+
+                    // TODO: Lookup the value in the specified location, and ensure there
+                    // is a label for it. Maybe add a tag to the label to force it to appear
+                    // for that particular address?
                 }
             }
+
+            (*base)[_ofst] = new_ref;
         } /* end "if (ref_typ == REFXTRN)" */
     }     /* end "while (count--) */
 }
@@ -506,21 +466,11 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
  *          (2) adrs - Address to match
  * Pure function.
  */
-struct rof_extrn* find_extrn(struct rof_extrn* xtrn, unsigned int adrs)
+struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs)
 {
-    /*int found = 0;*/
-
-    if (!xtrn)
-    {
-        return 0;
-    }
-
-    while (((adrs > xtrn->Ofst) || !(xtrn->Extrn)) && (xtrn->ENext))
-    {
-        xtrn = xtrn->ENext;
-    }
-
-    return (xtrn->Ofst == adrs ? xtrn : NULL);
+    auto it = xtrn.find(adrs);
+    if (it == xtrn.end()) return nullptr;
+    return &it->second;
 }
 
 /*
@@ -560,43 +510,38 @@ int rof_datasize(char cclass, struct options* opt)
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
-static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBuf, unsigned int blkEnd, char cclass,
+static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, unsigned int blkEnd, char cclass,
                          struct parse_state* state)
 {
     /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
-    char lblString[200];
 
     /* Insert Label if applicable */
 
-    if ((*lblList)->myAddr == state->CmdEnt)
+    auto label = category->get(state->CmdEnt);
+    if (label)
     {
-        strcpy(lblString, (*lblList)->name());
-        Ci.lblname = lblString;
-
-        if ((*lblList)->global())
+        if (label->global())
         {
-            strcat(Ci.lblname, ":");
+            Ci.lblname = label->nameWithColon();
         }
-
-        (*lblList) = label_getNext(*lblList);
+        else
+        {
+            Ci.lblname = label->name();
+        }
     }
 
     while (state->PCPos < blkEnd)
     {
-        /*int bump = 2,
-            my_val;*/
-
         state->CmdEnt = state->PCPos;
-        /* First check that refsList is not null. If this vsect has no
-         * references, 'refsList' will be null
-         */
 
-        if (*refsList && ((*refsList)->Ofst == state->CmdEnt))
+        // Check if this is the start of a reference.
+        auto ref = find_extrn(refsList, state->CmdEnt);
+        if (ref)
         {
             strcpy(Ci.mnem, "dc.");
 
-            switch (((*refsList)->Type >> 3) & 3)
+            switch (REFSIZ(ref->Type))
             {
             case 1: /* SIZ_BYTE */
                 strcat(Ci.mnem, "b");
@@ -611,18 +556,18 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
                 state->PCPos += 4;
             }
 
-            if ((*refsList)->Extrn)
+            if (ref->Extrn)
             {
-                strcpy(Ci.params, (*refsList)->nam.c_str());
+                strcpy(Ci.params, ref->nam.c_str());
             }
             else
             {
-                strcpy(Ci.params, (*refsList)->lbl->name());
+                strcpy(Ci.params, ref->lbl->name().c_str());
             }
 
             PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
             state->CmdEnt = state->PCPos;
-            Ci.lblname = NULL;
+            Ci.lblname.clear();
             Ci.params[0] = '\0';
             Ci.mnem[0] = '\0';
         }
@@ -681,7 +626,7 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
                     sprintf(Ci.params, fmt, val);
                     PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
                     state->CmdEnt = state->PCPos;
-                    Ci.lblname = NULL;
+                    Ci.lblname.clear();
                     Ci.params[0] = '\0';
                 }
 
@@ -700,27 +645,42 @@ static char* DataDoBlock(struct rof_extrn** refsList, Label** lblList, char* iBu
  *          (2) mycount - count of elements in this sect.
  *          (3) class   - Label Class letter
  */
-void ListInitROF(char* hdr, struct rof_extrn* refsList, char* iBuf, unsigned int isize, char iClass,
-                 struct parse_state* state)
+void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, char iClass, struct parse_state* state)
 {
     auto category = labelManager->getCategory(iClass);
-    Label* lblList = category ? category->getFirst() : NULL;
+    //Label* lblList = category ? category->getFirst() : NULL;
+
+    std::vector<unsigned int> blockEnds;
+    blockEnds.reserve(refsList.size() + category->size());
+    for (const auto& entry : refsList)
+    {
+        blockEnds.push_back(entry.first);
+    }
+    for (auto it = category->begin(); it != category->end(); it++)
+    {
+        blockEnds.push_back((*it)->myAddr);
+    }
+
+
+    std::sort(blockEnds.begin(), blockEnds.end());
 
     while (state->PCPos < isize)
     {
-        register int blkEnd;
+        unsigned int blkEnd;
 
-        blkEnd = isize; /* Make this a default */
-
-        if (lblList)
+        // ...or use the next ref as the end of the data block, whichever happens first.
+        // Use PC+1 to avoid a block size of 0.
+        auto nextRef = std::upper_bound(blockEnds.cbegin(), blockEnds.cend(), state->PCPos + 1);
+        if (nextRef != blockEnds.cend())
         {
-            if (label_getNext(lblList))
-            {
-                blkEnd = label_getNext(lblList)->myAddr;
-            }
+            blkEnd = std::min(*nextRef, isize);
+        }
+        else
+        {
+            blkEnd = isize;
         }
 
-        iBuf = DataDoBlock(&refsList, &lblList, iBuf, blkEnd, iClass, state);
+        iBuf = DataDoBlock(refsList, category, iBuf, blkEnd, iClass, state);
     }
 }
 
@@ -728,11 +688,11 @@ void setupROFPass(int Pass)
 {
     if (Pass == 1)
     {
-        codeRefs_sav = refs_code;
+        // codeRefs_sav = refs_code;
     }
     else
     {
-        refs_code = codeRefs_sav;
+        // refs_code = codeRefs_sav;
     }
 }
 
@@ -749,11 +709,19 @@ void setupROFPass(int Pass)
  *
  * Returns: trturns TRUE (1) if a ref was found and set up, FALSE (0) if no ref found here
  */
-int rof_setup_ref(struct rof_extrn* ref, int addrs, char* dest, int val)
+int rof_setup_ref(refmap& ref, int addrs, char* dest, int val)
 {
-    if (find_extrn(ref, addrs))
+    auto r = find_extrn(ref, addrs);
+    if (r)
     {
-        strcpy(dest, find_extrn(ref, addrs)->nam.c_str());
+        if (r->hasName)
+        {
+            strcpy(dest, r->nam.c_str());
+        }
+        else
+        {
+            strcpy(dest, r->lbl->name().c_str());
+        }
 
         if (val != 0)
         {
@@ -773,27 +741,25 @@ char* IsRef(char* dst, int curloc, int ival, int Pass)
 {
     register char* retVal = NULL;
 
-    if (refs_code && (refs_code->Ofst == curloc))
+    auto it = refs_code.find(curloc);
+    if (it != refs_code.end())
     {
-        register struct rof_extrn* ep_tmp;
-
         if (Pass == 1)
         {
-            refs_code = refs_code->ENext;
             retVal = dst;
         }
         else
         {
-            if (refs_code->Extrn)
+            if (it->second.Extrn)
             {
-                strcpy(dst, refs_code->nam.c_str());
+                strcpy(dst, it->second.nam.c_str());
                 retVal = dst;
 
                 if (ival)
                 {
                     char offsetbuf[20];
 
-                    strcat(dst, (refs_code->Type & 0x80) ? "-" : "+");
+                    strcat(dst, (it->second.Type & 0x80) ? "-" : "+");
                     sprintf(offsetbuf, "%d", ival);
                     strcat(dst, offsetbuf);
                 }
@@ -801,29 +767,11 @@ char* IsRef(char* dst, int curloc, int ival, int Pass)
             else
             {
                 // Pretty sure this is a bug, and it's supposed to be strcpy().
-                strcat(dst, refs_code->lbl->name());
+                strcat(dst, it->second.lbl->name().c_str());
                 retVal = dst;
             }
-
-            ep_tmp = refs_code->ENext;
-
-            if (!refs_code->MyNext)
-            {
-                /*if (refs_code->Extrn)
-                {
-                    free (refs_code->EName.nam);
-                }*/
-            }
-
-            if (ep_tmp)
-            {
-                ep_tmp->EUp = NULL;
-            }
-
-            delete refs_code;
-            refs_code = ep_tmp;
         }
-    } /* End "if (refs_code && (refs_code->Ofst == val)) */
+    }
 
     return retVal;
 }

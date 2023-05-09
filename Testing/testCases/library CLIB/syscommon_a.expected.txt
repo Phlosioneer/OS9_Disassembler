@@ -1,0 +1,13 @@
+    0  00000 0000            psect  syscommon_a,$0,$0,0,0,_sysret 
+    1  00000 640c _sysret:   bcc.s  L0000e     
+    2  00002 2d41 _os9err:   move.l d1,errno(a6) 
+    3  00006 70ff            moveq  #255,d0    
+    4  00008 6004            bra.s  L0000e     
+    5  0000a 65f6 _sysret0:  bcs.s  _os9err    
+    6  0000c 7000            moveq  #0,d0      
+    7  0000e 4ced L0000e     movem.l -12(a5),a0/d1-d2 
+    8  00014 4e5d            unlk   A5         
+    9  00016 4e75            rts               
+   10
+   11  00018 0000            ends              
+   11

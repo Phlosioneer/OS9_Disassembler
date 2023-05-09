@@ -7,3 +7,5 @@ dis68
 *.db
 *.?db
 *.ilk
+*.actual.s
+*.actual.txt

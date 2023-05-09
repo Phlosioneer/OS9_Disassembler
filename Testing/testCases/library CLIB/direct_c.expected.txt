@@ -1,0 +1,201 @@
+    0  00000 0000            psect  direct_c,$0,$0,0,0,opendir 
+    1  00000 4e55 opendir:   link.w A5,#0      
+    2  00001 0000 L00001     equ    *-3        
+    3  00004 48e7            movem.l a0/a2/d0-d1,-(sp) 
+    4  00008 4fef            lea.l  -132(sp),a7 
+    5  0000c 223c            move.l #129,d1    
+    6  00012 202f            move.l 132(sp),d0 
+    7  00016 6100            bsr.w  open       
+    8  0001a 2e80            move.l d0,(sp)    
+    9  0001c 72ff            moveq  #255,d1    
+   10  0001e b280            cmp.l  d0,d1      
+   11  00020 6716 L00020     beq.s  L00038     
+   12  00021 0000 L00021     equ    *-1        
+   13  00022 203c            move.l #268,d0    
+   14  00028 6100            bsr.w  malloc     
+   15  0002c 2440            movea.l d0,a2      
+   16  0002e 4a80            tst.l  d0         
+   17  00030 660a            bne.s  L0003c     
+   18  00032 2017            move.l (sp),d0    
+   19  00034 6100            bsr.w  close      
+   20  00038 7000 L00038     moveq  #0,d0      
+   21  0003a 601c            bra.s  L00058     
+   22  0003c 2497 L0003c     move.l (sp),(a2)  
+   23  0003e 41ef            lea.l  4(sp),a0   
+   24  00042 2208            move.l a0,d1      
+   25  00044 2012            move.l (a2),d0    
+   26  00046 6100            bsr.w  _gs_opt    
+   27  0004a 102f            move.b 4(sp),d0   
+   28  0004e 4880            ext.w  d0         
+   29  00050 48c0            ext.l  d0         
+   30  00052 2540            move.l d0,4(a2)   
+   31  00056 200a            move.l a2,d0      
+   32  00058 4fef L00058     lea.l  132(sp),a7 
+   33  0005c 4ced            movem.l -12(a5),a0/a2/d1 
+   34  00062 4e5d            unlk   A5         
+   35  00064 4e75            rts               
+   36  00066 4e55 readdir:   link.w A5,#0      
+   37  0006a 48e7            movem.l a0/a2-a3/d0-d1/d4,-(sp) 
+   38  0006e 2440            movea.l d0,a2      
+   39  00070 4fef            lea.l  -66(sp),a7 
+   40  00074 7005            moveq  #5,d0      
+   41  00076 b0aa            cmp.l  4(a2),d0   
+   42  0007a 6600            bne.w  L00114     
+   43  0007e 4878            pea    (L00021).w 
+   44  00082 41ef            lea.l  36(sp),a0  
+   45  00086 2208            move.l a0,d1      
+   46  00088 2012            move.l (a2),d0    
+   47  0008a 6100            bsr.w  read       
+   48  0008e 588f            addq.l #4,sp      
+   49  00090 4a80            tst.l  d0         
+   50  00092 6f00            ble.w  L00136     
+   51  00096 700c            moveq  #12,d0     
+   52  00098 d08a            add.l  a2,d0      
+   53  0009a 2640            movea.l d0,a3      
+   54  0009c 26af            move.l 38(sp),(a3) 
+   55  000a0 7000            moveq  #0,d0      
+   56  000a2 102f            move.b 64(sp),d0  
+   57  000a6 2f00            move.l d0,-(sp)   
+   58  000a8 200b            move.l a3,d0      
+   59  000aa 5080            addq.l #8,d0      
+   60  000ac 2200            move.l d0,d1      
+   61  000ae 2012            move.l (a2),d0    
+   62  000b0 6100            bsr.w  read       
+   63  000b4 588f            addq.l #4,sp      
+   64  000b6 4a80            tst.l  d0         
+   65  000b8 6e26            bgt.s  L000e0     
+   66  000ba 6000            bra.w  L00136     
+   67  000be 702e L000be     moveq  #46,d0     
+   68  000c0 1740            move.b d0,9(a3)   
+   69  000c4 1740            move.b d0,8(a3)   
+   70  000c8 422b            clr.b  10(a3)     
+   71  000cc 6024            bra.s  L000f2     
+   72  000ce 177c L000ce     move.b #46,8(a3)  
+   73  000d4 7000 L000d4     moveq  #0,d0      
+   74  000d6 102f            move.b 64(sp),d0  
+   75  000da 4233            clr.b  8(a3,d0.l) 
+   76  000de 6012            bra.s  L000f2     
+   77  000e0 102b L000e0     move.b 8(a3),d0   
+   78  000e4 4880            ext.w  d0         
+   79  000e6 4a40            tst.w  d0         
+   80  000e8 67e4            beq.s  L000ce     
+   81  000ea 0c40            cmpi.w #1,d0      
+   82  000ee 67ce            beq.s  L000be     
+   83  000f0 60e2            bra.s  L000d4     
+   84  000f2 4878 L000f2     pea    (L00001).w 
+   85  000f6 7000            moveq  #0,d0      
+   86  000f8 102f            move.b 68(sp),d0  
+   87  000fc 7200            moveq  #0,d1      
+   88  000fe 122f            move.b 36(sp),d1  
+   89  00102 9240            sub.w  d0,d1      
+   90  00104 48c1            ext.l  d1         
+   91  00106 7021            moveq  #33,d0     
+   92  00108 9280            sub.l  d0,d1      
+   93  0010a 2012            move.l (a2),d0    
+   94  0010c 6100            bsr.w  lseek      
+   95  00110 588f            addq.l #4,sp      
+   96  00112 6068            bra.s  L0017c     
+   97  00114 4878 L00114     pea    (L00020).w 
+   98  00118 41ef            lea.l  4(sp),a0   
+   99  0011c 2208            move.l a0,d1      
+  100  0011e 2012            move.l (a2),d0    
+  101  00120 6100            bsr.w  read       
+  102  00124 588f            addq.l #4,sp      
+  103  00126 2800            move.l d0,d4      
+  104  00128 7220            moveq  #32,d1     
+  105  0012a b280            cmp.l  d0,d1      
+  106  0012c 6604            bne.s  L00132     
+  107  0012e 4a17            tst.b  (sp)       
+  108  00130 67e2            beq.s  L00114     
+  109  00132 4a84 L00132     tst.l  d4         
+  110  00134 6e04            bgt.s  L0013a     
+  111  00136 7000 L00136     moveq  #0,d0      
+  112  00138 6044            bra.s  L0017e     
+  113  0013a 700c L0013a     moveq  #12,d0     
+  114  0013c d08a            add.l  a2,d0      
+  115  0013e 2640            movea.l d0,a3      
+  116  00140 102f            move.b 29(sp),d0  
+  117  00144 4880            ext.w  d0         
+  118  00146 0240            andi.w #255,d0    
+  119  0014a 48c0            ext.l  d0         
+  120  0014c 7210            moveq  #16,d1     
+  121  0014e e3a8            lsl.l  d1,d0      
+  122  00150 122f            move.b 30(sp),d1  
+  123  00154 4881            ext.w  d1         
+  124  00156 0241            andi.w #255,d1    
+  125  0015a 48c1            ext.l  d1         
+  126  0015c e189            lsl.l  #8,d1      
+  127  0015e 8081            or.l   d1,d0      
+  128  00160 122f            move.b 31(sp),d1  
+  129  00164 4881            ext.w  d1         
+  130  00166 0241            andi.w #255,d1    
+  131  0016a 48c1            ext.l  d1         
+  132  0016c 8081            or.l   d1,d0      
+  133  0016e 2680            move.l d0,(a3)    
+  134  00170 41d7            lea.l  (sp),a0    
+  135  00172 2208            move.l a0,d1      
+  136  00174 200b            move.l a3,d0      
+  137  00176 5080            addq.l #8,d0      
+  138  00178 6100            bsr.w  L0020a     
+  139  0017c 200b L0017c     move.l a3,d0      
+  140  0017e 4fef L0017e     lea.l  66(sp),a7  
+  141  00182 4ced            movem.l -20(a5),a0/a2-a3/d1/d4 
+  142  00188 4e5d            unlk   A5         
+  143  0018a 4e75            rts               
+  144  0018c 4e55 telldir:   link.w A5,#0      
+  145  00190 48e7            movem.l a2/d0-d1,-(sp) 
+  146  00194 2440            movea.l d0,a2      
+  147  00196 4878            pea    (L00001).w 
+  148  0019a 7200            moveq  #0,d1      
+  149  0019c 2012            move.l (a2),d0    
+  150  0019e 6100            bsr.w  lseek      
+  151  001a2 588f            addq.l #4,sp      
+  152  001a4 4ced            movem.l -8(a5),a2/d1 
+  153  001aa 4e5d            unlk   A5         
+  154  001ac 4e75            rts               
+  155  001ae 4e55 seekdir:   link.w A5,#0      
+  156  001b2 48e7            movem.l a0/d0-d1,-(sp) 
+  157  001b6 42a7            clr.l  -(sp)      
+  158  001b8 222f            move.l 8(sp),d1   
+  159  001bc 206f            movea.l 4(sp),a0   
+  160  001c0 2010            move.l (a0),d0    
+  161  001c2 6100            bsr.w  lseek      
+  162  001c6 588f            addq.l #4,sp      
+  163  001c8 4ced            movem.l -4(a5),a0  
+  164  001ce 4e5d            unlk   A5         
+  165  001d0 4e75            rts               
+  166  001d2 4e55 rewinddir: link.w A5,#0      
+  167  001d6 48e7            movem.l d0-d1,-(sp) 
+  168  001da 7200            moveq  #0,d1      
+  169  001dc 2017            move.l (sp),d0    
+  170  001de 61ce            bsr.s  seekdir    
+  171  001e0 4ced            movem.l -4(a5),d1  
+  172  001e6 4e5d            unlk   A5         
+  173  001e8 4e75            rts               
+  174  001ea 4e55 closedir:  link.w A5,#0      
+  175  001ee 48e7            movem.l a2/d0,-(sp) 
+  176  001f2 2440            movea.l d0,a2      
+  177  001f4 2012            move.l (a2),d0    
+  178  001f6 6100            bsr.w  close      
+  179  001fa 200a            move.l a2,d0      
+  180  001fc 6100            bsr.w  free       
+  181  00200 4ced            movem.l -4(a5),a2  
+  182  00206 4e5d            unlk   A5         
+  183  00208 4e75            rts               
+  184  0020a 4e55 L0020a     link.w A5,#0      
+  185  0020e 48e7            movem.l a2-a4/d0-d1,-(sp) 
+  186  00212 2440            movea.l d0,a2      
+  187  00214 2641            movea.l d1,a3      
+  188  00216 284a            movea.l a2,a4      
+  189  00218 101b L00218     move.b (a3)+,d0   
+  190  0021a 18c0            move.b d0,(a4)+   
+  191  0021c 6efa            bgt.s  L00218     
+  192  0021e 022c            andi.b #127,-1(a4) 
+  193  00224 4214            clr.b  (a4)       
+  194  00226 200a            move.l a2,d0      
+  195  00228 4ced            movem.l -12(a5),a2-a4 
+  196  0022e 4e5d            unlk   A5         
+  197  00230 4e75            rts               
+  198
+  199  00232 0000            ends              
+  199

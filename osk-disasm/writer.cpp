@@ -25,6 +25,11 @@ size_t Writer::printf(const char* format, ...)
     return ret;
 }
 
+void Writer::write(const std::string& s)
+{
+    this->printf("%s", s.c_str());
+}
+
 FileWriter::FileWriter(char* filename)
 {
     _fp = fopen(filename, "wb");
@@ -123,6 +128,11 @@ bool StringWriter::openedSuccessfully()
 
 void StringWriter::flush()
 {
+}
+
+void StringWriter::write(const std::string& s)
+{
+    _stream << s;
 }
 
 writer_handle* file_writer_fopen(char* name)

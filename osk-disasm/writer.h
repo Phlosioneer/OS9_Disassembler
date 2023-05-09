@@ -30,6 +30,7 @@ class Writer
     virtual size_t vprintf(const char* format, va_list args) = 0;
     virtual bool openedSuccessfully() = 0;
     virtual void flush() = 0;
+    virtual void write(const std::string& s);
 
     inline writer_handle* handle()
     {
@@ -54,7 +55,7 @@ class FileWriter : public Writer
     virtual void close() override;
     virtual size_t vprintf(const char* format, va_list args) override;
     virtual bool openedSuccessfully() override;
-    virtual void flush();
+    virtual void flush() override;
 
   private:
     std::FILE* _fp;
@@ -66,7 +67,7 @@ class StdOutWriter : public Writer
     virtual void close() override;
     virtual size_t vprintf(const char* format, va_list args) override;
     virtual bool openedSuccessfully() override;
-    virtual void flush();
+    virtual void flush() override;
 };
 
 class StringWriter : public Writer
@@ -78,7 +79,8 @@ class StringWriter : public Writer
     virtual void close() override;
     virtual size_t vprintf(const char* format, va_list args) override;
     virtual bool openedSuccessfully() override;
-    virtual void flush();
+    virtual void flush() override;
+    virtual void write(const std::string& s) override;
 
     inline std::string result()
     {

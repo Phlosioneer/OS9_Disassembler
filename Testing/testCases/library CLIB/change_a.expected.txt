@@ -1,0 +1,36 @@
+    0  00000 0000            psect  change_a,$0,$0,0,0,chmod 
+    1  00000 4e55 chmod:     link.w A5,#0      
+    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    3  00008 2401            move.l d1,d2      
+    4  0000a 2040            movea.l d0,a0      
+    5  0000c 7000            moveq  #0,d0      
+    6  0000e 4e40            os9    I$Open     
+    7  00012 6500            dc.w   $6500      
+    8  00014 0000            dc.w   $0         
+    9  00016 7200            moveq  #SS_Attr,d1 
+   10  00018 4e40            os9    I$SetStt   
+   11  0001c 643e            bcc.s  L0005c     
+   12  0001e 2401 L0001e     move.l d1,d2      
+   13  00020 4e40            os9    I$Close    
+   14  00024 2202            move.l d2,d1      
+   15  00026 6000            bra.w  _os9err    
+   16  0002a 4e55 chown:     link.w A5,#-28    
+   17  0002e 48ed            movem.l a0/d1-d2,-12(a5) 
+   18  00034 2040            movea.l d0,a0      
+   19  00036 7002            moveq  #2,d0      
+   20  00038 4e40            os9    I$Open     
+   21  0003c 65e0            bcs.s  L0001e     
+   22  0003e 7200            moveq  #SS_FD,d1  
+   23  00040 7410            moveq  #16,d2     
+   24  00042 41d7            lea.l  (sp),a0    
+   25  00044 4e40            os9    I$GetStt   
+   26  00048 65d4            bcs.s  L0001e     
+   27  0004a 1f6f            move.b 17(sp),FD_OWN(sp) 
+   28  00050 1f6f            move.b 19(sp),FD_OWN+1(sp) 
+   29  00056 4e40            os9    I$SetStt   
+   30  0005a 65c2            bcs.s  L0001e     
+   31  0005c 4e40 L0005c     os9    I$Close    
+   32  00060 6000            bra.w  _sysret0   
+   33
+   34  00064 0000            ends              
+   34

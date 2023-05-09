@@ -101,11 +101,13 @@ Label* findlbl(char lblclass, int lblval)
     return labelManager->getLabel(lblclass, lblval);
 }
 
+/*
 char* lblstr(char lblclass, int lblval)
 {
     Label* label = labelManager->getLabel(lblclass, lblval);
     return label ? label->name() : "";
 }
+*/
 
 LabelManager::LabelManager(){};
 
@@ -208,7 +210,7 @@ void LabelCategory::printAll()
         printf("\nLabel definitions for Class '%c'\n\n", code);
         for (auto label : _labels)
         {
-            printf("%s equ $%d\n", label->name(), (int)(label->myAddr));
+            printf("%s equ $%d\n", label->name().c_str(), (int)(label->myAddr));
         }
     }
 }
@@ -242,32 +244,63 @@ Label* LabelCategory::getFirst()
 
 /* Value is either the address of the label, or the value of the equate. */
 Label::Label(char category, int value, const char* name)
-    : myAddr(value), category(category), _stdName(false), _global(false), _name("")
+    : myAddr(value), category(category), _stdName(false), _global(false),
+      _nameIsDefault(name == nullptr || strlen(name) == 0),
+      _name(name == nullptr || strlen(name) == 0 ? makeDefaultName(category, value) : std::string(name))
 {
-    setName(name);
+}
+Label::Label(char category, int value, const std::string& name)
+    : myAddr(value), category(category), _stdName(false), _global(false), _nameIsDefault(name.empty()),
+      _name(name.empty() ? makeDefaultName(category, value) : name)
+{
 }
 
 void Label::setName(const char* name)
 {
-    if (name && strlen(name) > 0)
+    if (name == nullptr || strlen(name) == 0)
     {
-        if (strlen(name) > LBLLEN)
-        {
-            printf("Error: label name '%s' too long. Truncating to %d characters.", name, LBLLEN);
-        }
-        strncpy(_name, name, LBLLEN);
-        _name[LBLLEN] = '\0';
+        if (_nameIsDefault) return;
+        _nameIsDefault = true;
+        _name = makeDefaultName(category, myAddr);
     }
     else
     {
-        /* Assume that a program label does not exceed 20 bits */
-        if (myAddr > 0x3FFFF)
-        {
-            printf("Error: label value %x is more than 20 bits. Truncating name to %05x.", myAddr, myAddr);
-        }
-
-        snprintf(_name, LBLLEN + 1, "%c%05x", toupper(category), myAddr & 0x3FFFF);
+        _nameIsDefault = false;
+        _name = name;
     }
+}
+
+void Label::setName(std::string newName)
+{
+    if (newName.empty())
+    {
+        if (_nameIsDefault) return;
+        _nameIsDefault = true;
+        _name = makeDefaultName(category, myAddr);
+    }
+    else
+    {
+        _nameIsDefault = false;
+        _name = std::move(newName);
+    }
+}
+
+std::string Label::nameWithColon() const
+{
+    return _global ? _name + ':' : _name;
+}
+
+std::string Label::makeDefaultName(char category, long value)
+{
+    /* Assume that a program label does not exceed 20 bits */
+    if (value > 0x3FFFF)
+    {
+        fprintf(stderr, "Error: label value %x is more than 20 bits. Truncating name to %05x.", value, value);
+    }
+
+    std::ostringstream name;
+    name << category << PrettyNumber<uint32_t>(value & 0x3FFFF).hex().fill('0').width(5);
+    return name.str();
 }
 
 void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas)
