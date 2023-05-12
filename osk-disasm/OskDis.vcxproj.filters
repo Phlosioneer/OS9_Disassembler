@@ -52,6 +52,9 @@
     <ClCompile Include="reader.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="address_space.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -118,6 +121,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="reader.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="address_space.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -29,10 +29,8 @@
 #define _MAIN_ /* We will define all variables in one header file, then                                                \
                   define them extern from all other files */
 
-#include "disglobs.h"
-#include "main_support.h"
-#include "modtypes.h"
-#include "textdef.h"
+#include "dismain.h"
+
 #include <ctype.h>
 #include <sstream>
 #include <string.h>
@@ -41,11 +39,14 @@
 #include "command_items.h"
 #include "commonsubs.h"
 #include "def68def.h"
-#include "dismain.h"
+#include "disglobs.h"
 #include "dprint.h"
 #include "exit.h"
 #include "label.h"
+#include "main_support.h"
+#include "modtypes.h"
 #include "rof.h"
+#include "textdef.h"
 
 #ifdef _WIN32
 #define strcasecmp _stricmp
@@ -59,7 +60,7 @@ uint32_t IDataBegin;
 uint32_t IDataCount;
 size_t HdrEnd;
 
-int NowClass;
+AddrSpaceHandle NowClass;
 int PBytSiz;
 
 static bool get_asmcmd(struct parse_state* state);
@@ -166,12 +167,16 @@ static int get_modhead(struct options* opt)
             mod->exceptionOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
             if (mod->exceptionOffset)
             {
-                addlbl('L', mod->exceptionOffset, "");
+                // DELETEME: code_space confirmed correct here.
+                addlbl(&CODE_SPACE, mod->exceptionOffset, "");
             }
 
             /* Add btext */
             /* applicable for only specific Moule Types??? */
-            addlbl('L', 0, "btext");
+            // FIXME: This should probably be deleted. It causes more confusion than
+            // it's worth.
+            // DELETEME: code_space confirmed correct here.
+            // addlbl(&CODE_SPACE, 0, "btext");
 
             if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
             {
@@ -205,17 +210,22 @@ static int get_modhead(struct options* opt)
                 // Read the init data header.
                 // fseek(opt->ModFP, mod->initDataHeaderOffset, SEEK_SET);
                 opt->Module->seekAbsolute(mod->initDataHeaderOffset);
-                IDataBegin = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-                IDataCount = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
+                mod->uninitDataSize = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
+                IDataBegin = mod->uninitDataSize;
+                mod->initDataSize = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
+                IDataCount = mod->initDataSize;
 
-                /* Insure we have an entry for the first Initialized Data */
-                addlbl('D', IDataBegin, "");
+                // Insure we have an entry for the first Initialized Data
+                // addlbl(&INIT_DATA_SPACE, IDataBegin, "");
                 mod->CodeEnd = mod->initDataHeaderOffset;
             }
             else
             {
                 /* This may be incorrect */
                 mod->CodeEnd = mod->size - 3;
+                // All memory is uninit.
+                mod->uninitDataSize = mod->memorySize;
+                mod->initDataSize = 0;
             }
         }
 
@@ -264,7 +274,7 @@ struct modnam* modnam_find(struct modnam* pt, int desired)
  */
 static void RdLblFile(FILE* inpath)
 {
-    char labelname[30], clas, eq[10], strval[15], *lbegin;
+    char labelname[30], category[30], eq[10], strval[15], *lbegin;
     int address;
     Label* nl;
 
@@ -280,9 +290,17 @@ static void RdLblFile(FILE* inpath)
             continue;
         }
 
-        if (sscanf(rdbuf, "%s %s %s %c", labelname, eq, strval, &clas) == 4)
+        if (sscanf(rdbuf, "%s %s %s %s", labelname, eq, strval, category) == 4)
         {
-            clas = toupper(clas);
+            AddrSpaceHandle realCategory = nullptr;
+            for (auto handle : allSpaces)
+            {
+                if (handle->name == category || handle->shortcode == category)
+                {
+                    realCategory = handle;
+                }
+            }
+            if (!realCategory) throw std::runtime_error("Unrecognized label category in label file");
 
             if (!strcasecmp(eq, "equ"))
             {
@@ -295,7 +313,7 @@ static void RdLblFile(FILE* inpath)
                     address = atoi(strval);
                 }
 
-                nl = findlbl(clas, address);
+                nl = findlbl(realCategory, address);
 
                 if (nl)
                 {
@@ -304,6 +322,37 @@ static void RdLblFile(FILE* inpath)
                 }
             }
         }
+    }
+}
+
+// For module files, sort all the labels in UNKNOWN_DATA_SPACE into INIT_DATA_SPACE
+// and UNINIT_DATA_SPACE.
+static void resoveUnknownDataSpace(struct options* opt)
+{
+    auto unkCategory = labelManager->getCategory(&UNKNOWN_DATA_SPACE);
+    auto initCategory = labelManager->getCategory(&INIT_DATA_SPACE);
+    auto uninitCategory = labelManager->getCategory(&UNINIT_DATA_SPACE);
+
+    auto cutoffAddr = opt->modHeader->uninitDataSize;
+
+    for (auto it = unkCategory->begin(); it != unkCategory->end(); it++)
+    {
+        auto dest = (*it)->myAddr < cutoffAddr ? uninitCategory : initCategory;
+
+        Label* newLabel = nullptr;
+        if ((*it)->nameIsDefault())
+        {
+            newLabel = dest->add((*it)->myAddr, nullptr);
+        }
+        else
+        {
+            newLabel = dest->add((*it)->myAddr, (*it)->name().c_str());
+        }
+
+        if ((*it)->global()) newLabel->setGlobal(true);
+        if ((*it)->stdName()) newLabel->setStdName(true);
+
+        unkCategory->addRedirect(newLabel->myAddr, newLabel);
     }
 }
 
@@ -380,37 +429,16 @@ int dopass(int Pass, struct options* opt)
         opt->Module->reset();
 
         get_modhead(opt);
-        strncpy(defaultLabelClasses, defaultDefaultLabelClasses, AM_MAXMODES);
         if (opt->modHeader)
         {
-            addlbl('L', opt->modHeader->execOffset, NULL);
-
-            /* Set Default Addressing Modes according to Module Type */
-            if (opt->modHeader->type == MT_PROGRAM)
-            {
-                // strcpy(DfltLbls, "&&&&&&D&&&&L");
-                strncpy(defaultLabelClasses, programDefaultLabelClasses, AM_MAXMODES);
-            }
-            else if (opt->modHeader->type == MT_DEVDRVR)
-            {
-                /*  Init/Term:
-                     (a1)=Device Dscr
-                    Read/Write,Get/SetStat:
-                     (a1)=Path Dscr, (a5)=Caller's Register Stack
-                    All:
-                     (a1)=Path Dscr
-                     (a2)=Static Storage, (a4)=Process Dscr, (a6)=System Globals
-
-                   (a1) & (a5) default to Read/Write, etc.  For Init/Term, specify
-                   AModes for these with Boundary Defs*/
-                // strcpy (DfltLbls, "&ZD&PG&&&&&L");
-                strncpy(defaultLabelClasses, driverDefaultLabelClasses, AM_MAXMODES);
-            }
+            // DELETEME: code_space confirmed correct here.
+            addlbl(&CODE_SPACE, opt->modHeader->execOffset, NULL);
         }
         else
         {
             // TODO: The label in a ROF psect is broken in pass 1. This line shouldn't be necessary.
-            addlbl('L', 0, NULL);
+            // DELETEME: code_space confirmed correct here.
+            addlbl(&CODE_SPACE, 0, NULL);
         }
 
         GetIRefs(opt);
@@ -420,6 +448,10 @@ int dopass(int Pass, struct options* opt)
     }
     else /* Do Pass 2 Setup */
     {
+        if (!opt->IsROF)
+        {
+            resoveUnknownDataSpace(opt);
+        }
         GetLabels(opt);
 
         /* We do this here so that we can rename labels
@@ -485,7 +517,7 @@ int dopass(int Pass, struct options* opt)
          */
         for (bp = allRegions.classHere(parseState.PCPos); bp; bp = allRegions.classHere(parseState.PCPos))
         {
-            NsrtBnds(bp, &parseState);
+            HandleRegion(bp, &parseState);
             parseState.CmdEnt = parseState.PCPos;
         }
 
@@ -495,7 +527,8 @@ int dopass(int Pass, struct options* opt)
         {
             if (Pass == 2)
             {
-                PrintLine(pseudcmd, &Instruction, 'L', parseState.CmdEnt, opt);
+                // DELETEME: code_space confirmed correct here.
+                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
 
                 if (opt->PrintAllCode && Instruction.wcount)
                 {
@@ -525,7 +558,8 @@ int dopass(int Pass, struct options* opt)
                 params << '$' << PrettyNumber<int>(Instruction.cmd_wrd & 0xffff).hex();
                 auto result = params.str();
                 strcpy(Instruction.params, result.c_str());
-                PrintLine(pseudcmd, &Instruction, 'L', parseState.CmdEnt, opt);
+                // DELETEME: code_space confirmed correct here.
+                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
                 parseState.CmdEnt = parseState.PCPos;
             }
         }
@@ -608,7 +642,6 @@ static bool get_asmcmd(struct parse_state* state)
                 }
             }
         }
-
     }
 
     return false;
@@ -616,9 +649,10 @@ static bool get_asmcmd(struct parse_state* state)
 
 /*
  * Reads data for Data Boundary range from input file and places it onto the print
- * buffer (and does any applicable printing if in pass 2).
+ * buffer (and does any applicable printing if in pass 2). Only called within
+ * CODE_SPACE, which is a bit weird.
  */
-void MovBytes(const DataRegion* db, struct parse_state* state)
+void HandleDataRegion(const DataRegion* db, struct parse_state* state)
 {
     struct cmd_items Ci;
     char tmps[20];
@@ -713,11 +747,13 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
             strcat(Ci.params, tmps);
 
-            /* If length of operand string is max, print a line */
-
-            if ((strlen(Ci.params) > 22) || findlbl('L', state->PCPos))
+            // If length of operand string is max, print a line
+            // Baked-in assumption that this function is only called within CODE_SPACE.
+            // DELETEME: code_space confirmed correct here.
+            if ((strlen(Ci.params) > 22) || findlbl(&CODE_SPACE, state->PCPos))
             {
-                PrintLine(pseudcmd, &Ci, 'L', state->CmdEnt, state->opt);
+                // DELETEME: code_space confirmed correct here.
+                PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->opt);
 
                 printXtraBytes(xtrabytes.str());
                 xtrabytes = {};
@@ -737,19 +773,21 @@ void MovBytes(const DataRegion* db, struct parse_state* state)
 
     if ((state->Pass == 2) && strlen(Ci.params))
     {
-        PrintLine(pseudcmd, &Ci, 'L', state->CmdEnt, state->opt);
+        // Baked-in assumption that this function is only called within CODE_SPACE.
+        // DELETEME: code_space confirmed correct here.
+        PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->opt);
 
         printXtraBytes(xtrabytes.str());
     }
 }
 
 /*
- * Insert boundary area
+ * Insert boundary area. Only called within CODE_SPACE.
  */
-void NsrtBnds(const DataRegion* bp, struct parse_state* state)
+void HandleRegion(const DataRegion* bp, struct parse_state* state)
 {
-    NowClass = '$'; // bp->b_class;
-    PBytSiz = 1;    /* Default to one byte length */
+    NowClass = &LITERAL_HEX_SPACE; // bp->b_class;
+    PBytSiz = 1;                   /* Default to one byte length */
 
     switch (bp->type)
     {
@@ -760,14 +798,14 @@ void NsrtBnds(const DataRegion* bp, struct parse_state* state)
         break; /* bump PC  */
     case DataRegion::DataSize::Words:
         PBytSiz = 2; /* Takes care of both Word & Long */
-        MovBytes(bp, state);
+        HandleDataRegion(bp, state);
         break;
     case DataRegion::DataSize::Longs:
         PBytSiz = 4; /* Takes care of both Word & Long */
-        MovBytes(bp, state);
+        HandleDataRegion(bp, state);
         break;
     case DataRegion::DataSize::Bytes:
-        MovBytes(bp, state);
+        HandleDataRegion(bp, state);
         break;
     default:
         throw std::runtime_error("Unexpected DataSize enum value");

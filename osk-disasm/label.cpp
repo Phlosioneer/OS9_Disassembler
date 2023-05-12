@@ -44,8 +44,6 @@
 
 LabelManager* labelManager = new LabelManager();
 
-const char lblorder[] = "_!^$&@%ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 const char defaultDefaultLabelClasses[] = "&&&&&&D&&LLL"; //"&&&&&&D&&LLLLLL";
 const char programDefaultLabelClasses[] = "&&&&&&D&&&&L";
 const char driverDefaultLabelClasses[] = "&ZD&PG&&&&&L";
@@ -76,11 +74,12 @@ Label* labelclass_getFirst(LabelCategory* handle)
  *              If NULL or empty string, the hex address of the label prepended with
  *              the class letter is used.
  */
-Label* addlbl(char lblclass, int value, const char* newName)
+Label* addlbl(AddrSpaceHandle lblclass, int value, const char* newName)
 {
-    if (strchr("^@$&", lblclass))
+    if (!lblclass || *lblclass == LITERAL_SPACE || *lblclass == LITERAL_HEX_SPACE || *lblclass == LITERAL_DEC_SPACE ||
+        *lblclass == LITERAL_ASCII_SPACE)
     {
-        return NULL;
+        return nullptr;
     }
 
     // If the category doesn't exist already, create it.
@@ -94,20 +93,12 @@ Label* addlbl(char lblclass, int value, const char* newName)
  * Returns: The label def if it exists, NULL if not found
  *
  */
-Label* findlbl(char lblclass, int lblval)
+Label* findlbl(AddrSpaceHandle lblclass, int lblval)
 {
-    if (strchr("^@$&", lblclass)) return NULL;
+    if (*lblclass == LITERAL_SPACE) return NULL;
 
     return labelManager->getLabel(lblclass, lblval);
 }
-
-/*
-char* lblstr(char lblclass, int lblval)
-{
-    Label* label = labelManager->getLabel(lblclass, lblval);
-    return label ? label->name() : "";
-}
-*/
 
 LabelManager::LabelManager(){};
 
@@ -120,12 +111,12 @@ LabelManager::~LabelManager()
     }
 }
 
-LabelCategory* LabelManager::getCategory(char code)
+LabelCategory* LabelManager::getCategory(AddrSpaceHandle code)
 {
-    auto pair = _labelCategories.find(code);
+    auto pair = _labelCategories.find(code->name);
     if (pair == _labelCategories.end())
     {
-        auto result = _labelCategories.insert(std::make_pair(code, new LabelCategory(code)));
+        auto result = _labelCategories.insert(std::make_pair(code->name, new LabelCategory(code)));
         return result.first->second;
     }
     else
@@ -143,17 +134,17 @@ void LabelManager::printAll()
     }
 }
 
-Label* LabelManager::addLabel(char code, long value, const char* name)
+Label* LabelManager::addLabel(AddrSpaceHandle code, long value, const char* name)
 {
     return getCategory(code)->add(value, name);
 }
 
-Label* LabelManager::getLabel(char code, long value)
+Label* LabelManager::getLabel(AddrSpaceHandle code, long value)
 {
     return getCategory(code)->get(value);
 }
 
-LabelCategory::LabelCategory(char code) : code(code){};
+LabelCategory::LabelCategory(AddrSpaceHandle code) : code(code), _labels(), _labelRedirects(), _labelsByValue(){};
 
 LabelCategory::~LabelCategory()
 {
@@ -193,6 +184,11 @@ Label* LabelCategory::add(long value, const char* newName)
 
 Label* LabelCategory::get(long value)
 {
+    auto redirectIt = _labelRedirects.find(value);
+    if (redirectIt != _labelRedirects.end())
+    {
+        return _labelRedirects[value];
+    }
     if (_labelsByValue.count(value) != 0)
     {
         return _labelsByValue[value];
@@ -207,7 +203,7 @@ void LabelCategory::printAll()
 {
     if (!_labels.empty())
     {
-        printf("\nLabel definitions for Class '%c'\n\n", code);
+        printf("\nLabel definitions for Class '%s'\n\n", code->name.c_str());
         for (auto label : _labels)
         {
             printf("%s equ $%d\n", label->name().c_str(), (int)(label->myAddr));
@@ -242,16 +238,21 @@ Label* LabelCategory::getFirst()
     }
 }
 
+void LabelCategory::addRedirect(long addr, Label* label)
+{
+    _labelRedirects[addr] = label;
+}
+
 /* Value is either the address of the label, or the value of the equate. */
-Label::Label(char category, int value, const char* name)
+Label::Label(AddrSpaceHandle category, int value, const char* name)
     : myAddr(value), category(category), _stdName(false), _global(false),
       _nameIsDefault(name == nullptr || strlen(name) == 0),
-      _name(name == nullptr || strlen(name) == 0 ? makeDefaultName(category, value) : std::string(name))
+      _name(name == nullptr || strlen(name) == 0 ? category->makeDefaultName(value) : std::string(name))
 {
 }
-Label::Label(char category, int value, const std::string& name)
+Label::Label(AddrSpaceHandle category, int value, const std::string& name)
     : myAddr(value), category(category), _stdName(false), _global(false), _nameIsDefault(name.empty()),
-      _name(name.empty() ? makeDefaultName(category, value) : name)
+      _name(name.empty() ? category->makeDefaultName(value) : name)
 {
 }
 
@@ -261,7 +262,7 @@ void Label::setName(const char* name)
     {
         if (_nameIsDefault) return;
         _nameIsDefault = true;
-        _name = makeDefaultName(category, myAddr);
+        _name = category->makeDefaultName(myAddr);
     }
     else
     {
@@ -276,7 +277,7 @@ void Label::setName(std::string newName)
     {
         if (_nameIsDefault) return;
         _nameIsDefault = true;
-        _name = makeDefaultName(category, myAddr);
+        _name = category->makeDefaultName(myAddr);
     }
     else
     {
@@ -290,23 +291,10 @@ std::string Label::nameWithColon() const
     return _global ? _name + ':' : _name;
 }
 
-std::string Label::makeDefaultName(char category, long value)
-{
-    /* Assume that a program label does not exceed 20 bits */
-    if (value > 0x3FFFF)
-    {
-        fprintf(stderr, "Error: label value %x is more than 20 bits. Truncating name to %05x.", value, value);
-    }
-
-    std::ostringstream name;
-    name << category << PrettyNumber<uint32_t>(value & 0x3FFFF).hex().fill('0').width(5);
-    return name.str();
-}
-
-void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas)
+void PrintNumber(char* dest, int value, int amod, int PBytSiz, AddrSpaceHandle space)
 {
     std::ostringstream stream;
-    PrintNumber(stream, value, amod, PBytSiz, clas);
+    PrintNumber(stream, value, amod, PBytSiz, space);
     auto result = stream.str();
     strcat(dest, result.c_str());
 }
@@ -317,9 +305,9 @@ void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas)
  *          (2) clas - The Class Letter for the label.
  *          (3)  adr - The label's address.
  */
-void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas)
+void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, AddrSpaceHandle space)
 {
-    dest << MakeFormattedNumber(value, amod, PBytSiz, clas);
+    dest << MakeFormattedNumber(value, amod, PBytSiz, space);
 }
 
 /*
@@ -333,7 +321,7 @@ bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
 {
 
     int raw = adr /*& 0xffff */; /* Raw offset (postbyte) - was unsigned */
-    char mainclass;              /* Class for this location */
+    AddrSpaceHandle mainclass;   /* Class for this location */
 
     Label* mylabel = 0;
 
@@ -357,12 +345,24 @@ bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
     if (amod)
     {
         /*mainclass = DEFAULTCLASS;*/
-        AMODE_BOUNDS_CHECK(amod);
-        mainclass = defaultLabelClasses[amod - 1];
+        // AMODE_BOUNDS_CHECK(amod);
+        // mainclass = defaultLabelClasses[amod - 1];
+        if (amod == AM_A6)
+        {
+            mainclass = &UNKNOWN_DATA_SPACE;
+        }
+        else if (amod <= AM_A7 || amod == AM_IMM)
+        {
+            mainclass = &LITERAL_DEC_SPACE;
+        }
+        else
+        {
+            mainclass = &CODE_SPACE;
+        }
     }
     else /* amod=0, it's a boundary def  */
     {
-        if (NowClass)
+        if (NowClass != nullptr)
         {
             mainclass = NowClass;
         }
@@ -379,7 +379,8 @@ bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
     else
     { /*Pass2 */
         mylabel = findlbl(mainclass, raw);
-        if (strchr("^$@&%", mainclass))
+        if (!mainclass || *mainclass == LITERAL_SPACE || *mainclass == LITERAL_HEX_SPACE ||
+            *mainclass == LITERAL_DEC_SPACE || *mainclass == LITERAL_ASCII_SPACE)
         {
             return false;
         }
@@ -389,11 +390,9 @@ bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
         }
         else
         {
-            char t;
-
-            t = (mainclass ? mainclass : 'D');
+            auto t = (mainclass ? mainclass : &INIT_DATA_SPACE);
             fprintf(stderr, "Lookup error on Pass 2 (main)\n");
-            fprintf(stderr, "Cannot find %c - %05x\n", t, raw);
+            fprintf(stderr, "Cannot find %s - %05x\n", t->name.c_str(), raw);
             /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
             exit(1);
         }

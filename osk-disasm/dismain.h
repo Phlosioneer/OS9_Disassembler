@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "address_space.h"
 #include "userdef.h"
 
 struct modnam;
@@ -49,20 +50,23 @@ struct module_header
     uint32_t initRoutineOffset = 0;
     uint32_t terminationRoutineOffset = 0;
 
+    /* Derived fields */
     uint32_t CodeEnd = 0;
+    uint32_t uninitDataSize = 0;
+    uint32_t initDataSize = 0;
 };
 
 struct modnam* modnam_find(struct modnam* pt, int desired);
 int dopass(int mypass, struct options* opt);
 int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
-void MovBytes(const DataRegion* bp, struct parse_state* state);
-void NsrtBnds(const DataRegion* bp, struct parse_state* state);
+void HandleDataRegion(const DataRegion* bp, struct parse_state* state);
+void HandleRegion(const DataRegion* bp, struct parse_state* state);
 
 extern uint32_t IDataBegin;
 extern uint32_t IDataCount;
 extern size_t HdrEnd; /* The first byte past end of header, usefull for begin of Pass 2 */
 
-extern int NowClass;
+extern AddrSpaceHandle NowClass;
 extern int PBytSiz;
 
 #endif

@@ -2,6 +2,7 @@
 #ifndef DPRINT_H
 #define DPRINT_H
 
+#include "address_space.h"
 #include "label.h"
 #include "userdef.h"
 
@@ -13,13 +14,14 @@ struct cmd_items;
  * ireflist structure: Represents an entry in the Initialized Refs
  *       list.
  */
-
+// TODO: Replace this with a simple vector.
 struct ireflist
 {
-    struct ireflist* Prev;
-    struct ireflist* Next;
+    struct ireflist* Prev = nullptr;
+    struct ireflist* Next = nullptr;
     // I think this should be uint32_t
-    int32_t dAddr;
+    int32_t dAddr = 0;
+    AddrSpaceHandle space = nullptr;
 };
 
 template <typename T>
@@ -28,7 +30,7 @@ class PrettyNumber;
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self);
 
-template<typename T>
+template <typename T>
 class PrettyNumber
 {
   public:
@@ -79,7 +81,9 @@ class PrettyNumber
   private:
     enum class Format
     {
-        Unset, Decimal, Hex
+        Unset,
+        Decimal,
+        Hex
     };
 
     bool _hasFill;
@@ -90,10 +94,10 @@ class PrettyNumber
     size_t _width;
     T _number;
 
-    friend std::ostream& operator<< <T>(std::ostream& os, const PrettyNumber<T>& self);
+    friend std::ostream& operator<<<T>(std::ostream& os, const PrettyNumber<T>& self);
 };
 
-template<typename T>
+template <typename T>
 std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
 {
     auto prevFill = os.fill();
@@ -130,16 +134,18 @@ std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
 }
 
 void PrintPsect(struct options* opt);
-void PrintLine(const char* pfmt, struct cmd_items* ci, char cClass, int CmdEnt, struct options* opt);
+void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, int CmdEnt, struct options* opt);
 void printXtraBytes(std::string& data);
 void ROFPsect(struct options* opt);
 void WrtEnds(struct options* opt, int PCPos);
-void ParseIRefs(char rClass, struct options* opt);
+void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 void GetIRefs(struct options* opt);
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, char iClass, struct parse_state* state);
+int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state);
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, AddrSpaceHandle iSpace,
+                 struct parse_state* state);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
-void ListData(Label* me, int upadr, char cClass, struct parse_state* state);
+void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt);
 void WrtEquates(int stdflg, struct options* opt);
 
 extern const char pseudcmd[80];

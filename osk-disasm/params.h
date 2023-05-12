@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "address_space.h"
 #include "either.h"
 
 class Label;
@@ -115,16 +116,17 @@ inline std::ostream& operator<<(std::ostream& os, const RegisterSet& registers)
 class FormattedNumber
 {
   public:
-    FormattedNumber(int32_t number, OperandSize size = OperandSize::Long, char labelClass = '&');
+    FormattedNumber(int32_t number, OperandSize size = OperandSize::Long,
+                    AddrSpaceHandle labelSpace = &LITERAL_DEC_SPACE);
 
     int32_t number;
     OperandSize size;
-    char labelClass;
+    AddrSpaceHandle labelSpace;
 };
 
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas = '\0');
+FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
 
 typedef Either<std::string, FormattedNumber> LabelOrNumber;
 
@@ -213,7 +215,7 @@ class RegOffsetParam : public InstrParam
     const bool _hasOffsetReg;
     const Register _offsetReg;
     const OperandSize _offsetRegSize;
-    
+
     bool _forceZero;
 };
 

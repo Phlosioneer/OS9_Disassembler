@@ -1,11 +1,3 @@
-
-* Class G external label equates
-
-bigarray: equ $00000
-
-* Class H external label equates
-
-loremIpsum: equ $00000
  psect remote_t_c,$0,$0,0,0,main
 
 * G

@@ -1,5 +1,5 @@
 
-* OS-9 system function equates
+* Class equate external label equates
 
 F$Exit equ $06
 F$TLink equ $21
@@ -31,8 +31,8 @@ D00064 ds.b 826
 
 * Initialized Data Definitions
 
-D0039e dc.w $0000,$001e
-D003a2 dc.l L00242
+ dc.l $0000001e
+_003a2 dc.l $00000242
  ends 
 
  bls.s L000ae
@@ -48,7 +48,7 @@ L00052 equ *-2
  beq.s L00074
  move.l a4,D0001a(a6)
  bne.s L00074
- move.l (0).l,D0001a(a6)
+ move.l (L00000).l,D0001a(a6)
 L00074 tst.l d5
  beq.s L00096
  btst.l #0,d5
@@ -70,7 +70,7 @@ L00096 movea.l a5,a0
  jsr (pc,d0.l)
  bra.s L00124
 L000ae lea.l 4(a0),a1
- move.l a1,D003a2(a6)
+ move.l a1,_003a2(a6)
  moveq #0,d2
 L000b8 movea.l -(a0),a1
  move.l a1,d7
@@ -123,7 +123,7 @@ L00124 movea.l #488,a0
  bsr.s L00154
  movem.l (sp)+,d0-d1
  suba.l a5,a5
- move.l D003a2(a6),-(sp)
+ move.l _003a2(a6),-(sp)
  movea.l #332,a0
  jsr (pc,a0.l)
  moveq #0,d0
@@ -209,7 +209,7 @@ L00236 move.l 10794(a2),d0
  move.l -(a0),d5
  ori.w #24948,26624(a5)
 L0023d equ *-5
-L00242 ori.b #0,d0
+ ori.b #0,d0
  move.l #64,d1
 L0024c move.l a0,-(sp)
  lea.l L00210(pc),a0

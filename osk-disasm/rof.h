@@ -47,12 +47,13 @@
 
 /* ROF header structure */
 
+#include "address_space.h"
 #include "label.h"
 #include "reader.h"
 
-#include <stdio.h>
 #include <map>
 #include <memory>
+#include <stdio.h>
 
 struct cmd_items;
 struct rof_header;
@@ -103,14 +104,14 @@ struct rof_extrn
     int hasName = 0;
     std::string nam{};
     Label* lbl = nullptr;
-    /*  void *EName;*/               /* External name                    */
-    char dstClass = '\0';            /* Class for referenced item NUll if extern */
-    uint16_t Type = 0;               /* Type Flag                        */
-    uint32_t Ofst = 0;               /* Offset into code                 */
-    int Extrn = 0;                   /* Flag that it's an external ref   */
-    struct rof_extrn *EUp = nullptr, /* Previous Ref for entire list     */
-        *ENext = nullptr,            /* Next Reference for All externs   */
-            *MyNext = nullptr;       /* Next ref for this name.  If NULL, we can free EName */
+    /*  void *EName;*/                  /* External name                    */
+    AddrSpaceHandle dstSpace = nullptr; /* Class for referenced item NUll if extern */
+    uint16_t Type = 0;                  /* Type Flag                        */
+    uint32_t Ofst = 0;                  /* Offset into code                 */
+    int Extrn = 0;                      /* Flag that it's an external ref   */
+    struct rof_extrn *EUp = nullptr,    /* Previous Ref for entire list     */
+        *ENext = nullptr,               /* Next Reference for All externs   */
+            *MyNext = nullptr;          /* Next ref for this name.  If NULL, we can free EName */
 };
 
 typedef std::map<uint32_t, rof_extrn> refmap;
@@ -121,10 +122,10 @@ int RealEnt(struct options* opt, int CmdEnt);
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module);
 void getRofHdr(struct options* opt);
 void RofLoadInitData(void);
-char rof_class(int typ, int refTy);
+AddrSpaceHandle rof_class(int typ, int refTy);
 struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
 int rof_datasize(char cclass, struct options* opt);
-void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, char iClass,
+void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, AddrSpaceHandle iClass,
                  struct parse_state* state);
 void setupROFPass(int Pass);
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);

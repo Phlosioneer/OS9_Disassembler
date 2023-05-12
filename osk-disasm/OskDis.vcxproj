@@ -105,13 +105,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <TreatSpecificWarningsAsErrors>4715;4716</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4715;4716;26495</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="address_space.cpp" />
     <ClCompile Include="cmdfile.cpp" />
     <ClCompile Include="command_items.cpp" />
     <ClCompile Include="commonsubs.cpp" />
@@ -131,6 +132,7 @@
     <ClCompile Include="rof.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="address_space.h" />
     <ClInclude Include="cmdfile.h" />
     <ClInclude Include="def68def.h" />
     <ClInclude Include="main_support.h" />

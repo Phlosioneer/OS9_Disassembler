@@ -1101,7 +1101,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
             {
                 if (syscall < sysCallCount)
                 {
-                    addlbl('!', syscall, SysNames[syscall]);
+                    addlbl(&EQUATE_SPACE, syscall, SysNames[syscall]);
                     return 1;
                 }
                 else

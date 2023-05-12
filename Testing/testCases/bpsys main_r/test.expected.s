@@ -1,11 +1,4 @@
  psect cdi_bpsys,$2,$1,0,0,$0050
-
-* D
- vsect 
-
-
- ends 
-
 credits: dc.w $4d2e
  dc.w $4172
  dc.w $6d65
@@ -17,20 +10,20 @@ credits: dc.w $4d2e
  bsr.s L00084
  dc.w $6e65
  dc.w $732c
- tst.b D04b65(a6)
+ tst.b U04b65(a6)
  dc.w $7373
  bcs.s L0008a
  dc.w $6d61
  bgt.s L0004e
- subq.b #1,D04d63(a6)
+ subq.b #1,U04d63(a6)
  dc.w $436c
  bcs.s L00096
  dc.w $6c61
  bgt.s L0005a
- addq.b #1,D04d6f(a6)
+ addq.b #1,U04d6f(a6)
  ble.s L000a6
  bcs.s L00062
- addq.b #2,D04e75(a6)
+ addq.b #2,U04e75(a6)
  moveq #116,d2
  movea.l a2,a6
  movea.l (a0),sp

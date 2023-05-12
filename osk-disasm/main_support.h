@@ -2,14 +2,14 @@
 #ifndef DIS_68_H
 #define DIS_68_H
 
+#include <memory>
 #include <stdio.h>
 #include <string>
 #include <vector>
-#include <memory>
 
+#include "dismain.h"
 #include "reader.h"
 #include "rof.h"
-#include "dismain.h"
 
 struct options
 {

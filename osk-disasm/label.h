@@ -2,6 +2,7 @@
 #ifndef LABEL_H
 #define LABEL_H
 
+#include "address_space.h"
 #include "disglobs.h"
 
 #define LBLLEN 40
@@ -16,8 +17,8 @@ struct cmd_items;
 class Label
 {
   public:
-    Label(char category, int value, const char* name);
-    Label(char category, int value, const std::string& name);
+    Label(AddrSpaceHandle category, int value, const char* name);
+    Label(AddrSpaceHandle category, int value, const std::string& name);
 
     inline const std::string& name() const
     {
@@ -39,13 +40,17 @@ class Label
     {
         _global = isGlobal;
     }
+    inline bool nameIsDefault() const
+    {
+        return _nameIsDefault;
+    }
 
     void setName(const char* newName);
     void setName(std::string newName);
 
     std::string nameWithColon() const;
 
-    const char category;
+    const AddrSpaceHandle category;
     const long myAddr;
 
   private:
@@ -54,8 +59,6 @@ class Label
     bool _nameIsDefault;
     bool _stdName;
     bool _global;
-
-    static std::string makeDefaultName(char category, long value);
 };
 
 class LabelCategory
@@ -63,10 +66,10 @@ class LabelCategory
   public:
     typedef typename std::vector<Label*>::iterator iterator;
 
-    LabelCategory(char code);
+    LabelCategory(AddrSpaceHandle code);
     ~LabelCategory();
 
-    const char code;
+    const AddrSpaceHandle code;
 
     inline iterator begin()
     {
@@ -81,6 +84,7 @@ class LabelCategory
     void printAll();
     Label* getNextAfter(Label* label);
     Label* getFirst();
+    void addRedirect(long addr, Label* label);
 
     inline size_t size() const
     {
@@ -91,6 +95,7 @@ class LabelCategory
     // This list is always sorted by address / value.
     std::vector<Label*> _labels;
     std::map<long, Label*> _labelsByValue;
+    std::map<long, Label*> _labelRedirects;
 
     // Because of _handle, need to ensure it is always allocated/freed correctly.
     LabelCategory(LabelCategory const&) = delete;
@@ -101,17 +106,16 @@ class LabelCategory
 class LabelManager
 {
   public:
-    std::string validLabelClasses{"_!=ABCDEFGHIJKLMNOPQRSTUVWXYZ\0"};
     LabelManager();
     ~LabelManager();
 
-    LabelCategory* getCategory(char code);
-    Label* addLabel(char code, long value, const char* name);
-    Label* getLabel(char code, long value);
+    LabelCategory* getCategory(AddrSpaceHandle code);
+    Label* addLabel(AddrSpaceHandle code, long value, const char* name);
+    Label* getLabel(AddrSpaceHandle code, long value);
     void printAll();
 
   private:
-    std::map<char, LabelCategory*> _labelCategories;
+    std::map<std::string, LabelCategory*> _labelCategories;
 
     LabelManager(LabelManager const&) = delete;
     LabelManager& operator=(LabelManager const&) = delete;
@@ -121,15 +125,13 @@ class LabelManager
 Label* label_getNext(Label* handle);
 Label* labelclass_getFirst(LabelCategory* handle);
 
-Label* findlbl(char lblclass, int lblval);
-Label* addlbl(char lblclass, int val, const char* newname);
+Label* findlbl(AddrSpaceHandle lblclass, int lblval);
+Label* addlbl(AddrSpaceHandle lblclass, int val, const char* newname);
 bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass);
-void PrintNumber(char* dest, int value, int amod, int PBytSiz, char clas = '\0');
-void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, char clas = '\0');
+void PrintNumber(char* dest, int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
+void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
 
 extern LabelManager* labelManager;
-
-extern const char lblorder[];
 
 extern const char defaultDefaultLabelClasses[];
 extern const char programDefaultLabelClasses[];

@@ -1,8 +1,8 @@
 
-#include <stdio.h>
+#include "main_support.h"
 #include <errno.h>
 #include <stdexcept>
-#include "main_support.h"
+#include <stdio.h>
 
 /*
  * Exit when an error occurs.  Prints a prompt describing the error
@@ -19,7 +19,7 @@ void errexit(char* pmpt)
     {
         fprintf(stderr, "%s\n", pmpt);
     }
-    //exit(errno ? errno : 1);
+    // exit(errno ? errno : 1);
     throw std::exception();
 }
 

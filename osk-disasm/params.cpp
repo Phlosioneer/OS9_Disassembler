@@ -239,8 +239,8 @@ void RegisterSet::formatRanges(std::ostream& stream, const std::bitset<8>& regis
 
 #pragma region FormattedNumber
 
-FormattedNumber::FormattedNumber(int32_t number, OperandSize size, char labelClass)
-    : number(number), size(size), labelClass(labelClass)
+FormattedNumber::FormattedNumber(int32_t number, OperandSize size, AddrSpaceHandle labelSpace)
+    : number(number), size(size), labelSpace(labelSpace)
 {
 }
 
@@ -255,7 +255,7 @@ static void singleCharData(std::ostream& dest, char ch)
     }
     else
     {
-        Label* pp = labelManager->getLabel('^', ch);
+        Label* pp = labelManager->getLabel(&LITERAL_ASCII_SPACE, ch);
         if (pp)
         {
             dest << pp->name();
@@ -274,16 +274,18 @@ static void singleCharData(std::ostream& dest, char ch)
 
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
 {
-    switch (self.labelClass)
+    if (!self.labelSpace) throw std::runtime_error("Unexpected class!");
+    if (*self.labelSpace == LITERAL_HEX_SPACE)
     {
-    case '$': /* Hexadecimal notation */
         os << '$'
            << PrettyNumber<int32_t>(self.number).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
-        break;
-    case '&': /* Decimal */
+    }
+    else if (*self.labelSpace == LITERAL_DEC_SPACE || *self.labelSpace == LITERAL_SPACE)
+    {
         os << self.number;
-        break;
-    case '^': /* ASCII */
+    }
+    else if (*self.labelSpace == LITERAL_ASCII_SPACE)
+    {
         // TODO: This breaks if self.number > 0xFFFF.
         // TODO: This ignores self.size
         if (self.number > 0xff)
@@ -293,121 +295,94 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
             os << "*256+";
         }
         singleCharData(os, self.number & 0xff);
-
-        break;
-    case '%': /* Binary */
-    {
-        // TODO: This ignores self.size
-        int mask;
-        os << "%";
-
-        if (self.number > 0xffff)
-        {
-            mask = 0x80000000;
-        }
-        else if (self.number > 0xff)
-        {
-            mask = 0x8000;
-        }
-        else
-        {
-            mask = 0x80;
-        }
-
-        while (mask)
-        {
-            // strcat (dest, (mask & adr ? "1" : "0"));
-            os << (mask & self.number ? '1' : '0');
-            mask >>= 1;
-        }
-
-        break;
     }
-    default:
+    else
+    {
         throw std::runtime_error("Unexpected class!");
     }
     return os;
 }
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, char clas)
+FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceHandle space)
 {
     int mask;
 
     if (amod)
     {
-        AMODE_BOUNDS_CHECK(amod);
-        clas = defaultLabelClasses[amod - 1];
+        if (amod == AM_A6)
+        {
+            space = &UNKNOWN_DATA_SPACE;
+        }
+        else if (amod <= AM_A7 || amod == AM_IMM)
+        {
+            space = &LITERAL_DEC_SPACE;
+        }
+        else
+        {
+            space = &CODE_SPACE;
+        }
     }
     else /* amod=0, it's a boundary def  */
     {
         if (NowClass)
         {
-            clas = NowClass;
+            space = NowClass;
         }
         else
         {
             // Guess
-            clas = '@';
+            space = &LITERAL_SPACE;
         }
     }
 
     /* Readjust class definition if necessary */
-    if (clas == '@')
+    if (space == &LITERAL_SPACE)
     {
         if (abs(value) < 9)
         {
-            clas = '&';
+            space = &LITERAL_DEC_SPACE;
         }
         else
         {
-            clas = '$';
+            space = &LITERAL_HEX_SPACE;
         }
     }
 
-    switch (clas)
+    if (*space == LITERAL_HEX_SPACE)
     {
-    case '$': /* Hexadecimal notation */
         switch (amod)
         {
         default:
             switch (PBytSiz)
             {
             case 1:
-                return FormattedNumber(value, OperandSize::Byte, clas);
+                return FormattedNumber(value, OperandSize::Byte, space);
             case 2:
-                return FormattedNumber(value, OperandSize::Word, clas);
+                return FormattedNumber(value, OperandSize::Word, space);
             case 4:
-                return FormattedNumber(value, OperandSize::Long, clas);
+                return FormattedNumber(value, OperandSize::Long, space);
             default:
                 throw std::runtime_error("");
             }
 
             break;
         case AM_LONG:
-            return FormattedNumber(value, OperandSize::Long, clas);
+            return FormattedNumber(value, OperandSize::Long, space);
         case AM_SHORT:
-            return FormattedNumber(value, OperandSize::Word, clas);
+            return FormattedNumber(value, OperandSize::Word, space);
         }
-        break;
-    case '&': /* Decimal */
-        return FormattedNumber(value, OperandSize::Long, clas);
-    case '^': /* ASCII */
-        return FormattedNumber(value, OperandSize::Byte, clas);
-    case '%': /* Binary */
-        if (value > 0xffff)
-        {
-            return FormattedNumber(value, OperandSize::Long, clas);
-        }
-        else if (value > 0xff)
-        {
-            return FormattedNumber(value, OperandSize::Word, clas);
-        }
-        else
-        {
-            return FormattedNumber(value, OperandSize::Byte, clas);
-        }
-    default:
-        throw std::runtime_error("Unexpected class!");
+    }
+    else if (*space == LITERAL_DEC_SPACE)
+    {
+        return FormattedNumber(value, OperandSize::Long, space);
+    }
+    else if (*space == LITERAL_ASCII_SPACE)
+    {
+        return FormattedNumber(value, OperandSize::Byte, space);
+    }
+    else
+    {
+        throw std::runtime_error("Unexpected address space: " + space->name);
     }
 }
 
@@ -561,8 +536,8 @@ RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandS
 
 RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandSize offsetRegSize,
                                std::string offsetLabel)
-    : addressReg(addressReg), offset(offsetLabel), _hasOffsetReg(true), _offsetReg(offsetReg), _offsetRegSize(offsetRegSize),
-      _forceZero(false)
+    : addressReg(addressReg), offset(offsetLabel), _hasOffsetReg(true), _offsetReg(offsetReg),
+      _offsetRegSize(offsetRegSize), _forceZero(false)
 {
     if (addressReg < Register::A0 || addressReg > Register::REG_PC)
     {

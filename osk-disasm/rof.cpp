@@ -26,11 +26,11 @@
 
 #include "rof.h"
 
+#include <algorithm>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <vector>
-#include <algorithm>
 
 #include "cmdfile.h"
 #include "command_items.h"
@@ -112,7 +112,7 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module)
                 refVal = Module.read<uint32_t>();
             }
             it.second.hasName = FALSE;
-            it.second.lbl = addlbl(it.second.dstClass, refVal, "");
+            it.second.lbl = addlbl(it.second.dstSpace, refVal, "");
         }
     }
 }
@@ -157,7 +157,7 @@ void getRofHdr(struct options* opt)
 
     opt->ROFHd->rname = opt->Module->read<std::string>();
 
-    /* Set ModData to an unreasonable high number so ListData
+    /* Set ModData to an unreasonable high number so ListUninitData
      * won't do it's thing...
      */
 
@@ -267,7 +267,7 @@ void RofLoadInitData(void)
  * Passed: The Type byte from the reference.
  * Returns: The Class Letter for the entry.
  */
-char rof_class(int typ, int refTy)
+AddrSpaceHandle rof_class(int typ, int refTy)
 {
     /* We'll tie up additional classes for data/bss as follows
      * D for data
@@ -292,26 +292,32 @@ char rof_class(int typ, int refTy)
                     switch (typ & 0x02)
                     {
                     case 0:
-                        return 'D';
+                        // return 'D';
+                        return &UNINIT_DATA_SPACE;
                     default:
-                        return 'G';
+                        // return 'G';
+                        return &UNINIT_REMOTE_SPACE;
                     }
                 default: /* Init */
                     switch (typ & 0x02)
                     {
                     case 0:
-                        return '_';
+                        // return '_';
+                        return &INIT_DATA_SPACE;
                     default:
-                        return 'H';
+                        // return 'H';
+                        return &INIT_REMOTE_SPACE;
                     }
                 }
             default: /* Code or Equ */
                 switch (typ & 0x02)
                 {
                 case 0: /* NOT remote */
-                    return 'L';
+                    // return 'L';
+                    return &CODE_SPACE;
                 default:
-                    return 'L'; /* FIXME: This is actually 'equ' */
+                    // return 'L';
+                    return &CODE_SPACE; /* FIXME: This is actually 'equ' */
                 }
             }
         default: /* common */
@@ -319,9 +325,11 @@ char rof_class(int typ, int refTy)
             {
             case 0: /* NOT Remote */
                 /* These are WRONG! but for now, we'll use them */
-                return '_';
+                // return '_';
+                return &UNINIT_DATA_SPACE;
             default:
-                return 'D';
+                // return 'D';
+                return &INIT_DATA_SPACE;
             }
         }
 
@@ -335,23 +343,27 @@ char rof_class(int typ, int refTy)
             switch (typ & 0x200)
             {
             case 0: /* data */
-                return '_';
+                // return '_';
+                return &INIT_DATA_SPACE;
             default: /* remote */
-                return 'L';
+                // return 'L';
+                return &CODE_SPACE;
             }
         default:
             switch (typ & 0x200)
             {
             case 0: /* code */
-                return 'L';
+                // return 'L';
+                return &CODE_SPACE;
             default: /* debug */
-                break;
+                // return 'L';
+                return &CODE_SPACE;
             }
-            return 'L';
         }
     }
 
-    return 'L'; /* Should never get to here, but for safety's sake */
+    // return 'L'; /* Should never get to here, but for safety's sake */
+    throw std::runtime_error("Unknown address space");
 }
 
 /*
@@ -363,7 +375,7 @@ char rof_class(int typ, int refTy)
 static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf, BigEndianStream* Module)
 {
     struct rof_extrn* prevRef = NULL;
-    char myClass;
+    AddrSpaceHandle space;
     uint16_t _ty;
     uint32_t _ofst;
     // struct rof_extrn *new_ref, *curRef, **base = 0;
@@ -384,26 +396,31 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
         }
 
         /* Add to externs table */
-        switch (myClass = rof_class(_ty, ref_typ))
+        space = rof_class(_ty, ref_typ);
+        if (!space) throw std::runtime_error("Unexpected class: nullptr");
+        if (*space == CODE_SPACE)
         {
-        case 'L':
             base = &refs_code;
-            break;
-        case 'D':
+        }
+        else if (*space == UNINIT_DATA_SPACE)
+        {
             base = &refs_data;
-            break;
-        case '_':
+        }
+        else if (*space == INIT_DATA_SPACE)
+        {
             base = &refs_idata;
-            break;
-        case 'G':
+        }
+        else if (*space == UNINIT_REMOTE_SPACE)
+        {
             base = &refs_remote;
-            break;
-        case 'H':
+        }
+        else if (*space == INIT_REMOTE_SPACE)
+        {
             base = &refs_iremote;
-            break;
-        default:
-            myClass = 'L'; /* Possibly cause erroneous result, but to avoid crash */
-            base = &refs_code;
+        }
+        else
+        {
+            throw std::runtime_error("Unexpected class: " + space->name);
         }
 
         /*if ((ref_typ == REFLOCAL) && (myClass == 'L'))
@@ -425,9 +442,9 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
                 register int dstVal;
                 char* pt = &(code_buf[new_ref.Ofst]);
 
-                new_ref.dstClass = rof_class(_ty, REFGLBL);
+                new_ref.dstSpace = rof_class(_ty, REFGLBL);
 
-                if ((ref_typ == REFLOCAL) && (myClass == 'L'))
+                if ((ref_typ == REFLOCAL) && (*space == CODE_SPACE))
                 {
                     switch (REFSIZ(new_ref.Type))
                     {
@@ -441,7 +458,7 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
                         dstVal = bufReadL(&pt);
                     }
                     new_ref.hasName = FALSE;
-                    new_ref.lbl = addlbl(new_ref.dstClass, dstVal, "");
+                    new_ref.lbl = addlbl(new_ref.dstSpace, dstVal, "");
                 }
                 else
                 {
@@ -510,8 +527,8 @@ int rof_datasize(char cclass, struct options* opt)
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
-static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, unsigned int blkEnd, char cclass,
-                         struct parse_state* state)
+static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, unsigned int blkEnd,
+                         AddrSpaceHandle space, struct parse_state* state)
 {
     /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
@@ -565,7 +582,7 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
                 strcpy(Ci.params, ref->lbl->name().c_str());
             }
 
-            PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
+            PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->opt);
             state->CmdEnt = state->PCPos;
             Ci.lblname.clear();
             Ci.params[0] = '\0';
@@ -575,7 +592,7 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
         {
             int bytCount = 0;
             int bytSize;
-            bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, cclass, state);
+            bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, space, state);
             if (bytCount)
             {
                 iBuf += bytCount;
@@ -624,7 +641,7 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
 
                     state->PCPos += bytSize;
                     sprintf(Ci.params, fmt, val);
-                    PrintLine(pseudcmd, &Ci, cclass, state->CmdEnt, state->opt);
+                    PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->opt);
                     state->CmdEnt = state->PCPos;
                     Ci.lblname.clear();
                     Ci.params[0] = '\0';
@@ -645,10 +662,11 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
  *          (2) mycount - count of elements in this sect.
  *          (3) class   - Label Class letter
  */
-void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, char iClass, struct parse_state* state)
+void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, AddrSpaceHandle iSpace,
+                 struct parse_state* state)
 {
-    auto category = labelManager->getCategory(iClass);
-    //Label* lblList = category ? category->getFirst() : NULL;
+    auto category = labelManager->getCategory(iSpace);
+    // Label* lblList = category ? category->getFirst() : NULL;
 
     std::vector<unsigned int> blockEnds;
     blockEnds.reserve(refsList.size() + category->size());
@@ -660,7 +678,6 @@ void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, ch
     {
         blockEnds.push_back((*it)->myAddr);
     }
-
 
     std::sort(blockEnds.begin(), blockEnds.end());
 
@@ -680,7 +697,7 @@ void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, ch
             blkEnd = isize;
         }
 
-        iBuf = DataDoBlock(refsList, category, iBuf, blkEnd, iClass, state);
+        iBuf = DataDoBlock(refsList, category, iBuf, blkEnd, iSpace, state);
     }
 }
 

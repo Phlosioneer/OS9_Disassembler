@@ -7,9 +7,9 @@
  *                                                                          *
  * ************************************************************************ */
 
+#include "def68def.h"
 #include "dismain.h"
 #include "userdef.h"
-#include "def68def.h"
 
 /* ********************************************* */
 /* ROUTINE: TABLEMATCH							 */
