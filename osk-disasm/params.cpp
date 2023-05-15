@@ -322,11 +322,7 @@ FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceH
     }
     else /* amod=0, it's a boundary def  */
     {
-        if (NowClass)
-        {
-            space = NowClass;
-        }
-        else
+        if (!space)
         {
             // Guess
             space = &LITERAL_SPACE;

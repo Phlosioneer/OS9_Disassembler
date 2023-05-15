@@ -616,7 +616,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
     int hasAscii = 0;
 
     // It seems improbable that a string would begin with NULL
-    if (!(isprint(*buf)) && !(isspace(*buf)))
+    if (*buf < 0 || !(isprint(*buf)) && !(isspace(*buf)))
     {
         return 0;
     }
@@ -777,7 +777,6 @@ static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct p
 
     if (state->Module->size() == 0) return;
 
-    NowClass = space;
     uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
     BlankLine(state->opt);
@@ -1103,16 +1102,11 @@ void WrtEquates(int stdflg, struct options* opt)
         curnt += 2;
     }
 
-    NowClass = &EQUATE_SPACE;
-    // auto equates = labelManager->getCategory(&EQUATE_SPACE);
-    // while ((NowClass = *(curnt++)) != ';')
-    // for (auto it = equates->begin(); it != equates->end(); it++)
-    //{
     int minval;
 
     flg = stdflg;
     strcpy(ClsHd, "%5d %21s");
-    auto category = labelManager->getCategory(NowClass);
+    auto category = labelManager->getCategory(&EQUATE_SPACE);
     me = category ? category->getFirst() : NULL;
 
     if (me)
@@ -1186,9 +1180,8 @@ void WrtEquates(int stdflg, struct options* opt)
             */
         }
 
-        TellLabels(me, flg, NowClass, minval, opt);
+        TellLabels(me, flg, &EQUATE_SPACE, minval, opt);
     }
-    //}
 
     InProg = 1;
 }

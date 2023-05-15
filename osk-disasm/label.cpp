@@ -362,14 +362,7 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
     }
     else /* amod=0, it's a boundary def  */
     {
-        if (NowClass != nullptr)
-        {
-            mainclass = NowClass;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
     if (Pass == 1)

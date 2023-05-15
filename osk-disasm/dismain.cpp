@@ -56,7 +56,6 @@
 #define strcasecmp strcmp
 #endif
 
-AddrSpaceHandle NowClass;
 uint8_t PBytSiz;
 
 static bool get_asmcmd(struct parse_state* state);
@@ -638,7 +637,7 @@ static bool get_asmcmd(struct parse_state* state)
  * buffer (and does any applicable printing if in pass 2). Only called within
  * CODE_SPACE, which is a bit weird.
  */
-void HandleDataRegion(const DataRegion* db, struct parse_state* state)
+void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpaceHandle literalSpace)
 {
     struct cmd_items Ci;
     char tmps[20];
@@ -706,7 +705,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state)
         /* AMode = 0 to prevent LblCalc from defining class */
         if (!LblCalc(tmps, valu, 0, state->PCPos - db->size(), state->opt->IsROF, state->Pass))
         {
-            PrintNumber(tmps, valu, 0, PBytSiz, NowClass);
+            PrintNumber(tmps, valu, 0, PBytSiz, literalSpace);
         }
 
         if (state->Pass == 2)
@@ -769,7 +768,6 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state)
  */
 void HandleRegion(const DataRegion* bp, struct parse_state* state)
 {
-    NowClass = &LITERAL_HEX_SPACE; // bp->b_class;
     PBytSiz = 1;                   /* Default to one byte length */
 
     switch (bp->type)
@@ -781,18 +779,16 @@ void HandleRegion(const DataRegion* bp, struct parse_state* state)
         break; /* bump PC  */
     case DataRegion::DataSize::Words:
         PBytSiz = 2; /* Takes care of both Word & Long */
-        HandleDataRegion(bp, state);
+        HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
         break;
     case DataRegion::DataSize::Longs:
         PBytSiz = 4; /* Takes care of both Word & Long */
-        HandleDataRegion(bp, state);
+        HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
         break;
     case DataRegion::DataSize::Bytes:
-        HandleDataRegion(bp, state);
+        HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
         break;
     default:
         throw std::runtime_error("Unexpected DataSize enum value");
     }
-
-    NowClass = 0;
 }
