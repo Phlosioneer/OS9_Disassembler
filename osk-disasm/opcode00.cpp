@@ -177,6 +177,7 @@ int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     auto params = (std::string(ea) + ",") + eaStringResult;
     strcpy(ci->params, params.c_str());
 
+    if (size >= 3) throw std::runtime_error("SizSufx overrun");
     auto mnem = std::string(op->name) + SizSufx[size];
     strcpy(ci->mnem, mnem.c_str());
     return 1;
@@ -562,6 +563,7 @@ int one_ea(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_stat
 
     if (strchr(ci->mnem, '.'))
     {
+        if (size >= 3) throw std::runtime_error("SizSufx overrun");
         strcat(ci->mnem, SizSufx[size]);
     }
 
@@ -899,6 +901,7 @@ int add_sub(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
         }
 
         strcpy(ci->mnem, op->name);
+        if (asDef->size >= 3) throw std::runtime_error("SizSufx overrun");
         strcat(ci->mnem, SizSufx[asDef->size]);
         return 1;
     }
@@ -938,6 +941,7 @@ int cmp_cmpa(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     {
         sprintf(ci->params, "%s,%c%d", EaStringBuffer, regName, (ci->cmd_wrd >> 9) & 7);
         strcpy(ci->mnem, op->name);
+        if (size >= 3) throw std::runtime_error("SizSufx overrun");
         strcat(ci->mnem, SizSufx[size]);
         return 1;
     }
@@ -967,6 +971,7 @@ int addq_subq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     {
         sprintf(ci->params, "#%d,%s", data, EaStringBuffer);
         strcpy(ci->mnem, op->name);
+        if (size >= 3) throw std::runtime_error("SizSufx overrun");
         strcat(ci->mnem, SizSufx[size]);
         return 1;
     }
@@ -1051,7 +1056,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
                         {
                             register int matched = FALSE;
 
-                            if (!strcmp(callName, MathCalls[x]))
+                            if (callName && !strcmp(callName, MathCalls[x]))
                             {
                                 matched = 1;
                                 break;
@@ -1321,6 +1326,7 @@ int cmpm_addx_subx(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct pa
 
     sprintf(ci->params, opcodeFmt, srcRegno, dstRegno);
     strcpy(ci->mnem, op->name);
+    if (size >= 3) throw std::runtime_error("SizSufx overrun");
     strcat(ci->mnem, SizSufx[size]);
 
     return 1;

@@ -181,12 +181,10 @@ void PrintPsect(struct options* opt)
     psectParamBuffer << ",(" << ProgAtts << "<<8)|" << revision;
     psectParamBuffer << ',' << edition;
     psectParamBuffer << ",0"; /* For the time being, don't add any stack */
-    // DELETEME: code_space confirmed correct here.
     psectParamBuffer << ',' << findlbl(&CODE_SPACE, execOffset)->name();
 
     if (opt->modHeader && opt->modHeader->exceptionOffset)
     {
-        // DELETEME: code_space confirmed correct here.
         Label* excep = findlbl(&CODE_SPACE, opt->modHeader->exceptionOffset);
         psectParamBuffer << ',' << excep->name();
     }
@@ -216,8 +214,6 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
 
     if (InProg)
     {
-        // DELETEME: code_space confirmed correct here. As long as InProg is true, we
-        // are in code space.
         nl = findlbl(&CODE_SPACE, CmdEnt);
         if (nl)
         {
@@ -391,12 +387,12 @@ static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, int CmdEnt)
                 /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
                 if (opt->IsUnformatted)
                 {
-                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->myAddr, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
+                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
                                   Ci.params, "");
                 }
                 else
                 {
-                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->myAddr, Ci.cmd_wrd, Ci.lblname.c_str(),
+                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->value, Ci.cmd_wrd, Ci.lblname.c_str(),
                                   Ci.mnem, Ci.params, "");
                 }
 
@@ -432,7 +428,6 @@ void ROFPsect(struct options* opt)
     strcpy(Ci.params, params);
     delete[] params;
 
-    // DELETEME: code_space confirmed correct here.
     nl = findlbl(&CODE_SPACE, opt->ROFHd->code_begin);
     if (nl)
     {
@@ -565,7 +560,6 @@ void GetIRefs(struct options* opt)
     {
         if (opt->modHeader->refTableOffset == 0) return;
 
-        // DELETEME: code_space confirmed correct here.
         ParseIRefs(&CODE_SPACE, opt);
     }
 }
@@ -615,11 +609,11 @@ int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space
     return actualBytesUsed;
 }
 
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, AddrSpaceHandle space,
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpaceHandle space,
                  struct parse_state* state)
 {
-    register unsigned int count = bufEnd;
-    register const char* ch = buf;
+    auto count = bufEnd;
+    const char* ch = buf;
     int hasAscii = 0;
 
     // It seems improbable that a string would begin with NULL
@@ -670,8 +664,8 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, Add
     }
 
     count = 0;
-    unsigned int consumedThisLine = 0;
-    unsigned int consumedByGroup = 0;
+    size_t consumedThisLine = 0;
+    size_t consumedByGroup = 0;
     char group[MAX_ASCII_LINE_LEN + 5];
     while (state->PCPos + consumedThisLine < bufEnd)
     {
@@ -687,7 +681,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, Add
         else if (isprint((unsigned char)*buf))
         {
             // Compute how many characters we can use for this group.
-            unsigned int maxGroupLen;
+            size_t maxGroupLen;
             if (consumedThisLine == 0)
             {
                 // We can use the entire line, minus the two quotes.
@@ -747,7 +741,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, Add
         {
             // Output the line first.
             count += consumedThisLine;
-            state->PCPos += consumedThisLine;
+            state->PCPos += (uint32_t)consumedThisLine;
             strncpy(ci->mnem, "dc.b", MNEM_LEN);
             PrintLine(pseudcmd, ci, space, state->CmdEnt, state->opt);
             state->CmdEnt = state->PCPos;
@@ -765,7 +759,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, Add
     if (strlen(ci->params))
     {
         count += consumedThisLine;
-        state->PCPos += consumedThisLine;
+        state->PCPos += (uint32_t)consumedThisLine;
         strncpy(ci->mnem, "dc.b", MNEM_LEN);
         PrintLine(pseudcmd, ci, space, state->CmdEnt, state->opt);
         state->CmdEnt = state->PCPos;
@@ -774,7 +768,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, Add
         ci->params[0] = '\0';
     }
 
-    return count;
+    return (uint32_t)count;
 }
 
 static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct parse_state* state)
@@ -785,7 +779,7 @@ static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct p
     if (state->Module->size() == 0) return;
 
     NowClass = space;
-    uint32_t endAddress = state->PCPos + state->Module->size();
+    uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
     BlankLine(state->opt);
     if (state->opt->IsUnformatted)
@@ -818,9 +812,9 @@ void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state
     if (state->Module->size() == 0) return;
 
     auto category = labelManager->getCategory(space);
-    auto endAddress = state->PCPos + state->Module->size();
+    uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
-    std::vector<size_t> blockEnds;
+    std::vector<uint32_t> blockEnds;
     auto totalSize = category->size() + (refsList ? refsList->size() : 0);
     blockEnds.reserve(totalSize);
     if (refsList)
@@ -832,14 +826,14 @@ void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state
     }
     for (auto it = category->begin(); it != category->end(); it++)
     {
-        blockEnds.push_back((*it)->myAddr);
+        blockEnds.push_back((*it)->address());
     }
 
     std::sort(blockEnds.begin(), blockEnds.end());
 
     while (state->Module->size() != 0)
     {
-        size_t blkEnd;
+        uint32_t blkEnd;
 
         // ...or use the next ref as the end of the data block, whichever happens first.
         // Use PC+1 to avoid a block size of 0.
@@ -1030,7 +1024,7 @@ void OS9DataPrint(struct options* opt)
 void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt)
 {
     struct cmd_items Ci;
-    register int datasize;
+    register uint32_t datasize;
 
     // Nothing to print.
     if (maxAddress == 0) return;
@@ -1049,11 +1043,11 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
 
     // If the first entry is not 0, print an initial ds.b directive without a
     // corresponding label.
-    if (category->getFirst()->myAddr != 0)
+    if (category->getFirst()->value != 0)
     {
         auto first = category->getFirst();
         strcpy(Ci.mnem, "ds.b");
-        sprintf(Ci.params, "%ld", first->myAddr);
+        sprintf(Ci.params, "%ld", first->value);
         Ci.lblname.clear();
         PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, opt);
     }
@@ -1063,7 +1057,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     {
         // Don't print labels that are outside the maximum range of the address space.
         // These should have already been printed as equates.
-        if ((*it)->myAddr >= maxAddress)
+        if ((*it)->address() >= maxAddress)
         {
             // Use "continue" instead of "break" because the labels might not be sorted.
             continue;
@@ -1071,13 +1065,13 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
 
         auto next = it + 1;
 
-        if (next != category->end() && (*next)->myAddr < maxAddress)
+        if (next != category->end() && (*next)->address() < maxAddress)
         {
-            datasize = (*next)->myAddr - (*it)->myAddr;
+            datasize = (*next)->address() - (*it)->address();
         }
         else
         {
-            datasize = maxAddress - (*it)->myAddr;
+            datasize = maxAddress - (*it)->address();
         }
 
         strcpy(Ci.mnem, "ds.b");
@@ -1092,8 +1086,8 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
             Ci.lblname = (*it)->name();
         }
 
-        PrevEnt = (*it)->myAddr;
-        PrintLine(pseudcmd, &Ci, space, (*it)->myAddr, opt);
+        PrevEnt = (*it)->value;
+        PrintLine(pseudcmd, &Ci, space, (*it)->value, opt);
     }
 }
 
@@ -1222,7 +1216,7 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
         {
             /* Don't print real OS9 Data variables here */
 
-            if (me->myAddr >= minval)
+            if (me->value >= minval)
             {
                 if (!HadWrote)
                 {
@@ -1247,7 +1241,7 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
                     BlankLine(opt);
                 }
 
-                Ci.cmd_wrd = me->myAddr;
+                Ci.cmd_wrd = me->value;
 
                 if (opt->IsROF && me->global())
                 {
@@ -1260,14 +1254,14 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
 
                 // if (strchr("!^", space))
                 //{
-                sprintf(Ci.params, "$%02lx", me->myAddr);
+                sprintf(Ci.params, "$%02lx", me->value);
                 //}
                 // else
                 //{
-                //    sprintf(Ci.params, "$%05lx", me->myAddr);
+                //    sprintf(Ci.params, "$%05lx", me->value);
                 //}
 
-                PrintLine(pseudcmd, &Ci, space, me->myAddr, opt);
+                PrintLine(pseudcmd, &Ci, space, me->value, opt);
             }
         }
 

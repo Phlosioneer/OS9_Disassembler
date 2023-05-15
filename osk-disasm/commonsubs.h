@@ -2,18 +2,15 @@
 #ifndef COMMON_SUBS_H
 #define COMMON_SUBS_H
 
-#include "userdef.h"
 #include <fstream>
 #include <stdio.h>
+
+#include "userdef.h"
 
 struct ifstream_handle
 {
     std::ifstream* inner;
 };
-
-// Returns the index of a character in a string, or -1 if not found.
-// Pure function
-int strpos(const char* s, char c);
 
 // Advances past any space, tab, or any newline character in the string.
 // Pure function

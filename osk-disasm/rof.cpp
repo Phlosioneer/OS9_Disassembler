@@ -187,7 +187,7 @@ void getRofHdr(struct options* opt)
     }
 
     /* Code section... read, or save file position   */
-    HdrEnd = opt->Module->position();
+    HdrEnd = (uint32_t)opt->Module->position();
     opt->ROFHd->CodeEnd = opt->ROFHd->codsz;
 
     /* Read code into buffer for get_refs() while we're here */
@@ -200,8 +200,8 @@ void getRofHdr(struct options* opt)
      *    Initialized data Section        *
      * ********************************** */
 
-    IDataCount = opt->ROFHd->idatsz;
-    IDataBegin = opt->Module->position();
+    IDataCount = (uint32_t)opt->ROFHd->idatsz;
+    IDataBegin = (uint32_t)opt->Module->position();
     opt->ROFHd->initDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->idatsz));
     opt->ROFHd->initRemoteDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->remoteidatsiz));
     opt->ROFHd->debugDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->debugsiz));
@@ -536,7 +536,7 @@ int rof_datasize(char cclass, struct options* opt)
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
-void DataDoBlock(refmap* refsList, size_t blkEnd, AddrSpaceHandle space, struct parse_state* state)
+void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state)
 {
     struct cmd_items Ci;
 
@@ -601,7 +601,7 @@ void DataDoBlock(refmap* refsList, size_t blkEnd, AddrSpaceHandle space, struct 
         }
         else /* No reference entry for this area */
         {
-            int bytCount = 0;
+            size_t bytCount = 0;
             int bytSize;
             if (DoAsciiBlock(&Ci, blkEnd - state->CmdEnt, space, state) != 0)
             {
@@ -718,7 +718,7 @@ int rof_setup_ref(refmap& ref, int addrs, char* dest, int val)
     }
 }
 
-char* IsRef(char* dst, int curloc, int ival, int Pass)
+char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
 {
     register char* retVal = NULL;
 

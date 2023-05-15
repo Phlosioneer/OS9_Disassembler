@@ -142,7 +142,7 @@ void WrtEnds(struct options* opt, int PCPos);
 void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 void GetIRefs(struct options* opt);
 int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state);
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, AddrSpaceHandle iSpace,
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpaceHandle iSpace,
                  struct parse_state* state);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);

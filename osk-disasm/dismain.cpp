@@ -58,10 +58,10 @@
 
 uint32_t IDataBegin;
 uint32_t IDataCount;
-size_t HdrEnd;
+uint32_t HdrEnd;
 
 AddrSpaceHandle NowClass;
-int PBytSiz;
+uint8_t PBytSiz;
 
 static bool get_asmcmd(struct parse_state* state);
 
@@ -167,16 +167,8 @@ static int get_modhead(struct options* opt)
             mod->exceptionOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
             if (mod->exceptionOffset)
             {
-                // DELETEME: code_space confirmed correct here.
                 addlbl(&CODE_SPACE, mod->exceptionOffset, "");
             }
-
-            /* Add btext */
-            /* applicable for only specific Moule Types??? */
-            // FIXME: This should probably be deleted. It causes more confusion than
-            // it's worth.
-            // DELETEME: code_space confirmed correct here.
-            // addlbl(&CODE_SPACE, 0, "btext");
 
             if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
             {
@@ -196,7 +188,7 @@ static int get_modhead(struct options* opt)
                 }
             }
 
-            HdrEnd = opt->Module->position();
+            HdrEnd = (uint32_t)opt->Module->position();
 
             if ((mod->type == MT_DEVDRVR) || (mod->type == MT_FILEMAN))
             {
@@ -337,22 +329,22 @@ static void resoveUnknownDataSpace(struct options* opt)
 
     for (auto it = unkCategory->begin(); it != unkCategory->end(); it++)
     {
-        auto dest = (*it)->myAddr < cutoffAddr ? uninitCategory : initCategory;
+        auto dest = (*it)->address() < cutoffAddr ? uninitCategory : initCategory;
 
         Label* newLabel = nullptr;
         if ((*it)->nameIsDefault())
         {
-            newLabel = dest->add((*it)->myAddr, nullptr);
+            newLabel = dest->add((*it)->value, nullptr);
         }
         else
         {
-            newLabel = dest->add((*it)->myAddr, (*it)->name().c_str());
+            newLabel = dest->add((*it)->value, (*it)->name().c_str());
         }
 
         if ((*it)->global()) newLabel->setGlobal(true);
         if ((*it)->stdName()) newLabel->setStdName(true);
 
-        unkCategory->addRedirect(newLabel->myAddr, newLabel);
+        unkCategory->addRedirect(newLabel->value, newLabel);
     }
 }
 
@@ -362,7 +354,6 @@ static void resoveUnknownDataSpace(struct options* opt)
  */
 static void GetLabels(struct options* opt) /* Read the labelfiles */
 {
-    register int x;
 
     /* First, get built-in ascii definitions.  Later, if desired,
      * they can be redefined */
@@ -431,13 +422,11 @@ int dopass(int Pass, struct options* opt)
         get_modhead(opt);
         if (opt->modHeader)
         {
-            // DELETEME: code_space confirmed correct here.
             addlbl(&CODE_SPACE, opt->modHeader->execOffset, NULL);
         }
         else
         {
             // TODO: The label in a ROF psect is broken in pass 1. This line shouldn't be necessary.
-            // DELETEME: code_space confirmed correct here.
             addlbl(&CODE_SPACE, 0, NULL);
         }
 
@@ -483,10 +472,7 @@ int dopass(int Pass, struct options* opt)
              we get bounds working, we'll do  this. */
     opt->Module->seekAbsolute(HdrEnd);
 
-    struct parse_state parseState
-    {
-        0
-    };
+    struct parse_state parseState;
     parseState.Module = opt->Module.get();
     parseState.opt = opt;
     parseState.Pass = Pass;
@@ -527,7 +513,6 @@ int dopass(int Pass, struct options* opt)
         {
             if (Pass == 2)
             {
-                // DELETEME: code_space confirmed correct here.
                 PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
 
                 if (opt->PrintAllCode && Instruction.wcount)
@@ -558,7 +543,6 @@ int dopass(int Pass, struct options* opt)
                 params << '$' << PrettyNumber<int>(Instruction.cmd_wrd & 0xffff).hex();
                 auto result = params.str();
                 strcpy(Instruction.params, result.c_str());
-                // DELETEME: code_space confirmed correct here.
                 PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
                 parseState.CmdEnt = parseState.PCPos;
             }
@@ -690,7 +674,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state)
         bmask = 0xffff;
         break;
     default:
-        errexit("Unexpected byte size");
+        throw std::runtime_error("Unexpected byte size");
     }
 
     while (state->PCPos <= db->range.end)
@@ -749,10 +733,8 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state)
 
             // If length of operand string is max, print a line
             // Baked-in assumption that this function is only called within CODE_SPACE.
-            // DELETEME: code_space confirmed correct here.
             if ((strlen(Ci.params) > 22) || findlbl(&CODE_SPACE, state->PCPos))
             {
-                // DELETEME: code_space confirmed correct here.
                 PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->opt);
 
                 printXtraBytes(xtrabytes.str());
@@ -774,7 +756,6 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state)
     if ((state->Pass == 2) && strlen(Ci.params))
     {
         // Baked-in assumption that this function is only called within CODE_SPACE.
-        // DELETEME: code_space confirmed correct here.
         PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->opt);
 
         printXtraBytes(xtrabytes.str());

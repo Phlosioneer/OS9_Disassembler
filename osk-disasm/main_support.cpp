@@ -169,13 +169,12 @@ FILE* build_path(const std::string& p, char* faccs, struct options* opt)
     {
         char dirpath[256];
         char fname[256];
-        int relpath;
 #ifdef _WIN32
-        char drv[3];
+        char drv[256];
         char ext[256];
 
         _splitpath(p.c_str(), drv, dirpath, fname, ext);
-        relpath = (strlen(drv) + strlen(dirpath));
+        auto relpath = (strlen(drv) + strlen(dirpath));
 
         if (relpath == 0)
         {
@@ -208,7 +207,6 @@ void do_opt(char* c, struct options* opt)
 {
     char* pt = c;
     char* AsmFile;
-    int v;
 
     switch (tolower(*(pt++)))
     {

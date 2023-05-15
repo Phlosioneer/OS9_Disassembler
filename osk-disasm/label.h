@@ -44,6 +44,10 @@ class Label
     {
         return _nameIsDefault;
     }
+    inline uint32_t address() const
+    {
+        return static_cast<uint32_t>(value);
+    }
 
     void setName(const char* newName);
     void setName(std::string newName);
@@ -51,7 +55,7 @@ class Label
     std::string nameWithColon() const;
 
     const AddrSpaceHandle category;
-    const long myAddr;
+    const long value;
 
   private:
     std::string _name;
@@ -127,7 +131,7 @@ Label* labelclass_getFirst(LabelCategory* handle);
 
 Label* findlbl(AddrSpaceHandle lblclass, int lblval);
 Label* addlbl(AddrSpaceHandle lblclass, int val, const char* newname);
-bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass);
+bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);
 void PrintNumber(char* dest, int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
 void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
 

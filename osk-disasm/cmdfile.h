@@ -32,9 +32,9 @@ class DataRegion
 
     DataRegion(Range range, DataSize type);
 
-    static size_t asByteSize(DataSize size);
+    static uint8_t asByteSize(DataSize size);
 
-    inline size_t size() const
+    inline uint8_t size() const
     {
         return DataRegion::asByteSize(type);
     }

@@ -24,27 +24,18 @@
  *                                                                          *
  * ************************************************************************ */
 
-#include "modtypes.h"
-#include "userdef.h"
+#include "rof.h"
+
 #include <sstream>
 #include <stdio.h>
 #include <string.h>
-
-#include "rof.h"
 
 #include "command_items.h"
 #include "commonsubs.h"
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
-
-// Returns the index of a character in a string, or -1 if not found.
-// Pure function
-int strpos(const char* s, char c)
-{
-    const char* p = strchr(s, c);
-    return (p ? (p - s) : -1);
-}
+#include "modtypes.h"
 
 // Advances past any space, tab, or any newline character in the string.
 // Pure function

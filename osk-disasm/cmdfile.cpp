@@ -109,7 +109,7 @@ DataRegion::DataRegion(Range range, DataSize type) : range(range), type(type)
 {
 }
 
-size_t DataRegion::asByteSize(DataSize size)
+uint8_t DataRegion::asByteSize(DataSize size)
 {
     switch (size)
     {

@@ -166,7 +166,7 @@ Label* LabelCategory::add(long value, const char* newName)
         {
             // Keep the list of labels sorted by value.
             iterator it;
-            for (it = begin(); it != end() && (*it)->myAddr < value; it++)
+            for (it = begin(); it != end() && (*it)->value < value; it++)
                 ;
             _labels.insert(it, label);
 
@@ -206,7 +206,7 @@ void LabelCategory::printAll()
         printf("\nLabel definitions for Class '%s'\n\n", code->name.c_str());
         for (auto label : _labels)
         {
-            printf("%s equ $%d\n", label->name().c_str(), (int)(label->myAddr));
+            printf("%s equ $%d\n", label->name().c_str(), (int)(label->value));
         }
     }
 }
@@ -245,13 +245,13 @@ void LabelCategory::addRedirect(long addr, Label* label)
 
 /* Value is either the address of the label, or the value of the equate. */
 Label::Label(AddrSpaceHandle category, int value, const char* name)
-    : myAddr(value), category(category), _stdName(false), _global(false),
+    : value(value), category(category), _stdName(false), _global(false),
       _nameIsDefault(name == nullptr || strlen(name) == 0),
       _name(name == nullptr || strlen(name) == 0 ? category->makeDefaultName(value) : std::string(name))
 {
 }
 Label::Label(AddrSpaceHandle category, int value, const std::string& name)
-    : myAddr(value), category(category), _stdName(false), _global(false), _nameIsDefault(name.empty()),
+    : value(value), category(category), _stdName(false), _global(false), _nameIsDefault(name.empty()),
       _name(name.empty() ? category->makeDefaultName(value) : name)
 {
 }
@@ -262,7 +262,7 @@ void Label::setName(const char* name)
     {
         if (_nameIsDefault) return;
         _nameIsDefault = true;
-        _name = category->makeDefaultName(myAddr);
+        _name = category->makeDefaultName(value);
     }
     else
     {
@@ -277,7 +277,7 @@ void Label::setName(std::string newName)
     {
         if (_nameIsDefault) return;
         _nameIsDefault = true;
-        _name = category->makeDefaultName(myAddr);
+        _name = category->makeDefaultName(value);
     }
     else
     {
@@ -317,17 +317,17 @@ void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, AddrSpace
  *          (3) amod - the AMode desired
  * This is NOT SAFE AT ALL.
  */
-bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
+bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass)
 {
 
-    int raw = adr /*& 0xffff */; /* Raw offset (postbyte) - was unsigned */
+    auto adjusted = adr;
     AddrSpaceHandle mainclass;   /* Class for this location */
 
     Label* mylabel = 0;
 
     if (amod == AM_REL)
     {
-        raw += curloc;
+        adjusted += curloc;
     }
 
     if (isRof)
@@ -374,11 +374,11 @@ bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
 
     if (Pass == 1)
     {
-        addlbl(mainclass, raw, NULL);
+        addlbl(mainclass, adjusted, NULL);
     }
     else
     { /*Pass2 */
-        mylabel = findlbl(mainclass, raw);
+        mylabel = findlbl(mainclass, adjusted);
         if (!mainclass || *mainclass == LITERAL_SPACE || *mainclass == LITERAL_HEX_SPACE ||
             *mainclass == LITERAL_DEC_SPACE || *mainclass == LITERAL_ASCII_SPACE)
         {
@@ -392,7 +392,7 @@ bool LblCalc(char* dst, int adr, int amod, int curloc, bool isRof, int Pass)
         {
             auto t = (mainclass ? mainclass : &INIT_DATA_SPACE);
             fprintf(stderr, "Lookup error on Pass 2 (main)\n");
-            fprintf(stderr, "Cannot find %s - %05x\n", t->name.c_str(), raw);
+            fprintf(stderr, "Cannot find %s - %05x\n", t->name.c_str(), adjusted);
             /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
             exit(1);
         }

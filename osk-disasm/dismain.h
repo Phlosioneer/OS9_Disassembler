@@ -64,9 +64,9 @@ void HandleRegion(const DataRegion* bp, struct parse_state* state);
 
 extern uint32_t IDataBegin;
 extern uint32_t IDataCount;
-extern size_t HdrEnd; /* The first byte past end of header, usefull for begin of Pass 2 */
+extern uint32_t HdrEnd; /* The first byte past end of header, usefull for begin of Pass 2 */
 
 extern AddrSpaceHandle NowClass;
-extern int PBytSiz;
+extern uint8_t PBytSiz;
 
 #endif

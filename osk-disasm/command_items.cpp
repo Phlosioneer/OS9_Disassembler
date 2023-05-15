@@ -100,10 +100,6 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_stat
         if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
         if ((mode == 7) && (reg == 4)) return 0;
         size = SIZ_LONG;
-    }
-
-    switch (op->id)
-    {
     default:
         break; /* Already checked above */
     }
@@ -292,8 +288,6 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
     dispstr[0] = '\0';
     ea_addr = state->PCPos;
 
-    OperandSize parsedSize;
-
     /* Set up PBytSiz */
     switch (size)
     {
@@ -305,6 +299,10 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         break;
     case SIZ_LONG:
         PBytSiz = 4;
+        break;
+    default:
+        // This code is a reminder for when I refactor PBytSiz.
+        PBytSiz = PBytSiz;
         break;
     }
 

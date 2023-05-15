@@ -305,8 +305,6 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
 
 FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceHandle space)
 {
-    int mask;
-
     if (amod)
     {
         if (amod == AM_A6)
