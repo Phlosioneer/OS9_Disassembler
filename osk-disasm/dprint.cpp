@@ -79,7 +79,6 @@ static char ClsHd[100];  /* header string for label equates */
 static char FmtBuf[200]; /* Buffer to store formatted string */
 static int HadWrote;     /* flag that header has been written */
 static char* SrcHd;      /* ptr for header for source file */
-static char* IBuf;       /* Pointer to buffer containing the Init Data values */
 int LinNum;
 
 struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
@@ -607,7 +606,7 @@ static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote
 // Attempt to match an ascii string within a data block.
 int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state)
 {
-    std::vector<char> buffer(blockSize);
+    std::vector<char> buffer{};
     auto mark = state->Module->position();
     state->Module->readVec(buffer, blockSize);
 
@@ -778,145 +777,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, unsigned int bufEnd, Add
     return count;
 }
 
-// TODO: Merge with DoDataBlock
-static void DataDoBlock2(unsigned int blkEnd, AddrSpaceHandle space, struct parse_state* state)
-{
-    /*struct rof_extrn *srch;*/
-    struct cmd_items Ci;
-
-    /* Insert Label if applicable */
-
-    auto category = labelManager->getCategory(space);
-    auto label = category->get(state->CmdEnt);
-    if (label)
-    {
-        if (label->global())
-        {
-            Ci.lblname = label->nameWithColon();
-        }
-        else
-        {
-            Ci.lblname = label->name();
-        }
-    }
-
-    while (state->PCPos < blkEnd)
-    {
-        state->CmdEnt = state->PCPos;
-
-        // Check if this is the start of a reference.
-        // auto ref = find_extrn(refsList, state->CmdEnt);
-        if (false)
-        {
-            /*
-            strcpy(Ci.mnem, "dc.");
-
-            switch (REFSIZ(ref->Type))
-            {
-            case 1:
-                strcat(Ci.mnem, "b");
-                state->PCPos++;
-                break;
-            case 2:
-                strcat(Ci.mnem, "w");
-                state->PCPos += 2;
-                break;
-            default:
-                strcat(Ci.mnem, "l");
-                state->PCPos += 4;
-            }
-
-            if (ref->Extrn)
-            {
-                strcpy(Ci.params, ref->nam.c_str());
-            }
-            else
-            {
-                strcpy(Ci.params, ref->lbl->name().c_str());
-            }
-
-            PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->opt);
-            state->CmdEnt = state->PCPos;
-            Ci.lblname.clear();
-            Ci.params[0] = '\0';
-            Ci.mnem[0] = '\0';
-            */
-        }
-        else /* No reference entry for this area */
-        {
-            int bytCount = 0;
-            int bytSize;
-            if (DoAsciiBlock(&Ci, blkEnd - state->CmdEnt, space, state) != 0)
-            {
-                continue;
-            }
-            else
-            {
-                register char* fmt;
-
-                switch ((blkEnd - state->PCPos) % 4)
-                {
-                case 0:
-                    bytSize = 4;
-                    bytCount = (blkEnd - state->PCPos) >> 2;
-                    strcpy(Ci.mnem, "dc.l");
-                    fmt = "$%08x";
-                    break;
-                case 2:
-                    bytSize = 2;
-                    strcpy(Ci.mnem, "dc.w");
-                    bytCount = (blkEnd - state->PCPos) >> 1;
-                    fmt = "$%04x";
-                    break;
-                default:
-                    bytSize = 1;
-                    strcpy(Ci.mnem, "dc.b");
-                    bytCount = blkEnd - state->PCPos;
-                    fmt = "$%02x";
-                }
-
-                while (bytCount--)
-                {
-                    int val = 0;
-
-                    switch (bytSize)
-                    {
-                    case 1:
-                        // val = *(iBuf++) & 0xff;
-                        val = state->Module->read<uint8_t>();
-                        break;
-                    case 2:
-                        // val = bufReadL(&iBuf);
-                        val = state->Module->read<uint16_t>();
-                        break;
-                    case 4:
-                        // val = bufReadW(&iBuf);
-                        val = state->Module->read<uint32_t>();
-                        break;
-                    default:
-                        throw std::runtime_error("Unexpected byte size");
-                    }
-
-                    state->PCPos += bytSize;
-                    sprintf(Ci.params, fmt, val);
-                    PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->opt);
-                    state->CmdEnt = state->PCPos;
-                    Ci.lblname.clear();
-                    Ci.params[0] = '\0';
-                }
-
-                Ci.mnem[0] = '\0';
-            }
-        }
-    }
-}
-
-/* *************
- * ListInitData ()
- *
- */
-// TODO: Merge with ListInitRof
-static void ListInitData(AddrSpaceHandle space, struct parse_state* state)
+static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct parse_state* state)
 {
     struct cmd_items Ci;
     const char* what = "* Initialized Data Definitions";
@@ -942,11 +803,33 @@ static void ListInitData(AddrSpaceHandle space, struct parse_state* state)
     }
     BlankLine(state->opt);
 
-    // Split the init data into a series of blocks, separated by labels.
-    auto category = labelManager->getCategory(space);
+    ListInit(refsList, space, state);
+}
 
-    std::vector<unsigned int> blockEnds;
-    blockEnds.reserve(category->size());
+/*
+ * Moves initialized data into the listing. Really a setup routine.
+ * Passed : (1) nl - Ptr to proper nlist, positioned at the first
+ *                    element to be listed
+ *          (2) mycount - count of elements in this sect.
+ *          (3) class   - Label Class letter
+ */
+void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state)
+{
+    if (state->Module->size() == 0) return;
+
+    auto category = labelManager->getCategory(space);
+    auto endAddress = state->PCPos + state->Module->size();
+
+    std::vector<size_t> blockEnds;
+    auto totalSize = category->size() + (refsList ? refsList->size() : 0);
+    blockEnds.reserve(totalSize);
+    if (refsList)
+    {
+        for (const auto& entry : *refsList)
+        {
+            blockEnds.push_back(entry.first);
+        }
+    }
     for (auto it = category->begin(); it != category->end(); it++)
     {
         blockEnds.push_back((*it)->myAddr);
@@ -956,7 +839,7 @@ static void ListInitData(AddrSpaceHandle space, struct parse_state* state)
 
     while (state->Module->size() != 0)
     {
-        unsigned int blkEnd;
+        size_t blkEnd;
 
         // ...or use the next ref as the end of the data block, whichever happens first.
         // Use PC+1 to avoid a block size of 0.
@@ -970,7 +853,7 @@ static void ListInitData(AddrSpaceHandle space, struct parse_state* state)
             blkEnd = endAddress;
         }
 
-        DataDoBlock2(blkEnd, space, state);
+        DataDoBlock(refsList, blkEnd, space, state);
     }
 }
 
@@ -981,8 +864,6 @@ static void ListInitData(AddrSpaceHandle space, struct parse_state* state)
 
 void ROFDataPrint(struct options* opt)
 {
-    Label* srch;
-
     /*char dattmp[5];*/
     const char* udat = "* Uninitialized Data (Class \"%s\")\n";
     // TODO: Change this to add a space. The reference exe will also have to be
@@ -990,11 +871,9 @@ void ROFDataPrint(struct options* opt)
     const char* idat = "* Initialized Data (Class\"%s\")\n";
 
     InProg = 0;
-    auto category = labelManager->getCategory(&UNINIT_DATA_SPACE);
-    srch = category ? category->getFirst() : NULL;
-    if (srch)
+    if (opt->ROFHd->statstorage)
     {
-        parse_state state{0};
+        parse_state state;
         state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
@@ -1010,39 +889,26 @@ void ROFDataPrint(struct options* opt)
 
     if (opt->ROFHd->idatsz)
     {
-        parse_state state{0};
-        state.Module = opt->Module.get();
-        state.opt = opt;
-        state.Pass = 2;
-
         dataprintHeader(idat, &INIT_DATA_SPACE, FALSE, opt);
-
-        IBuf = new char[(size_t)opt->ROFHd->idatsz + 1];
 
         opt->Module->seekAbsolute(IDataBegin);
 
-        opt->Module->readRaw(IBuf, opt->ROFHd->idatsz);
-
-        auto category2 = labelManager->getCategory(&INIT_DATA_SPACE);
-        srch = category2 ? category2->getFirst() : NULL;
-
-        if (opt->ROFHd->idatsz)
-        {
-            ListInitROF("", refs_idata, IBuf, opt->ROFHd->idatsz, &INIT_DATA_SPACE, &state);
-        }
+        parse_state state;
+        state.Module = opt->ROFHd->initDataStream.get();
+        state.opt = opt;
+        state.Pass = 2;
+        state.Module->reset();
+        ListInit(&refs_idata, &INIT_DATA_SPACE, &state);
 
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
-        /*ListInitData (srch, ROFHd.idatsz, '_');*/
-        delete[] IBuf;
-        /*ListInitROF (dta, ROFHd.idatsz, '_');*/
+        /*ListInitWithHeader (srch, ROFHd.idatsz, '_');*/
+        /*ListInit (dta, ROFHd.idatsz, '_');*/
     }
 
-    auto category3 = labelManager->getCategory(&UNINIT_REMOTE_SPACE);
-    srch = category3 ? category3->getFirst() : NULL;
-    if (srch)
+    if (opt->ROFHd->remotestatsiz)
     {
-        parse_state state{0};
+        parse_state state;
         state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
@@ -1058,26 +924,21 @@ void ROFDataPrint(struct options* opt)
 
     if (opt->ROFHd->remoteidatsiz)
     {
-        parse_state state{0};
-        state.Module = opt->Module.get();
-        state.opt = opt;
-        state.Pass = 2;
 
         int size = opt->ROFHd->remoteidatsiz;
         dataprintHeader(idat, &INIT_REMOTE_SPACE, TRUE, opt);
 
-        IBuf = new char[(size_t)size + 1];
-        opt->Module->readRaw(IBuf, size);
-
-        auto category4 = labelManager->getCategory(&INIT_REMOTE_SPACE);
-        srch = category4 ? category4->getFirst() : NULL;
-        ListInitROF("", refs_iremote, IBuf, size, &INIT_REMOTE_SPACE, &state);
+        parse_state state;
+        state.Module = opt->ROFHd->initRemoteDataStream.get();
+        state.opt = opt;
+        state.Pass = 2;
+        state.Module->reset();
+        ListInit(&refs_iremote, &INIT_REMOTE_SPACE, &state);
         BlankLine(opt);
-        /*ListInitData (srch, ROFHd.idatsz, 'H');*/
-        delete[] IBuf;
+        /*ListInitWithHeader (srch, ROFHd.idatsz, 'H');*/
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
-        /*ListInitROF (dta, ROFHd.idatsz, 'H');*/
+        /*ListInit (dta, ROFHd.idatsz, 'H');*/
     }
 
     InProg = 1;
@@ -1140,12 +1001,12 @@ void OS9DataPrint(struct options* opt)
     parse_state state;
     state.opt = opt;
     state.Pass = 2;
-    opt->Module->seekAbsolute(opt->modHeader->initDataHeaderOffset + 8);
+    opt->Module->seekAbsolute((size_t)opt->modHeader->initDataHeaderOffset + 8);
     auto initDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->modHeader->initDataSize));
     state.Module = initDataStream.get();
     state.PCPos = opt->modHeader->uninitDataSize;
     state.CmdEnt = state.PCPos;
-    ListInitData(&INIT_DATA_SPACE, &state);
+    ListInitWithHeader(nullptr, &INIT_DATA_SPACE, &state);
 
     // Print the vsect footer.
     {

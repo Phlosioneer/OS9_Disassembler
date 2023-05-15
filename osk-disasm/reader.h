@@ -60,8 +60,10 @@ class BigEndianStream
 
     inline BigEndianStream fork(size_t newStreamSize)
     {
+        _prevPosition = _position;
         auto end = std::min(buffer.cend(), buffer.cbegin() + (_position + newStreamSize));
         auto subvec = std::vector<char>(buffer.cbegin() + _position, end);
+        _position += subvec.size();
         return BigEndianStream(std::move(subvec));
     }
 

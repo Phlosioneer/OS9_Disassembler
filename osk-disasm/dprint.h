@@ -4,6 +4,7 @@
 
 #include "address_space.h"
 #include "label.h"
+#include "rof.h"
 #include "userdef.h"
 
 #include <string>
@@ -147,6 +148,7 @@ void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
 void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt);
 void WrtEquates(int stdflg, struct options* opt);
+void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* state);
 
 extern const char pseudcmd[80];
 extern const char realcmd[80];

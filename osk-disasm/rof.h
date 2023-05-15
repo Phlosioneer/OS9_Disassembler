@@ -94,6 +94,10 @@ struct rof_header
     std::string rname{};      /* Ptr to module name  */
 
     uint32_t CodeEnd = 0;
+    std::unique_ptr<BigEndianStream> codeStream{};
+    std::unique_ptr<BigEndianStream> initDataStream{};
+    std::unique_ptr<BigEndianStream> initRemoteDataStream{};
+    std::unique_ptr<BigEndianStream> debugDataStream{};
 };
 
 struct rof_extrn
@@ -119,14 +123,13 @@ typedef std::map<uint32_t, rof_extrn> refmap;
 extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns; /* Generic external pointer */
 
 int RealEnt(struct options* opt, int CmdEnt);
-void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module);
+void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
 void getRofHdr(struct options* opt);
 void RofLoadInitData(void);
 AddrSpaceHandle rof_class(int typ, int refTy);
 struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
 int rof_datasize(char cclass, struct options* opt);
-void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, AddrSpaceHandle iClass,
-                 struct parse_state* state);
+void DataDoBlock(refmap* refsList, size_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
 void setupROFPass(int Pass);
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, int curloc, int ival, int Pass);

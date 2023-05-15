@@ -41,6 +41,7 @@
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
+#include "params.h"
 #include "userdef.h"
 #include "writer.h"
 
@@ -52,7 +53,7 @@ struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremot
 
 refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns;
 
-static void get_refs(std::string& vname, int count, int ref_typ, char* codebuffer, BigEndianStream* Module);
+static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream* codebuffer, BigEndianStream* Module);
 
 rof_extrn::rof_extrn(uint16_t type, uint32_t offset, bool isExternal) : Type(type), Ofst(offset), Extrn((int)isExternal)
 {
@@ -90,7 +91,7 @@ int RealEnt(struct options* opt, int CmdEnt)
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
  * positioned to the begin of the initialized data list for this particular vsect.
  */
-void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module)
+void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
 {
     uint32_t refVal;
 
@@ -98,18 +99,18 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module)
     {
         if (!it.second.Extrn)
         {
-            Module.seekAbsolute(it.second.Ofst);
+            Module->seekAbsolute(it.second.Ofst);
 
             switch (REFSIZ(it.second.Type))
             {
             case 1: /*SIZ_BYTE:*/
-                refVal = Module.read<uint8_t>();
+                refVal = Module->read<uint8_t>();
                 break;
             case 2: /*SIZ_WORD:*/
-                refVal = Module.read<uint16_t>();
+                refVal = Module->read<uint16_t>();
                 break;
             default:
-                refVal = Module.read<uint32_t>();
+                refVal = Module->read<uint32_t>();
             }
             it.second.hasName = FALSE;
             it.second.lbl = addlbl(it.second.dstSpace, refVal, "");
@@ -123,7 +124,6 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream& Module)
 void getRofHdr(struct options* opt)
 {
     uint16_t glbl_cnt, count; /* Generic counter */
-    char* codeBuf;
 
     opt->IsROF = true;    /* Flag that module is an ROF module */
     opt->Module->reset(); /* Start all over */
@@ -192,8 +192,9 @@ void getRofHdr(struct options* opt)
 
     /* Read code into buffer for get_refs() while we're here */
 
-    codeBuf = new char[(size_t)opt->ROFHd->codsz + 1];
-    opt->Module->readRaw(codeBuf, opt->ROFHd->codsz);
+    // codeBuf = new char[(size_t)opt->ROFHd->codsz + 1];
+    // opt->Module->readRaw(codeBuf, opt->ROFHd->codsz);
+    opt->ROFHd->codeStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->codsz));
 
     /* ********************************** *
      *    Initialized data Section        *
@@ -201,6 +202,9 @@ void getRofHdr(struct options* opt)
 
     IDataCount = opt->ROFHd->idatsz;
     IDataBegin = opt->Module->position();
+    opt->ROFHd->initDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->idatsz));
+    opt->ROFHd->initRemoteDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->remoteidatsiz));
+    opt->ROFHd->debugDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->debugsiz));
 
     /* ********************************** *
      *    External References Section     *
@@ -227,8 +231,7 @@ void getRofHdr(struct options* opt)
      * *************************** */
 
     auto local_count = opt->Module->read<uint16_t>();
-    get_refs(std::string(), local_count, REFLOCAL, codeBuf, opt->Module.get());
-    delete[] codeBuf;
+    get_refs(std::string(), local_count, REFLOCAL, opt->ROFHd->codeStream.get(), opt->Module.get());
 
     /* Now we need to add labels for these refs */
 
@@ -236,10 +239,10 @@ void getRofHdr(struct options* opt)
     /* Do this after everything else is done */
     /* NOTE: We may need to save current ftell() to restore it after this */
 
-    opt->Module->seekAbsolute(IDataBegin);
+    // opt->Module->seekAbsolute(IDataBegin);
 
-    AddInitLbls(refs_idata, '_', opt->Module->fork(opt->ROFHd->idatsz));
-    AddInitLbls(refs_iremote, 'H', opt->Module->fork(opt->ROFHd->remoteidatsiz));
+    AddInitLbls(refs_idata, '_', opt->ROFHd->initDataStream.get());
+    AddInitLbls(refs_iremote, 'H', opt->ROFHd->initRemoteDataStream.get());
 
     /* Now we're ready to disassemble the code */
 
@@ -372,7 +375,7 @@ AddrSpaceHandle rof_class(int typ, int refTy)
  *          count - number of entries to process
  *          1 if external, 0 if local
  */
-static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf, BigEndianStream* Module)
+static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream* code_buf, BigEndianStream* Module)
 {
     struct rof_extrn* prevRef = NULL;
     AddrSpaceHandle space;
@@ -440,7 +443,7 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
             else
             {
                 register int dstVal;
-                char* pt = &(code_buf[new_ref.Ofst]);
+                code_buf->seekAbsolute(new_ref.Ofst);
 
                 new_ref.dstSpace = rof_class(_ty, REFGLBL);
 
@@ -449,13 +452,19 @@ static void get_refs(std::string& vname, int count, int ref_typ, char* code_buf,
                     switch (REFSIZ(new_ref.Type))
                     {
                     case 1:
-                        dstVal = *pt & 0xff;
+                        // dstVal = *pt & 0xff;
+                        dstVal = code_buf->read<uint8_t>();
                         break;
                     case 2:
-                        dstVal = bufReadW(&pt);
+                        // dstVal = bufReadW(&pt);
+                        dstVal = code_buf->read<uint16_t>();
+                        break;
+                    case 3:
+                        // dstVal = bufReadL(&pt);
+                        dstVal = code_buf->read<uint32_t>();
                         break;
                     default:
-                        dstVal = bufReadL(&pt);
+                        throw std::runtime_error("Unexpected size");
                     }
                     new_ref.hasName = FALSE;
                     new_ref.lbl = addlbl(new_ref.dstSpace, dstVal, "");
@@ -527,14 +536,13 @@ int rof_datasize(char cclass, struct options* opt)
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
-static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, unsigned int blkEnd,
-                         AddrSpaceHandle space, struct parse_state* state)
+void DataDoBlock(refmap* refsList, size_t blkEnd, AddrSpaceHandle space, struct parse_state* state)
 {
-    /*struct rof_extrn *srch;*/
     struct cmd_items Ci;
 
     /* Insert Label if applicable */
 
+    auto category = labelManager->getCategory(space);
     auto label = category->get(state->CmdEnt);
     if (label)
     {
@@ -553,25 +561,28 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
         state->CmdEnt = state->PCPos;
 
         // Check if this is the start of a reference.
-        auto ref = find_extrn(refsList, state->CmdEnt);
+        rof_extrn* ref = refsList ? find_extrn(*refsList, state->CmdEnt) : nullptr;
         if (ref)
         {
             strcpy(Ci.mnem, "dc.");
 
+            OperandSize size;
             switch (REFSIZ(ref->Type))
             {
             case 1: /* SIZ_BYTE */
-                strcat(Ci.mnem, "b");
-                state->PCPos++;
+                size = OperandSize::Byte;
                 break;
             case 2: /* SIZ_WORD */
-                strcat(Ci.mnem, "w");
-                state->PCPos += 2;
+                size = OperandSize::Word;
                 break;
             default: /* SIZ_LONG */
-                strcat(Ci.mnem, "l");
-                state->PCPos += 4;
+                size = OperandSize::Long;
             }
+            state->PCPos += getOperandSizeInBytes(size);
+            state->Module->seekRelative(getOperandSizeInBytes(size));
+            std::string mnem("dc");
+            mnem += getOperandSizeSuffix(size);
+            strcpy(Ci.mnem, mnem.c_str());
 
             if (ref->Extrn)
             {
@@ -592,10 +603,8 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
         {
             int bytCount = 0;
             int bytSize;
-            bytCount = DoAsciiBlock(&Ci, iBuf, blkEnd, space, state);
-            if (bytCount)
+            if (DoAsciiBlock(&Ci, blkEnd - state->CmdEnt, space, state) != 0)
             {
-                iBuf += bytCount;
                 continue;
             }
             else
@@ -630,13 +639,16 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
                     switch (bytSize)
                     {
                     case 1:
-                        val = *(iBuf++) & 0xff;
+                        val = state->Module->read<uint8_t>();
+                        break;
+                    case 2:
+                        val = state->Module->read<uint16_t>();
                         break;
                     case 4:
-                        val = bufReadL(&iBuf);
+                        val = state->Module->read<uint32_t>();
                         break;
                     default:
-                        val = bufReadW(&iBuf);
+                        throw std::runtime_error("Unexpected byte size");
                     }
 
                     state->PCPos += bytSize;
@@ -650,54 +662,6 @@ static char* DataDoBlock(refmap& refsList, LabelCategory* category, char* iBuf, 
                 Ci.mnem[0] = '\0';
             }
         }
-    }
-
-    return iBuf;
-}
-
-/*
- * Moves initialized data into the listing. Really a setup routine.
- * Passed : (1) nl - Ptr to proper nlist, positioned at the first
- *                    element to be listed
- *          (2) mycount - count of elements in this sect.
- *          (3) class   - Label Class letter
- */
-void ListInitROF(char* hdr, refmap& refsList, char* iBuf, unsigned int isize, AddrSpaceHandle iSpace,
-                 struct parse_state* state)
-{
-    auto category = labelManager->getCategory(iSpace);
-    // Label* lblList = category ? category->getFirst() : NULL;
-
-    std::vector<unsigned int> blockEnds;
-    blockEnds.reserve(refsList.size() + category->size());
-    for (const auto& entry : refsList)
-    {
-        blockEnds.push_back(entry.first);
-    }
-    for (auto it = category->begin(); it != category->end(); it++)
-    {
-        blockEnds.push_back((*it)->myAddr);
-    }
-
-    std::sort(blockEnds.begin(), blockEnds.end());
-
-    while (state->PCPos < isize)
-    {
-        unsigned int blkEnd;
-
-        // ...or use the next ref as the end of the data block, whichever happens first.
-        // Use PC+1 to avoid a block size of 0.
-        auto nextRef = std::upper_bound(blockEnds.cbegin(), blockEnds.cend(), state->PCPos + 1);
-        if (nextRef != blockEnds.cend())
-        {
-            blkEnd = std::min(*nextRef, isize);
-        }
-        else
-        {
-            blkEnd = isize;
-        }
-
-        iBuf = DataDoBlock(refsList, category, iBuf, blkEnd, iSpace, state);
     }
 }
 
