@@ -392,8 +392,8 @@ static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, int CmdEnt)
                 }
                 else
                 {
-                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->value, Ci.cmd_wrd, Ci.lblname.c_str(),
-                                  Ci.mnem, Ci.params, "");
+                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
+                                  Ci.params, "");
                 }
 
                 if (opt->asmFile)
@@ -609,8 +609,7 @@ int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space
     return actualBytesUsed;
 }
 
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpaceHandle space,
-                 struct parse_state* state)
+int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpaceHandle space, struct parse_state* state)
 {
     auto count = bufEnd;
     const char* ch = buf;
@@ -885,8 +884,6 @@ void ROFDataPrint(struct options* opt)
     {
         dataprintHeader(idat, &INIT_DATA_SPACE, FALSE, opt);
 
-        opt->Module->seekAbsolute(IDataBegin);
-
         parse_state state;
         state.Module = opt->ROFHd->initDataStream.get();
         state.opt = opt;
@@ -949,12 +946,6 @@ void OS9DataPrint(struct options* opt)
     const char* what = "* OS9 data area definitions";
     struct cmd_items Ci;
     size_t filePos = opt->Module->position();
-
-    if (!opt->modHeader->initDataHeaderOffset)
-    {
-        IDataBegin = opt->modHeader->memorySize;
-        IDataCount = 0;
-    }
 
     InProg = 0; /* Stop looking for Inline program labels to substitute */
 

@@ -122,15 +122,12 @@ typedef std::map<uint32_t, rof_extrn> refmap;
 
 extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns; /* Generic external pointer */
 
-int RealEnt(struct options* opt, int CmdEnt);
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
 void getRofHdr(struct options* opt);
-void RofLoadInitData(void);
 AddrSpaceHandle rof_class(int typ, int refTy);
 struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
 int rof_datasize(char cclass, struct options* opt);
 void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
-void setupROFPass(int Pass);
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, uint32_t curloc, int ival, int Pass);
 const char* extern_def_name(struct rof_extrn* handle);

@@ -20,7 +20,7 @@ void errexit(char* pmpt)
         fprintf(stderr, "%s\n", pmpt);
     }
     // exit(errno ? errno : 1);
-    throw std::exception();
+    throw std::runtime_error(pmpt);
 }
 
 /*

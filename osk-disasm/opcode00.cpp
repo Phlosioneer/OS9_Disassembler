@@ -54,6 +54,7 @@ int biti_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     static char* sr[2] = {"ccr", "sr"};
     register int size;
 
+    if (!hasnext_w(state)) return 0;
     register int ext1 = getnext_w(ci, state);
     size = (ci->cmd_wrd >> 6) & 1;
 
@@ -192,7 +193,7 @@ int bit_static(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_
     reg = ci->cmd_wrd & 7;
 
     if (mode == 1) return 0;
-
+    if (!hasnext_w(state)) return 0;
     ext0 = getnext_w(ci, state);
 
     /* The MS byte must be zero */
@@ -426,6 +427,7 @@ int movep(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
     register int size = (opMode & 1) ? SIZ_LONG : SIZ_WORD;
     char DReg[4];
     char AReg[50];
+    if (!hasnext_w(state)) return 0;
     int disp = getnext_w(ci, state);
     static char opcodeFmt[8];
 
@@ -582,6 +584,7 @@ static int branch_displ(struct cmd_items* ci, int cmd_word, char* siz_suffix, st
     switch (displ)
     {
     case 0:
+        if (!hasnext_w(state)) return 0;
         displ = getnext_w(ci, state);
 
         if (displ & 1)
@@ -1008,6 +1011,7 @@ int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
 int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
     unsigned int vector = ci->cmd_wrd & 0x0f;
+    if (!hasnext_w(state)) return 0;
     unsigned int syscall = getnext_w(ci, state);
     unsigned int sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
     unsigned int mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
@@ -1148,6 +1152,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
 
 int cmd_stop(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
 {
+    if (!hasnext_w(state)) return 0;
     sprintf(ci->params, "#%d", getnext_w(ci, state));
     strcpy(ci->mnem, op->name);
     return 1;
@@ -1179,6 +1184,7 @@ int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
             strcpy(condpos, typecondition[ent].condition);
         }
 
+        if (!hasnext_w(state)) return 0;
         offset = getnext_w(ci, state);
         /*dest  = br_from + offset;*/
 

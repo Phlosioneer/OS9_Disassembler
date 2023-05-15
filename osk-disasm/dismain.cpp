@@ -56,10 +56,6 @@
 #define strcasecmp strcmp
 #endif
 
-uint32_t IDataBegin;
-uint32_t IDataCount;
-uint32_t HdrEnd;
-
 AddrSpaceHandle NowClass;
 uint8_t PBytSiz;
 
@@ -73,6 +69,9 @@ static const char* FmanJmps[] = {"Open",  "Create", "Makdir",  "Chgdir",  "Delet
 const OPSTRUCTURE* opmains[] = {instr00, instr01, instr02, /* Repeat 3 times for 3 move sizes */
                                 instr03, instr04, instr05, instr06, instr07, instr08, instr09, NULL, /* No instr 010 */
                                 instr11, instr12, instr13, instr14, NULL};
+
+static void readOpword(struct cmd_items* ci, struct parse_state* state);
+static void getModuleHeader(struct options* opt);
 
 // Read the Driver initialization table and set up label names.
 // NOT ACTIVELY MAINTAINED.
@@ -117,121 +116,18 @@ static void get_drvr_jmps(int mty, BigEndianStream* Module)
 }
 
 // Get the module header.  We will do this only in Pass 1.
-static int get_modhead(struct options* opt)
+static void getHeader(struct options* opt)
 {
     /* Get standard (common to all modules) header fields */
-
-    auto mod = std::make_unique<module_header>();
 
     // Need to be careful to avoid sign-extension.
     // mod->id = (unsigned short)fread_w(opt->ModFP);
     // opt->Module->readInto(mod->id);
-    mod->id = opt->Module->read<uint16_t>();
-    switch (mod->id)
+    auto syncCode = opt->Module->read<uint16_t>();
+    switch (syncCode)
     {
     case 0x4afc:
-        mod->sysRev = opt->Module->read<uint16_t>();            // fread_w(opt->ModFP);
-        mod->size = opt->Module->read<uint32_t>();              // fread_l(opt->ModFP);
-        mod->owner = opt->Module->read<uint32_t>();             // fread_l(opt->ModFP);
-        mod->nameOffset = opt->Module->read<uint32_t>();        // fread_l(opt->ModFP);
-        mod->access = opt->Module->read<uint16_t>();            // fread_w(opt->ModFP);
-        mod->type = opt->Module->read<uint8_t>();               // fread_b(opt->ModFP);
-        mod->lang = opt->Module->read<uint8_t>();               // fread_b(opt->ModFP);
-        mod->attributes = opt->Module->read<uint8_t>();         // fread_b(opt->ModFP);
-        mod->revision = opt->Module->read<uint8_t>();           // fread_b(opt->ModFP);
-        mod->edition = opt->Module->read<uint16_t>();           // fread_w(opt->ModFP);
-        mod->usageOffset = opt->Module->read<uint32_t>();       // fread_l(opt->ModFP);
-        mod->symbolTableOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-
-        /* We have 14 bytes that are not used */
-        /* if (fseek(opt->ModFP, 14, SEEK_CUR) != 0)
-        {
-            errexit("Cannot Seek to file location");
-        }*/
-        opt->Module->seekRelative(14);
-
-        mod->parity = opt->Module->read<uint16_t>(); // fread_w(opt->ModFP);
-
-        /* Now get any further Mod-type specific headers */
-        switch (mod->type)
-        {
-        case MT_PROGRAM:
-        case MT_SYSTEM:
-        case MT_TRAPLIB:
-        case MT_FILEMAN:
-        case MT_DEVDRVR:
-            mod->execOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-
-            /* Add label for Exception Handler, if applicable */
-            /* Only for specific Module Types??? */
-            mod->exceptionOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-            if (mod->exceptionOffset)
-            {
-                addlbl(&CODE_SPACE, mod->exceptionOffset, "");
-            }
-
-            if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
-            {
-                mod->memorySize = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-
-                if (mod->type == MT_TRAPLIB || mod->type == MT_PROGRAM)
-                {
-                    mod->stackSize = opt->Module->read<uint32_t>();            // fread_l(opt->ModFP);
-                    mod->initDataHeaderOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-                    mod->refTableOffset = opt->Module->read<uint32_t>();       // fread_l(opt->ModFP);
-
-                    if (mod->type == MT_TRAPLIB)
-                    {
-                        mod->initRoutineOffset = opt->Module->read<uint32_t>();        // fread_l(opt->ModFP);
-                        mod->terminationRoutineOffset = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-                    }
-                }
-            }
-
-            HdrEnd = (uint32_t)opt->Module->position();
-
-            if ((mod->type == MT_DEVDRVR) || (mod->type == MT_FILEMAN))
-            {
-                // fseek(opt->ModFP, mod->execOffset, SEEK_SET);
-                opt->Module->seekAbsolute(mod->execOffset);
-                get_drvr_jmps(mod->type, opt->Module.get());
-            }
-
-            if (mod->initDataHeaderOffset)
-            {
-                // Read the init data header.
-                // fseek(opt->ModFP, mod->initDataHeaderOffset, SEEK_SET);
-                opt->Module->seekAbsolute(mod->initDataHeaderOffset);
-                mod->uninitDataSize = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-                IDataBegin = mod->uninitDataSize;
-                mod->initDataSize = opt->Module->read<uint32_t>(); // fread_l(opt->ModFP);
-                IDataCount = mod->initDataSize;
-
-                // Insure we have an entry for the first Initialized Data
-                // addlbl(&INIT_DATA_SPACE, IDataBegin, "");
-                mod->CodeEnd = mod->initDataHeaderOffset;
-            }
-            else
-            {
-                /* This may be incorrect */
-                mod->CodeEnd = mod->size - 3;
-                // All memory is uninit.
-                mod->uninitDataSize = mod->memorySize;
-                mod->initDataSize = 0;
-            }
-        }
-
-        // Check if the file is complete.
-        // fseek(opt->ModFP, 0, SEEK_END);
-        opt->Module->seekAbsolute(0);
-
-        // ftell(opt->ModFP)
-        if (opt->Module->size() < mod->size)
-        {
-            errexit("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
-        }
-        opt->modHeader = std::move(mod);
-
+        getModuleHeader(opt);
         break;
     case 0xdead:
         getRofHdr(opt);
@@ -239,8 +135,107 @@ static int get_modhead(struct options* opt)
     default:
         errexit("Unknown module type");
     }
+}
 
-    return 0;
+static void getModuleHeader(struct options* opt)
+{
+    auto mod = std::make_unique<module_header>();
+    opt->Module->reset();
+    mod->id = opt->Module->read<uint16_t>();
+    mod->sysRev = opt->Module->read<uint16_t>();
+    mod->size = opt->Module->read<uint32_t>();
+    mod->owner = opt->Module->read<uint32_t>();
+    mod->nameOffset = opt->Module->read<uint32_t>();
+    mod->access = opt->Module->read<uint16_t>();
+    mod->type = opt->Module->read<uint8_t>();
+    mod->lang = opt->Module->read<uint8_t>();
+    mod->attributes = opt->Module->read<uint8_t>();
+    mod->revision = opt->Module->read<uint8_t>();
+    mod->edition = opt->Module->read<uint16_t>();
+    mod->usageOffset = opt->Module->read<uint32_t>();
+    mod->symbolTableOffset = opt->Module->read<uint32_t>();
+
+    /* We have 14 bytes that are not used */
+    opt->Module->seekRelative(14);
+
+    mod->parity = opt->Module->read<uint16_t>();
+
+    /* Now get any further Mod-type specific headers */
+    switch (mod->type)
+    {
+    case MT_PROGRAM:
+    case MT_SYSTEM:
+    case MT_TRAPLIB:
+    case MT_FILEMAN:
+    case MT_DEVDRVR:
+        mod->execOffset = opt->Module->read<uint32_t>();
+
+        /* Add label for Exception Handler, if applicable */
+        /* Only for specific Module Types??? */
+        mod->exceptionOffset = opt->Module->read<uint32_t>();
+        if (mod->exceptionOffset)
+        {
+            addlbl(&CODE_SPACE, mod->exceptionOffset, "");
+        }
+
+        if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
+        {
+            mod->memorySize = opt->Module->read<uint32_t>();
+
+            if (mod->type == MT_TRAPLIB || mod->type == MT_PROGRAM)
+            {
+                mod->stackSize = opt->Module->read<uint32_t>();
+                mod->initDataHeaderOffset = opt->Module->read<uint32_t>();
+                mod->refTableOffset = opt->Module->read<uint32_t>();
+
+                if (mod->type == MT_TRAPLIB)
+                {
+                    mod->initRoutineOffset = opt->Module->read<uint32_t>();
+                    mod->terminationRoutineOffset = opt->Module->read<uint32_t>();
+                }
+            }
+        }
+
+        mod->startPC = (uint32_t)opt->Module->position();
+
+        if ((mod->type == MT_DEVDRVR) || (mod->type == MT_FILEMAN))
+        {
+            opt->Module->seekAbsolute(mod->execOffset);
+            get_drvr_jmps(mod->type, opt->Module.get());
+        }
+
+        if (mod->initDataHeaderOffset)
+        {
+            // Read the init data header.
+            opt->Module->seekAbsolute(mod->initDataHeaderOffset);
+            mod->uninitDataSize = opt->Module->read<uint32_t>();
+            mod->initDataSize = opt->Module->read<uint32_t>();
+            mod->initDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(mod->initDataSize));
+
+            // Insure we have an entry for the first Initialized Data
+            mod->CodeEnd = mod->initDataHeaderOffset;
+        }
+        else
+        {
+            /* This may be incorrect */
+            mod->CodeEnd = mod->size - 3;
+            // All memory is uninit.
+            mod->uninitDataSize = mod->memorySize;
+            mod->initDataSize = 0;
+        }
+
+        opt->Module->seekAbsolute(mod->startPC);
+        auto codeSize = mod->CodeEnd - mod->startPC;
+        mod->codeStream = std::make_unique<BigEndianStream>(opt->Module->fork(codeSize));
+    }
+
+    // Check if the file is complete.
+    opt->Module->seekAbsolute(0);
+    if (opt->Module->size() < mod->size)
+    {
+        errexit("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
+    }
+    opt->modHeader = std::move(mod);
 }
 
 /// <summary>Search a modna struct for the desired value</summary>
@@ -414,12 +409,11 @@ static void GetLabels(struct options* opt) /* Read the labelfiles */
  */
 int dopass(int Pass, struct options* opt)
 {
-    uint32_t CodeEnd;
     if (Pass == 1)
     {
         opt->Module->reset();
 
-        get_modhead(opt);
+        getHeader(opt);
         if (opt->modHeader)
         {
             addlbl(&CODE_SPACE, opt->modHeader->execOffset, NULL);
@@ -432,8 +426,6 @@ int dopass(int Pass, struct options* opt)
 
         GetIRefs(opt);
         do_cmd_file(opt);
-
-        setupROFPass(Pass);
     }
     else /* Do Pass 2 Setup */
     {
@@ -442,15 +434,6 @@ int dopass(int Pass, struct options* opt)
             resoveUnknownDataSpace(opt);
         }
         GetLabels(opt);
-
-        /* We do this here so that we can rename labels
-         * to proper names defined in the ROF file
-         */
-        if (opt->IsROF)
-        {
-            setupROFPass(Pass);
-            RofLoadInitData();
-        }
 
         WrtEquates(1, opt);
         WrtEquates(0, opt);
@@ -467,25 +450,23 @@ int dopass(int Pass, struct options* opt)
         }
     }
 
-    /* NOTE: This is just a temporary kludge The begin _SHOULD_ be
-             the first byte past the end of the header, but until
-             we get bounds working, we'll do  this. */
-    opt->Module->seekAbsolute(HdrEnd);
-
+    uint32_t CodeEnd;
     struct parse_state parseState;
-    parseState.Module = opt->Module.get();
     parseState.opt = opt;
     parseState.Pass = Pass;
     if (opt->IsROF)
     {
         parseState.PCPos = 0;
         CodeEnd = opt->ROFHd->CodeEnd;
+        parseState.Module = opt->ROFHd->codeStream.get();
     }
     else
     {
-        parseState.PCPos = HdrEnd;
+        parseState.PCPos = opt->modHeader->startPC;
         CodeEnd = opt->modHeader->CodeEnd;
+        parseState.Module = opt->modHeader->codeStream.get();
     }
+    parseState.Module->reset();
 
     int instrNum = -1;
     while (parseState.PCPos < CodeEnd)
@@ -493,6 +474,11 @@ int dopass(int Pass, struct options* opt)
         const DataRegion* bp;
 
         instrNum += 1;
+
+        if (parseState.PCPos + parseState.Module->size() != CodeEnd)
+        {
+            throw std::runtime_error("PC and bytestream desync!");
+        }
 
         // memset(&Instruction, 0, sizeof(Instruction));
         Instruction = {};
@@ -536,11 +522,12 @@ int dopass(int Pass, struct options* opt)
         }
         else
         {
+            readOpword(&Instruction, &parseState);
             if (Pass == 2)
             {
                 strcpy(Instruction.mnem, "dc.w");
                 std::ostringstream params;
-                params << '$' << PrettyNumber<int>(Instruction.cmd_wrd & 0xffff).hex();
+                params << '$' << PrettyNumber<uint16_t>(Instruction.cmd_wrd & 0xffff).hex();
                 auto result = params.str();
                 strcpy(Instruction.params, result.c_str());
                 PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
@@ -566,28 +553,41 @@ int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struc
     return 0;
 }
 
+static void readOpword(struct cmd_items* ci, struct parse_state* state)
+{
+    *ci = {};
+    if (state->Module->size() < 2)
+    {
+        throw std::runtime_error("get_asmcmd called without 2 bytes in buffer!");
+    }
+    Instruction.cmd_wrd = state->Module->read<uint16_t>();
+    state->PCPos += 2;
+}
+
 static bool get_asmcmd(struct parse_state* state)
 {
     register const OPSTRUCTURE* optbl;
-
-    int opword;
+    auto mark = state->Module->position();
     int j;
 
-    Instruction.wcount = 0;
-    opword = getnext_w(&Instruction, state);
-    /* Make adjustments for this being the command word */
-    Instruction.cmd_wrd = Instruction.code[0] & 0xffff;
-    Instruction.wcount = 0; /* Set it back again */
+    readOpword(&Instruction, state);
 
     /* This may be temporary.  Opword %1111xxxxxxxxxxxx is available
      * for 68030-68040 CPU's, but we are not yet making this available
      */
-    if ((opword & 0xf000) == 0xf000) return 0;
+    if ((Instruction.cmd_wrd & 0xf000) == 0xf000)
+    {
+        state->Module->seekAbsolute(mark);
+        state->PCPos = state->CmdEnt;
+        return false;
+    }
 
-    optbl = opmains[(opword >> 12) & 0x0f];
+    optbl = opmains[(Instruction.cmd_wrd >> 12) & 0x0f];
     if (!optbl)
     {
-        return 0;
+        state->Module->seekAbsolute(mark);
+        state->PCPos = state->CmdEnt;
+        return false;
     }
 
     for (j = 0; j <= MAXINST; j++)
@@ -596,7 +596,7 @@ static bool get_asmcmd(struct parse_state* state)
 
         if (!(curop->name)) break;
 
-        curop = tablematch(opword, curop);
+        curop = tablematch(Instruction.cmd_wrd, curop);
 
         /* The table must be organized such that the "cpulvl" field
          * is sorted in ascending order.  Therefore, if a "cpulvl"
@@ -613,21 +613,23 @@ static bool get_asmcmd(struct parse_state* state)
         {
             if (curop->opfunc(&Instruction, curop->id, curop, state))
             {
-                return 1;
+                return true;
             }
             else
             {
-                // if (ftell(state->ModFP) != RealEnt(state->opt, state->CmdEnt) + 2)
-                if (state->Module->position() != (size_t)RealEnt(state->opt, state->CmdEnt) + 2)
-                {
-                    state->Module->seekAbsolute((size_t)RealEnt(state->opt, state->CmdEnt) + 2);
-                    state->PCPos = state->CmdEnt + 2;
-                    initcmditems(&Instruction);
-                }
+                // Restore state to the start of the function.
+                state->Module->seekAbsolute(mark);
+                state->PCPos = state->CmdEnt;
+
+                // Reset Instruction and re-read the instruction opcode word.
+                readOpword(&Instruction, state);
             }
         }
     }
 
+    // Restore state to the start of the function.
+    state->Module->seekAbsolute(mark);
+    state->PCPos = state->CmdEnt;
     return false;
 }
 

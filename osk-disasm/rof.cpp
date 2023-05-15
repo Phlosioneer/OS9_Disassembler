@@ -79,15 +79,6 @@ char* rof_header_getPsectParams(struct rof_header* handle)
 }
 
 /*
- * Returns the correct file position.  Returns CmdEnt. For Non-ROF files, CmdEnt
- * Offset by Code Entry Point.
- */
-int RealEnt(struct options* opt, int CmdEnt)
-{
-    return opt->IsROF ? (CmdEnt + HdrEnd) : CmdEnt;
-}
-
-/*
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
  * positioned to the begin of the initialized data list for this particular vsect.
  */
@@ -187,7 +178,6 @@ void getRofHdr(struct options* opt)
     }
 
     /* Code section... read, or save file position   */
-    HdrEnd = (uint32_t)opt->Module->position();
     opt->ROFHd->CodeEnd = opt->ROFHd->codsz;
 
     /* Read code into buffer for get_refs() while we're here */
@@ -200,8 +190,6 @@ void getRofHdr(struct options* opt)
      *    Initialized data Section        *
      * ********************************** */
 
-    IDataCount = (uint32_t)opt->ROFHd->idatsz;
-    IDataBegin = (uint32_t)opt->Module->position();
     opt->ROFHd->initDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->idatsz));
     opt->ROFHd->initRemoteDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->remoteidatsiz));
     opt->ROFHd->debugDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->debugsiz));
@@ -209,9 +197,6 @@ void getRofHdr(struct options* opt)
     /* ********************************** *
      *    External References Section     *
      * ********************************** */
-
-    opt->Module->seekAbsolute((size_t)IDataBegin + opt->ROFHd->idatsz + opt->ROFHd->remoteidatsiz +
-                              opt->ROFHd->debugsiz);
 
     for (auto ext_count = opt->Module->read<uint16_t>(); ext_count > 0; ext_count--)
     {
@@ -237,32 +222,11 @@ void getRofHdr(struct options* opt)
 
     /* common block variables... */
     /* Do this after everything else is done */
-    /* NOTE: We may need to save current ftell() to restore it after this */
-
-    // opt->Module->seekAbsolute(IDataBegin);
 
     AddInitLbls(refs_idata, '_', opt->ROFHd->initDataStream.get());
     AddInitLbls(refs_iremote, 'H', opt->ROFHd->initRemoteDataStream.get());
 
     /* Now we're ready to disassemble the code */
-
-    /* Position to begin of Code section */
-    opt->Module->seekAbsolute(HdrEnd);
-}
-
-void RofLoadInitData(void)
-{
-    /* ********************************** *
-     * Initialized data section           *
-     * ********************************** */
-
-    /* ********************************** *
-     *   Initialized remote data Section  *
-     * ********************************** */
-
-    /* ********************************** *
-     *     Debug Information Section      *
-     * ********************************** */
 }
 
 /*
@@ -662,18 +626,6 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                 Ci.mnem[0] = '\0';
             }
         }
-    }
-}
-
-void setupROFPass(int Pass)
-{
-    if (Pass == 1)
-    {
-        // codeRefs_sav = refs_code;
-    }
-    else
-    {
-        // refs_code = codeRefs_sav;
     }
 }
 

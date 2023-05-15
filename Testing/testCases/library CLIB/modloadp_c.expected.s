@@ -84,7 +84,7 @@ L000d6 move.l d5,d0
  rts 
 L000e6 addq.w #8,d1
  addq.w #2,a0
- ori.b #8,d0
+ dc.w $0
 
  ends 
 

@@ -178,6 +178,7 @@ int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
         if ((mode == 7) && (reg > 1)) return 0;
     }
 
+    if (!hasnext_w(state)) return 0;
     regmask = getnext_w(ci, state);
 
     if (!get_eff_addr(ci, ea, mode, reg, size, state))
@@ -225,10 +226,12 @@ int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
 
         break;
     default:
+        if (!hasnext_w(state)) return 0;
         ext_w = getnext_w(ci, state);
 
         if (j == 138)
         {
+            if (!hasnext_w(state)) return 0;
             ext_w = (ext_w << 8) | (getnext_w(ci, state) & 0xff);
         }
 
@@ -247,7 +250,7 @@ int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state)
 {
     int ew; /* A local copy of the extended word (stored in ci->code[0]) */
-
+    if (!hasnext_w(state)) return 0;
     ew = getnext_w(ci, state);
 
     if (ew & 0x0100)
@@ -323,6 +326,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
     case 5: /* d{16}(An) */
+        if (!hasnext_w(state)) return 0;
         ext1 = getnext_w(ci, state);
 
         /* The system biases the data Pointer (a6) by 0x8000 bytes,
@@ -402,13 +406,16 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             if (reg == 0)
             {
                 opSize = OperandSize::Word;
+                if (!hasnext_w(state)) return 0;
                 ext1 = getnext_w(ci, state);
                 amode_local = AM_SHORT;
             }
             else
             {
                 opSize = OperandSize::Long;
+                if (!hasnext_w(state)) return 0;
                 ext1 = getnext_w(ci, state);
+                if (!hasnext_w(state)) return 0;
                 ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
                 amode_local = AM_LONG;
             }
@@ -427,6 +434,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         case 4: /* #<data> */
         {
             ref_ptr = state->PCPos;
+            if (!hasnext_w(state)) return 0;
             ext1 = getnext_w(ci, state);
 
             switch (size)
@@ -448,6 +456,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 
                 break;
             case SIZ_LONG:
+                if (!hasnext_w(state)) return 0;
                 ext2 = getnext_w(ci, state);
                 ext1 = (ext1 << 16) | (ext2 & 0xffff);
                 break;
@@ -472,6 +481,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             break;
         }
         case 2: /* (d16,PC) */
+            if (!hasnext_w(state)) return 0;
             ext1 = getnext_w(ci, state);
             if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
             {
@@ -558,6 +568,11 @@ char getnext_b(struct cmd_items* ci, struct parse_state* state)
     /* We won't store this into the buffers
      * as it is not a command */
     return b;
+}
+
+bool hasnext_w(struct parse_state* state)
+{
+    return state->Module->size() >= 2;
 }
 
 /*

@@ -48,6 +48,7 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg,
 int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
 int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
 int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state);
+bool hasnext_w(struct parse_state* state);
 int getnext_w(struct cmd_items* ci, struct parse_state* state);
 void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
 struct cmd_items* initcmditems(struct cmd_items* ci);
