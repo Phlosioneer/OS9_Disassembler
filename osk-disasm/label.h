@@ -132,8 +132,8 @@ Label* labelclass_getFirst(LabelCategory* handle);
 Label* findlbl(AddrSpaceHandle lblclass, int lblval);
 Label* addlbl(AddrSpaceHandle lblclass, int val, const char* newname);
 bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);
-void PrintNumber(char* dest, int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
-void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
+void PrintNumber(char* dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
+void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 
 extern LabelManager* labelManager;
 

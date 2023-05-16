@@ -68,6 +68,4 @@ int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);
 void HandleRegion(const DataRegion* bp, struct parse_state* state);
 
-extern uint8_t PBytSiz;
-
 #endif

@@ -287,25 +287,28 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
     char dispstr[50];
     struct extWbrief ew_b;
     int ea_addr;
+    uint8_t PBytSiz_local;
 
     dispstr[0] = '\0';
     ea_addr = state->PCPos;
+    bool pbytsizIsValid = true;
 
-    /* Set up PBytSiz */
+    /* Set up PBytSiz_local */
     switch (size)
     {
     case SIZ_BYTE:
-        PBytSiz = 1;
+        PBytSiz_local = 1;
         break;
     case SIZ_WORD:
-        PBytSiz = 2;
+        PBytSiz_local = 2;
         break;
     case SIZ_LONG:
-        PBytSiz = 4;
+        PBytSiz_local = 4;
         break;
     default:
-        // This code is a reminder for when I refactor PBytSiz.
-        PBytSiz = PBytSiz;
+        // This needs to be set to a value (any value). It's only used for hexadecimal
+        // sizes, and nothing else.
+        PBytSiz_local = 4;
         break;
     }
 
@@ -346,7 +349,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
         else
         {
             // Temporary
-            auto number = MakeFormattedNumber(ext1, AM_A0 + reg, PBytSiz);
+            auto number = MakeFormattedNumber(ext1, AM_A0 + reg, PBytSiz_local);
             param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), number);
         }
 
@@ -376,7 +379,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                 }
                 else
                 {
-                    auto number = MakeFormattedNumber(ew_b.displ, amode, PBytSiz);
+                    auto number = MakeFormattedNumber(ew_b.displ, amode, PBytSiz_local);
                     param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, number);
                 }
             }
@@ -425,7 +428,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
             else
             {
-                auto number = MakeFormattedNumber(ext1, amode_local, PBytSiz);
+                auto number = MakeFormattedNumber(ext1, amode_local, PBytSiz_local);
                 param = std::make_unique<AbsoluteAddrParam>(number, opSize);
             }
 
@@ -475,7 +478,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
             else
             {
-                auto number = MakeFormattedNumber(ext1, AM_IMM, PBytSiz);
+                auto number = MakeFormattedNumber(ext1, AM_IMM, PBytSiz_local);
                 param = std::make_unique<LiteralParam>(number);
             }
             break;
@@ -489,7 +492,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
             }
             else
             {
-                auto number = MakeFormattedNumber(ext1, AM_REL, PBytSiz);
+                auto number = MakeFormattedNumber(ext1, AM_REL, PBytSiz_local);
                 param = std::make_unique<RegOffsetParam>(Register::REG_PC, number);
             }
             break;
@@ -515,7 +518,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
                     else
                     {
                         // TODO: Is the -2 to displacement correct here?
-                        auto number = MakeFormattedNumber(ew_b.displ, AM_REL, PBytSiz);
+                        auto number = MakeFormattedNumber(ew_b.displ, AM_REL, PBytSiz_local);
                         param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, number);
                     }
                 }

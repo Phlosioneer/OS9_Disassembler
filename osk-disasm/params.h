@@ -126,7 +126,7 @@ class FormattedNumber
 
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceHandle space = nullptr);
+FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 
 typedef Either<std::string, FormattedNumber> LabelOrNumber;
 

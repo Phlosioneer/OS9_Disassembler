@@ -56,8 +56,6 @@
 #define strcasecmp strcmp
 #endif
 
-uint8_t PBytSiz;
-
 static bool get_asmcmd(struct parse_state* state);
 
 static const char* DrvrJmps[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
@@ -655,7 +653,6 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
     Ci.lblname = "";
     Ci.comment = NULL;
     Ci.cmd_wrd = 0;
-    PBytSiz = db->size(); // Unclear if this has side-effects outside of this func
 
     switch (db->size())
     {
@@ -705,7 +702,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
         /* AMode = 0 to prevent LblCalc from defining class */
         if (!LblCalc(tmps, valu, 0, state->PCPos - db->size(), state->opt->IsROF, state->Pass))
         {
-            PrintNumber(tmps, valu, 0, PBytSiz, literalSpace);
+            PrintNumber(tmps, valu, 0, db->size(), literalSpace);
         }
 
         if (state->Pass == 2)
@@ -744,7 +741,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
                 Ci.params[0] = '\0';
                 Ci.cmd_wrd = 0;
                 Ci.lblname.clear();
-                state->CmdEnt = state->PCPos /* _ PBytSiz*/;
+                state->CmdEnt = state->PCPos;
                 cCount = 0;
             }
         }
@@ -768,8 +765,6 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
  */
 void HandleRegion(const DataRegion* bp, struct parse_state* state)
 {
-    PBytSiz = 1;                   /* Default to one byte length */
-
     switch (bp->type)
     {
     case DataRegion::DataSize::String:
@@ -778,11 +773,9 @@ void HandleRegion(const DataRegion* bp, struct parse_state* state)
         throw std::runtime_error("Explicit string region not supported yet.");
         break; /* bump PC  */
     case DataRegion::DataSize::Words:
-        PBytSiz = 2; /* Takes care of both Word & Long */
         HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
         break;
     case DataRegion::DataSize::Longs:
-        PBytSiz = 4; /* Takes care of both Word & Long */
         HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
         break;
     case DataRegion::DataSize::Bytes:

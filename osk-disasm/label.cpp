@@ -291,10 +291,10 @@ std::string Label::nameWithColon() const
     return _global ? _name + ':' : _name;
 }
 
-void PrintNumber(char* dest, int value, int amod, int PBytSiz, AddrSpaceHandle space)
+void PrintNumber(char* dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space)
 {
     std::ostringstream stream;
-    PrintNumber(stream, value, amod, PBytSiz, space);
+    PrintNumber(stream, value, amod, defaultHexSize, space);
     auto result = stream.str();
     strcat(dest, result.c_str());
 }
@@ -305,9 +305,9 @@ void PrintNumber(char* dest, int value, int amod, int PBytSiz, AddrSpaceHandle s
  *          (2) clas - The Class Letter for the label.
  *          (3)  adr - The label's address.
  */
-void PrintNumber(std::ostream& dest, int value, int amod, int PBytSiz, AddrSpaceHandle space)
+void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space)
 {
-    dest << MakeFormattedNumber(value, amod, PBytSiz, space);
+    dest << MakeFormattedNumber(value, amod, defaultHexSize, space);
 }
 
 /*

@@ -303,7 +303,7 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
     return os;
 }
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceHandle space)
+FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space)
 {
     if (amod)
     {
@@ -347,7 +347,7 @@ FormattedNumber MakeFormattedNumber(int value, int amod, int PBytSiz, AddrSpaceH
         switch (amod)
         {
         default:
-            switch (PBytSiz)
+            switch (defaultHexSize)
             {
             case 1:
                 return FormattedNumber(value, OperandSize::Byte, space);
