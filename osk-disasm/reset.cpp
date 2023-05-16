@@ -19,7 +19,6 @@ void reset()
     allRegions.clear();
 
     // dprint.c
-    PrevEnt = 0;
     LinNum = 0;
 
     // rof.c

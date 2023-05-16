@@ -44,16 +44,6 @@
 
 LabelManager* labelManager = new LabelManager();
 
-const char defaultDefaultLabelClasses[] = "&&&&&&D&&LLL"; //"&&&&&&D&&LLLLLL";
-const char programDefaultLabelClasses[] = "&&&&&&D&&&&L";
-const char driverDefaultLabelClasses[] = "&ZD&PG&&&&&L";
-
-char defaultLabelClasses[AM_MAXMODES];
-
-static_assert(sizeof(defaultDefaultLabelClasses) == AM_MAXMODES, "Wrong number of default labels");
-static_assert(sizeof(programDefaultLabelClasses) == AM_MAXMODES, "Wrong number of program labels");
-static_assert(sizeof(driverDefaultLabelClasses) == AM_MAXMODES, "Wrong number of driver labels");
-
 Label* label_getNext(Label* handle)
 {
     return labelManager->getCategory(handle->category)->getNextAfter(handle);

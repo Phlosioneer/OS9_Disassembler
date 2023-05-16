@@ -557,7 +557,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                 strcpy(Ci.params, ref->lbl->name().c_str());
             }
 
-            PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->opt);
+            PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->PCPos, state->opt);
             state->CmdEnt = state->PCPos;
             Ci.lblname.clear();
             Ci.params[0] = '\0';
@@ -617,7 +617,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
 
                     state->PCPos += bytSize;
                     sprintf(Ci.params, fmt, val);
-                    PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->opt);
+                    PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->PCPos, state->opt);
                     state->CmdEnt = state->PCPos;
                     Ci.lblname.clear();
                     Ci.params[0] = '\0';

@@ -35,8 +35,6 @@ struct cmd_items_inner {
 };
 */
 
-struct cmd_items Instruction;
-
 const char* SizSufx[] = {"b", "w", "l"};
 
 typedef struct modestrs

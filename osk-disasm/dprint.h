@@ -135,7 +135,7 @@ std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
 }
 
 void PrintPsect(struct options* opt);
-void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, int CmdEnt, struct options* opt);
+void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos, struct options* opt);
 void printXtraBytes(std::string& data);
 void ROFPsect(struct options* opt);
 void WrtEnds(struct options* opt, int PCPos);
@@ -152,7 +152,6 @@ void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* stat
 
 extern const char pseudcmd[80];
 extern const char realcmd[80];
-extern int PrevEnt;
 extern int LinNum;
 extern struct ireflist* IRefs;
 

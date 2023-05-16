@@ -137,9 +137,4 @@ void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, Ad
 
 extern LabelManager* labelManager;
 
-extern const char defaultDefaultLabelClasses[];
-extern const char programDefaultLabelClasses[];
-extern const char driverDefaultLabelClasses[];
-extern char defaultLabelClasses[AM_MAXMODES];
-
 #endif // LABEL_H

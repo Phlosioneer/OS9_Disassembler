@@ -61,18 +61,22 @@
 
 #define MAX_ASCII_LINE_LEN 26
 
-#define CNULL '\0'
+struct modnam
+{
+    const char* name;
+    int val;
+};
+
 struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
-static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, int CmdEnt);
+static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
 static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
 
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 const char realcmd[80] = "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
 static const char* xtraFmt = "             %s\n";
 
-int PrevEnt = 0;         /* Previous CmdEnt - to print non-boundary labels */
 static int InProg;       /* Flag that we're in main program, so that it won't
                             munge the label name */
 static char ClsHd[100];  /* header string for label equates */
@@ -81,13 +85,25 @@ static int HadWrote;     /* flag that header has been written */
 static char* SrcHd;      /* ptr for header for source file */
 int LinNum;
 
-struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
+const struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
                            {"Systm", 12}, {"FlMgr", 13}, {"Drivr", 14}, {"Devic", 15}, {"", 0}};
 
-struct modnam ModLangs[] = {{"Objct", 1},   {"ICode", 2},    {"PCode", 3}, {"CCode", 4},
+const struct modnam ModLangs[] = {{"Objct", 1},   {"ICode", 2},    {"PCode", 3}, {"CCode", 4},
                             {"CblCode", 5}, {"FrtnCode", 6}, {"", 0}};
 
-struct modnam ModAtts[] = {{"SupStat", 0x20}, {"Ghost", 0x40}, {"ReEnt", 0x80}, {"", 0}};
+const struct modnam ModAtts[] = {{"SupStat", 0x20}, {"Ghost", 0x40}, {"ReEnt", 0x80}, {"", 0}};
+
+/// <summary>Search a modna struct for the desired value</summary>
+/// <returns>Pointer to the desired value, or `nullptr` if missing.</returns>
+static const struct modnam* modnam_find(const struct modnam* pt, int desired)
+{
+    while ((pt->val) && (pt->val != desired))
+    {
+        ++pt;
+    }
+
+    return (pt->val ? pt : NULL);
+}
 
 /* **********
  * PrintPsect() - Set up the Psect for printout
@@ -96,8 +112,8 @@ struct modnam ModAtts[] = {{"SupStat", 0x20}, {"Ghost", 0x40}, {"ReEnt", 0x80}, 
 
 void PrintPsect(struct options* opt)
 {
-    char* ProgType = NULL;
-    char* ProgLang = NULL;
+    const char* ProgType = NULL;
+    const char* ProgLang = NULL;
     char ProgAtts[50];
     /*char *StackAddL;*/
     int c;
@@ -135,7 +151,7 @@ void PrintPsect(struct options* opt)
     paramBuffer << '$' << PrettyNumber<uint32_t>(type).hex();
     auto params = paramBuffer.str();
     strcpy(Ci.params, params.c_str());
-    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
+    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
     /*hdrvals[0] = M_Type;*/
 
     int lang = opt->modHeader ? opt->modHeader->lang : 0;
@@ -146,7 +162,7 @@ void PrintPsect(struct options* opt)
     paramBuffer << '$' << PrettyNumber<uint32_t>(lang).hex();
     params = paramBuffer.str();
     strcpy(Ci.params, params.c_str());
-    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
+    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
     /*hdrvals[1] = M_Lang;*/
 
     psectParamBuffer << ",(" << ProgType << "<<8)|" << ProgLang;
@@ -171,7 +187,7 @@ void PrintPsect(struct options* opt)
             Ci.lblname = ModAtts[c].name;
             Ci.cmd_wrd = ModAtts[c].val;
             sprintf(Ci.params, "$%02x", ModAtts[c].val);
-            PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
+            PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
         }
     }
 
@@ -197,7 +213,7 @@ void PrintPsect(struct options* opt)
     pgWdthSave = opt->PgWidth;
     opt->PgWidth = 200;
     BlankLine(opt);
-    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
+    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
     BlankLine(opt);
     opt->PgWidth = pgWdthSave;
     InProg = 1;
@@ -212,7 +228,7 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
 {
     Label* nl;
 
-    if (InProg)
+    if (InProg && ci->lblname.empty())
     {
         nl = findlbl(&CODE_SPACE, CmdEnt);
         if (nl)
@@ -254,9 +270,6 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
 
 static void PrintCleanup(int CmdEnt)
 {
-    PrevEnt = CmdEnt;
-
-    /*CmdLen = 0;*/
     ++LinNum;
 }
 
@@ -281,13 +294,11 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, int CmdEnt, options* opt)
+void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos, options* opt)
 {
-    NonBoundsLbl(space, opt, CmdEnt); /*Check for non-boundary labels */
-
     OutputLine(pfmt, ci, opt, CmdEnt);
-
     PrintCleanup(CmdEnt);
+    NonBoundsLbl(space, opt, CmdEnt, PCPos); /*Check for non-boundary labels */
 }
 
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
@@ -349,18 +360,17 @@ void printXtraBytes(std::string& data)
     }
 }
 
-static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, int CmdEnt)
+static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC)
 {
     if (space)
     {
-        register int x;
         struct cmd_items Ci;
         Label* nl;
 
         strcpy(Ci.mnem, "equ");
         Ci.comment = "";
 
-        for (x = PrevEnt + 1; x < CmdEnt; x++)
+        for (auto x = startPC + 1; x < endPC; x++)
         {
             nl = findlbl(space, x);
             if (nl)
@@ -375,16 +385,8 @@ static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, int CmdEnt)
                     Ci.lblname = nl->name();
                 }
 
-                if (x > CmdEnt)
-                {
-                    sprintf(Ci.params, "*+%d", x - CmdEnt);
-                }
-                else
-                {
-                    sprintf(Ci.params, "*-%d", CmdEnt - x);
-                }
+                sprintf(Ci.params, "*-%d", endPC - x);
 
-                /*PrintLine (pseudcmd, &Ci, cClass, CmdEnt, PCPos);*/
                 if (opt->IsUnformatted)
                 {
                     writer_printf(stdout_writer, &(pseudcmd[3]), nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
@@ -443,9 +445,8 @@ void ROFPsect(struct options* opt)
         /*OPHCAT ((int)(rptr->modent));*/
     }
 
-    PrevEnt = 1; /* To prevent NonBoundsLbl() output */
     InProg = 0;  /* Inhibit Label Lookup */
-    PrintLine(pseudcmd, &Ci, CNULL, 0, opt);
+    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
     InProg = 1;
 }
 
@@ -594,7 +595,7 @@ static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote
     strcpy(Ci.params, isRemote ? "remote" : "");
     Ci.cmd_wrd = 0;
     Ci.comment = "";
-    PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, 0, opt);
+    PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, 0, 0, opt);
 }
 
 // Attempt to match an ascii string within a data block.
@@ -742,9 +743,8 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
             count += consumedThisLine;
             state->PCPos += (uint32_t)consumedThisLine;
             strncpy(ci->mnem, "dc.b", MNEM_LEN);
-            PrintLine(pseudcmd, ci, space, state->CmdEnt, state->opt);
+            PrintLine(pseudcmd, ci, space, state->CmdEnt, state->PCPos, state->opt);
             state->CmdEnt = state->PCPos;
-            PrevEnt = state->PCPos;
             ci->lblname.clear();
             ci->params[0] = '\0';
 
@@ -760,9 +760,8 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
         count += consumedThisLine;
         state->PCPos += (uint32_t)consumedThisLine;
         strncpy(ci->mnem, "dc.b", MNEM_LEN);
-        PrintLine(pseudcmd, ci, space, state->CmdEnt, state->opt);
+        PrintLine(pseudcmd, ci, space, state->CmdEnt, state->PCPos, state->opt);
         state->CmdEnt = state->PCPos;
-        PrevEnt = state->PCPos;
         ci->lblname.clear();
         ci->params[0] = '\0';
     }
@@ -975,7 +974,7 @@ void OS9DataPrint(struct options* opt)
         strcpy(Ci.params, "");
         Ci.cmd_wrd = 0;
         Ci.comment = "";
-        PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, opt);
+        PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, 0, opt);
     }
 
     // Print uninit data.
@@ -998,7 +997,7 @@ void OS9DataPrint(struct options* opt)
         strcpy(Ci.params, "");
         Ci.cmd_wrd = 0;
         Ci.comment = "";
-        PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, state.CmdEnt, opt);
+        PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, state.CmdEnt, state.CmdEnt, opt);
         BlankLine(opt);
     }
 
@@ -1027,7 +1026,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
         strcpy(Ci.mnem, "ds.b");
         sprintf(Ci.params, "%ld", maxAddress);
         Ci.lblname.clear();
-        PrintLine(pseudcmd, &Ci, space, 0, opt);
+        PrintLine(pseudcmd, &Ci, space, 0, 0, opt);
         return;
     }
 
@@ -1039,7 +1038,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
         strcpy(Ci.mnem, "ds.b");
         sprintf(Ci.params, "%ld", first->value);
         Ci.lblname.clear();
-        PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, opt);
+        PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, 0, opt);
     }
 
     // Iterate through all the other labels.
@@ -1076,8 +1075,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
             Ci.lblname = (*it)->name();
         }
 
-        PrevEnt = (*it)->value;
-        PrintLine(pseudcmd, &Ci, space, (*it)->value, opt);
+        PrintLine(pseudcmd, &Ci, space, (*it)->value, (*it)->value, opt);
     }
 }
 
@@ -1245,7 +1243,7 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
                 //    sprintf(Ci.params, "$%05lx", me->value);
                 //}
 
-                PrintLine(pseudcmd, &Ci, space, me->value, opt);
+                PrintLine(pseudcmd, &Ci, space, me->value, me->value, opt);
             }
         }
 

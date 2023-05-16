@@ -10,7 +10,6 @@
 #include "reader.h"
 #include "userdef.h"
 
-struct modnam;
 struct cmd_items;
 struct options;
 class DataRegion;
@@ -62,7 +61,6 @@ struct module_header
     std::unique_ptr<BigEndianStream> initDataStream{};
 };
 
-struct modnam* modnam_find(struct modnam* pt, int desired);
 int dopass(int mypass, struct options* opt);
 int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);

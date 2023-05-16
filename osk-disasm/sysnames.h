@@ -19,7 +19,7 @@
  * see <http://www.gnu.org/licenses/>.                                  *
  * ******************************************************************** */
 
-char* SysNames[] = {
+const char* SysNames[] = {
     "F$Link",   /* $00*/
     "F$Load",   /* $01*/
     "F$UnLink", /* $02*/
@@ -171,7 +171,7 @@ char* SysNames[] = {
     "I$Last",   /* $93*/
 };
 
-char* MathCalls[] = {
+const char* MathCalls[] = {
     "T$LMul",  /* $00*/
     "T$UMul",  /* $01*/
     "T$LDiv",  /* $02*/

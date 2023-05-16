@@ -56,7 +56,6 @@ struct cmd_items* initcmditems(struct cmd_items* ci);
 // Unused
 char getnext_b(struct cmd_items* ci, struct parse_state* state);
 
-extern struct cmd_items Instruction;
 extern const char* SizSufx[3];
 extern const char dispRegNam[];
 

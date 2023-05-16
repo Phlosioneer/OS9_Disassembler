@@ -56,7 +56,7 @@
 #define strcasecmp strcmp
 #endif
 
-static bool get_asmcmd(struct parse_state* state);
+static bool get_asmcmd(struct cmd_items* ci, struct parse_state* state);
 
 static const char* DrvrJmps[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
 
@@ -233,18 +233,6 @@ static void getModuleHeader(struct options* opt)
         errexit("\n*** ERROR!  File size < Module Size... Aborting...! ***\n");
     }
     opt->modHeader = std::move(mod);
-}
-
-/// <summary>Search a modna struct for the desired value</summary>
-/// <returns>Pointer to the desired value, or `nullptr` if missing.</returns>
-struct modnam* modnam_find(struct modnam* pt, int desired)
-{
-    while ((pt->val) && (pt->val != desired))
-    {
-        ++pt;
-    }
-
-    return (pt->val ? pt : NULL);
 }
 
 /*
@@ -477,8 +465,7 @@ int dopass(int Pass, struct options* opt)
             throw std::runtime_error("PC and bytestream desync!");
         }
 
-        // memset(&Instruction, 0, sizeof(Instruction));
-        Instruction = {};
+        struct cmd_items Instruction;
         parseState.CmdEnt = parseState.PCPos;
 
         /* NOTE: The 6809 version did an "if" and it apparently worked,
@@ -492,11 +479,11 @@ int dopass(int Pass, struct options* opt)
 
         if (parseState.CmdEnt >= CodeEnd) continue;
 
-        if (get_asmcmd(&parseState))
+        if (get_asmcmd(&Instruction, &parseState))
         {
             if (Pass == 2)
             {
-                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
+                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
 
                 if (opt->PrintAllCode && Instruction.wcount)
                 {
@@ -527,7 +514,7 @@ int dopass(int Pass, struct options* opt)
                 params << '$' << PrettyNumber<uint16_t>(Instruction.cmd_wrd & 0xffff).hex();
                 auto result = params.str();
                 strcpy(Instruction.params, result.c_str());
-                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, opt);
+                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
                 parseState.CmdEnt = parseState.PCPos;
             }
         }
@@ -557,29 +544,29 @@ static void readOpword(struct cmd_items* ci, struct parse_state* state)
     {
         throw std::runtime_error("get_asmcmd called without 2 bytes in buffer!");
     }
-    Instruction.cmd_wrd = state->Module->read<uint16_t>();
+    ci->cmd_wrd = state->Module->read<uint16_t>();
     state->PCPos += 2;
 }
 
-static bool get_asmcmd(struct parse_state* state)
+static bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
 {
     register const OPSTRUCTURE* optbl;
     auto mark = state->Module->position();
     int j;
 
-    readOpword(&Instruction, state);
+    readOpword(Instruction, state);
 
     /* This may be temporary.  Opword %1111xxxxxxxxxxxx is available
      * for 68030-68040 CPU's, but we are not yet making this available
      */
-    if ((Instruction.cmd_wrd & 0xf000) == 0xf000)
+    if ((Instruction->cmd_wrd & 0xf000) == 0xf000)
     {
         state->Module->seekAbsolute(mark);
         state->PCPos = state->CmdEnt;
         return false;
     }
 
-    optbl = opmains[(Instruction.cmd_wrd >> 12) & 0x0f];
+    optbl = opmains[(Instruction->cmd_wrd >> 12) & 0x0f];
     if (!optbl)
     {
         state->Module->seekAbsolute(mark);
@@ -593,7 +580,7 @@ static bool get_asmcmd(struct parse_state* state)
 
         if (!(curop->name)) break;
 
-        curop = tablematch(Instruction.cmd_wrd, curop);
+        curop = tablematch(Instruction->cmd_wrd, curop);
 
         /* The table must be organized such that the "cpulvl" field
          * is sorted in ascending order.  Therefore, if a "cpulvl"
@@ -608,7 +595,7 @@ static bool get_asmcmd(struct parse_state* state)
 
         if (curop)
         {
-            if (curop->opfunc(&Instruction, curop, state))
+            if (curop->opfunc(Instruction, curop, state))
             {
                 return true;
             }
@@ -619,7 +606,7 @@ static bool get_asmcmd(struct parse_state* state)
                 state->PCPos = state->CmdEnt;
 
                 // Reset Instruction and re-read the instruction opcode word.
-                readOpword(&Instruction, state);
+                readOpword(Instruction, state);
             }
         }
     }
@@ -733,7 +720,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
             // Baked-in assumption that this function is only called within CODE_SPACE.
             if ((strlen(Ci.params) > 22) || findlbl(&CODE_SPACE, state->PCPos))
             {
-                PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->opt);
+                PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->PCPos, state->opt);
 
                 printXtraBytes(xtrabytes.str());
                 xtrabytes = {};
@@ -754,7 +741,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
     if ((state->Pass == 2) && strlen(Ci.params))
     {
         // Baked-in assumption that this function is only called within CODE_SPACE.
-        PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->opt);
+        PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->PCPos, state->opt);
 
         printXtraBytes(xtrabytes.str());
     }
