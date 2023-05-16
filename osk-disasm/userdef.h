@@ -35,7 +35,7 @@ struct opst
     short sizeendbit;
     int cpulvl;
     int id;
-    int (*opfunc)(struct cmd_items*, int, const struct opst*, struct parse_state*);
+    int (*opfunc)(struct cmd_items*, const struct opst*, struct parse_state*);
 };
 
 typedef struct opst OPSTRUCTURE;

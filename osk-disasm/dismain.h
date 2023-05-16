@@ -64,7 +64,7 @@ struct module_header
 
 struct modnam* modnam_find(struct modnam* pt, int desired);
 int dopass(int mypass, struct options* opt);
-int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state);
+int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);
 void HandleRegion(const DataRegion* bp, struct parse_state* state);
 

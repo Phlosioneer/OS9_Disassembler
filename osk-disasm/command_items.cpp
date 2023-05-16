@@ -77,7 +77,7 @@ struct cmd_items* initcmditems(struct cmd_items* ci)
  * Functions that deal with a register and hold the reg #
  * in the command word, and also have an effective address
  */
-int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
+int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -104,7 +104,7 @@ int reg_ea(struct cmd_items* ci, int j, const struct opst* op, struct parse_stat
         break; /* Already checked above */
     }
 
-    if (j == 31)
+    if (op->id == 31)
     {
         regname = "a";
     }
@@ -153,7 +153,7 @@ static std::unique_ptr<RegisterSet> reglist(uint16_t regmask, int mode)
     return std::make_unique<RegisterSet>(addressByte, dataByte);
 }
 
-int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
+int movem_cmd(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -207,7 +207,7 @@ int movem_cmd(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
     return 1;
 }
 
-int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_state* state)
+int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
     int regno = ci->cmd_wrd & 7;
     int ext_w;
@@ -229,14 +229,14 @@ int link_unlk(struct cmd_items* ci, int j, const struct opst* op, struct parse_s
         if (!hasnext_w(state)) return 0;
         ext_w = getnext_w(ci, state);
 
-        if (j == 138)
+        if (op->id == 138)
         {
             if (!hasnext_w(state)) return 0;
             ext_w = (ext_w << 8) | (getnext_w(ci, state) & 0xff);
         }
 
         sprintf(ci->params, "A%d,#%d", regno, ext_w);
-        strcat(ci->mnem, (j == 46) ? "w" : "l");
+        strcat(ci->mnem, (op->id == 46) ? "w" : "l");
     }
 
     return 1;

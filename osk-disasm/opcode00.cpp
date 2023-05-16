@@ -49,7 +49,7 @@ enum
  * Immediate bit operations involving the status registers
  * Returns 1 on success, 0 on failure
  */
-int biti_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     static char* sr[2] = {"ccr", "sr"};
     register int size;
@@ -83,7 +83,7 @@ int biti_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
 /*
  * Immediate bit operations not involving status registers
  */
-int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int size = (ci->cmd_wrd >> 6) & 3;
     register int mode = (ci->cmd_wrd >> 3) & 7;
@@ -184,7 +184,7 @@ int biti_size(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     return 1;
 }
 
-int bit_static(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int ext0, mode, reg;
     char ea[30];
@@ -221,7 +221,7 @@ int bit_static(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_
     return 0;
 }
 
-int bit_dynamic(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int mode, reg;
 
@@ -261,7 +261,7 @@ int bit_dynamic(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse
 /*
  *  Build the "move"/"movea" commands
  */
-int move_instr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int d_mode, d_reg, src_mode, src_reg;
     char src_ea[50], dst_ea[50];
@@ -333,7 +333,7 @@ int move_instr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_
     return 0;
 }
 
-int move_ccr_sr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
     int dir;
@@ -392,7 +392,7 @@ int move_ccr_sr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse
     return 0;
 }
 
-int move_usp(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register char* dot;
 
@@ -420,7 +420,7 @@ int move_usp(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     return 1;
 }
 
-int movep(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int addr_reg = ci->cmd_wrd & 7;
     register int opMode = (ci->cmd_wrd >> 6) & 7;
@@ -450,7 +450,7 @@ int movep(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
     return 1;
 }
 
-int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register char* dot;
 
@@ -479,7 +479,7 @@ int moveq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state
  * A generic handler for when the basic command is a
  *      single word and the EA is in the lower 6 bytes
  */
-int one_ea(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -494,7 +494,7 @@ int one_ea(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_stat
         }
     }
 
-    if (j == 38) /* swap */
+    if (op->id == 38) /* swap */
     {
         sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
     }
@@ -503,7 +503,6 @@ int one_ea(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_stat
         /* eliminate modes */
         switch (op->id)
         {
-        case 38:   /* swap */
         case 43:   /* tst  */
             break; /* Allow all modes */
         case 39:   /* pea  */
@@ -612,7 +611,7 @@ static int branch_displ(struct cmd_items* ci, int cmd_word, char* siz_suffix, st
     return displ;
 }
 
-int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int bra_bsr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int displ;
     register int jmp_base = state->PCPos;
@@ -674,7 +673,7 @@ int bra_bsr(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     return 1;
 }
 
-int cmd_no_opcode(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_no_opcode(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     ci->params[0] = '\0';
     strcpy(ci->mnem, op->name);
@@ -682,7 +681,7 @@ int cmd_no_opcode(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct par
     return 1;
 }
 
-int bit_rotate_mem(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -712,7 +711,7 @@ int bit_rotate_mem(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct pa
     return 0;
 }
 
-int bit_rotate_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int count_reg = (ci->cmd_wrd >> 9) & 7;
     char dest_ea[5];
@@ -741,7 +740,7 @@ int bit_rotate_reg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct pa
     return 1;
 }
 
-int br_cond(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int br_cond(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int jmp_base = state->PCPos;
     register char* condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
@@ -836,7 +835,7 @@ typedef struct add_sub_def
  *     1100 - "and"
  *     1101 - "add"
  */
-int add_sub(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     /*int datareg = (ci->cmd_wrd >> 9) & 7;*/
     int ea_mode = (ci->cmd_wrd >> 3) & 7;
@@ -914,7 +913,7 @@ int add_sub(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     }
 }
 
-int cmp_cmpa(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int mode = (ci->cmd_wrd >> 3) & 7;
     register int reg = ci->cmd_wrd & 7;
@@ -951,7 +950,7 @@ int cmp_cmpa(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
 
     return 0;
 }
-int addq_subq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -982,7 +981,7 @@ int addq_subq(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     return 0;
 }
 
-int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int abcd_sbcd(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int srcReg = ci->cmd_wrd & 7;
     register int dstReg = (ci->cmd_wrd >> 9) & 7;
@@ -1008,7 +1007,7 @@ int abcd_sbcd(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_s
     return 1;
 }
 
-int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     unsigned int vector = ci->cmd_wrd & 0x0f;
     if (!hasnext_w(state)) return 0;
@@ -1150,7 +1149,7 @@ int trap(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state*
     return 0;
 }
 
-int cmd_stop(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     if (!hasnext_w(state)) return 0;
     sprintf(ci->params, "#%d", getnext_w(ci, state));
@@ -1158,7 +1157,7 @@ int cmd_stop(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     return 1;
 }
 
-int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     /*int br_from = PCPos;
     register int dest;*/
@@ -1202,7 +1201,7 @@ int cmd_dbcc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     return 0;
 }
 
-int cmd_scc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
@@ -1237,7 +1236,7 @@ int cmd_scc(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     return 0;
 }
 
-int cmd_exg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int regnumSrc = (ci->cmd_wrd >> 9) & 7;
     register int regnumDst = ci->cmd_wrd & 7;
@@ -1276,7 +1275,7 @@ int cmd_exg(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_sta
     return 1;
 }
 
-int ext_extb(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int ext_extb(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register char* sufx;
 
@@ -1302,7 +1301,7 @@ int ext_extb(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_st
     return 1;
 }
 
-int cmpm_addx_subx(struct cmd_items* ci, int j, const OPSTRUCTURE* op, struct parse_state* state)
+int cmpm_addx_subx(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     register int srcRegno = ci->cmd_wrd & 7;
     register int dstRegno = (ci->cmd_wrd >> 9) & 7;

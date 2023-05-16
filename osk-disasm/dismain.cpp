@@ -547,7 +547,7 @@ int dopass(int Pass, struct options* opt)
  * noimplemented() - A dummy function which simply returns NULL for instructions
  *       that do not yet have handler functions
  */
-int notimplemented(struct cmd_items* ci, int tblno, const OPSTRUCTURE* op, struct parse_state* state)
+int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     return 0;
 }
@@ -610,7 +610,7 @@ static bool get_asmcmd(struct parse_state* state)
 
         if (curop)
         {
-            if (curop->opfunc(&Instruction, curop->id, curop, state))
+            if (curop->opfunc(&Instruction, curop, state))
             {
                 return true;
             }
