@@ -125,5 +125,21 @@ namespace IntegrationTests
 				test.run();
 			}
 		}
+
+		TEST_METHOD(LibrarySYS)
+		{
+			const std::vector<std::string> filenames
+			{
+				"io", "module", "oskfuncs", "process", "sysglob"
+			};
+
+			for (const auto& name : filenames)
+			{
+				reset();
+				IntegrationTestCase test("library SYS", name);
+
+				test.run();
+			}
+		}
 	};
 }
