@@ -187,7 +187,10 @@ void PrintPsect(struct options* opt)
 
             Ci.lblname = ModAtts[c].name;
             Ci.cmd_wrd = ModAtts[c].val;
-            sprintf(Ci.params, "$%02x", ModAtts[c].val);
+            std::ostringstream paramsBuffer;
+            paramsBuffer << '$' << PrettyNumber<int>(ModAtts[c].val).fill('0').width(2).hex();
+            auto params = paramsBuffer.str();
+            strcpy(Ci.params, params.c_str());
             PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
         }
     }
@@ -386,7 +389,10 @@ static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t st
                     Ci.lblname = nl->name();
                 }
 
-                sprintf(Ci.params, "*-%d", endPC - x);
+                std::ostringstream paramsBuffer;
+                paramsBuffer << "*-" << (endPC - x);
+                auto params = paramsBuffer.str();
+                strcpy(Ci.params, params.c_str());
 
                 if (opt->IsUnformatted)
                 {
@@ -417,34 +423,21 @@ void ROFPsect(struct options* opt)
     Label* nl;
     struct cmd_items Ci;
 
-    /*strcpy(Ci.instr, "");*/
     strcpy(Ci.params, "");
     strcpy(Ci.mnem, "psect");
-    /*sprintf(Ci.params, "%s,$%x,$%x,%d,%d,", rptr->rname,
-                                                rptr->ty_lan >> 8,
-                                                rptr->ty_lan & 0xff,
-                                                rptr->edition,
-                                                rptr->stksz
-            );
-    */
-    char* params = rof_header_getPsectParams(opt->ROFHd.get());
-    strcpy(Ci.params, params);
-    delete[] params;
+    auto paramsBuffer = rof_header_getPsectParams(opt->ROFHd.get());
 
     nl = findlbl(&CODE_SPACE, opt->ROFHd->code_begin);
     if (nl)
     {
-        strcat(Ci.params, nl->name().c_str());
-        /*OPSCAT(nl->sname);*/
+        paramsBuffer << ',' << nl->name();
     }
     else
     {
-        char oc[10];
-
-        sprintf(oc, "$%04x", opt->ROFHd->code_begin);
-        strcat(Ci.params, oc);
-        /*OPHCAT ((int)(rptr->modent));*/
+        paramsBuffer << ",$" << PrettyNumber<uint32_t>(opt->ROFHd->code_begin).fill('0').width(4).hex();
     }
+    auto params = paramsBuffer.str();
+    strcpy(Ci.params, params.c_str());
 
     InProg = 0;  /* Inhibit Label Lookup */
     PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);

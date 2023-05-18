@@ -69,14 +69,15 @@ const char* extern_def_name(struct rof_extrn* handle)
     return handle->nam.c_str();
 }
 
-char* rof_header_getPsectParams(struct rof_header* handle)
+std::ostringstream rof_header_getPsectParams(struct rof_header* handle)
 {
-    char* ret = new char[100];
-    if (!ret) errexit("OoM");
-    snprintf(ret, 99, "%s,$%x,$%x,%d,%d,", handle->rname.c_str(), handle->ty_lan >> 8, handle->ty_lan & 0xff,
-             handle->edition, handle->stksz);
-    ret[99] = '\0';
-    return ret;
+    std::ostringstream paramBuffer;
+    paramBuffer << handle->rname;
+    paramBuffer << ",$" << PrettyNumber<uint32_t>(handle->ty_lan >> 8).hex();
+    paramBuffer << ",$" << PrettyNumber<uint32_t>(handle->ty_lan & 0xFF).hex();
+    paramBuffer << ',' << handle->edition;
+    paramBuffer << ',' << handle->stksz;
+    return paramBuffer;
 }
 
 /*

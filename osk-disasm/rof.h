@@ -131,6 +131,6 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, uint32_t curloc, int ival, int Pass);
 const char* extern_def_name(struct rof_extrn* handle);
-char* rof_header_getPsectParams(struct rof_header* handle);
+std::ostringstream rof_header_getPsectParams(struct rof_header* handle);
 
 #endif // ROF_H
