@@ -158,10 +158,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommonInstrUnitTests.cpp" />
     <ClCompile Include="IntegrationTestCase.cpp" />
     <ClCompile Include="IntegrationTests.cpp" />
     <ClCompile Include="ParamsUnitTests.cpp" />
-    <ClCompile Include="UnitTests.cpp" />
+    <ClCompile Include="RareInstrUnitTests.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>

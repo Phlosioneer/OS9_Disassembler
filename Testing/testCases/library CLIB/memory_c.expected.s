@@ -135,8 +135,7 @@ L0011e movea.l (a3),a2
  bne.s L00130
  move.l (a2),(a3)
  bra.s L0013c
-L00130 dc.w $9baa
- dc.w $4
+L00130 sub.l d5,4(a2)
  move.l 4(a2),d0
  lsl.l #3,d0
  adda.l d0,a2

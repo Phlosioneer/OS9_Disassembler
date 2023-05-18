@@ -56,8 +56,6 @@
 #define strcasecmp strcmp
 #endif
 
-static bool get_asmcmd(struct cmd_items* ci, struct parse_state* state);
-
 static const char* DrvrJmps[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
 
 static const char* FmanJmps[] = {"Open",  "Create", "Makdir",  "Chgdir",  "Delete",  "Seek",  "Read",
@@ -548,7 +546,7 @@ static void readOpword(struct cmd_items* ci, struct parse_state* state)
     state->PCPos += 2;
 }
 
-static bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
+bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
 {
     register const OPSTRUCTURE* optbl;
     auto mark = state->Module->position();

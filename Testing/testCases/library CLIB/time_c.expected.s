@@ -291,8 +291,7 @@ L00272 move.l 16(a2),d0
  lsl.l #2,d0
  lea.l _00000(a6),a0
  move.l (a0,d0.l),d0
- dc.w $91aa
- dc.w $c
+ sub.l d0,12(a2)
  addq.l #1,16(a2)
  moveq #11,d0
  cmp.l 16(a2),d0
@@ -354,7 +353,7 @@ L0032a link.w A5,#0
 L00336 addq.l #1,d4
  move.l 4(sp),d0
  movea.l (sp),a0
- dc.w $9190
+ sub.l d0,(a0)
 L00340 movea.l (sp),a0
  move.l 4(sp),d0
  cmp.l (a0),d0
@@ -412,8 +411,7 @@ L003be move.l (sp),d0
  move.l d0,D00000(a6)
 L003d2 movea.l D00000(a6),a0
  move.l 4(a0),d0
- dc.w $91aa
- dc.w $4
+ sub.l d0,4(a2)
  move.l a2,d0
  bsr.w L001fa
  move.l 8(a2),-(sp)

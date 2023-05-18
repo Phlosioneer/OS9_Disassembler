@@ -377,7 +377,7 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
             fprintf(stderr, "Lookup error on Pass 2 (main)\n");
             fprintf(stderr, "Cannot find %s - %05x\n", t->name.c_str(), adjusted);
             /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
-            exit(1);
+            throw std::runtime_error("");
         }
     }
     std::string destStr = dest.str();

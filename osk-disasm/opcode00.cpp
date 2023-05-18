@@ -46,7 +46,7 @@ enum
 };
 
 /*
- * Immediate bit operations involving the status registers
+ * Immediate bit operations involving the status registers (ori, andi, eori)
  * Returns 1 on success, 0 on failure
  */
 int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -70,7 +70,7 @@ int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
         return 0;
     }
 
-    /* Add functions to retrieve label */
+    // TODO: Add functions to retrieve label
     if (state->Pass == 2)
     {
         strcpy(ci->mnem, op->name);
@@ -95,38 +95,22 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     std::ostringstream EaStringBuffer;
     reg = (ci->cmd_wrd) & 7;
 
-    if ((ci->cmd_wrd & 0x023c) == 0x023c)
+    if (size > SIZ_LONG)
     {
-        switch (ci->cmd_wrd)
-        {
-        case 0x023c:
-            EaStringBuffer << "ccr";
-            size = SIZ_BYTE;
-            break;
-        case 0x027c:
-            EaStringBuffer << "sr";
-            size = SIZ_WORD;
-        }
+        return 0;
     }
-    else
+
+    if (mode == 1)
     {
-        if (size > SIZ_LONG)
+        return 0;
+    }
+
+    if (mode == 7)
+    {
+        /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
+        if (reg > 1)
         {
             return 0;
-        }
-
-        if (mode == 1)
-        {
-            return 0;
-        }
-
-        if (mode == 7)
-        {
-            /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
-            if (reg > 1)
-            {
-                return 0;
-            }
         }
     }
 
@@ -398,7 +382,7 @@ int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
     char EaStringBuffer[200];
     EaStringBuffer[0] = '\0';
-    sprintf(EaStringBuffer, "A%d", ci->cmd_wrd & 7);
+    sprintf(EaStringBuffer, "a%d", ci->cmd_wrd & 7);
 
     if ((ci->cmd_wrd >> 3) & 1)
     {
@@ -432,9 +416,17 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     static char opcodeFmt[8];
 
     strcpy(opcodeFmt, "%s,%s");
-    sprintf(DReg, "D%d", (ci->cmd_wrd >> 9) & 7);
+    sprintf(DReg, "d%d", (ci->cmd_wrd >> 9) & 7);
 
-    sprintf(AReg, "%d(A%d)", disp, addr_reg);
+    if (disp == 0)
+    {
+        sprintf(AReg, "(a%d)", addr_reg);
+    }
+    else
+    {
+        // TODO: Account for labels!
+        sprintf(AReg, "%d(a%d)", disp, addr_reg);
+    }
 
     if (opMode & 2)
     {
@@ -494,7 +486,7 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         }
     }
 
-    if (op->id == 38) /* swap */
+    if (op->id == InstrId::SWAP) /* swap */
     {
         sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
     }
@@ -503,11 +495,11 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         /* eliminate modes */
         switch (op->id)
         {
-        case 43:   /* tst  */
-            break; /* Allow all modes */
-        case 39:   /* pea  */
-        case 57:   /* jsr  */
-        case 58:   /* jmp  */
+        case InstrId::TST: /* tst  */
+            break;         /* Allow all modes */
+        case InstrId::PEA: /* pea  */
+        case InstrId::JSR: /* jsr  */
+        case InstrId::JMP: /* jmp  */
             if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
         default:
             if (mode == 1) return 0;
@@ -519,12 +511,12 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         {
             switch (op->id)
             {
-            case 32: /* Allow all modes */
-            case 38:
+            case InstrId::CLR: /* Allow all modes */
+            case InstrId::SWAP:
                 break;
-            case 39:
-            case 57: /* jsr  */
-            case 58: /* jmp  */
+            case InstrId::PEA:
+            case InstrId::JSR: /* jsr  */
+            case InstrId::JMP: /* jmp  */
                 if (reg == 4) return 0;
                 break;
             default:
@@ -540,10 +532,11 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
 
             switch (op->id)
             {
-            case 28: /* Move from SR */
+            case InstrId::MOVE_FROM_SR: /* Move from SR */
+            case InstrId::MOVE_TO_SR:
                 statreg = "sr";
-            case 33: /* Move to CCR  */
-            case 35: /* Move from CCR */
+            case InstrId::MOVE_TO_CCR:   /* Move to CCR  */
+            case InstrId::MOVE_FROM_CCR: /* Move from CCR */
                 if (ci->cmd_wrd & 0x400)
                     sprintf(ci->params, "%s,%s", ea, statreg);
                 else
@@ -685,7 +678,7 @@ int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 {
     int mode = (ci->cmd_wrd >> 3) & 7;
     int reg = ci->cmd_wrd & 7;
-    char ea[50];
+    char ea[150];
 
     if (mode < 2)
     {
@@ -850,6 +843,7 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
     if (asDef->direction == EA2REG)
     {
+        // Byte ops can't be used with address regs.
         if ((ea_mode == 1) && (asDef->size < SIZ_WORD))
         {
             return 0;
@@ -1325,7 +1319,7 @@ int cmpm_addx_subx(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
         }
         else
         {
-            opcodeFmt = "D%d,D%d";
+            opcodeFmt = "d%d,d%d";
         }
     }
 

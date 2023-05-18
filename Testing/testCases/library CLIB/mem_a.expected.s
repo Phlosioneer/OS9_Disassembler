@@ -30,8 +30,7 @@ L00012 addq.l #1,d1
  bcs.s L00030
  move.l D00000(a6),d0
  add.l d1,D00000(a6)
- dc.w $93ae
- dc.w $4
+ sub.l d1,D00004(a6)
  bra.w L000b0
 L00030 move.l _memmins(a6),d0
  cmp.l d1,d0

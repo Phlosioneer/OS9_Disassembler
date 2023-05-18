@@ -29,6 +29,7 @@ of every command, general, print, getline,main, and assembley routine.
 #include "commonsubs.h"
 #include "dismain.h"
 
+
 extern const SIZETYPES sizefield[];
 extern const CONDITIONALS typecondition[];
 extern const EAALLOWED_TYPE EAtype[];

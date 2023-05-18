@@ -12,9 +12,9 @@ _T$UMul: movem.l d2-d4,-(sp)
  swap.w d0
  add.w d1,d0
  moveq #0,d4
- addx.l D4,D3
+ addx.l d4,d3
  add.w d2,d0
- addx.l D4,D3
+ addx.l d4,d3
  swap.w d0
  clr.w d1
  swap.w d1

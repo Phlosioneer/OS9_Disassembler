@@ -61,6 +61,7 @@ struct module_header
     std::unique_ptr<BigEndianStream> initDataStream{};
 };
 
+bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state);
 int dopass(int mypass, struct options* opt);
 int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);

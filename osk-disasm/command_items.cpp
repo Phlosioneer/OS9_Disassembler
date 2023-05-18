@@ -86,15 +86,15 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     /* Eliminate illegal Addressing modes */
     switch (op->id)
     {
-    case 30: /* chk */
-    case 70: /* divu */
-    case 71: /* divs */
-    case 79: /* mulu */
-    case 80: /* muls */
+    case InstrId::CHK:         /* chk */
+    case InstrId::DIVU: /* divu */
+    case InstrId::DIVS:     /* divs */
+    case InstrId::MULU:     /* mulu */
+    case InstrId::MULS:         /* muls */
         if ((mode == 1)) return 0;
         break;
 
-    case 31: /* lea */
+    case InstrId::LEA: /* lea */
         if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
         if ((mode == 7) && (reg == 4)) return 0;
         size = SIZ_LONG;
@@ -102,7 +102,7 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
         break; /* Already checked above */
     }
 
-    if (op->id == 31)
+    if (op->id == InstrId::LEA)
     {
         regname = "a";
     }
@@ -214,7 +214,7 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
 
     switch (op->id)
     {
-    case 47: /* "unlink: only needs regno for the opcode */
+    case InstrId::UNLK: /* "unlink: only needs regno for the opcode */
         sprintf(ci->params, "A%d", regno);
 
         if ((ci->mnem[strlen(ci->mnem) - 1]) == '.')
@@ -227,14 +227,8 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
         if (!hasnext_w(state)) return 0;
         ext_w = getnext_w(ci, state);
 
-        if (op->id == 138)
-        {
-            if (!hasnext_w(state)) return 0;
-            ext_w = (ext_w << 8) | (getnext_w(ci, state) & 0xff);
-        }
-
         sprintf(ci->params, "A%d,#%d", regno, ext_w);
-        strcat(ci->mnem, (op->id == 46) ? "w" : "l");
+        strcat(ci->mnem, (op->id == InstrId::LINK) ? "w" : "l");
     }
 
     return 1;

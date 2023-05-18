@@ -12,9 +12,9 @@
    11  00016 4840            swap.w d0         
    12  00018 d041            add.w  d1,d0      
    13  0001a 7800            moveq  #0,d4      
-   14  0001c d784            addx.l D4,D3      
+   14  0001c d784            addx.l d4,d3      
    15  0001e d042            add.w  d2,d0      
-   16  00020 d784            addx.l D4,D3      
+   16  00020 d784            addx.l d4,d3      
    17  00022 4840            swap.w d0         
    18  00024 4241            clr.w  d1         
    19  00026 4841            swap.w d1         
