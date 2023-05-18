@@ -56,7 +56,16 @@ namespace UnitTests
 			struct cmd_items instr;
 			Assert::IsTrue(get_asmcmd(&instr, &state), subtestName);
 			Assert::AreEqual(expectedMneumonic, instr.mnem, subtestName);
-			Assert::AreEqual(expectedParams, instr.params, subtestName);
+			std::string params;
+			if (instr.useNewParams)
+			{
+				params = instr.renderNewParams();
+			}
+			else
+			{
+				params = instr.params;
+			}
+			Assert::AreEqual(expectedParams, params.c_str(), subtestName);
 		}
 
 		void runFailTest()

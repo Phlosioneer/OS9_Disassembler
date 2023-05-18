@@ -248,6 +248,12 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
         }
     }
 
+    if (ci->useNewParams)
+    {
+        auto params = ci->renderNewParams();
+        strcpy(ci->params, params.c_str());
+    }
+
     PrintFormatted(pfmt, ci, opt, CmdEnt);
 
     if (opt->asmFile)

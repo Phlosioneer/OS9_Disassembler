@@ -8,6 +8,7 @@
 
 #include "disglobs.h"
 #include "reader.h"
+#include "params.h"
 
 struct opst;
 struct options;
@@ -30,6 +31,27 @@ struct cmd_items
     // char comment[COMMENT_LEN];     // Inline comment - NULL if none
     char* comment = "";
     extWbrief extend{}; // The extended command (if present)
+
+    bool useNewParams = false;
+    std::unique_ptr<InstrParam> source{};
+    std::unique_ptr<InstrParam> dest{};
+
+    void setSource(const LiteralParam& param);
+    void setSource(const RegParam& param);
+    void setSource(const AbsoluteAddrParam& param);
+    void setSource(const RegOffsetParam& param);
+
+    void setDest(const LiteralParam& param);
+    void setDest(const RegParam& param);
+    void setDest(const AbsoluteAddrParam& param);
+    void setDest(const RegOffsetParam& param);
+
+    std::string renderNewParams() const;
+
+    // Allow move-assignment
+    struct cmd_items& operator=(struct cmd_items&& other);
+    // But not copy-assignment
+    struct cmd_items& operator=(const struct cmd_items& other) = delete;
 };
 
 struct parse_state
@@ -52,7 +74,6 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
 bool hasnext_w(struct parse_state* state);
 int getnext_w(struct cmd_items* ci, struct parse_state* state);
 void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
-struct cmd_items* initcmditems(struct cmd_items* ci);
 
 // Unused
 char getnext_b(struct cmd_items* ci, struct parse_state* state);

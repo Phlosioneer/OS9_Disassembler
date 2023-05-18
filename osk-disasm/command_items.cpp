@@ -61,15 +61,76 @@ MODE_STR Mode020Strings[] = {
     {"([%d,%s,%s],%d)"}, /* ([bd,An,Xn],disp) | ([bd,PC,Xn],disp) */
 };
 
-// This function is named "init cmd items" but it does not init cmd items.
-struct cmd_items* initcmditems(struct cmd_items* ci)
+void cmd_items::setSource(const LiteralParam& param)
 {
-    ci->mnem[0] = 0;
-    ci->wcount = 0;
-    ci->params[0] = '\0';
-    ci->comment = NULL;
-    ci->lblname.clear(); // I added this line
-    return ci;
+    source = std::make_unique<LiteralParam>(param);
+}
+
+void cmd_items::setSource(const RegParam& param)
+{
+    source = std::make_unique<RegParam>(param);
+}
+
+void cmd_items::setSource(const AbsoluteAddrParam& param)
+{
+    source = std::make_unique<AbsoluteAddrParam>(param);
+}
+
+void cmd_items::setSource(const RegOffsetParam& param)
+{
+    source = std::make_unique<RegOffsetParam>(param);
+}
+
+void cmd_items::setDest(const LiteralParam& param)
+{
+    dest = std::make_unique<LiteralParam>(param);
+}
+
+void cmd_items::setDest(const RegParam& param)
+{
+    dest = std::make_unique<RegParam>(param);
+}
+
+void cmd_items::setDest(const AbsoluteAddrParam& param)
+{
+    dest = std::make_unique<AbsoluteAddrParam>(param);
+}
+
+void cmd_items::setDest(const RegOffsetParam& param)
+{
+    dest = std::make_unique<RegOffsetParam>(param);
+}
+
+std::string cmd_items::renderNewParams() const
+{
+    std::ostringstream paramBuffer;
+    if (source)
+    {
+        paramBuffer << *source;
+        if (dest)
+        {
+            paramBuffer << ',' << *dest;
+        }
+    }
+    return paramBuffer.str();
+}
+
+cmd_items& cmd_items::operator=(struct cmd_items&& other)
+{
+    cmd_wrd = other.cmd_wrd;
+    lblname = other.lblname;
+    strcpy(mnem, other.mnem);
+    memcpy(code, other.code, CODE_LEN * sizeof(short));
+    wcount = other.wcount;
+    strcpy(params, other.params);
+    comment = other.comment;
+    extend = other.extend;
+
+    useNewParams = other.useNewParams;
+    source.swap(other.source);
+    dest.swap(other.dest);
+
+    return *this;
 }
 
 /*
@@ -210,20 +271,25 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
 {
     auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
+    ci->useNewParams = true;
 
     if (op->id == InstrId::UNLK)
     {
-        strcpy(ci->params, Registers::getName(reg));
+        //strcpy(ci->params, Registers::getName(reg));
+        ci->setSource(RegParam(reg));
     }
     else
     {
         if (!hasnext_w(state)) return 0;
         auto ext_w = getnext_w(ci, state);
 
-        std::ostringstream paramsBuffer;
-        paramsBuffer << Registers::getName(reg) << ",#" << PrettyNumber<int16_t>(ext_w);
-        auto params = paramsBuffer.str();
-        strcpy(ci->params, params.c_str());
+        ci->setSource(RegParam(reg));
+        ci->setDest(LiteralParam(FormattedNumber(ext_w, OperandSize::Word)));
+
+        //std::ostringstream paramsBuffer;
+        //paramsBuffer << Registers::getName(reg) << ",#" << PrettyNumber<int16_t>(ext_w);
+        //auto params = paramsBuffer.str();
+        //strcpy(ci->params, params.c_str());
     }
     return 1;
 }
