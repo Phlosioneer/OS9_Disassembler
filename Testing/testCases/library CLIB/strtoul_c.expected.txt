@@ -1,5 +1,5 @@
     0  00000 0000            psect  strtoul_c,$0,$0,0,0,strtoul 
-    1  00000 4e55 strtoul:   link.w A5,#0      
+    1  00000 4e55 strtoul:   link.w a5,#0      
     2  00004 48e7            movem.l a0/a2-a3/d0-d1/d4-d7,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2641            movea.l d1,a3      
@@ -153,7 +153,7 @@
   152  0017e 2c00            move.l d0,d6      
   153  00180 2006 L00180     move.l d6,d0      
   154  00182 4ced L00182     movem.l -28(a5),a0/a2-a3/d4-d7 
-  155  00188 4e5d            unlk   A5         
+  155  00188 4e5d            unlk   a5         
   156  0018a 4e75            rts               
   157
   158  0018c 0000            ends              

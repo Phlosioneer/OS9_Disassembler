@@ -100,5 +100,20 @@ namespace UnitTests
 			pushWord(SUBX | SUB_REG(4) | SUBX_SIZE(0b10) | SUBX_ADDR_MODE_BIT | 0);
 			runTest("subx.l", "-(a0),-(a4)");
 		}
+
+		TEST_METHOD(link_unlk)
+		{
+			const uint16_t LINK = 0b0100111001010000;
+			const uint16_t UNLK = 0b0100111001011000;
+
+			subtestName = L"LINK";
+			pushWord(LINK | 5);
+			pushWord(20);
+			runTest("link.w", "a5,#20");
+
+			subtestName = L"UNLINK";
+			pushWord(UNLK | 5);
+			runTest("unlk", "a5");
+		}
 	};
 }

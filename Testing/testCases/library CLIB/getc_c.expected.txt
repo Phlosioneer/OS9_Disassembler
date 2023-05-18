@@ -1,5 +1,5 @@
     0  00000 0000            psect  getc_c,$0,$0,0,0,getc 
-    1  00000 4e55 getc:      link.w A5,#0      
+    1  00000 4e55 getc:      link.w a5,#0      
     2  00001 0000 L00001     equ    *-3        
     3  00004 48e7            movem.l a0/a2/d0,-(sp) 
     4  00008 2440            movea.l d0,a2      
@@ -24,9 +24,9 @@
    23  00036 200a L00036     move.l a2,d0      
    24  00038 6100            bsr.w  L000ba     
    25  0003c 4ced L0003c     movem.l -8(a5),a0/a2 
-   26  00042 4e5d            unlk   A5         
+   26  00042 4e5d            unlk   a5         
    27  00044 4e75            rts               
-   28  00046 4e55 ungetc:    link.w A5,#0      
+   28  00046 4e55 ungetc:    link.w a5,#0      
    29  0004a 48e7            movem.l a0/a2/d0-d1,-(sp) 
    30  0004e 2441            movea.l d1,a2      
    31  00050 200a            move.l a2,d0      
@@ -46,9 +46,9 @@
    45  00072 10af            move.b 3(sp),(a0) 
    46  00076 2017            move.l (sp),d0    
    47  00078 4ced L00078     movem.l -8(a5),a0/a2 
-   48  0007e 4e5d            unlk   A5         
+   48  0007e 4e5d            unlk   a5         
    49  00080 4e75            rts               
-   50  00082 4e55 getw:      link.w A5,#0      
+   50  00082 4e55 getw:      link.w a5,#0      
    51  00086 48e7            movem.l a2/d0-d1/d4-d5,-(sp) 
    52  0008a 2440            movea.l d0,a2      
    53  0008c 200a            move.l a2,d0      
@@ -68,9 +68,9 @@
    67  000ac e188            lsl.l  #8,d0      
    68  000ae d085            add.l  d5,d0      
    69  000b0 4ced L000b0     movem.l -16(a5),a2/d1/d4-d5 
-   70  000b6 4e5d            unlk   A5         
+   70  000b6 4e5d            unlk   a5         
    71  000b8 4e75            rts               
-   72  000ba 4e55 L000ba     link.w A5,#0      
+   72  000ba 4e55 L000ba     link.w a5,#0      
    73  000be 48e7            movem.l a0/a2/d0-d1/d4,-(sp) 
    74  000c2 2440            movea.l d0,a2      
    75  000c4 302a            move.w 12(a2),d0  
@@ -137,7 +137,7 @@
   136  00182 0240            andi.w #255,d0    
   137  00186 48c0            ext.l  d0         
   138  00188 4ced L00188     movem.l -16(a5),a0/a2/d1/d4 
-  139  0018e 4e5d            unlk   A5         
+  139  0018e 4e5d            unlk   a5         
   140  00190 4e75            rts               
   141
   142  00192 0000            ends              

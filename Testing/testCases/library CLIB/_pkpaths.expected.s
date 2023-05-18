@@ -1,5 +1,5 @@
  psect _pkpaths,$0,$0,1,0,_pkpaths
-_pkpaths: link.w A5,#0
+_pkpaths: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  moveq #SS_Lock,d1
  os9 I$SetStt

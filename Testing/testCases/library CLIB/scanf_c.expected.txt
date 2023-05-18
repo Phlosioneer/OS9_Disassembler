@@ -13,7 +13,7 @@
    12
    13  00000 0000            ends              
    13
-   14  00000 4e55 scanf:     link.w A5,#0      
+   14  00000 4e55 scanf:     link.w a5,#0      
    15  00004 48e7            movem.l a0/d0-d1,-(sp) 
    16  00008 203c            move.l #-80,d0    
    17  0000e 6100            bsr.w  _stkcheck  
@@ -29,9 +29,9 @@
    27  00032 6100            bsr.w  L000c0     
    28  00036 4fef            lea.l  12(sp),a7  
    29  0003a 4ced            movem.l -4(a5),a0  
-   30  00040 4e5d            unlk   A5         
+   30  00040 4e5d            unlk   a5         
    31  00042 4e75            rts               
-   32  00044 4e55 fscanf:    link.w A5,#0      
+   32  00044 4e55 fscanf:    link.w a5,#0      
    33  00048 48e7            movem.l a0/d0-d1,-(sp) 
    34  0004c 203c            move.l #-80,d0    
    35  00052 6100            bsr.w  _stkcheck  
@@ -46,9 +46,9 @@
    44  00072 614c            bsr.s  L000c0     
    45  00074 4fef            lea.l  12(sp),a7  
    46  00078 4ced            movem.l -4(a5),a0  
-   47  0007e 4e5d            unlk   A5         
+   47  0007e 4e5d            unlk   a5         
    48  00080 4e75            rts               
-   49  00082 4e55 sscanf:    link.w A5,#0      
+   49  00082 4e55 sscanf:    link.w a5,#0      
    50  00086 48e7            movem.l a0/d0-d1,-(sp) 
    51  0008a 203c            move.l #-80,d0    
    52  00090 6100            bsr.w  _stkcheck  
@@ -63,9 +63,9 @@
    61  000b0 610e            bsr.s  L000c0     
    62  000b2 4fef            lea.l  12(sp),a7  
    63  000b6 4ced            movem.l -4(a5),a0  
-   64  000bc 4e5d            unlk   A5         
+   64  000bc 4e5d            unlk   a5         
    65  000be 4e75            rts               
-   66  000c0 4e55 L000c0     link.w A5,#0      
+   66  000c0 4e55 L000c0     link.w a5,#0      
    67  000c4 48e7            movem.l a0/a2-a4/d0-d1/d4-d7,-(sp) 
    68  000c8 2440            movea.l d0,a2      
    69  000ca 2641            movea.l d1,a3      
@@ -303,9 +303,9 @@
   301  00370 60ac            bra.s  L0031e     
   302  00372 4fef L00372     lea.l  16(sp),a7  
   303  00376 4ced            movem.l -32(a5),a0/a2-a4/d4-d7 
-  304  0037c 4e5d            unlk   A5         
+  304  0037c 4e5d            unlk   a5         
   305  0037e 4e75            rts               
-  306  00380 4e55 L00380     link.w A5,#0      
+  306  00380 4e55 L00380     link.w a5,#0      
   307  00384 48e7            movem.l a0/a2-a4/d0-d1/d4-d7,-(sp) 
   308  00388 2440            movea.l d0,a2      
   309  0038a 266f            movea.l 48(sp),a3  
@@ -577,9 +577,9 @@
   575  00672 7001 L00672     moveq  #1,d0      
   576  00674 4fef L00674     lea.l  80(sp),a7  
   577  00678 4ced            movem.l -32(a5),a0/a2-a4/d4-d7 
-  578  0067e 4e5d            unlk   A5         
+  578  0067e 4e5d            unlk   a5         
   579  00680 4e75            rts               
-  580  00682 4e55 L00682     link.w A5,#0      
+  580  00682 4e55 L00682     link.w a5,#0      
   581  00686 48e7            movem.l a0/a2-a4/d0-d1/d4-d6,-(sp) 
   582  0068a 2440            movea.l d0,a2      
   583  0068c 266f            movea.l 44(sp),a3  
@@ -668,9 +668,9 @@
   666  0076c 6002            bra.s  L00770     
   667  0076e 7000 L0076e     moveq  #0,d0      
   668  00770 4ced L00770     movem.l -28(a5),a0/a2-a4/d4-d6 
-  669  00776 4e5d            unlk   A5         
+  669  00776 4e5d            unlk   a5         
   670  00778 4e75            rts               
-  671  0077a 4e55 L0077a     link.w A5,#0      
+  671  0077a 4e55 L0077a     link.w a5,#0      
   672  0077e 48e7            movem.l a0/a2/d0-d1/d4-d5,-(sp) 
   673  00782 2440            movea.l d0,a2      
   674  00784 203c            move.l #-64,d0    
@@ -719,17 +719,17 @@
   717  007fe 66c4            bne.s  L007c4     
   718  00800 200a L00800     move.l a2,d0      
   719  00802 4ced            movem.l -20(a5),a0/a2/d1/d4-d5 
-  720  00808 4e5d            unlk   A5         
+  720  00808 4e5d            unlk   a5         
   721  0080a 4e75            rts               
-  722  0080c 4e55 L0080c     link.w A5,#0      
+  722  0080c 4e55 L0080c     link.w a5,#0      
   723  00810 48e7            movem.l d0,-(sp)   
   724  00814 203c            move.l #-68,d0    
   725  0081a 6100            bsr.w  _stkcheck  
   726  0081e 202e            move.l D00084(a6),d0 
   727  00822 6100            bsr.w  getc       
-  728  00826 4e5d            unlk   A5         
+  728  00826 4e5d            unlk   a5         
   729  00828 4e75            rts               
-  730  0082a 4e55 L0082a     link.w A5,#0      
+  730  0082a 4e55 L0082a     link.w a5,#0      
   731  0082e 48e7            movem.l d0-d1,-(sp) 
   732  00832 203c            move.l #-68,d0    
   733  00838 6100            bsr.w  _stkcheck  
@@ -737,9 +737,9 @@
   735  00840 2017            move.l (sp),d0    
   736  00842 6100            bsr.w  ungetc     
   737  00846 4ced            movem.l -4(a5),d1  
-  738  0084c 4e5d            unlk   A5         
+  738  0084c 4e5d            unlk   a5         
   739  0084e 4e75            rts               
-  740  00850 4e55 L00850     link.w A5,#0      
+  740  00850 4e55 L00850     link.w a5,#0      
   741  00854 48e7            movem.l a0/d0,-(sp) 
   742  00858 203c            move.l #-64,d0    
   743  0085e 6100            bsr.w  _stkcheck  
@@ -754,14 +754,14 @@
   752  00878 6002            bra.s  L0087c     
   753  0087a 70ff L0087a     moveq  #255,d0    
   754  0087c 4ced L0087c     movem.l -4(a5),a0  
-  755  00882 4e5d            unlk   A5         
+  755  00882 4e5d            unlk   a5         
   756  00884 4e75            rts               
-  757  00886 4e55 L00886     link.w A5,#0      
+  757  00886 4e55 L00886     link.w a5,#0      
   758  0088a 48e7            movem.l d0,-(sp)   
   759  0088e 203c            move.l #-64,d0    
   760  00894 6100            bsr.w  _stkcheck  
   761  00898 53ae            subq.l #1,D00080(a6) 
-  762  0089c 4e5d            unlk   A5         
+  762  0089c 4e5d            unlk   a5         
   763  0089e 4e75            rts               
   764
   765  008a0 0000            ends              

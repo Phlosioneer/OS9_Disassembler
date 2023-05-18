@@ -8,7 +8,7 @@ D00004 ds.b 4
 
  ends 
 
-qsort: link.w A5,#0
+qsort: link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2
  movea.l 28(sp),a3
@@ -25,9 +25,9 @@ qsort: link.w A5,#0
  move.l a2,d0
  bsr.s L00042
  movem.l -8(a5),a2-a3
- unlk A5
+ unlk a5
  rts 
-L00042 link.w A5,#0
+L00042 link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -99,9 +99,9 @@ L000e4 move.l d4,d1
 L000ee cmpa.l a3,a2
  bcs.w L0005c
  movem.l -24(a5),a0/a2-a4/d4-d5
- unlk A5
+ unlk a5
  rts 
-L000fe link.w A5,#0
+L000fe link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -117,7 +117,7 @@ L00120 move.l d4,d0
  tst.l d0
  bne.s L0011a
  movem.l -16(a5),a2-a3/d4-d5
- unlk A5
+ unlk a5
  rts 
 
  ends 

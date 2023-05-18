@@ -1,5 +1,5 @@
  psect direct_c,$0,$0,0,0,opendir
-opendir: link.w A5,#0
+opendir: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)
  lea.l -132(sp),a7
@@ -32,9 +32,9 @@ L0003c move.l (sp),(a2)
  move.l a2,d0
 L00058 lea.l 132(sp),a7
  movem.l -12(a5),a0/a2/d1
- unlk A5
+ unlk a5
  rts 
-readdir: link.w A5,#0
+readdir: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  lea.l -66(sp),a7
@@ -140,9 +140,9 @@ L0013a moveq #12,d0
 L0017c move.l a3,d0
 L0017e lea.l 66(sp),a7
  movem.l -20(a5),a0/a2-a3/d1/d4
- unlk A5
+ unlk a5
  rts 
-telldir: link.w A5,#0
+telldir: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l d0,a2
  pea (L00001).w
@@ -151,9 +151,9 @@ telldir: link.w A5,#0
  bsr.w lseek
  addq.l #4,sp
  movem.l -8(a5),a2/d1
- unlk A5
+ unlk a5
  rts 
-seekdir: link.w A5,#0
+seekdir: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  clr.l -(sp)
  move.l 8(sp),d1
@@ -162,17 +162,17 @@ seekdir: link.w A5,#0
  bsr.w lseek
  addq.l #4,sp
  movem.l -4(a5),a0
- unlk A5
+ unlk a5
  rts 
-rewinddir: link.w A5,#0
+rewinddir: link.w a5,#0
  movem.l d0-d1,-(sp)
  moveq #0,d1
  move.l (sp),d0
  bsr.s seekdir
  movem.l -4(a5),d1
- unlk A5
+ unlk a5
  rts 
-closedir: link.w A5,#0
+closedir: link.w a5,#0
  movem.l a2/d0,-(sp)
  movea.l d0,a2
  move.l (a2),d0
@@ -180,9 +180,9 @@ closedir: link.w A5,#0
  move.l a2,d0
  bsr.w free
  movem.l -4(a5),a2
- unlk A5
+ unlk a5
  rts 
-L0020a link.w A5,#0
+L0020a link.w a5,#0
  movem.l a2-a4/d0-d1,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -194,7 +194,7 @@ L00218 move.b (a3)+,d0
  clr.b (a4)
  move.l a2,d0
  movem.l -12(a5),a2-a4
- unlk A5
+ unlk a5
  rts 
 
  ends 

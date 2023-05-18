@@ -1,5 +1,5 @@
  psect findstr_c,$0,$0,0,0,findstr
-findstr: link.w A5,#0
+findstr: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  move.l d0,d4
  movea.l d1,a2
@@ -21,9 +21,9 @@ L0002a tst.b (a2)
  bne.s L00018
  moveq #0,d0
 L00030 movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-findnstr: link.w A5,#0
+findnstr: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  move.l d0,d4
  movea.l d1,a2
@@ -45,9 +45,9 @@ L00064 cmp.l 32(sp),d4
  ble.s L00052
  moveq #0,d0
 L0006c movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-L00076 link.w A5,#0
+L00076 link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -60,7 +60,7 @@ L0008c tst.b (a3)
  bne.s L00084
  moveq #1,d0
 L00092 movem.l -8(a5),a2-a3
- unlk A5
+ unlk a5
  rts 
 
  ends 

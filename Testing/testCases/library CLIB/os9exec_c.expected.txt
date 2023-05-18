@@ -8,7 +8,7 @@
     7
     8  00000 0000            ends              
     8
-    9  00000 4e55 L00000     link.w A5,#0      
+    9  00000 4e55 L00000     link.w a5,#0      
    10  00002 0000 L00002     equ    *-2        
    11  00004 48e7 L00004     movem.l a2-a3/d0-d1,-(sp) 
    12  00008 2440            movea.l d0,a2      
@@ -18,7 +18,7 @@
    16  00010 157c            move.b #32,-1(a2) 
    17  00016 200a            move.l a2,d0      
    18  00018 4ced            movem.l -8(a5),a2-a3 
-   19  0001e 4e5d            unlk   A5         
+   19  0001e 4e5d            unlk   a5         
    20  00020 4e75            rts               
    21  00022 48e7 L00022     movem.l a0/a2,-(sp) 
    22  00026 4e40            os9    F$SRqMem   
@@ -36,7 +36,7 @@
    34  00044 4e40            os9    F$SRtMem   
    35  00048 245f            movea.l (sp)+,a2   
    36  0004a 4e75            rts               
-   37  0004c 4e55 L0004c     link.w A5,#0      
+   37  0004c 4e55 L0004c     link.w a5,#0      
    38  00050 48e7            movem.l a2-a3/d0-d1/d4,-(sp) 
    39  00054 2440            movea.l d0,a2      
    40  00056 2641            movea.l d1,a3      
@@ -47,9 +47,9 @@
    45  00062 6cfa            bge.s  L0005e     
    46  00064 200a            move.l a2,d0      
    47  00066 4ced            movem.l -12(a5),a2-a3/d4 
-   48  0006c 4e5d            unlk   A5         
+   48  0006c 4e5d            unlk   a5         
    49  0006e 4e75            rts               
-   50  00070 4e55 os9exec:   link.w A5,#0      
+   50  00070 4e55 os9exec:   link.w a5,#0      
    51  00074 48e7            movem.l a0/a2-a4/d0-d1/d4-d7,-(sp) 
    52  00078 4fef            lea.l  -12(sp),a7 
    53  0007c 7000            moveq  #0,d0      
@@ -303,7 +303,7 @@
   301  00318 2017            move.l (sp),d0    
   302  0031a 4fef L0031a     lea.l  12(sp),a7  
   303  0031e 4ced            movem.l -32(a5),a0/a2-a4/d4-d7 
-  304  00324 4e5d            unlk   A5         
+  304  00324 4e5d            unlk   a5         
   305  00326 4e75            rts               
   306
   307  00328 0000            ends              

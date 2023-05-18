@@ -1,5 +1,5 @@
  psect memchr_c,$0,$0,0,0,memchr
-memchr: link.w A5,#0
+memchr: link.w a5,#0
  movem.l a2/d0-d1/d4-d6,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -21,7 +21,7 @@ L00026 move.l d5,d0
  bne.s L00018
  moveq #0,d0
 L00030 movem.l -16(a5),a2/d4-d6
- unlk A5
+ unlk a5
  rts 
 
  ends 

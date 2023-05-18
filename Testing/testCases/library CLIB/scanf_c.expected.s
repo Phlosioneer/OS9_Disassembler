@@ -12,7 +12,7 @@ D00084 ds.b 4
 
  ends 
 
-scanf: link.w A5,#0
+scanf: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  move.l #-80,d0
  bsr.w _stkcheck
@@ -28,9 +28,9 @@ scanf: link.w A5,#0
  bsr.w L000c0
  lea.l 12(sp),a7
  movem.l -4(a5),a0
- unlk A5
+ unlk a5
  rts 
-fscanf: link.w A5,#0
+fscanf: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  move.l #-80,d0
  bsr.w _stkcheck
@@ -45,9 +45,9 @@ fscanf: link.w A5,#0
  bsr.s L000c0
  lea.l 12(sp),a7
  movem.l -4(a5),a0
- unlk A5
+ unlk a5
  rts 
-sscanf: link.w A5,#0
+sscanf: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  move.l #-80,d0
  bsr.w _stkcheck
@@ -62,9 +62,9 @@ sscanf: link.w A5,#0
  bsr.s L000c0
  lea.l 12(sp),a7
  movem.l -4(a5),a0
- unlk A5
+ unlk a5
  rts 
-L000c0 link.w A5,#0
+L000c0 link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -302,9 +302,9 @@ L0035e cmpi.w #37,d0
  bra.s L0031e
 L00372 lea.l 16(sp),a7
  movem.l -32(a5),a0/a2-a4/d4-d7
- unlk A5
+ unlk a5
  rts 
-L00380 link.w A5,#0
+L00380 link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
  movea.l d0,a2
  movea.l 48(sp),a3
@@ -576,9 +576,9 @@ L00656 move.l 140(sp),d0
 L00672 moveq #1,d0
 L00674 lea.l 80(sp),a7
  movem.l -32(a5),a0/a2-a4/d4-d7
- unlk A5
+ unlk a5
  rts 
-L00682 link.w A5,#0
+L00682 link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d6,-(sp)
  movea.l d0,a2
  movea.l 44(sp),a3
@@ -667,9 +667,9 @@ L0076a moveq #1,d0
  bra.s L00770
 L0076e moveq #0,d0
 L00770 movem.l -28(a5),a0/a2-a4/d4-d6
- unlk A5
+ unlk a5
  rts 
-L0077a link.w A5,#0
+L0077a link.w a5,#0
  movem.l a0/a2/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  move.l #-64,d0
@@ -718,17 +718,17 @@ L007ee move.b (a2)+,d0
  bne.s L007c4
 L00800 move.l a2,d0
  movem.l -20(a5),a0/a2/d1/d4-d5
- unlk A5
+ unlk a5
  rts 
-L0080c link.w A5,#0
+L0080c link.w a5,#0
  movem.l d0,-(sp)
  move.l #-68,d0
  bsr.w _stkcheck
  move.l D00084(a6),d0
  bsr.w getc
- unlk A5
+ unlk a5
  rts 
-L0082a link.w A5,#0
+L0082a link.w a5,#0
  movem.l d0-d1,-(sp)
  move.l #-68,d0
  bsr.w _stkcheck
@@ -736,9 +736,9 @@ L0082a link.w A5,#0
  move.l (sp),d0
  bsr.w ungetc
  movem.l -4(a5),d1
- unlk A5
+ unlk a5
  rts 
-L00850 link.w A5,#0
+L00850 link.w a5,#0
  movem.l a0/d0,-(sp)
  move.l #-64,d0
  bsr.w _stkcheck
@@ -753,14 +753,14 @@ L00850 link.w A5,#0
  bra.s L0087c
 L0087a moveq #255,d0
 L0087c movem.l -4(a5),a0
- unlk A5
+ unlk a5
  rts 
-L00886 link.w A5,#0
+L00886 link.w a5,#0
  movem.l d0,-(sp)
  move.l #-64,d0
  bsr.w _stkcheck
  subq.l #1,D00080(a6)
- unlk A5
+ unlk a5
  rts 
 
  ends 

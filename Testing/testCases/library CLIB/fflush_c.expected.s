@@ -1,5 +1,5 @@
  psect fflush_c,$0,$0,0,0,fflush
-fflush: link.w A5,#0
+fflush: link.w a5,#0
 L00001 equ *-3
  movem.l a2/d0,-(sp)
  movea.l d0,a2
@@ -20,9 +20,9 @@ L0001e move.w 12(a2),d0
 L00030 move.l a2,d0
  bsr.s _flsbuf
 L00034 movem.l -4(a5),a2
- unlk A5
+ unlk a5
  rts 
-_flsbuf: link.w A5,#0
+_flsbuf: link.w a5,#0
  movem.l a0/a2/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  move.w 12(a2),d0
@@ -79,9 +79,9 @@ L000c0 bset.b #0,12(a2)
  move.l d0,8(a2)
  moveq #0,d0
 L000da movem.l -20(a5),a0/a2/d1/d4-d5
- unlk A5
+ unlk a5
  rts 
-_setbase: link.w A5,#0
+_setbase: link.w a5,#0
  movem.l a0/a2/d0-d1,-(sp)
  movea.l d0,a2
  move.w #192,d0
@@ -140,9 +140,9 @@ L00194 move.l d0,d1
  beq.s L001a8
  bset.b #1,12(a2)
 L001a8 movem.l -12(a5),a0/a2/d1
- unlk A5
+ unlk a5
  rts 
-setbuf: link.w A5,#0
+setbuf: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l d0,a2
  move.w 12(a2),d0
@@ -178,9 +178,9 @@ L0021e move.l 4(a2),d0
  move.l d0,8(a2)
  move.l d0,(a2)
  movem.l -4(a5),a2
- unlk A5
+ unlk a5
  rts 
-ftell: link.w A5,#0
+ftell: link.w a5,#0
  movem.l a0/a2/d0-d2,-(sp)
  movea.l d0,a2
  move.l a2,d0
@@ -215,7 +215,7 @@ L00290 move.l (a2),d2
  add.l d2,d1
  move.l d1,d0
 L00298 movem.l -16(a5),a0/a2/d1-d2
- unlk A5
+ unlk a5
  rts 
 
  ends 

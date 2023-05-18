@@ -1,5 +1,5 @@
  psect strtod_c,$0,$0,0,0,strtod
-strtod: link.w A5,#0
+strtod: link.w a5,#0
  movem.l a0/a2/d0-d1/d4-d5,-(sp)
  movea.l d1,a2
  lea.l -16(sp),a7
@@ -75,7 +75,7 @@ L000dc movem.l 8(sp),d0-d1
  lea.l 16(sp),a7
  movem.l -16(a5),a0/a2/d4-d5
  bra.s L00112
-L000ee link.w A5,#0
+L000ee link.w a5,#0
  movem.l a0-a2,-(sp)
  movea.l d0,a2
  movea.l (a2),a0
@@ -88,7 +88,7 @@ L000ee link.w A5,#0
 L0010a moveq #1,d0
 L0010c move.l a0,(a2)
  movem.l (sp)+,a0-a2
-L00112 unlk A5
+L00112 unlk a5
  rts 
 
  ends 

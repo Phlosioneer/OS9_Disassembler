@@ -94,7 +94,7 @@
    92
    93  00108 0000            ends              
    93
-   94  00000 4e55 time:      link.w A5,#0      
+   94  00000 4e55 time:      link.w a5,#0      
    95  00004 48e7            movem.l a0-a1/d0-d1,-(sp) 
    96  00008 4fef            lea.l  -26(sp),a7 
    97  0000c 486f            pea    8(sp)      
@@ -162,9 +162,9 @@
   159  000d6 202f L000d6     move.l 22(sp),d0  
   160  000da 4fef L000da     lea.l  26(sp),a7  
   161  000de 4ced            movem.l -12(a5),a0-a1/d1 
-  162  000e4 4e5d            unlk   A5         
+  162  000e4 4e5d            unlk   a5         
   163  000e6 4e75            rts               
-  164  000e8 4e55 mktime:    link.w A5,#0      
+  164  000e8 4e55 mktime:    link.w a5,#0      
   165  000ec 48e7            movem.l a0-a2/d0-d2/d4,-(sp) 
   166  000f0 2440            movea.l d0,a2      
   167  000f2 518f            subq.l #8,sp      
@@ -243,9 +243,9 @@
   240  001ea d0af            add.l  4(sp),d0   
   241  001ee 508f L001ee     addq.l #8,sp      
   242  001f0 4ced            movem.l -24(a5),a0-a2/d1-d2/d4 
-  243  001f6 4e5d            unlk   A5         
+  243  001f6 4e5d            unlk   a5         
   244  001f8 4e75            rts               
-  245  001fa 4e55 L001fa     link.w A5,#0      
+  245  001fa 4e55 L001fa     link.w a5,#0      
   246  001fe 48e7            movem.l a0/a2/d0-d1/d4-d6,-(sp) 
   247  00202 2440            movea.l d0,a2      
   248  00204 723c            moveq  #60,d1     
@@ -346,9 +346,9 @@
   343  0031a 701c L0031a     moveq  #28,d0     
   344  0031c 2d40            move.l d0,_00004(a6) 
   345  00320 4ced            movem.l -24(a5),a0/a2/d1/d4-d6 
-  346  00326 4e5d            unlk   A5         
+  346  00326 4e5d            unlk   a5         
   347  00328 4e75            rts               
-  348  0032a 4e55 L0032a     link.w A5,#0      
+  348  0032a 4e55 L0032a     link.w a5,#0      
   349  0032e 48e7            movem.l a0/d0-d1/d4,-(sp) 
   350  00332 7800            moveq  #0,d4      
   351  00334 600a            bra.s  L00340     
@@ -370,9 +370,9 @@
   367  0035a 6df0            blt.s  L0034c     
   368  0035c 2004            move.l d4,d0      
   369  0035e 4ced            movem.l -8(a5),a0/d4 
-  370  00364 4e5d            unlk   A5         
+  370  00364 4e5d            unlk   a5         
   371  00366 4e75            rts               
-  372  00368 4e55 L00368     link.w A5,#0      
+  372  00368 4e55 L00368     link.w a5,#0      
   373  0036c 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
   374  00370 2800            move.l d0,d4      
   375  00372 2a01            move.l d1,d5      
@@ -396,9 +396,9 @@
   393  0039e 2d40            move.l d0,_00004(a6) 
   394  003a2 2007            move.l d7,d0      
   395  003a4 4ced            movem.l -20(a5),a0/d4-d7 
-  396  003aa 4e5d            unlk   A5         
+  396  003aa 4e5d            unlk   a5         
   397  003ac 4e75            rts               
-  398  003ae 4e55 localtime: link.w A5,#0      
+  398  003ae 4e55 localtime: link.w a5,#0      
   399  003b2 48e7            movem.l a0/a2/d0-d1,-(sp) 
   400  003b6 4a97            tst.l  (sp)       
   401  003b8 6604            bne.s  L003be     
@@ -434,9 +434,9 @@
   431  0041a 257c            move.l #1,32(a2)  
   432  00422 200a L00422     move.l a2,d0      
   433  00424 4ced L00424     movem.l -12(a5),a0/a2/d1 
-  434  0042a 4e5d            unlk   A5         
+  434  0042a 4e5d            unlk   a5         
   435  0042c 4e75            rts               
-  436  0042e 4e55 gmtime:    link.w A5,#0      
+  436  0042e 4e55 gmtime:    link.w a5,#0      
   437  00432 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
   438  00436 598f            subq.l #4,sp      
   439  00438 4aaf            tst.l  4(sp)      
@@ -535,9 +535,9 @@
   532  0055a 2008            move.l a0,d0      
   533  0055c 588f L0055c     addq.l #4,sp      
   534  0055e 4ced            movem.l -24(a5),a0/d1/d4-d7 
-  535  00564 4e5d            unlk   A5         
+  535  00564 4e5d            unlk   a5         
   536  00566 4e75            rts               
-  537  00568 4e55 L00568     link.w A5,#0      
+  537  00568 4e55 L00568     link.w a5,#0      
   538  0056c 48e7            movem.l a0-a1/d0-d1,-(sp) 
   539  00570 4fef            lea.l  -28(sp),a7 
   540  00574 41fa            lea.l  L00980(pc),a0 
@@ -678,9 +678,9 @@
   675  00714 2008            move.l a0,d0      
   676  00716 4fef L00716     lea.l  28(sp),a7  
   677  0071a 4ced            movem.l -12(a5),a0-a1/d1 
-  678  00720 4e5d            unlk   A5         
+  678  00720 4e5d            unlk   a5         
   679  00722 4e75            rts               
-  680  00724 4e55 L00724     link.w A5,#0      
+  680  00724 4e55 L00724     link.w a5,#0      
   681  00728 48e7            movem.l d0-d1/d4-d7,-(sp) 
   682  0072c 2800            move.l d0,d4      
   683  0072e 2a01            move.l d1,d5      
@@ -688,9 +688,9 @@
   685  00734 2e2f            move.l 36(sp),d7  
   686  00738 7000            moveq  #0,d0      
   687  0073a 4ced            movem.l -16(a5),d4-d7 
-  688  00740 4e5d            unlk   A5         
+  688  00740 4e5d            unlk   a5         
   689  00742 4e75            rts               
-  690  00744 4e55 L00744     link.w A5,#0      
+  690  00744 4e55 L00744     link.w a5,#0      
   691  00748 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
   692  0074c 2800            move.l d0,d4      
   693  0074e 2a01            move.l d1,d5      
@@ -771,9 +771,9 @@
   768  00838 7001 L00838     moveq  #1,d0      
   769  0083a 4fef L0083a     lea.l  20(sp),a7  
   770  0083e 4ced            movem.l -20(a5),a0/d4-d7 
-  771  00844 4e5d            unlk   A5         
+  771  00844 4e5d            unlk   a5         
   772  00846 4e75            rts               
-  773  00848 4e55 L00848     link.w A5,#0      
+  773  00848 4e55 L00848     link.w a5,#0      
   774  0084c 48e7            movem.l d0-d1/d4-d7,-(sp) 
   775  00850 2800            move.l d0,d4      
   776  00852 2a01            move.l d1,d5      
@@ -830,9 +830,9 @@
   827  008c4 7001 L008c4     moveq  #1,d0      
   828  008c6 588f L008c6     addq.l #4,sp      
   829  008c8 4ced            movem.l -16(a5),d4-d7 
-  830  008ce 4e5d            unlk   A5         
+  830  008ce 4e5d            unlk   a5         
   831  008d0 4e75            rts               
-  832  008d2 4e55 L008d2     link.w A5,#0      
+  832  008d2 4e55 L008d2     link.w a5,#0      
   833  008d6 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
   834  008da 7003            moveq  #3,d0      
   835  008dc c0af            and.l  36(sp),d0  
@@ -873,7 +873,7 @@
   870  00934 2d40            move.l d0,_00004(a6) 
   871  00938 2005            move.l d5,d0      
   872  0093a 4ced            movem.l -20(a5),a0/d4-d7 
-  873  00940 4e5d            unlk   A5         
+  873  00940 4e5d            unlk   a5         
   874  00942 4e75            rts               
   875  00944 5053 L00944     addq.w #8,(a3)    
   876  00946 5400            addq.b #2,d0      

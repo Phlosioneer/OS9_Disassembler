@@ -1,5 +1,5 @@
  psect puts_c,$0,$0,0,0,puts
-puts: link.w A5,#0
+puts: link.w a5,#0
  movem.l a0/a2/d0-d1,-(sp)
  movea.l d0,a2
  lea.l _iob+28(a6),a0
@@ -16,9 +16,9 @@ L0001e lea.l _iob+28(a6),a0
  moveq #13,d0
  bsr.w putc
 L0002a movem.l -12(a5),a0/a2/d1
- unlk A5
+ unlk a5
  rts 
-fputs: link.w A5,#0
+fputs: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -36,7 +36,7 @@ L0004e move.b (a2)+,d4
  bra.s L00060
 L0005e moveq #0,d0
 L00060 movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

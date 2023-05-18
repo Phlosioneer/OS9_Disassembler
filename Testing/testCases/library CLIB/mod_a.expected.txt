@@ -1,5 +1,5 @@
     0  00000 0000            psect  mod_a,$0,$0,0,0,modlink 
-    1  00000 4e55 modlink:   link.w A5,#0      
+    1  00000 4e55 modlink:   link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 2040            movea.l d0,a0      
     4  0000a 3001            move.w d1,d0      
@@ -9,21 +9,21 @@
     8  00016 200a            move.l a2,d0      
     9  00018 4cdf L00018     movem.l (sp)+,a1-a2 
    10  0001c 6000            bra.w  _sysret    
-   11  00020 4e55 modload:   link.w A5,#0      
+   11  00020 4e55 modload:   link.w a5,#0      
    12  00024 48e7            movem.l a0/d1-d2,-(sp) 
    13  00028 2040            movea.l d0,a0      
    14  0002a 3001            move.w d1,d0      
    15  0002c 48e7            movem.l a1-a2,-(sp) 
    16  00030 4e40            os9    F$Load     
    17  00034 60de            bra.s  L00014     
-   18  00036 4e55 munlink:   link.w A5,#0      
+   18  00036 4e55 munlink:   link.w a5,#0      
    19  0003a 48e7            movem.l a0/d1-d2,-(sp) 
    20  0003e 2f0a            move.l a2,-(sp)   
    21  00040 2440            movea.l d0,a2      
    22  00042 4e40            os9    F$UnLink   
    23  00046 245f            movea.l (sp)+,a2   
    24  00048 6000            bra.w  _sysret    
-   25  0004c 4e55 munload:   link.w A5,#0      
+   25  0004c 4e55 munload:   link.w a5,#0      
    26  00050 48e7            movem.l a0/d1-d2,-(sp) 
    27  00054 2040            movea.l d0,a0      
    28  00056 3001            move.w d1,d0      

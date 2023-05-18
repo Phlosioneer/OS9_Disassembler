@@ -1,5 +1,5 @@
     0  00000 0000            psect  system_c,$0,$0,0,0,system 
-    1  00000 4e55 system:    link.w A5,#0      
+    1  00000 4e55 system:    link.w a5,#0      
     2  00004 48e7            movem.l a0/a2/d0-d2/d4-d5,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 4fef            lea.l  -20(sp),a7 
@@ -59,7 +59,7 @@
    58  000a6 2017 L000a6     move.l (sp),d0    
    59  000a8 4fef L000a8     lea.l  20(sp),a7  
    60  000ac 4ced            movem.l -24(a5),a0/a2/d1-d2/d4-d5 
-   61  000b2 4e5d            unlk   A5         
+   61  000b2 4e5d            unlk   a5         
    62  000b4 4e75            rts               
    63  000b6 5348 L000b6     subq.w #1,a0      
    64  000b8 454c            dc.w   $454c      

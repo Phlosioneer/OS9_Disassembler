@@ -8,7 +8,7 @@
     7
     8  00004 0000            ends              
     8
-    9  00000 4e55 _errmsg:   link.w A5,#0      
+    9  00000 4e55 _errmsg:   link.w a5,#0      
    10  00004 48e7            movem.l a0/d0-d1,-(sp) 
    11  00008 41ee            lea.l  _iob+28(a6),a0 
    12  0000c 2008            move.l a0,d0      
@@ -34,7 +34,7 @@
    32  0004c 6100            bsr.w  fflush     
    33  00050 2017            move.l (sp),d0    
    34  00052 4ced            movem.l -4(a5),a0  
-   35  00058 4e5d            unlk   A5         
+   35  00058 4e5d            unlk   a5         
    36  0005a 4e75            rts               
    37  0005c 2f08 _prgname:  move.l a0,-(sp)   
    38  0005e 206e            movea.l _00000(a6),a0 

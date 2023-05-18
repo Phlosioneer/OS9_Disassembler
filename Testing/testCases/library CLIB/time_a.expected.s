@@ -1,5 +1,5 @@
  psect time_a,$0,$0,0,0,setime
-setime: link.w A5,#0
+setime: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  moveq #0,d1
@@ -20,7 +20,7 @@ setime: link.w A5,#0
  dc.w $0
  move.l a0,d0
  bra.w _sysret
-getime: link.w A5,#0
+getime: link.w a5,#0
  movem.l a0/d1-d3,-(sp)
  movea.l d0,a0
  moveq #0,d0
@@ -44,12 +44,12 @@ getime: link.w A5,#0
  move.b d0,(a0)+
  move.l d2,d0
 L00074 movem.l (sp)+,a0/d1-d3
- unlk A5
+ unlk a5
  rts 
 L0007c moveq #255,d0
  move.l d1,errno(a6)
  bra.s L00074
-_sysdate: link.w A5,#0
+_sysdate: link.w a5,#0
  movem.l a0-a1/d1-d3,-(sp)
  moveq #0,d2
  os9 F$Time
@@ -65,12 +65,12 @@ _sysdate: link.w A5,#0
  move.l d3,(a1)
 L000aa moveq #0,d0
  movem.l (sp)+,a0-a1/d1-d3
- unlk A5
+ unlk a5
  rts 
 L000b4 moveq #255,d0
  move.l d1,errno(a6)
  bra.s L000aa
-_julian: link.w A5,#0
+_julian: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l a1,-(sp)
  movea.l d0,a0

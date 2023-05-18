@@ -407,7 +407,7 @@ loremIpsum: dc.b "Lorem ipsum dolor sit am"
 
  ends 
 
-main: link.w A5,#0
+main: link.w a5,#0
  movem.l a0/d0-d1/d4,-(sp)
  move.l #-68,d0
  bsr.w _stkcheck
@@ -428,7 +428,7 @@ L00028 cmpi.l #10000,d4
  move.l a0,d0
  bsr.w printf
  movem.l -12(a5),a0/d1/d4
- unlk A5
+ unlk a5
  rts 
 L0004e addq.w #1,-(a5)
  dc.w $6d6f

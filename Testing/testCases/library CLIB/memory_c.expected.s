@@ -21,7 +21,7 @@ _00014 dc.l $00000200
 
  ends 
 
-L00000 link.w A5,#0
+L00000 link.w a5,#0
  movem.l a2-a4/d0-d1,-(sp)
  movea.l d0,a2
  lea.l _00008(a6),a4
@@ -73,9 +73,9 @@ L0007c move.l a3,d0
  move.l a2,(a4)
  clr.l (a2)
 L00084 movem.l -16(a5),a2-a4/d1
- unlk A5
+ unlk a5
  rts 
-L0008e link.w A5,#0
+L0008e link.w a5,#0
  movem.l a2/d0-d1/d4,-(sp)
  move.l d0,d4
  addq.l #1,d4
@@ -104,9 +104,9 @@ L000b8 move.l _srqsiz(a6),d0
  bsr.w L004bc
  move.l _00010(a6),d0
 L000dc movem.l -12(a5),a2/d1/d4
- unlk A5
+ unlk a5
  rts 
-_lmalloc: link.w A5,#0
+_lmalloc: link.w a5,#0
  movem.l a2-a3/d0/d4-d5,-(sp)
  move.l d0,d4
  move.l d4,d0
@@ -142,9 +142,9 @@ L00130 sub.l d5,4(a2)
 L0013c move.l a3,_00010(a6)
  move.l a2,d0
 L00142 movem.l -16(a5),a2-a3/d4-d5
- unlk A5
+ unlk a5
  rts 
-L0014c link.w A5,#0
+L0014c link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  subq.l #4,sp
  lea.l _00000(a6),a0
@@ -164,9 +164,9 @@ L00178 move.l _00014(a6),d0
  move.l d0,D00000(a6)
  addq.l #4,sp
  movem.l -8(a5),a0/d1
- unlk A5
+ unlk a5
  rts 
-malloc: link.w A5,#0
+malloc: link.w a5,#0
  movem.l a2/d0/d4,-(sp)
  move.l d0,d4
  tst.l d4
@@ -187,9 +187,9 @@ L001a2 addq.l #8,d4
  addq.l #8,a2
 L001c2 move.l a2,d0
 L001c4 movem.l -8(a5),a2/d4
- unlk A5
+ unlk a5
  rts 
-_lrealloc: link.w A5,#0
+_lrealloc: link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -325,9 +325,9 @@ L00320 move.l a4,d0
 L00326 move.l d6,d0
 L00328 lea.l 12(sp),a7
  movem.l -32(a5),a0/a2-a4/d4-d7
- unlk A5
+ unlk a5
  rts 
-realloc: link.w A5,#0
+realloc: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -365,9 +365,9 @@ L0036a move.l 4(a3),d0
  addq.l #8,a3
 L00390 move.l a3,d0
 L00392 movem.l -16(a5),a0/a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-_lfree: link.w A5,#0
+_lfree: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -385,9 +385,9 @@ _lfree: link.w A5,#0
  move.l a3,d0
  bsr.w L0061e
 L003c8 movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-free: link.w A5,#0
+free: link.w a5,#0
  movem.l a0/a2-a3/d0-d1,-(sp)
  movea.l d0,a2
  move.l a2,d0
@@ -407,9 +407,9 @@ free: link.w A5,#0
  move.l a3,d0
  bsr.s _lfree
 L00404 movem.l -16(a5),a0/a2-a3/d1
- unlk A5
+ unlk a5
  rts 
-_freemin: link.w A5,#0
+_freemin: link.w a5,#0
  movem.l d0-d1/d4,-(sp)
  move.l d0,d4
  tst.l _00010(a6)
@@ -436,9 +436,9 @@ L00436 asr.l #3,d4
  bsr.w _T$UMul
  move.l d0,D00004(a6)
 L00462 movem.l -8(a5),d1/d4
- unlk A5
+ unlk a5
  rts 
-_mallocmin: link.w A5,#0
+_mallocmin: link.w a5,#0
  movem.l d0-d1/d4,-(sp)
  move.l d0,d4
  tst.l _00010(a6)
@@ -461,9 +461,9 @@ L00486 asr.l #3,d4
  bsr.w _T$UMul
  move.l d0,D00000(a6)
 L004b2 movem.l -8(a5),d1/d4
- unlk A5
+ unlk a5
  rts 
-L004bc link.w A5,#0
+L004bc link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -519,9 +519,9 @@ L0052a move.l a3,_00010(a6)
 L0053e suba.l a0,a0
 L00540 move.l a0,d0
  movem.l -20(a5),a0/a2-a4/d4
- unlk A5
+ unlk a5
  rts 
-L0054c link.w A5,#0
+L0054c link.w a5,#0
  movem.l a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -554,9 +554,9 @@ L00592 move.l a3,d0
  bne.s L0057c
 L00596 moveq #0,d0
 L00598 movem.l -16(a5),a2-a4/d4
- unlk A5
+ unlk a5
  rts 
-calloc: link.w A5,#0
+calloc: link.w a5,#0
  movem.l a2/d0-d2/d4-d6,-(sp)
  move.l d0,d4
  move.l d1,d5
@@ -580,9 +580,9 @@ calloc: link.w A5,#0
  addq.l #8,a2
 L005da move.l a2,d0
  movem.l -20(a5),a2/d2/d4-d6
- unlk A5
+ unlk a5
  rts 
-_lcalloc: link.w A5,#0
+_lcalloc: link.w a5,#0
  movem.l a2/d0-d1/d4-d6,-(sp)
  move.l d0,d4
  move.l d1,d5
@@ -601,9 +601,9 @@ _lcalloc: link.w A5,#0
  addq.l #4,sp
 L00612 move.l a2,d0
  movem.l -16(a5),a2/d4-d6
- unlk A5
+ unlk a5
  rts 
-L0061e link.w A5,#0
+L0061e link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l 4(a2),d0
@@ -644,7 +644,7 @@ L00674 movea.l d4,a0
  lsl.l #3,d0
  bsr.w _srtmem
 L00684 movem.l -24(a5),a0/a2-a4/d1/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

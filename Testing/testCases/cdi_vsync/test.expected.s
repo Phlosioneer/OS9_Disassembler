@@ -234,7 +234,7 @@ L00286 equ *-2
 L0028c move.b (a0)+,(a1)+
 L0028e bne.s L0028c
 L00290 rts 
- link.w A5,#0
+ link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  lea.l L00304(pc),a0
  move.l a0,d0
@@ -247,7 +247,7 @@ L00290 rts
 L002ae bsr.s L002e4
  bsr.s L002fa
  movem.l -8(a5),a0/d1
- unlk A5
+ unlk a5
  rts 
 L002bc movem.l a0-a2,-(sp)
  movea.l d0,a0
@@ -280,7 +280,7 @@ L00304 bls.s L0036a
  moveq #114,d2
  bsr.s L00382
  dc.w $0
- link.w A5,#0
+ link.w a5,#0
  movem.l d0,-(sp)
  move.w #65,D0002a(a6)
  clr.w D0002c(a6)
@@ -288,7 +288,7 @@ L00304 bls.s L0036a
  move.w #1,D00048(a6)
  move.w #2,D00062(a6)
  move.w #2,D00064(a6)
- unlk A5
+ unlk a5
  rts 
  movea.l (sp)+,a5
 L00344 subq.l #1,d5
@@ -342,12 +342,12 @@ L003b6 move.l (a0,d2.l),d0
  subq.l #8,d2
  bhi.s L003b6
 L003c4 jmp (a5)
-L003c6 link.w A5,#0
+L003c6 link.w a5,#0
  move.l d0,d1
  bsr.w L003ec
  bsr.w L003ee
  bra.s L003de
- link.w A5,#0
+ link.w a5,#0
  illegal 
  move.l d0,d1
 L003de os9 F$Exit

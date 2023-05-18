@@ -14,7 +14,7 @@
    13
    14  00000 0000            ends              
    14
-   15  00000 4e55 _iobinit:  link.w A5,#0      
+   15  00000 4e55 _iobinit:  link.w a5,#0      
    16  00004 48e7            movem.l d0,-(sp)   
    17  00008 3d7c            move.w #65,D0000c(a6) 
    18  0000e 426e            clr.w  D0000e(a6) 
@@ -22,7 +22,7 @@
    20  00018 3d7c            move.w #1,D0002a(a6) 
    21  0001e 3d7c            move.w #2,D00044(a6) 
    22  00024 3d7c            move.w #2,D00046(a6) 
-   23  0002a 4e5d            unlk   A5         
+   23  0002a 4e5d            unlk   a5         
    24  0002c 4e75            rts               
    25
    26  0002e 0000            ends              

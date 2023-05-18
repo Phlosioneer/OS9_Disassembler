@@ -1,5 +1,5 @@
  psect fopen_c,$0,$0,0,0,L00000
-L00000 link.w A5,#0
+L00000 link.w a5,#0
 L00002 equ *-2
  movem.l a0/a2/d0,-(sp)
  lea.l _iob(a6),a2
@@ -16,9 +16,9 @@ L00020 lea.l _iob+896(a6),a0
  move.l #200,errno(a6)
  moveq #0,d0
 L00032 movem.l -8(a5),a0/a2
- unlk A5
+ unlk a5
  rts 
-L0003c link.w A5,#0
+L0003c link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
  movea.l d1,a2
  movea.l 24(sp),a3
@@ -53,9 +53,9 @@ L0008a move.l 4(a3),d0
  bra.s L000a2
 L000a0 moveq #0,d0
 L000a2 movem.l -8(a5),a2-a3
- unlk A5
+ unlk a5
  rts 
-L000ac link.w A5,#0
+L000ac link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -132,18 +132,18 @@ L00176 cmpi.w #119,d0
  bra.s L00148
 L0017e move.l d4,d0
 L00180 movem.l -16(a5),a2-a3/d4-d5
- unlk A5
+ unlk a5
  rts 
-fdopen: link.w A5,#0
+fdopen: link.w a5,#0
  movem.l d0-d1,-(sp)
  clr.l -(sp)
  move.l 8(sp),d1
  move.l 4(sp),d0
  bsr.w L0003c
  addq.l #4,sp
- unlk A5
+ unlk a5
  rts 
-fopen: link.w A5,#0
+fopen: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -164,9 +164,9 @@ L001c6 clr.l -(sp)
  movea.l d0,a0
 L001d4 move.l a0,d0
  movem.l -16(a5),a0/a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-freopen: link.w A5,#0
+freopen: link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -188,7 +188,7 @@ L00206 pea (a4)
  movea.l d0,a0
 L00214 move.l a0,d0
  movem.l -20(a5),a0/a2-a4/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

@@ -1,13 +1,13 @@
     0  00000 0000            psect  setjmp_a,$0,$0,1,0,setjmp 
-    1  00000 4e55 setjmp:    link.w A5,#0      
+    1  00000 4e55 setjmp:    link.w a5,#0      
     2  00004 2040            movea.l d0,a0      
     3  00006 20af            move.l 4(sp),(a0) 
     4  0000a 48e8            movem.l a1-sp/d1-d7,4(a0) 
     5  00010 2157            move.l (sp),48(a0) 
     6  00014 7000            moveq  #0,d0      
-    7  00016 4e5d            unlk   A5         
+    7  00016 4e5d            unlk   a5         
     8  00018 4e75            rts               
-    9  0001a 4e55 longjmp:   link.w A5,#0      
+    9  0001a 4e55 longjmp:   link.w a5,#0      
    10  0001e 2040            movea.l d0,a0      
    11  00020 2001            move.l d1,d0      
    12  00022 6602            bne.s  L00026     

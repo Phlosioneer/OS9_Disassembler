@@ -1,5 +1,5 @@
     0  00000 0000            psect  fseek_c,$0,$0,0,0,fseek 
-    1  00000 4e55 fseek:     link.w A5,#0      
+    1  00000 4e55 fseek:     link.w a5,#0      
     2  00004 48e7            movem.l a0/a2-a3/d0-d1/d4-d5,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2801            move.l d1,d4      
@@ -83,9 +83,9 @@
    82  000ea 6002            bra.s  L000ee     
    83  000ec 7000 L000ec     moveq  #0,d0      
    84  000ee 4ced L000ee     movem.l -20(a5),a0/a2-a3/d4-d5 
-   85  000f4 4e5d            unlk   A5         
+   85  000f4 4e5d            unlk   a5         
    86  000f6 4e75            rts               
-   87  000f8 4e55 rewind:    link.w A5,#0      
+   87  000f8 4e55 rewind:    link.w a5,#0      
    88  000fc 48e7            movem.l d0-d1,-(sp) 
    89  00100 42a7            clr.l  -(sp)      
    90  00102 7200            moveq  #0,d1      
@@ -93,7 +93,7 @@
    92  00108 6100            bsr.w  fseek      
    93  0010c 588f            addq.l #4,sp      
    94  0010e 4ced            movem.l -4(a5),d1  
-   95  00114 4e5d            unlk   A5         
+   95  00114 4e5d            unlk   a5         
    96  00116 4e75            rts               
    97
    98  00118 0000            ends              

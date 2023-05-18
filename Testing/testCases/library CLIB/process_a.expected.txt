@@ -1,9 +1,9 @@
     0  00000 0000            psect  process_a,$0,$0,0,0,kill 
-    1  00000 4e55 kill:      link.w A5,#0      
+    1  00000 4e55 kill:      link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 4e40            os9    F$Send     
     4  0000c 6000            bra.w  _sysret    
-    5  00010 4e55 wait:      link.w A5,#0      
+    5  00010 4e55 wait:      link.w a5,#0      
     6  00014 48e7            movem.l a0/d1-d2,-(sp) 
     7  00018 2040            movea.l d0,a0      
     8  0001a 7000            moveq  #0,d0      
@@ -16,26 +16,26 @@
    15  0002a 4258            clr.w  (a0)+      
    16  0002c 3081            move.w d1,(a0)    
    17  0002e 6000            bra.w  _sysret    
-   18  00032 4e55 setpr:     link.w A5,#0      
+   18  00032 4e55 setpr:     link.w a5,#0      
    19  00036 48e7            movem.l a0/d1-d2,-(sp) 
    20  0003a 4e40            os9    F$SPrior   
    21  0003e 6000            bra.w  _sysret    
-   22  00042 4e55 chainc:    link.w A5,#0      
+   22  00042 4e55 chainc:    link.w a5,#0      
    23  00046 48e7            movem.l a0/d1-d2,-(sp) 
    24  0004a 48e7            movem.l a1/d3-d5,-(sp) 
    25  0004e 7a03            moveq  #3,d5      
    26  00050 602e            bra.s  L00080     
-   27  00052 4e55 chain:     link.w A5,#0      
+   27  00052 4e55 chain:     link.w a5,#0      
    28  00056 48e7            movem.l a0/d1-d2,-(sp) 
    29  0005a 48e7            movem.l a1/d3-d5,-(sp) 
    30  0005e 7a01            moveq  #1,d5      
    31  00060 601e            bra.s  L00080     
-   32  00062 4e55 os9forkc:  link.w A5,#0      
+   32  00062 4e55 os9forkc:  link.w a5,#0      
    33  00066 48e7            movem.l a0/d1-d2,-(sp) 
    34  0006a 48e7            movem.l a1/d3-d5,-(sp) 
    35  0006e 7a02            moveq  #2,d5      
    36  00070 600e            bra.s  L00080     
-   37  00072 4e55 os9fork:   link.w A5,#0      
+   37  00072 4e55 os9fork:   link.w a5,#0      
    38  00076 48e7            movem.l a0/d1-d2,-(sp) 
    39  0007a 48e7            movem.l a1/d3-d5,-(sp) 
    40  0007e 7a00            moveq  #0,d5      

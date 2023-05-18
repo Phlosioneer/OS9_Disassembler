@@ -1,16 +1,16 @@
  psect id_a,$0,$0,0,0,getpid
-getpid: link.w A5,#0
+getpid: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$ID
  bra.w _sysret
-getuid: link.w A5,#0
+getuid: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$ID
  dc.w $6500
  dc.w $0
  move.l d1,d0
  bra.w _sysret
-setuid: link.w A5,#0
+setuid: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  os9 F$SUser

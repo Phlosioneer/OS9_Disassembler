@@ -1,5 +1,5 @@
     0  00000 0000            psect  getenv_c,$0,$0,0,0,L00000 
-    1  00000 4e55 L00000     link.w A5,#0      
+    1  00000 4e55 L00000     link.w a5,#0      
     2  00004 48e7            movem.l a2-a3/d0-d1,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2641            movea.l d1,a3      
@@ -17,9 +17,9 @@
    16  00028 6002            bra.s  L0002c     
    17  0002a 7000 L0002a     moveq  #0,d0      
    18  0002c 4ced L0002c     movem.l -8(a5),a2-a3 
-   19  00032 4e5d            unlk   A5         
+   19  00032 4e5d            unlk   a5         
    20  00034 4e75            rts               
-   21  00036 4e55 getenv:    link.w A5,#0      
+   21  00036 4e55 getenv:    link.w a5,#0      
    22  0003a 48e7            movem.l a2-a4/d0-d1,-(sp) 
    23  0003e 2440            movea.l d0,a2      
    24  00040 266e            movea.l environ(a6),a3 
@@ -36,7 +36,7 @@
    35  00058 66ec            bne.s  L00046     
    36  0005a 7000            moveq  #0,d0      
    37  0005c 4ced L0005c     movem.l -16(a5),a2-a4/d1 
-   38  00062 4e5d            unlk   A5         
+   38  00062 4e5d            unlk   a5         
    39  00064 4e75            rts               
    40
    41  00066 0000            ends              

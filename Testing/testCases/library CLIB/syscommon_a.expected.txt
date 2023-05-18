@@ -6,7 +6,7 @@
     5  0000a 65f6 _sysret0:  bcs.s  _os9err    
     6  0000c 7000            moveq  #0,d0      
     7  0000e 4ced L0000e     movem.l -12(a5),a0/d1-d2 
-    8  00014 4e5d            unlk   A5         
+    8  00014 4e5d            unlk   a5         
     9  00016 4e75            rts               
    10
    11  00018 0000            ends              

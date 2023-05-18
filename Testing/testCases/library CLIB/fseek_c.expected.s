@@ -1,5 +1,5 @@
  psect fseek_c,$0,$0,0,0,fseek
-fseek: link.w A5,#0
+fseek: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -83,9 +83,9 @@ L000e8 moveq #255,d0
  bra.s L000ee
 L000ec moveq #0,d0
 L000ee movem.l -20(a5),a0/a2-a3/d4-d5
- unlk A5
+ unlk a5
  rts 
-rewind: link.w A5,#0
+rewind: link.w a5,#0
  movem.l d0-d1,-(sp)
  clr.l -(sp)
  moveq #0,d1
@@ -93,7 +93,7 @@ rewind: link.w A5,#0
  bsr.w fseek
  addq.l #4,sp
  movem.l -4(a5),d1
- unlk A5
+ unlk a5
  rts 
 
  ends 

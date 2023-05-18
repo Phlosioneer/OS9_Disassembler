@@ -1,9 +1,9 @@
  psect process_a,$0,$0,0,0,kill
-kill: link.w A5,#0
+kill: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$Send
  bra.w _sysret
-wait: link.w A5,#0
+wait: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  moveq #0,d0
@@ -16,26 +16,26 @@ wait: link.w A5,#0
  clr.w (a0)+
  move.w d1,(a0)
  bra.w _sysret
-setpr: link.w A5,#0
+setpr: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$SPrior
  bra.w _sysret
-chainc: link.w A5,#0
+chainc: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movem.l a1/d3-d5,-(sp)
  moveq #3,d5
  bra.s L00080
-chain: link.w A5,#0
+chain: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movem.l a1/d3-d5,-(sp)
  moveq #1,d5
  bra.s L00080
-os9forkc: link.w A5,#0
+os9forkc: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movem.l a1/d3-d5,-(sp)
  moveq #2,d5
  bra.s L00080
-os9fork: link.w A5,#0
+os9fork: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movem.l a1/d3-d5,-(sp)
  moveq #0,d5

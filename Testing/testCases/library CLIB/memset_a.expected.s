@@ -1,5 +1,5 @@
  psect memset_a,$0,$0,0,0,memset
-memset: link.w A5,#0
+memset: link.w a5,#0
  movem.l a0/d0/d2,-(sp)
  movea.l d0,a0
  move.l 8(a5),d2
@@ -66,7 +66,7 @@ L000a4 btst.l #0,d2
  beq.s L000ac
  move.b d1,(a0)
 L000ac movem.l -12(a5),a0/d0/d2
- unlk A5
+ unlk a5
  rts 
 
  ends 

@@ -33,7 +33,7 @@ _0001c dc.l L00080
 
  ends 
 
-asctime: link.w A5,#0
+asctime: link.w a5,#0
  movem.l a0-a1/d0-d1,-(sp)
  movea.l (sp),a0
  move.l #1900,d0
@@ -60,7 +60,7 @@ asctime: link.w A5,#0
  lea.l D00000(a6),a0
  move.l a0,d0
  movem.l -12(a5),a0-a1/d1
- unlk A5
+ unlk a5
  rts 
 L00064 dc.b $53,$75,$6e,$00
 L00068 dc.b $4d,$6f,$6e,$00

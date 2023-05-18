@@ -1,5 +1,5 @@
     0  00000 0000            psect  globals_a,$0,$0,0,0,_os9glob 
-    1  00000 4e55 _os9glob:  link.w A5,#0      
+    1  00000 4e55 _os9glob:  link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 2040            movea.l d0,a0      
     4  0000a 2001            move.l d1,d0      

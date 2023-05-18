@@ -1,5 +1,5 @@
     0  00000 0000            psect  frexp_c,$0,$0,0,0,frexp 
-    1  00000 4e55 frexp:     link.w A5,#0      
+    1  00000 4e55 frexp:     link.w a5,#0      
     2  00004 48e7            movem.l a2/d0-d1,-(sp) 
     3  00008 246f            movea.l 20(sp),a2  
     4  0000c 4a97            tst.l  (sp)       
@@ -17,7 +17,7 @@
    16  0002c 0057            ori.w  #16352,(sp) 
    17  00030 4cd7 L00030     movem.l (sp),d0-d1 
    18  00034 4ced            movem.l -4(a5),a2  
-   19  0003a 4e5d            unlk   A5         
+   19  0003a 4e5d            unlk   a5         
    20  0003c 4e75            rts               
    21
    22  0003e 0000            ends              

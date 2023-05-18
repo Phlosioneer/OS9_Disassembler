@@ -1,5 +1,5 @@
  psect strtol_c,$0,$0,0,0,strtol
-strtol: link.w A5,#0
+strtol: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4-d6,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -54,7 +54,7 @@ L00090 tst.l d5
  move.l d0,d6
 L0009a move.l d6,d0
  movem.l -24(a5),a0/a2-a3/d4-d6
- unlk A5
+ unlk a5
  rts 
 
  ends 

@@ -7,7 +7,7 @@ D00000 ds.b 4
 
  ends 
 
-L00000 link.w A5,#0
+L00000 link.w a5,#0
 L00002 equ *-2
 L00004 movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2
@@ -17,7 +17,7 @@ L0000c move.b (a3)+,(a2)+
  move.b #32,-1(a2)
  move.l a2,d0
  movem.l -8(a5),a2-a3
- unlk A5
+ unlk a5
  rts 
 L00022 movem.l a0/a2,-(sp)
  os9 F$SRqMem
@@ -35,7 +35,7 @@ L00040 move.l a2,-(sp)
  os9 F$SRtMem
  movea.l (sp)+,a2
  rts 
-L0004c link.w A5,#0
+L0004c link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -46,9 +46,9 @@ L00060 subq.w #1,d4
  bge.s L0005e
  move.l a2,d0
  movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-os9exec: link.w A5,#0
+os9exec: link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
  lea.l -12(sp),a7
  moveq #0,d0
@@ -302,7 +302,7 @@ L0030e move.l a4,d1
  move.l (sp),d0
 L0031a lea.l 12(sp),a7
  movem.l -32(a5),a0/a2-a4/d4-d7
- unlk A5
+ unlk a5
  rts 
 
  ends 

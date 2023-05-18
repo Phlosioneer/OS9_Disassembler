@@ -9,7 +9,7 @@
     8
     9  00000 0000            ends              
     9
-   10  00000 4e55 qsort:     link.w A5,#0      
+   10  00000 4e55 qsort:     link.w a5,#0      
    11  00004 48e7            movem.l a2-a3/d0-d1,-(sp) 
    12  00008 2440            movea.l d0,a2      
    13  0000a 266f            movea.l 28(sp),a3  
@@ -26,9 +26,9 @@
    24  00034 200a            move.l a2,d0      
    25  00036 610a            bsr.s  L00042     
    26  00038 4ced            movem.l -8(a5),a2-a3 
-   27  0003e 4e5d            unlk   A5         
+   27  0003e 4e5d            unlk   a5         
    28  00040 4e75            rts               
-   29  00042 4e55 L00042     link.w A5,#0      
+   29  00042 4e55 L00042     link.w a5,#0      
    30  00046 48e7            movem.l a0/a2-a4/d0-d1/d4-d5,-(sp) 
    31  0004a 2440            movea.l d0,a2      
    32  0004c 2641            movea.l d1,a3      
@@ -100,9 +100,9 @@
    98  000ee b5cb L000ee     cmpa.l a3,a2      
    99  000f0 6500            bcs.w  L0005c     
   100  000f4 4ced            movem.l -24(a5),a0/a2-a4/d4-d5 
-  101  000fa 4e5d            unlk   A5         
+  101  000fa 4e5d            unlk   a5         
   102  000fc 4e75            rts               
-  103  000fe 4e55 L000fe     link.w A5,#0      
+  103  000fe 4e55 L000fe     link.w a5,#0      
   104  00102 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
   105  00106 2440            movea.l d0,a2      
   106  00108 2641            movea.l d1,a3      
@@ -118,7 +118,7 @@
   116  00124 4a80            tst.l  d0         
   117  00126 66f2            bne.s  L0011a     
   118  00128 4ced            movem.l -16(a5),a2-a3/d4-d5 
-  119  0012e 4e5d            unlk   A5         
+  119  0012e 4e5d            unlk   a5         
   120  00130 4e75            rts               
   121
   122  00132 0000            ends              

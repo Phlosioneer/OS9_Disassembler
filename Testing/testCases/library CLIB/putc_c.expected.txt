@@ -1,5 +1,5 @@
     0  00000 0000            psect  putc_c,$0,$0,0,0,putc 
-    1  00000 4e55 putc:      link.w A5,#0      
+    1  00000 4e55 putc:      link.w a5,#0      
     2  00001 0000 L00001     equ    *-3        
     3  00004 48e7            movem.l a0/a2/d0-d1,-(sp) 
     4  00008 2441            movea.l d1,a2      
@@ -54,9 +54,9 @@
    53  0009c 6002            bra.s  L000a0     
    54  0009e 2017 L0009e     move.l (sp),d0    
    55  000a0 4ced L000a0     movem.l -8(a5),a0/a2 
-   56  000a6 4e5d            unlk   A5         
+   56  000a6 4e5d            unlk   a5         
    57  000a8 4e75            rts               
-   58  000aa 4e55 putw:      link.w A5,#0      
+   58  000aa 4e55 putw:      link.w a5,#0      
    59  000ae 48e7            movem.l a2/d0-d1/d4,-(sp) 
    60  000b2 2800            move.l d0,d4      
    61  000b4 2441            movea.l d1,a2      
@@ -68,9 +68,9 @@
    67  000c2 2004            move.l d4,d0      
    68  000c4 6100            bsr.w  putc       
    69  000c8 4ced            movem.l -8(a5),a2/d4 
-   70  000ce 4e5d            unlk   A5         
+   70  000ce 4e5d            unlk   a5         
    71  000d0 4e75            rts               
-   72  000d2 4e55 _tidyup:   link.w A5,#0      
+   72  000d2 4e55 _tidyup:   link.w a5,#0      
    73  000d6 48e7            movem.l a0/a2/d0,-(sp) 
    74  000da 45ee            lea.l  _iob(a6),a2 
    75  000de 600a            bra.s  L000ea     
@@ -81,9 +81,9 @@
    80  000ee b1ca            cmpa.l a2,a0      
    81  000f0 62ee            bhi.s  L000e0     
    82  000f2 4ced            movem.l -8(a5),a0/a2 
-   83  000f8 4e5d            unlk   A5         
+   83  000f8 4e5d            unlk   a5         
    84  000fa 4e75            rts               
-   85  000fc 4e55 fclose:    link.w A5,#0      
+   85  000fc 4e55 fclose:    link.w a5,#0      
    86  00100 48e7            movem.l a0/a2/d0/d4,-(sp) 
    87  00104 2440            movea.l d0,a2      
    88  00106 7800            moveq  #0,d4      
@@ -122,7 +122,7 @@
   121  0016c 6002            bra.s  L00170     
   122  0016e 70ff L0016e     moveq  #255,d0    
   123  00170 4ced L00170     movem.l -12(a5),a0/a2/d4 
-  124  00176 4e5d            unlk   A5         
+  124  00176 4e5d            unlk   a5         
   125  00178 4e75            rts               
   126
   127  0017a 0000            ends              

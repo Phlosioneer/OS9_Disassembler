@@ -7,7 +7,7 @@ _00000 dc.l btext
 
  ends 
 
-_errmsg: link.w A5,#0
+_errmsg: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  lea.l _iob+28(a6),a0
  move.l a0,d0
@@ -33,7 +33,7 @@ _errmsg: link.w A5,#0
  bsr.w fflush
  move.l (sp),d0
  movem.l -4(a5),a0
- unlk A5
+ unlk a5
  rts 
 _prgname: move.l a0,-(sp)
  movea.l _00000(a6),a0

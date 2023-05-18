@@ -8,19 +8,19 @@
     7
     8  00000 0000            ends              
     8
-    9  00000 4e55 srqcmem:   link.w A5,#0      
+    9  00000 4e55 srqcmem:   link.w a5,#0      
    10  00004 48e7            movem.l a2/d1,-(sp) 
    11  00008 4e40            os9    F$SRqCMem  
    12  0000c 650e            bcs.s  L0001c     
    13  0000e 200a            move.l a2,d0      
    14  00010 2d40            move.l d0,_srqcsiz(a6) 
    15  00014 4cdf L00014     movem.l (sp)+,a2/d1 
-   16  00018 4e5d            unlk   A5         
+   16  00018 4e5d            unlk   a5         
    17  0001a 4e75            rts               
    18  0001c 70ff L0001c     moveq  #255,d0    
    19  0001e 2d41            move.l d1,errno(a6) 
    20  00022 60f0            bra.s  L00014     
-   21  00024 4e55 modcload:  link.w A5,#0      
+   21  00024 4e55 modcload:  link.w a5,#0      
    22  00028 48e7            movem.l a0-a2/d1,-(sp) 
    23  0002c 2040            movea.l d0,a0      
    24  0002e 1001            move.b d1,d0      
@@ -30,12 +30,12 @@
    28  0003c 650a            bcs.s  L00048     
    29  0003e 200a            move.l a2,d0      
    30  00040 4cdf L00040     movem.l (sp)+,a0-a2/d1 
-   31  00044 4e5d            unlk   A5         
+   31  00044 4e5d            unlk   a5         
    32  00046 4e75            rts               
    33  00048 70ff L00048     moveq  #255,d0    
    34  0004a 2d41            move.l d1,errno(a6) 
    35  0004e 60f0            bra.s  L00040     
-   36  00050 4e55 make_module: link.w A5,#0      
+   36  00050 4e55 make_module: link.w a5,#0      
    37  00054 48e7            movem.l a0/d1-d2,-(sp) 
    38  00058 48e7            movem.l a1-a2/d3-d4,-(sp) 
    39  0005c 2040            movea.l d0,a0      

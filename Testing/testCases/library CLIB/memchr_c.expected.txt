@@ -1,5 +1,5 @@
     0  00000 0000            psect  memchr_c,$0,$0,0,0,memchr 
-    1  00000 4e55 memchr:    link.w A5,#0      
+    1  00000 4e55 memchr:    link.w a5,#0      
     2  00004 48e7            movem.l a2/d0-d1/d4-d6,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2801            move.l d1,d4      
@@ -21,7 +21,7 @@
    20  0002c 66ea            bne.s  L00018     
    21  0002e 7000            moveq  #0,d0      
    22  00030 4ced L00030     movem.l -16(a5),a2/d4-d6 
-   23  00036 4e5d            unlk   A5         
+   23  00036 4e5d            unlk   a5         
    24  00038 4e75            rts               
    25
    26  0003a 0000            ends              

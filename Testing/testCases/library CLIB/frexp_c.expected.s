@@ -1,5 +1,5 @@
  psect frexp_c,$0,$0,0,0,frexp
-frexp: link.w A5,#0
+frexp: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l 20(sp),a2
  tst.l (sp)
@@ -17,7 +17,7 @@ L00014 move.w (sp),d0
  ori.w #16352,(sp)
 L00030 movem.l (sp),d0-d1
  movem.l -4(a5),a2
- unlk A5
+ unlk a5
  rts 
 
  ends 

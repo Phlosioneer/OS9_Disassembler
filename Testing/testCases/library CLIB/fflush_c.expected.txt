@@ -1,5 +1,5 @@
     0  00000 0000            psect  fflush_c,$0,$0,0,0,fflush 
-    1  00000 4e55 fflush:    link.w A5,#0      
+    1  00000 4e55 fflush:    link.w a5,#0      
     2  00001 0000 L00001     equ    *-3        
     3  00004 48e7            movem.l a2/d0,-(sp) 
     4  00008 2440            movea.l d0,a2      
@@ -20,9 +20,9 @@
    19  00030 200a L00030     move.l a2,d0      
    20  00032 610a            bsr.s  _flsbuf    
    21  00034 4ced L00034     movem.l -4(a5),a2  
-   22  0003a 4e5d            unlk   A5         
+   22  0003a 4e5d            unlk   a5         
    23  0003c 4e75            rts               
-   24  0003e 4e55 _flsbuf:   link.w A5,#0      
+   24  0003e 4e55 _flsbuf:   link.w a5,#0      
    25  00042 48e7            movem.l a0/a2/d0-d1/d4-d5,-(sp) 
    26  00046 2440            movea.l d0,a2      
    27  00048 302a            move.w 12(a2),d0  
@@ -79,9 +79,9 @@
    78  000d4 2540            move.l d0,8(a2)   
    79  000d8 7000            moveq  #0,d0      
    80  000da 4ced L000da     movem.l -20(a5),a0/a2/d1/d4-d5 
-   81  000e0 4e5d            unlk   A5         
+   81  000e0 4e5d            unlk   a5         
    82  000e2 4e75            rts               
-   83  000e4 4e55 _setbase:  link.w A5,#0      
+   83  000e4 4e55 _setbase:  link.w a5,#0      
    84  000e8 48e7            movem.l a0/a2/d0-d1,-(sp) 
    85  000ec 2440            movea.l d0,a2      
    86  000ee 303c            move.w #192,d0    
@@ -140,9 +140,9 @@
   139  001a0 6706            beq.s  L001a8     
   140  001a2 08ea            bset.b #1,12(a2)  
   141  001a8 4ced L001a8     movem.l -12(a5),a0/a2/d1 
-  142  001ae 4e5d            unlk   A5         
+  142  001ae 4e5d            unlk   a5         
   143  001b0 4e75            rts               
-  144  001b2 4e55 setbuf:    link.w A5,#0      
+  144  001b2 4e55 setbuf:    link.w a5,#0      
   145  001b6 48e7            movem.l a2/d0-d1,-(sp) 
   146  001ba 2440            movea.l d0,a2      
   147  001bc 302a            move.w 12(a2),d0  
@@ -178,9 +178,9 @@
   177  0022a 2540            move.l d0,8(a2)   
   178  0022e 2480            move.l d0,(a2)    
   179  00230 4ced            movem.l -4(a5),a2  
-  180  00236 4e5d            unlk   A5         
+  180  00236 4e5d            unlk   a5         
   181  00238 4e75            rts               
-  182  0023a 4e55 ftell:     link.w A5,#0      
+  182  0023a 4e55 ftell:     link.w a5,#0      
   183  0023e 48e7            movem.l a0/a2/d0-d2,-(sp) 
   184  00242 2440            movea.l d0,a2      
   185  00244 200a            move.l a2,d0      
@@ -215,7 +215,7 @@
   214  00294 d282            add.l  d2,d1      
   215  00296 2001            move.l d1,d0      
   216  00298 4ced L00298     movem.l -16(a5),a0/a2/d1-d2 
-  217  0029e 4e5d            unlk   A5         
+  217  0029e 4e5d            unlk   a5         
   218  002a0 4e75            rts               
   219
   220  002a2 0000            ends              

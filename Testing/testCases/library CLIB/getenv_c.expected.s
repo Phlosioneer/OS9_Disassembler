@@ -1,5 +1,5 @@
  psect getenv_c,$0,$0,0,0,L00000
-L00000 link.w A5,#0
+L00000 link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -17,9 +17,9 @@ L00026 move.l a3,d0
  bra.s L0002c
 L0002a moveq #0,d0
 L0002c movem.l -8(a5),a2-a3
- unlk A5
+ unlk a5
  rts 
-getenv: link.w A5,#0
+getenv: link.w a5,#0
  movem.l a2-a4/d0-d1,-(sp)
  movea.l d0,a2
  movea.l environ(a6),a3
@@ -36,7 +36,7 @@ L00056 tst.l (a3)
  bne.s L00046
  moveq #0,d0
 L0005c movem.l -16(a5),a2-a4/d1
- unlk A5
+ unlk a5
  rts 
 
  ends 

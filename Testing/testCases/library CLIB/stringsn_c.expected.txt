@@ -1,5 +1,5 @@
     0  00000 0000            psect  stringsn_c,$0,$0,0,0,strncpy 
-    1  00000 4e55 strncpy:   link.w A5,#0      
+    1  00000 4e55 strncpy:   link.w a5,#0      
     2  00004 48e7            movem.l a2-a4/d0-d1/d4,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2641            movea.l d1,a3      
@@ -15,9 +15,9 @@
    14  00020 6cfa            bge.s  L0001c     
    15  00022 200a            move.l a2,d0      
    16  00024 4ced            movem.l -16(a5),a2-a4/d4 
-   17  0002a 4e5d            unlk   A5         
+   17  0002a 4e5d            unlk   a5         
    18  0002c 4e75            rts               
-   19  0002e 4e55 strncmp:   link.w A5,#0      
+   19  0002e 4e55 strncmp:   link.w a5,#0      
    20  00032 48e7            movem.l a2-a3/d0-d1/d4,-(sp) 
    21  00036 2440            movea.l d0,a2      
    22  00038 2641            movea.l d1,a3      
@@ -43,9 +43,9 @@
    42  00062 48c1            ext.l  d1         
    43  00064 2001            move.l d1,d0      
    44  00066 4ced L00066     movem.l -12(a5),a2-a3/d4 
-   45  0006c 4e5d            unlk   A5         
+   45  0006c 4e5d            unlk   a5         
    46  0006e 4e75            rts               
-   47  00070 4e55 strncat:   link.w A5,#0      
+   47  00070 4e55 strncat:   link.w a5,#0      
    48  00074 48e7            movem.l a2-a4/d0-d1/d4,-(sp) 
    49  00078 2440            movea.l d0,a2      
    50  0007a 2641            movea.l d1,a3      
@@ -63,7 +63,7 @@
    62  00094 4214            clr.b  (a4)       
    63  00096 200a L00096     move.l a2,d0      
    64  00098 4ced            movem.l -16(a5),a2-a4/d4 
-   65  0009e 4e5d            unlk   A5         
+   65  0009e 4e5d            unlk   a5         
    66  000a0 4e75            rts               
    67
    68  000a2 0000            ends              

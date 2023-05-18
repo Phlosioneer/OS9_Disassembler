@@ -1,5 +1,5 @@
  psect gets_c,$0,$0,0,0,gets
-gets: link.w A5,#0
+gets: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l a2,a3
@@ -23,9 +23,9 @@ L00028 moveq #255,d0
 L00032 clr.b (a3)
  move.l a2,d0
 L00036 movem.l -20(a5),a0/a2-a3/d1/d4
- unlk A5
+ unlk a5
  rts 
-fgets: link.w A5,#0
+fgets: link.w a5,#0
  movem.l a2-a4/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -53,7 +53,7 @@ L0006e clr.b (a4)
  bra.s L00080
 L0007e move.l a2,d0
 L00080 movem.l -20(a5),a2-a4/d4-d5
- unlk A5
+ unlk a5
  rts 
 
  ends 

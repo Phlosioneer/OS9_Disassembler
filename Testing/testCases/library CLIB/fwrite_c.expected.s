@@ -1,5 +1,5 @@
  psect fwrite_c,$0,$0,0,0,fwrite
-fwrite: link.w A5,#0
+fwrite: link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  movea.l 36(sp),a3
@@ -23,7 +23,7 @@ L00036 cmp.l 32(sp),d4
  blt.s L00012
 L0003c move.l d4,d0
  movem.l -16(a5),a2-a3/d4-d5
- unlk A5
+ unlk a5
  rts 
 
  ends 

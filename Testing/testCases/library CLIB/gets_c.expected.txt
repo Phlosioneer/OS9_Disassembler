@@ -1,5 +1,5 @@
     0  00000 0000            psect  gets_c,$0,$0,0,0,gets 
-    1  00000 4e55 gets:      link.w A5,#0      
+    1  00000 4e55 gets:      link.w a5,#0      
     2  00004 48e7            movem.l a0/a2-a3/d0-d1/d4,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 264a            movea.l a2,a3      
@@ -23,9 +23,9 @@
    22  00032 4213 L00032     clr.b  (a3)       
    23  00034 200a            move.l a2,d0      
    24  00036 4ced L00036     movem.l -20(a5),a0/a2-a3/d1/d4 
-   25  0003c 4e5d            unlk   A5         
+   25  0003c 4e5d            unlk   a5         
    26  0003e 4e75            rts               
-   27  00040 4e55 fgets:     link.w A5,#0      
+   27  00040 4e55 fgets:     link.w a5,#0      
    28  00044 48e7            movem.l a2-a4/d0-d1/d4-d5,-(sp) 
    29  00048 2440            movea.l d0,a2      
    30  0004a 2801            move.l d1,d4      
@@ -53,7 +53,7 @@
    52  0007c 6002            bra.s  L00080     
    53  0007e 200a L0007e     move.l a2,d0      
    54  00080 4ced L00080     movem.l -20(a5),a2-a4/d4-d5 
-   55  00086 4e5d            unlk   A5         
+   55  00086 4e5d            unlk   a5         
    56  00088 4e75            rts               
    57
    58  0008a 0000            ends              

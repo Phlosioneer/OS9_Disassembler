@@ -234,7 +234,7 @@
   233  0028c 12d8 L0028c     move.b (a0)+,(a1)+ 
   234  0028e 66fc L0028e     bne.s  L0028c     
   235  00290 4e75 L00290     rts               
-  236  00292 4e55            link.w A5,#0      
+  236  00292 4e55            link.w a5,#0      
   237  00296 48e7            movem.l a0/d0-d1,-(sp) 
   238  0029a 41fa            lea.l  L00304(pc),a0 
   239  0029e 2008            move.l a0,d0      
@@ -247,7 +247,7 @@
   246  002ae 6134 L002ae     bsr.s  L002e4     
   247  002b0 6148            bsr.s  L002fa     
   248  002b2 4ced            movem.l -8(a5),a0/d1 
-  249  002b8 4e5d            unlk   A5         
+  249  002b8 4e5d            unlk   a5         
   250  002ba 4e75            rts               
   251  002bc 48e7 L002bc     movem.l a0-a2,-(sp) 
   252  002c0 2040            movea.l d0,a0      
@@ -280,7 +280,7 @@
   279  0030e 7472            moveq  #114,d2    
   280  00310 6170            bsr.s  L00382     
   281  00312 0000            dc.w   $0         
-  282  00314 4e55            link.w A5,#0      
+  282  00314 4e55            link.w a5,#0      
   283  00318 48e7            movem.l d0,-(sp)   
   284  0031c 3d7c            move.w #65,D0002a(a6) 
   285  00322 426e            clr.w  D0002c(a6) 
@@ -288,7 +288,7 @@
   287  0032c 3d7c            move.w #1,D00048(a6) 
   288  00332 3d7c            move.w #2,D00062(a6) 
   289  00338 3d7c            move.w #2,D00064(a6) 
-  290  0033e 4e5d            unlk   A5         
+  290  0033e 4e5d            unlk   a5         
   291  00340 4e75            rts               
   292  00342 2a5f            movea.l (sp)+,a5   
   293  00344 5385 L00344     subq.l #1,d5      
@@ -342,12 +342,12 @@
   341  003c0 5182            subq.l #8,d2      
   342  003c2 62f2            bhi.s  L003b6     
   343  003c4 4ed5 L003c4     jmp    (a5)       
-  344  003c6 4e55 L003c6     link.w A5,#0      
+  344  003c6 4e55 L003c6     link.w a5,#0      
   345  003ca 2200            move.l d0,d1      
   346  003cc 6100            bsr.w  L003ec     
   347  003d0 6100            bsr.w  L003ee     
   348  003d4 6008            bra.s  L003de     
-  349  003d6 4e55            link.w A5,#0      
+  349  003d6 4e55            link.w a5,#0      
   350  003da 4afc            illegal            
   351  003dc 2200            move.l d0,d1      
   352  003de 4e40 L003de     os9    F$Exit     

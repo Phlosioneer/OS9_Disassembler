@@ -1,5 +1,5 @@
     0  00000 0000            psect  strtod_c,$0,$0,0,0,strtod 
-    1  00000 4e55 strtod:    link.w A5,#0      
+    1  00000 4e55 strtod:    link.w a5,#0      
     2  00004 48e7            movem.l a0/a2/d0-d1/d4-d5,-(sp) 
     3  00008 2441            movea.l d1,a2      
     4  0000a 4fef            lea.l  -16(sp),a7 
@@ -75,7 +75,7 @@
    74  000e2 4fef            lea.l  16(sp),a7  
    75  000e6 4ced            movem.l -16(a5),a0/a2/d4-d5 
    76  000ec 6024            bra.s  L00112     
-   77  000ee 4e55 L000ee     link.w A5,#0      
+   77  000ee 4e55 L000ee     link.w a5,#0      
    78  000f2 48e7            movem.l a0-a2,-(sp) 
    79  000f6 2440            movea.l d0,a2      
    80  000f8 2052            movea.l (a2),a0    
@@ -88,7 +88,7 @@
    87  0010a 7001 L0010a     moveq  #1,d0      
    88  0010c 2488 L0010c     move.l a0,(a2)    
    89  0010e 4cdf            movem.l (sp)+,a0-a2 
-   90  00112 4e5d L00112     unlk   A5         
+   90  00112 4e5d L00112     unlk   a5         
    91  00114 4e75            rts               
    92
    93  00116 0000            ends              

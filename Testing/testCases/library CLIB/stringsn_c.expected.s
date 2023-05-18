@@ -1,5 +1,5 @@
  psect stringsn_c,$0,$0,0,0,strncpy
-strncpy: link.w A5,#0
+strncpy: link.w a5,#0
  movem.l a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -15,9 +15,9 @@ L0001e subq.l #1,d4
  bge.s L0001c
  move.l a2,d0
  movem.l -16(a5),a2-a4/d4
- unlk A5
+ unlk a5
  rts 
-strncmp: link.w A5,#0
+strncmp: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -43,9 +43,9 @@ L00058 move.b (a3),d0
  ext.l d1
  move.l d1,d0
 L00066 movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
-strncat: link.w A5,#0
+strncat: link.w a5,#0
  movem.l a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2
  movea.l d1,a3
@@ -63,7 +63,7 @@ L00090 tst.l d4
  clr.b (a4)
 L00096 move.l a2,d0
  movem.l -16(a5),a2-a4/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

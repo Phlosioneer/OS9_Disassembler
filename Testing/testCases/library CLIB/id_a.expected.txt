@@ -1,16 +1,16 @@
     0  00000 0000            psect  id_a,$0,$0,0,0,getpid 
-    1  00000 4e55 getpid:    link.w A5,#0      
+    1  00000 4e55 getpid:    link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 4e40            os9    F$ID       
     4  0000c 6000            bra.w  _sysret    
-    5  00010 4e55 getuid:    link.w A5,#0      
+    5  00010 4e55 getuid:    link.w a5,#0      
     6  00014 48e7            movem.l a0/d1-d2,-(sp) 
     7  00018 4e40            os9    F$ID       
     8  0001c 6500            dc.w   $6500      
     9  0001e 0000            dc.w   $0         
    10  00020 2001            move.l d1,d0      
    11  00022 6000            bra.w  _sysret    
-   12  00026 4e55 setuid:    link.w A5,#0      
+   12  00026 4e55 setuid:    link.w a5,#0      
    13  0002a 48e7            movem.l a0/d1-d2,-(sp) 
    14  0002e 2200            move.l d0,d1      
    15  00030 4e40            os9    F$SUser    

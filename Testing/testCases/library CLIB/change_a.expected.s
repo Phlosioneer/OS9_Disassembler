@@ -1,5 +1,5 @@
  psect change_a,$0,$0,0,0,chmod
-chmod: link.w A5,#0
+chmod: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d1,d2
  movea.l d0,a0
@@ -14,7 +14,7 @@ L0001e move.l d1,d2
  os9 I$Close
  move.l d2,d1
  bra.w _os9err
-chown: link.w A5,#-28
+chown: link.w a5,#-28
  movem.l a0/d1-d2,-12(a5)
  movea.l d0,a0
  moveq #2,d0

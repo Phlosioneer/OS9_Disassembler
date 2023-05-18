@@ -1,10 +1,10 @@
  psect misc_a,$0,$0,0,0,pause
-pause: link.w A5,#0
+pause: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  moveq #0,d0
  os9 F$Sleep
  bra.w _sysret
-crc: link.w A5,#0
+crc: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l 8(a5),a0
  move.l (a0),d1
@@ -16,17 +16,17 @@ crc: link.w A5,#0
  movea.l 8(a5),a0
  move.l d1,(a0)
  bra.w _sysret0
-prerr: link.w A5,#0
+prerr: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$PErr
  bra.w _sysret
 sleep: lsl.l #8,d0
  bset.l #31,d0
-tsleep: link.w A5,#0
+tsleep: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$Sleep
  bra.w _sysret
-_cmpnam: link.w A5,#0
+_cmpnam: link.w a5,#0
  movem.l a0-a1,-(sp)
  movea.l d1,a0
  movea.l d0,a1
@@ -35,13 +35,13 @@ _cmpnam: link.w A5,#0
  bcs.s L000d2
  moveq #0,d0
  bra.s L000de
-_prsnam: link.w A5,#0
+_prsnam: link.w a5,#0
  movem.l a0-a1/d0-d1,-(sp)
  movea.l d0,a0
  os9 F$PrsNam
  bcc.s L000da
  bra.s L000d2
-_parsepath: link.w A5,#0
+_parsepath: link.w a5,#0
  movem.l a0-a1/d0-d1,-(sp)
  movea.l d0,a0
  movea.l a0,a1
@@ -75,9 +75,9 @@ L000d2 move.l d1,errno(a6)
 L000da move.l a1,d0
  sub.l (sp),d0
 L000de movem.l -12(a5),a0-a1/d1
- unlk A5
+ unlk a5
  rts 
-_mkdata_module: link.w A5,#0
+_mkdata_module: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movem.l a1-a2/d3-d4,-(sp)
  move.l 12(a5),d2
@@ -93,7 +93,7 @@ L00106 movea.l d0,a0
  move.l a2,d0
 L00116 movem.l (sp)+,a1-a2/d3-d4
  bra.w _sysret
-_get_module_dir: link.w A5,#0
+_get_module_dir: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  os9 F$GModDr
@@ -101,7 +101,7 @@ _get_module_dir: link.w A5,#0
  dc.w $0
  move.l d1,d0
  bra.w _sysret
-_get_process_table: link.w A5,#0
+_get_process_table: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  os9 F$GPrDBT
@@ -109,21 +109,21 @@ _get_process_table: link.w A5,#0
  dc.w $0
  move.l d1,d0
  bra.w _sysret
-_get_process_desc: link.w A5,#0
+_get_process_desc: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l 8(a5),a0
  os9 F$GPrDsc
  bra.w _sysret
-_setcrc: link.w A5,#0
+_setcrc: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  os9 F$SetCRC
  bra.w _sysret
-_getsys: link.w A5,#0
+_getsys: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  bset.l #31,d1
  bra.s L0018e
-_setsys: link.w A5,#0
+_setsys: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l 8(a5),d2
 L0018e os9 F$SetSys
@@ -131,15 +131,15 @@ L0018e os9 F$SetSys
  dc.w $0
  move.l d2,d0
  bra.w _sysret
-_suspend: link.w A5,#0
+_suspend: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$SSpd
  bra.w _sysret
-_sysdbg: link.w A5,#0
+_sysdbg: link.w a5,#0
  os9 F$SysDbg
- unlk A5
+ unlk a5
  rts 
-_cpymem: link.w A5,#0
+_cpymem: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l a1,-(sp)
  movea.l 8(a5),a0

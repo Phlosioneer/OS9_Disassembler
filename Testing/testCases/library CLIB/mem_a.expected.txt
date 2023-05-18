@@ -19,7 +19,7 @@
    17
    18  00004 0000            ends              
    18
-   19  00000 4e55 ebrk:      link.w A5,#0      
+   19  00000 4e55 ebrk:      link.w a5,#0      
    20  00004 48e7            movem.l a0/d1-d2,-(sp) 
    21  00008 2200            move.l d0,d1      
    22  0000a 6606            bne.s  L00012     
@@ -47,7 +47,7 @@
    44  0004a 2d40            move.l d0,D00004(a6) 
    45  0004e d1ae            add.l  d0,_totmem(a6) 
    46  00052 60be            bra.s  L00012     
-   47  00054 4e55 ibrk:      link.w A5,#0      
+   47  00054 4e55 ibrk:      link.w a5,#0      
    48  00058 48e7            movem.l a0/d1-d2,-(sp) 
    49  0005c 2200            move.l d0,d1      
    50  0005e 5281            addq.l #1,d1      
@@ -63,7 +63,7 @@
    60  0007c 6032            bra.s  L000b0     
    61  0007e 7200 L0007e     moveq  #E$MemFul,d1 
    62  00080 6000            bra.w  _os9err    
-   63  00084 4e55 sbrk:      link.w A5,#0      
+   63  00084 4e55 sbrk:      link.w a5,#0      
    64  00088 48e7            movem.l a0/d1-d2,-(sp) 
    65  0008c 5280            addq.l #1,d0      
    66  0008e c03c            and.b  #254,d0    
@@ -91,16 +91,16 @@
    88  000c6 64f4            bcc.s  L000bc     
    89  000c8 2000            move.l d0,d0      
    90  000ca 6000            bra.w  _sysret    
-   91  000ce 4e55 _srqmem:   link.w A5,#-4     
+   91  000ce 4e55 _srqmem:   link.w a5,#-4     
    92  000d2 2e8a            move.l a2,(sp)    
    93  000d4 4e40            os9    F$SRqMem   
    94  000d8 651c            bcs.s  L000f6     
    95  000da 2d40            move.l d0,_srqsiz(a6) 
    96  000de 200a            move.l a2,d0      
    97  000e0 246d L000e0     movea.l -4(a5),a2  
-   98  000e4 4e5d            unlk   A5         
+   98  000e4 4e5d            unlk   a5         
    99  000e6 4e75            rts               
-  100  000e8 4e55 _srtmem:   link.w A5,#-4     
+  100  000e8 4e55 _srtmem:   link.w a5,#-4     
   101  000ec 2e8a            move.l a2,(sp)    
   102  000ee 2441            movea.l d1,a2      
   103  000f0 4e40            os9    F$SRtMem   

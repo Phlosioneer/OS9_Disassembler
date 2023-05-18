@@ -1,5 +1,5 @@
     0  00000 0000            psect  mktemp_c,$0,$0,0,0,mktemp 
-    1  00000 4e55 mktemp:    link.w A5,#0      
+    1  00000 4e55 mktemp:    link.w a5,#0      
     2  00004 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 6100            bsr.w  getpid     
@@ -38,7 +38,7 @@
    37  00058 66e4            bne.s  L0003e     
    38  0005a 200b            move.l a3,d0      
    39  0005c 4ced L0005c     movem.l -20(a5),a2-a3/d1/d4-d5 
-   40  00062 4e5d            unlk   A5         
+   40  00062 4e5d            unlk   a5         
    41  00064 4e75            rts               
    42
    43  00066 0000            ends              

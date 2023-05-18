@@ -6,7 +6,7 @@ _os9err: move.l d1,errno(a6)
 _sysret0: bcs.s _os9err
  moveq #0,d0
 L0000e movem.l -12(a5),a0/d1-d2
- unlk A5
+ unlk a5
  rts 
 
  ends 

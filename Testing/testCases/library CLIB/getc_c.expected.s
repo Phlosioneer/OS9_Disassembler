@@ -1,5 +1,5 @@
  psect getc_c,$0,$0,0,0,getc
-getc: link.w A5,#0
+getc: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0,-(sp)
  movea.l d0,a2
@@ -24,9 +24,9 @@ L0001e move.l (a2),d0
 L00036 move.l a2,d0
  bsr.w L000ba
 L0003c movem.l -8(a5),a0/a2
- unlk A5
+ unlk a5
  rts 
-ungetc: link.w A5,#0
+ungetc: link.w a5,#0
  movem.l a0/a2/d0-d1,-(sp)
  movea.l d1,a2
  move.l a2,d0
@@ -46,9 +46,9 @@ L0006e subq.l #1,(a2)
  move.b 3(sp),(a0)
  move.l (sp),d0
 L00078 movem.l -8(a5),a0/a2
- unlk A5
+ unlk a5
  rts 
-getw: link.w A5,#0
+getw: link.w a5,#0
  movem.l a2/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  move.l a2,d0
@@ -68,9 +68,9 @@ L000aa move.l d4,d0
  lsl.l #8,d0
  add.l d5,d0
 L000b0 movem.l -16(a5),a2/d1/d4-d5
- unlk A5
+ unlk a5
  rts 
-L000ba link.w A5,#0
+L000ba link.w a5,#0
  movem.l a0/a2/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.w 12(a2),d0
@@ -137,7 +137,7 @@ L00168 move.l 4(a2),d0
  andi.w #255,d0
  ext.l d0
 L00188 movem.l -16(a5),a0/a2/d1/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

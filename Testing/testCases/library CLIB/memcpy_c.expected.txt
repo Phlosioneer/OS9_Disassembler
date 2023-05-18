@@ -1,5 +1,5 @@
     0  00000 0000            psect  memcpy_c,$0,$0,0,0,memmove 
-    1  00000 4e55 memmove:   link.w A5,#0      
+    1  00000 4e55 memmove:   link.w a5,#0      
     2  00004 48e7            movem.l a0-a2/d0-d2,-(sp) 
     3  00008 2040            movea.l d0,a0      
     4  0000a 2441            movea.l d1,a2      
@@ -7,7 +7,7 @@
     6  00010 6702            beq.s  L00014     
     7  00012 610a            bsr.s  L0001e     
     8  00014 4ced L00014     movem.l -24(a5),a0-a2/d0-d2 
-    9  0001a 4e5d            unlk   A5         
+    9  0001a 4e5d            unlk   a5         
    10  0001c 4e75            rts               
    11  0001e 4a82 L0001e     tst.l  d2         
    12  00020 674a            beq.s  L0006c     

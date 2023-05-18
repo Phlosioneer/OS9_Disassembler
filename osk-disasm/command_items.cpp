@@ -215,7 +215,7 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
     switch (op->id)
     {
     case InstrId::UNLK: /* "unlink: only needs regno for the opcode */
-        sprintf(ci->params, "A%d", regno);
+        sprintf(ci->params, "a%d", regno);
 
         if ((ci->mnem[strlen(ci->mnem) - 1]) == '.')
         {
@@ -227,7 +227,7 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
         if (!hasnext_w(state)) return 0;
         ext_w = getnext_w(ci, state);
 
-        sprintf(ci->params, "A%d,#%d", regno, ext_w);
+        sprintf(ci->params, "a%d,#%d", regno, ext_w);
         strcat(ci->mnem, (op->id == InstrId::LINK) ? "w" : "l");
     }
 

@@ -1,5 +1,5 @@
     0  00000 0000            psect  change_a,$0,$0,0,0,chmod 
-    1  00000 4e55 chmod:     link.w A5,#0      
+    1  00000 4e55 chmod:     link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 2401            move.l d1,d2      
     4  0000a 2040            movea.l d0,a0      
@@ -14,7 +14,7 @@
    13  00020 4e40            os9    I$Close    
    14  00024 2202            move.l d2,d1      
    15  00026 6000            bra.w  _os9err    
-   16  0002a 4e55 chown:     link.w A5,#-28    
+   16  0002a 4e55 chown:     link.w a5,#-28    
    17  0002e 48ed            movem.l a0/d1-d2,-12(a5) 
    18  00034 2040            movea.l d0,a0      
    19  00036 7002            moveq  #2,d0      

@@ -1,5 +1,5 @@
     0  00000 0000            psect  index_c,$0,$0,0,0,index 
-    1  00000 4e55 index:     link.w A5,#0      
+    1  00000 4e55 index:     link.w a5,#0      
     2  00004 48e7            movem.l a2/d0-d1/d4,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2801            move.l d1,d4      
@@ -11,9 +11,9 @@
    10  00016 66f4            bne.s  L0000c     
    11  00018 7000            moveq  #0,d0      
    12  0001a 4ced L0001a     movem.l -8(a5),a2/d4 
-   13  00020 4e5d            unlk   A5         
+   13  00020 4e5d            unlk   a5         
    14  00022 4e75            rts               
-   15  00024 4e55 rindex:    link.w A5,#0      
+   15  00024 4e55 rindex:    link.w a5,#0      
    16  00028 48e7            movem.l a2-a3/d0-d1/d4,-(sp) 
    17  0002c 2440            movea.l d0,a2      
    18  0002e 2801            move.l d1,d4      
@@ -25,7 +25,7 @@
    24  0003a 66f6            bne.s  L00032     
    25  0003c 200b            move.l a3,d0      
    26  0003e 4ced            movem.l -12(a5),a2-a3/d4 
-   27  00044 4e5d            unlk   A5         
+   27  00044 4e5d            unlk   a5         
    28  00046 4e75            rts               
    29
    30  00048 0000            ends              

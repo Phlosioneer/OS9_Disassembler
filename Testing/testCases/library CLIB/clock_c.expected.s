@@ -1,5 +1,5 @@
  psect clock_c,$0,$0,0,0,clock
-clock: link.w A5,#0
+clock: link.w a5,#0
  movem.l d0-d1,-(sp)
  lea.l -2048(sp),a7
  pea (sp)
@@ -16,7 +16,7 @@ L00028 move.l 692(sp),d0
  add.l 696(sp),d0
 L00030 lea.l 2048(sp),a7
  movem.l -4(a5),d1
- unlk A5
+ unlk a5
  rts 
 
  ends 

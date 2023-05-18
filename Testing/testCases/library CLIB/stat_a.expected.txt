@@ -1,5 +1,5 @@
     0  00000 0000            psect  stat_a,$0,$0,0,0,getstat 
-    1  00000 4e55 getstat:   link.w A5,#0      
+    1  00000 4e55 getstat:   link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 c141            exg    d0,d1      
     4  0000a 4a81            tst.l  d1         
@@ -29,7 +29,7 @@
    28  00050 206d L00050     movea.l 8(a5),a0   
    29  00054 4e40 L00054     os9    I$GetStt   
    30  00058 6000            bra.w  _sysret    
-   31  0005c 4e55 setstat:   link.w A5,#0      
+   31  0005c 4e55 setstat:   link.w a5,#0      
    32  00060 48e7            movem.l a0/d1-d2,-(sp) 
    33  00064 c141            exg    d0,d1      
    34  00066 4a81            tst.l  d1         

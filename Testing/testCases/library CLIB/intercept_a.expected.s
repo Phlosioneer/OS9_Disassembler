@@ -7,7 +7,7 @@ D00000 ds.b 4
 
  ends 
 
-intercept: link.w A5,#0
+intercept: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  lea.l L0001c(pc),a0
  move.l d0,D00000(a6)

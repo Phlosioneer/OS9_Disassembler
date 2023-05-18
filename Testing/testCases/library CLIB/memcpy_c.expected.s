@@ -1,5 +1,5 @@
  psect memcpy_c,$0,$0,0,0,memmove
-memmove: link.w A5,#0
+memmove: link.w a5,#0
  movem.l a0-a2/d0-d2,-(sp)
  movea.l d0,a0
  movea.l d1,a2
@@ -7,7 +7,7 @@ memmove: link.w A5,#0
  beq.s L00014
  bsr.s L0001e
 L00014 movem.l -24(a5),a0-a2/d0-d2
- unlk A5
+ unlk a5
  rts 
 L0001e tst.l d2
  beq.s L0006c

@@ -1,5 +1,5 @@
  psect io_a,$0,$0,0,0,read
-read: link.w A5,#0
+read: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d1,a0
  move.l 8(a5),d1
@@ -9,7 +9,7 @@ L00014 cmpi.w #E$EOF,d1
  dc.w $6600
  dc.w $0
  bra.w _sysret0
-readln: link.w A5,#0
+readln: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d1,a0
  move.l 8(a5),d1
@@ -17,21 +17,21 @@ readln: link.w A5,#0
  bcs.s L00014
 L00034 move.l d1,d0
  bra.w _sysret
-write: link.w A5,#0
+write: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d1,a0
  move.l 8(a5),d1
  os9 I$Write
  bcc.s L00034
  bra.w _os9err
-writeln: link.w A5,#0
+writeln: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d1,a0
  move.l 8(a5),d1
  os9 I$WritLn
  bcc.s L00034
  bra.w _os9err
-lseek: link.w A5,#0
+lseek: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.b 11(a5),d1
  beq.s L0009e

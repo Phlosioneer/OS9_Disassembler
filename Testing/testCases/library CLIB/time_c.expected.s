@@ -92,7 +92,7 @@ _000f8 dc.l $00000000
 
  ends 
 
-time: link.w A5,#0
+time: link.w a5,#0
  movem.l a0-a1/d0-d1,-(sp)
  lea.l -26(sp),a7
  pea 8(sp)
@@ -160,9 +160,9 @@ L000ae move.l #-2440587,d0
 L000d6 move.l 22(sp),d0
 L000da lea.l 26(sp),a7
  movem.l -12(a5),a0-a1/d1
- unlk A5
+ unlk a5
  rts 
-mktime: link.w A5,#0
+mktime: link.w a5,#0
  movem.l a0-a2/d0-d2/d4,-(sp)
  movea.l d0,a2
  subq.l #8,sp
@@ -241,9 +241,9 @@ L001d8 move.l #-2440587,d0
  add.l 4(sp),d0
 L001ee addq.l #8,sp
  movem.l -24(a5),a0-a2/d1-d2/d4
- unlk A5
+ unlk a5
  rts 
-L001fa link.w A5,#0
+L001fa link.w a5,#0
  movem.l a0/a2/d0-d1/d4-d6,-(sp)
  movea.l d0,a2
  moveq #60,d1
@@ -344,9 +344,9 @@ L002fa moveq #1,d0
 L0031a moveq #28,d0
  move.l d0,_00004(a6)
  movem.l -24(a5),a0/a2/d1/d4-d6
- unlk A5
+ unlk a5
  rts 
-L0032a link.w A5,#0
+L0032a link.w a5,#0
  movem.l a0/d0-d1/d4,-(sp)
  moveq #0,d4
  bra.s L00340
@@ -368,9 +368,9 @@ L00356 movea.l (sp),a0
  blt.s L0034c
  move.l d4,d0
  movem.l -8(a5),a0/d4
- unlk A5
+ unlk a5
  rts 
-L00368 link.w A5,#0
+L00368 link.w a5,#0
  movem.l a0/d0-d1/d4-d7,-(sp)
  move.l d0,d4
  move.l d1,d5
@@ -394,9 +394,9 @@ L00398 subq.l #1,d5
  move.l d0,_00004(a6)
  move.l d7,d0
  movem.l -20(a5),a0/d4-d7
- unlk A5
+ unlk a5
  rts 
-localtime: link.w A5,#0
+localtime: link.w a5,#0
  movem.l a0/a2/d0-d1,-(sp)
  tst.l (sp)
  bne.s L003be
@@ -432,9 +432,9 @@ L003d2 movea.l D00000(a6),a0
  move.l #1,32(a2)
 L00422 move.l a2,d0
 L00424 movem.l -12(a5),a0/a2/d1
- unlk A5
+ unlk a5
  rts 
-gmtime: link.w A5,#0
+gmtime: link.w a5,#0
  movem.l a0/d0-d1/d4-d7,-(sp)
  subq.l #4,sp
  tst.l 4(sp)
@@ -533,9 +533,9 @@ L00536 move.l d7,d0
  move.l a0,d0
 L0055c addq.l #4,sp
  movem.l -24(a5),a0/d1/d4-d7
- unlk A5
+ unlk a5
  rts 
-L00568 link.w A5,#0
+L00568 link.w a5,#0
  movem.l a0-a1/d0-d1,-(sp)
  lea.l -28(sp),a7
  lea.l L00980(pc),a0
@@ -676,9 +676,9 @@ L00702 movea.l (sp),a0
  move.l a0,d0
 L00716 lea.l 28(sp),a7
  movem.l -12(a5),a0-a1/d1
- unlk A5
+ unlk a5
  rts 
-L00724 link.w A5,#0
+L00724 link.w a5,#0
  movem.l d0-d1/d4-d7,-(sp)
  move.l d0,d4
  move.l d1,d5
@@ -686,9 +686,9 @@ L00724 link.w A5,#0
  move.l 36(sp),d7
  moveq #0,d0
  movem.l -16(a5),d4-d7
- unlk A5
+ unlk a5
  rts 
-L00744 link.w A5,#0
+L00744 link.w a5,#0
  movem.l a0/d0-d1/d4-d7,-(sp)
  move.l d0,d4
  move.l d1,d5
@@ -769,9 +769,9 @@ L00834 moveq #0,d0
 L00838 moveq #1,d0
 L0083a lea.l 20(sp),a7
  movem.l -20(a5),a0/d4-d7
- unlk A5
+ unlk a5
  rts 
-L00848 link.w A5,#0
+L00848 link.w a5,#0
  movem.l d0-d1/d4-d7,-(sp)
  move.l d0,d4
  move.l d1,d5
@@ -828,9 +828,9 @@ L008c0 moveq #0,d0
 L008c4 moveq #1,d0
 L008c6 addq.l #4,sp
  movem.l -16(a5),d4-d7
- unlk A5
+ unlk a5
  rts 
-L008d2 link.w A5,#0
+L008d2 link.w a5,#0
  movem.l a0/d0-d1/d4-d7,-(sp)
  moveq #3,d0
  and.l 36(sp),d0
@@ -871,7 +871,7 @@ L00932 moveq #28,d0
  move.l d0,_00004(a6)
  move.l d5,d0
  movem.l -20(a5),a0/d4-d7
- unlk A5
+ unlk a5
  rts 
 L00944 addq.w #8,(a3)
  addq.b #2,d0

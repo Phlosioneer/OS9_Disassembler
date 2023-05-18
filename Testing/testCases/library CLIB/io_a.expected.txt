@@ -1,5 +1,5 @@
     0  00000 0000            psect  io_a,$0,$0,0,0,read 
-    1  00000 4e55 read:      link.w A5,#0      
+    1  00000 4e55 read:      link.w a5,#0      
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 2041            movea.l d1,a0      
     4  0000a 222d            move.l 8(a5),d1   
@@ -9,7 +9,7 @@
     8  00018 6600            dc.w   $6600      
     9  0001a 0000            dc.w   $0         
    10  0001c 6000            bra.w  _sysret0   
-   11  00020 4e55 readln:    link.w A5,#0      
+   11  00020 4e55 readln:    link.w a5,#0      
    12  00024 48e7            movem.l a0/d1-d2,-(sp) 
    13  00028 2041            movea.l d1,a0      
    14  0002a 222d            move.l 8(a5),d1   
@@ -17,21 +17,21 @@
    16  00032 65e0            bcs.s  L00014     
    17  00034 2001 L00034     move.l d1,d0      
    18  00036 6000            bra.w  _sysret    
-   19  0003a 4e55 write:     link.w A5,#0      
+   19  0003a 4e55 write:     link.w a5,#0      
    20  0003e 48e7            movem.l a0/d1-d2,-(sp) 
    21  00042 2041            movea.l d1,a0      
    22  00044 222d            move.l 8(a5),d1   
    23  00048 4e40            os9    I$Write    
    24  0004c 64e6            bcc.s  L00034     
    25  0004e 6000            bra.w  _os9err    
-   26  00052 4e55 writeln:   link.w A5,#0      
+   26  00052 4e55 writeln:   link.w a5,#0      
    27  00056 48e7            movem.l a0/d1-d2,-(sp) 
    28  0005a 2041            movea.l d1,a0      
    29  0005c 222d            move.l 8(a5),d1   
    30  00060 4e40            os9    I$WritLn   
    31  00064 64ce            bcc.s  L00034     
    32  00066 6000            bra.w  _os9err    
-   33  0006a 4e55 lseek:     link.w A5,#0      
+   33  0006a 4e55 lseek:     link.w a5,#0      
    34  0006e 48e7            movem.l a0/d1-d2,-(sp) 
    35  00072 122d            move.b 11(a5),d1  
    36  00076 6726            beq.s  L0009e     

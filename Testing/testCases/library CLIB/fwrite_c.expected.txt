@@ -1,5 +1,5 @@
     0  00000 0000            psect  fwrite_c,$0,$0,0,0,fwrite 
-    1  00000 4e55 fwrite:    link.w A5,#0      
+    1  00000 4e55 fwrite:    link.w a5,#0      
     2  00004 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 266f            movea.l 36(sp),a3  
@@ -23,7 +23,7 @@
    22  0003a 6dd6            blt.s  L00012     
    23  0003c 2004 L0003c     move.l d4,d0      
    24  0003e 4ced            movem.l -16(a5),a2-a3/d4-d5 
-   25  00044 4e5d            unlk   A5         
+   25  00044 4e5d            unlk   a5         
    26  00046 4e75            rts               
    27
    28  00048 0000            ends              

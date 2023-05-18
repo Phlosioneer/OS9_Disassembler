@@ -1,5 +1,5 @@
  psect index_c,$0,$0,0,0,index
-index: link.w A5,#0
+index: link.w a5,#0
  movem.l a2/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -11,9 +11,9 @@ L00014 tst.b (a2)+
  bne.s L0000c
  moveq #0,d0
 L0001a movem.l -8(a5),a2/d4
- unlk A5
+ unlk a5
  rts 
-rindex: link.w A5,#0
+rindex: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
  move.l d1,d4
@@ -25,7 +25,7 @@ L00038 tst.b (a2)+
  bne.s L00032
  move.l a3,d0
  movem.l -12(a5),a2-a3/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

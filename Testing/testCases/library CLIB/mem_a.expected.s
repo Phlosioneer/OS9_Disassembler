@@ -17,7 +17,7 @@ _memmins: dc.l $00002000
 
  ends 
 
-ebrk: link.w A5,#0
+ebrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  bne.s L00012
@@ -45,7 +45,7 @@ L0003a movea.l a2,a0
  move.l d0,D00004(a6)
  add.l d0,_totmem(a6)
  bra.s L00012
-ibrk: link.w A5,#0
+ibrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  addq.l #1,d1
@@ -61,7 +61,7 @@ ibrk: link.w A5,#0
  bra.s L000b0
 L0007e moveq #E$MemFul,d1
  bra.w _os9err
-sbrk: link.w A5,#0
+sbrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  addq.l #1,d0
  and.b #254,d0
@@ -89,16 +89,16 @@ L000be dbra d1,L000bc
  bcc.s L000bc
  move.l d0,d0
  bra.w _sysret
-_srqmem: link.w A5,#-4
+_srqmem: link.w a5,#-4
  move.l a2,(sp)
  os9 F$SRqMem
  bcs.s L000f6
  move.l d0,_srqsiz(a6)
  move.l a2,d0
 L000e0 movea.l -4(a5),a2
- unlk A5
+ unlk a5
  rts 
-_srtmem: link.w A5,#-4
+_srtmem: link.w a5,#-4
  move.l a2,(sp)
  movea.l d1,a2
  os9 F$SRtMem

@@ -1,5 +1,5 @@
  psect putc_c,$0,$0,0,0,putc
-putc: link.w A5,#0
+putc: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)
  movea.l d1,a2
@@ -54,9 +54,9 @@ L0009a moveq #255,d0
  bra.s L000a0
 L0009e move.l (sp),d0
 L000a0 movem.l -8(a5),a0/a2
- unlk A5
+ unlk a5
  rts 
-putw: link.w A5,#0
+putw: link.w a5,#0
  movem.l a2/d0-d1/d4,-(sp)
  move.l d0,d4
  movea.l d1,a2
@@ -68,9 +68,9 @@ putw: link.w A5,#0
  move.l d4,d0
  bsr.w putc
  movem.l -8(a5),a2/d4
- unlk A5
+ unlk a5
  rts 
-_tidyup: link.w A5,#0
+_tidyup: link.w a5,#0
  movem.l a0/a2/d0,-(sp)
  lea.l _iob(a6),a2
  bra.s L000ea
@@ -81,9 +81,9 @@ L000ea lea.l _iob+896(a6),a0
  cmpa.l a2,a0
  bhi.s L000e0
  movem.l -8(a5),a0/a2
- unlk A5
+ unlk a5
  rts 
-fclose: link.w A5,#0
+fclose: link.w a5,#0
  movem.l a0/a2/d0/d4,-(sp)
  movea.l d0,a2
  moveq #0,d4
@@ -122,7 +122,7 @@ L0014e moveq #0,d0
  bra.s L00170
 L0016e moveq #255,d0
 L00170 movem.l -12(a5),a0/a2/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

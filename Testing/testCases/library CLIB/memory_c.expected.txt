@@ -23,7 +23,7 @@
    21
    22  00018 0000            ends              
    22
-   23  00000 4e55 L00000     link.w A5,#0      
+   23  00000 4e55 L00000     link.w a5,#0      
    24  00004 48e7            movem.l a2-a4/d0-d1,-(sp) 
    25  00008 2440            movea.l d0,a2      
    26  0000a 49ee            lea.l  _00008(a6),a4 
@@ -75,9 +75,9 @@
    72  00080 288a            move.l a2,(a4)    
    73  00082 4292            clr.l  (a2)       
    74  00084 4ced L00084     movem.l -16(a5),a2-a4/d1 
-   75  0008a 4e5d            unlk   A5         
+   75  0008a 4e5d            unlk   a5         
    76  0008c 4e75            rts               
-   77  0008e 4e55 L0008e     link.w A5,#0      
+   77  0008e 4e55 L0008e     link.w a5,#0      
    78  00092 48e7            movem.l a2/d0-d1/d4,-(sp) 
    79  00096 2800            move.l d0,d4      
    80  00098 5284            addq.l #1,d4      
@@ -106,9 +106,9 @@
   103  000d4 6100            bsr.w  L004bc     
   104  000d8 202e            move.l _00010(a6),d0 
   105  000dc 4ced L000dc     movem.l -12(a5),a2/d1/d4 
-  106  000e2 4e5d            unlk   A5         
+  106  000e2 4e5d            unlk   a5         
   107  000e4 4e75            rts               
-  108  000e6 4e55 _lmalloc:  link.w A5,#0      
+  108  000e6 4e55 _lmalloc:  link.w a5,#0      
   109  000ea 48e7            movem.l a2-a3/d0/d4-d5,-(sp) 
   110  000ee 2800            move.l d0,d4      
   111  000f0 2004            move.l d4,d0      
@@ -144,9 +144,9 @@
   141  0013c 2d4b L0013c     move.l a3,_00010(a6) 
   142  00140 200a            move.l a2,d0      
   143  00142 4ced L00142     movem.l -16(a5),a2-a3/d4-d5 
-  144  00148 4e5d            unlk   A5         
+  144  00148 4e5d            unlk   a5         
   145  0014a 4e75            rts               
-  146  0014c 4e55 L0014c     link.w A5,#0      
+  146  0014c 4e55 L0014c     link.w a5,#0      
   147  00150 48e7            movem.l a0/d0-d1,-(sp) 
   148  00154 598f            subq.l #4,sp      
   149  00156 41ee            lea.l  _00000(a6),a0 
@@ -166,9 +166,9 @@
   163  00180 2d40            move.l d0,D00000(a6) 
   164  00184 588f            addq.l #4,sp      
   165  00186 4ced            movem.l -8(a5),a0/d1 
-  166  0018c 4e5d            unlk   A5         
+  166  0018c 4e5d            unlk   a5         
   167  0018e 4e75            rts               
-  168  00190 4e55 malloc:    link.w A5,#0      
+  168  00190 4e55 malloc:    link.w a5,#0      
   169  00194 48e7            movem.l a2/d0/d4,-(sp) 
   170  00198 2800            move.l d0,d4      
   171  0019a 4a84            tst.l  d4         
@@ -189,9 +189,9 @@
   186  001c0 508a            addq.l #8,a2      
   187  001c2 200a L001c2     move.l a2,d0      
   188  001c4 4ced L001c4     movem.l -8(a5),a2/d4 
-  189  001ca 4e5d            unlk   A5         
+  189  001ca 4e5d            unlk   a5         
   190  001cc 4e75            rts               
-  191  001ce 4e55 _lrealloc: link.w A5,#0      
+  191  001ce 4e55 _lrealloc: link.w a5,#0      
   192  001d2 48e7            movem.l a0/a2-a4/d0-d1/d4-d7,-(sp) 
   193  001d6 2440            movea.l d0,a2      
   194  001d8 2801            move.l d1,d4      
@@ -327,9 +327,9 @@
   324  00326 2006 L00326     move.l d6,d0      
   325  00328 4fef L00328     lea.l  12(sp),a7  
   326  0032c 4ced            movem.l -32(a5),a0/a2-a4/d4-d7 
-  327  00332 4e5d            unlk   A5         
+  327  00332 4e5d            unlk   a5         
   328  00334 4e75            rts               
-  329  00336 4e55 realloc:   link.w A5,#0      
+  329  00336 4e55 realloc:   link.w a5,#0      
   330  0033a 48e7            movem.l a0/a2-a3/d0-d1/d4,-(sp) 
   331  0033e 2440            movea.l d0,a2      
   332  00340 2801            move.l d1,d4      
@@ -367,9 +367,9 @@
   364  0038e 508b            addq.l #8,a3      
   365  00390 200b L00390     move.l a3,d0      
   366  00392 4ced L00392     movem.l -16(a5),a0/a2-a3/d4 
-  367  00398 4e5d            unlk   A5         
+  367  00398 4e5d            unlk   a5         
   368  0039a 4e75            rts               
-  369  0039c 4e55 _lfree:    link.w A5,#0      
+  369  0039c 4e55 _lfree:    link.w a5,#0      
   370  003a0 48e7            movem.l a2-a3/d0-d1/d4,-(sp) 
   371  003a4 2440            movea.l d0,a2      
   372  003a6 2801            move.l d1,d4      
@@ -387,9 +387,9 @@
   384  003c2 200b            move.l a3,d0      
   385  003c4 6100            bsr.w  L0061e     
   386  003c8 4ced L003c8     movem.l -12(a5),a2-a3/d4 
-  387  003ce 4e5d            unlk   A5         
+  387  003ce 4e5d            unlk   a5         
   388  003d0 4e75            rts               
-  389  003d2 4e55 free:      link.w A5,#0      
+  389  003d2 4e55 free:      link.w a5,#0      
   390  003d6 48e7            movem.l a0/a2-a3/d0-d1,-(sp) 
   391  003da 2440            movea.l d0,a2      
   392  003dc 200a            move.l a2,d0      
@@ -409,9 +409,9 @@
   406  00400 200b            move.l a3,d0      
   407  00402 6198            bsr.s  _lfree     
   408  00404 4ced L00404     movem.l -16(a5),a0/a2-a3/d1 
-  409  0040a 4e5d            unlk   A5         
+  409  0040a 4e5d            unlk   a5         
   410  0040c 4e75            rts               
-  411  0040e 4e55 _freemin:  link.w A5,#0      
+  411  0040e 4e55 _freemin:  link.w a5,#0      
   412  00412 48e7            movem.l d0-d1/d4,-(sp) 
   413  00416 2800            move.l d0,d4      
   414  00418 4aae            tst.l  _00010(a6) 
@@ -438,9 +438,9 @@
   435  0045a 6100            bsr.w  _T$UMul    
   436  0045e 2d40            move.l d0,D00004(a6) 
   437  00462 4ced L00462     movem.l -8(a5),d1/d4 
-  438  00468 4e5d            unlk   A5         
+  438  00468 4e5d            unlk   a5         
   439  0046a 4e75            rts               
-  440  0046c 4e55 _mallocmin: link.w A5,#0      
+  440  0046c 4e55 _mallocmin: link.w a5,#0      
   441  00470 48e7            movem.l d0-d1/d4,-(sp) 
   442  00474 2800            move.l d0,d4      
   443  00476 4aae            tst.l  _00010(a6) 
@@ -463,9 +463,9 @@
   460  004aa 6100            bsr.w  _T$UMul    
   461  004ae 2d40            move.l d0,D00000(a6) 
   462  004b2 4ced L004b2     movem.l -8(a5),d1/d4 
-  463  004b8 4e5d            unlk   A5         
+  463  004b8 4e5d            unlk   a5         
   464  004ba 4e75            rts               
-  465  004bc 4e55 L004bc     link.w A5,#0      
+  465  004bc 4e55 L004bc     link.w a5,#0      
   466  004c0 48e7            movem.l a0/a2-a4/d0-d1/d4,-(sp) 
   467  004c4 2440            movea.l d0,a2      
   468  004c6 2801            move.l d1,d4      
@@ -521,9 +521,9 @@
   518  0053e 91c8 L0053e     suba.l a0,a0      
   519  00540 2008 L00540     move.l a0,d0      
   520  00542 4ced            movem.l -20(a5),a0/a2-a4/d4 
-  521  00548 4e5d            unlk   A5         
+  521  00548 4e5d            unlk   a5         
   522  0054a 4e75            rts               
-  523  0054c 4e55 L0054c     link.w A5,#0      
+  523  0054c 4e55 L0054c     link.w a5,#0      
   524  00550 48e7            movem.l a2-a4/d0-d1/d4,-(sp) 
   525  00554 2440            movea.l d0,a2      
   526  00556 2801            move.l d1,d4      
@@ -556,9 +556,9 @@
   553  00594 66e6            bne.s  L0057c     
   554  00596 7000 L00596     moveq  #0,d0      
   555  00598 4ced L00598     movem.l -16(a5),a2-a4/d4 
-  556  0059e 4e5d            unlk   A5         
+  556  0059e 4e5d            unlk   a5         
   557  005a0 4e75            rts               
-  558  005a2 4e55 calloc:    link.w A5,#0      
+  558  005a2 4e55 calloc:    link.w a5,#0      
   559  005a6 48e7            movem.l a2/d0-d2/d4-d6,-(sp) 
   560  005aa 2800            move.l d0,d4      
   561  005ac 2a01            move.l d1,d5      
@@ -582,9 +582,9 @@
   579  005d8 508a            addq.l #8,a2      
   580  005da 200a L005da     move.l a2,d0      
   581  005dc 4ced            movem.l -20(a5),a2/d2/d4-d6 
-  582  005e2 4e5d            unlk   A5         
+  582  005e2 4e5d            unlk   a5         
   583  005e4 4e75            rts               
-  584  005e6 4e55 _lcalloc:  link.w A5,#0      
+  584  005e6 4e55 _lcalloc:  link.w a5,#0      
   585  005ea 48e7            movem.l a2/d0-d1/d4-d6,-(sp) 
   586  005ee 2800            move.l d0,d4      
   587  005f0 2a01            move.l d1,d5      
@@ -603,9 +603,9 @@
   600  00610 588f            addq.l #4,sp      
   601  00612 200a L00612     move.l a2,d0      
   602  00614 4ced            movem.l -16(a5),a2/d4-d6 
-  603  0061a 4e5d            unlk   A5         
+  603  0061a 4e5d            unlk   a5         
   604  0061c 4e75            rts               
-  605  0061e 4e55 L0061e     link.w A5,#0      
+  605  0061e 4e55 L0061e     link.w a5,#0      
   606  00622 48e7            movem.l a0/a2-a4/d0-d1/d4,-(sp) 
   607  00626 2440            movea.l d0,a2      
   608  00628 202a            move.l 4(a2),d0   
@@ -646,7 +646,7 @@
   643  0067e e788            lsl.l  #3,d0      
   644  00680 6100            bsr.w  _srtmem    
   645  00684 4ced L00684     movem.l -24(a5),a0/a2-a4/d1/d4 
-  646  0068a 4e5d            unlk   A5         
+  646  0068a 4e5d            unlk   a5         
   647  0068c 4e75            rts               
   648
   649  0068e 0000            ends              

@@ -1,5 +1,5 @@
     0  00000 0000            psect  memcmp_c,$0,$0,0,0,memcmp 
-    1  00000 4e55 memcmp:    link.w A5,#0      
+    1  00000 4e55 memcmp:    link.w a5,#0      
     2  00004 48e7            movem.l a2-a3/d0-d1/d4,-(sp) 
     3  00008 2440            movea.l d0,a2      
     4  0000a 2641            movea.l d1,a3      
@@ -24,7 +24,7 @@
    23  00032 66de            bne.s  L00012     
    24  00034 7000            moveq  #0,d0      
    25  00036 4ced L00036     movem.l -12(a5),a2-a3/d4 
-   26  0003c 4e5d            unlk   A5         
+   26  0003c 4e5d            unlk   a5         
    27  0003e 4e75            rts               
    28
    29  00040 0000            ends              

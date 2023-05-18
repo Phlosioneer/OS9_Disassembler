@@ -409,7 +409,7 @@
   407
   408  0241c 0000            ends              
   408
-  409  00000 4e55 main:      link.w A5,#0      
+  409  00000 4e55 main:      link.w a5,#0      
   410  00004 48e7            movem.l a0/d0-d1/d4,-(sp) 
   411  00008 203c            move.l #-68,d0    
   412  0000e 6100            bsr.w  _stkcheck  
@@ -430,7 +430,7 @@
   427  0003e 2008            move.l a0,d0      
   428  00040 6100            bsr.w  printf     
   429  00044 4ced            movem.l -12(a5),a0/d1/d4 
-  430  0004a 4e5d            unlk   A5         
+  430  0004a 4e5d            unlk   a5         
   431  0004c 4e75            rts               
   432  0004e 5265 L0004e     addq.w #1,-(a5)   
   433  00050 6d6f            dc.w   $6d6f      

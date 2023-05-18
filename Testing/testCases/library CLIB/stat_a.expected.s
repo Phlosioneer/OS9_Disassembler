@@ -1,5 +1,5 @@
  psect stat_a,$0,$0,0,0,getstat
-getstat: link.w A5,#0
+getstat: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  exg d0,d1
  tst.l d1
@@ -29,7 +29,7 @@ L00042 os9 I$GetStt
 L00050 movea.l 8(a5),a0
 L00054 os9 I$GetStt
  bra.w _sysret
-setstat: link.w A5,#0
+setstat: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  exg d0,d1
  tst.l d1

@@ -1,5 +1,5 @@
  psect fread_c,$0,$0,0,0,fread
-fread: link.w A5,#0
+fread: link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d6,-(sp)
  movea.l d0,a2
  movea.l 40(sp),a3
@@ -21,7 +21,7 @@ L0002e cmp.l 36(sp),d5
  blt.s L00012
 L00034 move.l d5,d0
  movem.l -20(a5),a2-a3/d4-d6
- unlk A5
+ unlk a5
  rts 
 
  ends 

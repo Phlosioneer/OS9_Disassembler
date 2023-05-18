@@ -8,7 +8,7 @@
     7
     8  00000 0000            ends              
     8
-    9  00000 4e55 intercept: link.w A5,#0      
+    9  00000 4e55 intercept: link.w a5,#0      
    10  00004 48e7            movem.l a0/d1-d2,-(sp) 
    11  00008 41fa            lea.l  L0001c(pc),a0 
    12  0000c 2d40            move.l d0,D00000(a6) 

@@ -1,5 +1,5 @@
  psect ldexp_c,$0,$0,0,0,ldexp
-ldexp: link.w A5,#0
+ldexp: link.w a5,#0
  movem.l d0-d1/d4,-(sp)
  move.l 20(sp),d4
  tst.l (sp)
@@ -27,7 +27,7 @@ L0004a andi.w #-32753,(sp)
  or.w d0,(sp)
 L00054 movem.l (sp),d0-d1
  movem.l -4(a5),d4
- unlk A5
+ unlk a5
  rts 
 
  ends 

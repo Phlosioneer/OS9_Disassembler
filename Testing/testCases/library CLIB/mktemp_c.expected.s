@@ -1,5 +1,5 @@
  psect mktemp_c,$0,$0,0,0,mktemp
-mktemp: link.w A5,#0
+mktemp: link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
  bsr.w getpid
@@ -38,7 +38,7 @@ L0004c moveq #0,d1
  bne.s L0003e
  move.l a3,d0
 L0005c movem.l -20(a5),a2-a3/d1/d4-d5
- unlk A5
+ unlk a5
  rts 
 
  ends 

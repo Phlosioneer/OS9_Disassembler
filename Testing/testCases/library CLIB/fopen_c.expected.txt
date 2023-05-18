@@ -1,5 +1,5 @@
     0  00000 0000            psect  fopen_c,$0,$0,0,0,L00000 
-    1  00000 4e55 L00000     link.w A5,#0      
+    1  00000 4e55 L00000     link.w a5,#0      
     2  00002 0000 L00002     equ    *-2        
     3  00004 48e7            movem.l a0/a2/d0,-(sp) 
     4  00008 45ee            lea.l  _iob(a6),a2 
@@ -16,9 +16,9 @@
    15  00028 2d7c            move.l #200,errno(a6) 
    16  00030 7000            moveq  #0,d0      
    17  00032 4ced L00032     movem.l -8(a5),a0/a2 
-   18  00038 4e5d            unlk   A5         
+   18  00038 4e5d            unlk   a5         
    19  0003a 4e75            rts               
-   20  0003c 4e55 L0003c     link.w A5,#0      
+   20  0003c 4e55 L0003c     link.w a5,#0      
    21  00040 48e7            movem.l a2-a3/d0-d1,-(sp) 
    22  00044 2441            movea.l d1,a2      
    23  00046 266f            movea.l 24(sp),a3  
@@ -53,9 +53,9 @@
    52  0009e 6002            bra.s  L000a2     
    53  000a0 7000 L000a0     moveq  #0,d0      
    54  000a2 4ced L000a2     movem.l -8(a5),a2-a3 
-   55  000a8 4e5d            unlk   A5         
+   55  000a8 4e5d            unlk   a5         
    56  000aa 4e75            rts               
-   57  000ac 4e55 L000ac     link.w A5,#0      
+   57  000ac 4e55 L000ac     link.w a5,#0      
    58  000b0 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
    59  000b4 2440            movea.l d0,a2      
    60  000b6 2641            movea.l d1,a3      
@@ -132,18 +132,18 @@
   131  0017c 60ca            bra.s  L00148     
   132  0017e 2004 L0017e     move.l d4,d0      
   133  00180 4ced L00180     movem.l -16(a5),a2-a3/d4-d5 
-  134  00186 4e5d            unlk   A5         
+  134  00186 4e5d            unlk   a5         
   135  00188 4e75            rts               
-  136  0018a 4e55 fdopen:    link.w A5,#0      
+  136  0018a 4e55 fdopen:    link.w a5,#0      
   137  0018e 48e7            movem.l d0-d1,-(sp) 
   138  00192 42a7            clr.l  -(sp)      
   139  00194 222f            move.l 8(sp),d1   
   140  00198 202f            move.l 4(sp),d0   
   141  0019c 6100            bsr.w  L0003c     
   142  001a0 588f            addq.l #4,sp      
-  143  001a2 4e5d            unlk   A5         
+  143  001a2 4e5d            unlk   a5         
   144  001a4 4e75            rts               
-  145  001a6 4e55 fopen:     link.w A5,#0      
+  145  001a6 4e55 fopen:     link.w a5,#0      
   146  001aa 48e7            movem.l a0/a2-a3/d0-d1/d4,-(sp) 
   147  001ae 2440            movea.l d0,a2      
   148  001b0 2641            movea.l d1,a3      
@@ -164,9 +164,9 @@
   163  001d2 2040            movea.l d0,a0      
   164  001d4 2008 L001d4     move.l a0,d0      
   165  001d6 4ced            movem.l -16(a5),a0/a2-a3/d4 
-  166  001dc 4e5d            unlk   A5         
+  166  001dc 4e5d            unlk   a5         
   167  001de 4e75            rts               
-  168  001e0 4e55 freopen:   link.w A5,#0      
+  168  001e0 4e55 freopen:   link.w a5,#0      
   169  001e4 48e7            movem.l a0/a2-a4/d0-d1/d4,-(sp) 
   170  001e8 2440            movea.l d0,a2      
   171  001ea 2641            movea.l d1,a3      
@@ -188,7 +188,7 @@
   187  00212 2040            movea.l d0,a0      
   188  00214 2008 L00214     move.l a0,d0      
   189  00216 4ced            movem.l -20(a5),a0/a2-a4/d4 
-  190  0021c 4e5d            unlk   A5         
+  190  0021c 4e5d            unlk   a5         
   191  0021e 4e75            rts               
   192
   193  00220 0000            ends              

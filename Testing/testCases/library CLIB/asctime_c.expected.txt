@@ -35,7 +35,7 @@
    33
    34  0004c 0000            ends              
    34
-   35  00000 4e55 asctime:   link.w A5,#0      
+   35  00000 4e55 asctime:   link.w a5,#0      
    36  00004 48e7            movem.l a0-a1/d0-d1,-(sp) 
    37  00008 2057            movea.l (sp),a0    
    38  0000a 203c            move.l #1900,d0   
@@ -62,7 +62,7 @@
    59  00054 41ee            lea.l  D00000(a6),a0 
    60  00058 2008            move.l a0,d0      
    61  0005a 4ced            movem.l -12(a5),a0-a1/d1 
-   62  00060 4e5d            unlk   A5         
+   62  00060 4e5d            unlk   a5         
    63  00062 4e75            rts               
    64  00064 5375 L00064     dc.b   $53,$75,$6e,$00 
              006e0000

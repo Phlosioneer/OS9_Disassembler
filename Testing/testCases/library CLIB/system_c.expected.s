@@ -1,5 +1,5 @@
  psect system_c,$0,$0,0,0,system
-system: link.w A5,#0
+system: link.w a5,#0
  movem.l a0/a2/d0-d2/d4-d5,-(sp)
  movea.l d0,a2
  lea.l -20(sp),a7
@@ -59,7 +59,7 @@ L0009a lea.l (sp),a0
 L000a6 move.l (sp),d0
 L000a8 lea.l 20(sp),a7
  movem.l -24(a5),a0/a2/d1-d2/d4-d5
- unlk A5
+ unlk a5
  rts 
 L000b6 subq.w #1,a0
  dc.w $454c

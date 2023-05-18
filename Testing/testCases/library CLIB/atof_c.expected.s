@@ -1,5 +1,5 @@
  psect atof_c,$0,$0,0,0,atof
-atof: link.w A5,#0
+atof: link.w a5,#0
  movem.l a2/d0-d1/d4,-(sp)
  movea.l d0,a2
  subq.l #8,sp
@@ -12,7 +12,7 @@ atof: link.w A5,#0
  movem.l (sp),d0-d1
  addq.l #8,sp
  movem.l -8(a5),a2/d4
- unlk A5
+ unlk a5
  rts 
 
  ends 
