@@ -1,7 +1,11 @@
 
+#include "pch.h"
+
 #include "writer.h"
-#include "exit.h"
+
 #include <cstdarg>
+
+#include "exit.h"
 
 writer_handle* stdout_writer = nullptr;
 

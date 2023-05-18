@@ -106,6 +106,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4715;4716;26495</TreatSpecificWarningsAsErrors>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +149,7 @@
     <ClInclude Include="either.h" />
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="params.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="reset.h" />
     <ClInclude Include="writer.h" />

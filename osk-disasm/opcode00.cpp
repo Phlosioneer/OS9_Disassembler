@@ -23,7 +23,10 @@
  *                                                                      *
  * ******************************************************************** */
 
-#include <sstream>
+#include "pch.h"
+
+#include "opcode00.h"
+
 #include <string.h>
 
 #include "cmdfile.h"
@@ -33,7 +36,6 @@
 #include "dprint.h"
 #include "label.h"
 #include "main_support.h"
-#include "opcode00.h"
 #include "rof.h"
 #include "sysnames.h"
 #include "textdef.h"

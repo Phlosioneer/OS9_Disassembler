@@ -2,6 +2,8 @@
 #ifndef WRITER_H
 #define WRITER_H
 
+#include "pch.h"
+
 class Writer;
 
 struct writer_handle
@@ -16,8 +18,6 @@ struct writer_handle
 
 #include <cstdarg>
 #include <cstdio>
-#include <sstream>
-#include <string>
 
 class Writer
 {

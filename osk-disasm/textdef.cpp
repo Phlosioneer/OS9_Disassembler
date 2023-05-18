@@ -1,5 +1,8 @@
 
+#include "pch.h"
+
 #include "textdef.h"
+
 #include "opcode00.h"
 
 extern const SIZETYPES sizefield[] = {

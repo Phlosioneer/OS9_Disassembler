@@ -2,12 +2,12 @@
 #ifndef DPRINT_H
 #define DPRINT_H
 
+#include "pch.h"
+
 #include "address_space.h"
 #include "label.h"
 #include "rof.h"
 #include "userdef.h"
-
-#include <string>
 
 struct cmd_items;
 

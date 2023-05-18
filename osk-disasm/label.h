@@ -2,6 +2,8 @@
 #ifndef LABEL_H
 #define LABEL_H
 
+#include "pch.h"
+
 #include "address_space.h"
 #include "disglobs.h"
 

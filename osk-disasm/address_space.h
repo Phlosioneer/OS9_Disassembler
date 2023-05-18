@@ -1,8 +1,7 @@
 #ifndef ADDRESS_SPACE_H
 #define ADDRESS_SPACE_H
 
-#include <string>
-#include <vector>
+#include "pch.h"
 
 class AddressSpace
 {

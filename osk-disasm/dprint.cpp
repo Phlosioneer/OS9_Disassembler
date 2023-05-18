@@ -33,6 +33,8 @@
  *                                                                      *
  * ************************************************************************ */
 
+#include "pch.h"
+
 #include "dprint.h"
 
 #include <algorithm>
@@ -41,7 +43,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <vector>
 
 #include "command_items.h"
 #include "commonsubs.h"

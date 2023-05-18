@@ -2,6 +2,8 @@
 #ifndef COMMON_SUBS_H
 #define COMMON_SUBS_H
 
+#include "pch.h"
+
 #include <fstream>
 #include <stdio.h>
 

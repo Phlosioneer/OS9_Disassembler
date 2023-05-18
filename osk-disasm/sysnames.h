@@ -19,6 +19,8 @@
  * see <http://www.gnu.org/licenses/>.                                  *
  * ******************************************************************** */
 
+#include "pch.h"
+
 const char* SysNames[] = {
     "F$Link",   /* $00*/
     "F$Load",   /* $01*/

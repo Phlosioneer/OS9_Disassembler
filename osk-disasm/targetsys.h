@@ -10,6 +10,10 @@
  *                                                                      *
  * ******************************************************************** */
 
+#pragma once
+
+#include "pch.h"
+
 /*
 the boolean logic symbols defined for code readability.
 */

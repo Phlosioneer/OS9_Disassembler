@@ -2,8 +2,9 @@
 #ifndef COMMAND_ITEMS_H
 #define COMMAND_ITEMS_H
 
-#include <ostream>
-#include <stdio.h>
+#include "pch.h"
+
+//#include <ostream>
 
 #include "disglobs.h"
 #include "reader.h"

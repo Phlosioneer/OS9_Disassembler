@@ -23,21 +23,19 @@
  *                                                                      *
  * ******************************************************************** */
 
-#include <map>
-#include <sstream>
-#include <string>
+#include "pch.h"
+
+#include "label.h"
+
+#include <ctype.h>
 
 #include "userdef.h"
-#include <ctype.h>
-#include <string.h>
-
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
 #include "dismain.h"
 #include "dprint.h"
 #include "exit.h"
-#include "label.h"
 #include "main_support.h"
 #include "params.h"
 #include "rof.h"

@@ -2,9 +2,7 @@
 #ifndef READER_H
 #define READER_H
 
-#include <sstream>
-#include <stdexcept>
-#include <vector>
+#include "pch.h"
 
 class BigEndianStream
 {

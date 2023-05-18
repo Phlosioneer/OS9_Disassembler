@@ -2,8 +2,7 @@
 #ifndef CMDFILE_H
 #define CMDFILE_H
 
-#include <stdio.h>
-#include <vector>
+#include "pch.h"
 
 class Range
 {

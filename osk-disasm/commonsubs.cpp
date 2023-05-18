@@ -24,18 +24,19 @@
  *                                                                          *
  * ************************************************************************ */
 
-#include "rof.h"
+#include "pch.h"
 
-#include <sstream>
+#include "commonsubs.h"
+
 #include <stdio.h>
 #include <string.h>
 
 #include "command_items.h"
-#include "commonsubs.h"
 #include "exit.h"
 #include "label.h"
 #include "main_support.h"
 #include "modtypes.h"
+#include "rof.h"
 
 // Advances past any space, tab, or any newline character in the string.
 // Pure function

@@ -126,6 +126,9 @@
     <ClInclude Include="address_space.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="test\actual.s" />

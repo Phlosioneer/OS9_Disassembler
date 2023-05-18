@@ -2,10 +2,9 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#include "pch.h"
+
 #include <bitset>
-#include <sstream>
-#include <stdexcept>
-#include <string>
 
 #include "address_space.h"
 #include "either.h"

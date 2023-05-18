@@ -7,6 +7,9 @@
 
 #ifndef USERDEF_H
 #define USERDEF_H
+
+#include "pch.h"
+
 #include "targetsys.h"
 
 enum class InstrId : int

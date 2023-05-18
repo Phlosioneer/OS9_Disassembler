@@ -24,13 +24,14 @@
  *                                                                      *
  * ******************************************************************** */
 
+#include "pch.h"
+
 #include "rof.h"
 
 #include <algorithm>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <vector>
 
 #include "cmdfile.h"
 #include "command_items.h"

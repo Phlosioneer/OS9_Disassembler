@@ -14,6 +14,9 @@
 
 #ifndef HAVE_TEXTDEF
 #define HAVE_TEXTDEF
+
+#include "pch.h"
+
 /*
 userdef.h contains the define fields. It will be included at the start
 of every command, general, print, getline,main, and assembley routine.

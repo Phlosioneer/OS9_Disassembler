@@ -1,7 +1,8 @@
 #ifndef MONADS_H
 #define MONADS_H
 
-#include <stdexcept>
+#include "pch.h"
+
 #include <utility> // For std::forward and std::move
 
 // Based on https://codereview.stackexchange.com/a/252957

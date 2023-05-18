@@ -2,10 +2,9 @@
 #ifndef DIS_68_H
 #define DIS_68_H
 
-#include <memory>
+#include "pch.h"
+
 #include <stdio.h>
-#include <string>
-#include <vector>
 
 #include "dismain.h"
 #include "reader.h"

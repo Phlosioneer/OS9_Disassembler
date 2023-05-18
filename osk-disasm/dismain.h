@@ -2,8 +2,8 @@
 #ifndef DIS_MAIN_H
 #define DIS_MAIN_H
 
-#include <memory>
-#include <stdint.h>
+#include "pch.h"
+
 #include <stdio.h>
 
 #include "address_space.h"

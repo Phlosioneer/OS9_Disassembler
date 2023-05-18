@@ -28,6 +28,8 @@
 #ifndef ROF_H
 #define ROF_H
 
+#include "pch.h"
+
 /* location flags for Global Refs and Local dests */
 #define REFCOMN 0x100    /* Reference is COMMON      */
 #define EREFREMOTE 0x100 /* External Ref is Remote   */
@@ -51,8 +53,6 @@
 #include "label.h"
 #include "reader.h"
 
-#include <map>
-#include <memory>
 #include <stdio.h>
 
 struct cmd_items;

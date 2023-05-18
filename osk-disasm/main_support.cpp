@@ -23,24 +23,26 @@
  *                                                                      *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 
+#include "pch.h"
+
+#include "main_support.h"
+
+#include <ctype.h>
+#include <fstream>
+#include <string.h>
+
 #ifdef _WIN32
 #include <io.h>
 #endif
 
-#include "disglobs.h"
-#include "userdef.h"
-#include <ctype.h>
-#include <fstream>
-#include <string.h>
-#include <string>
-
 #include "cmdfile.h"
 #include "commonsubs.h"
+#include "disglobs.h"
 #include "dismain.h"
 #include "dprint.h"
 #include "exit.h"
-#include "main_support.h"
 #include "rof.h"
+#include "userdef.h"
 #include "writer.h"
 
 #ifdef _WIN32

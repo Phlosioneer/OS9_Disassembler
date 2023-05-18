@@ -1,5 +1,8 @@
 
+#include "pch.h"
+
 #include "params.h"
+
 #include "disglobs.h"
 #include "dismain.h"
 #include "dprint.h"

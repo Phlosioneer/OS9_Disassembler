@@ -1,8 +1,12 @@
 
-#include "main_support.h"
+#include "pch.h"
+
+#include "exit.h"
+
 #include <errno.h>
-#include <stdexcept>
 #include <stdio.h>
+
+#include "main_support.h"
 
 /*
  * Exit when an error occurs.  Prints a prompt describing the error

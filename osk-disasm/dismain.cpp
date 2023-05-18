@@ -29,10 +29,11 @@
 #define _MAIN_ /* We will define all variables in one header file, then                                                \
                   define them extern from all other files */
 
+#include "pch.h"
+
 #include "dismain.h"
 
 #include <ctype.h>
-#include <sstream>
 #include <string.h>
 
 #include "cmdfile.h"

@@ -1,9 +1,10 @@
 
-#include "main_support.h"
+#include "pch.h"
 
 #include "cmdfile.h"
 #include "dismain.h"
 #include "exit.h"
+#include "main_support.h"
 #include "writer.h"
 
 int main(int argc, char** argv)

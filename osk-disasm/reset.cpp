@@ -1,4 +1,6 @@
 
+#include "pch.h"
+
 #include "reset.h"
 
 #include "cmdfile.h"

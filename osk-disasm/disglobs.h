@@ -29,6 +29,8 @@
 #ifndef HAVE_GLOBALS
 #define HAVE_GLOBALS
 
+#include "pch.h"
+
 #define VERSION "0.1.0"
 
 #include <errno.h>

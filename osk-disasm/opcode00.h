@@ -2,6 +2,8 @@
 #ifndef OPCODE_00_H
 #define OPCODE_00_H
 
+#include "pch.h"
+
 #include "userdef.h"
 
 struct cmd_items;
