@@ -195,7 +195,7 @@ extern const OPSTRUCTURE instr04[] = {
     /* MOVEM EA to Registers */
     {"movem.", 4, 7, 20, "010011001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_TO_REGS, movem_cmd},
     {"trap", 6, 8, 21, "010011100100xxxx", 0, 0, MC68000, InstrId::TRAP, trap},
-    {"link.", 2, 3, 8, "0100111001010xxx", 3, 3, MC68000, InstrId::LINK, link_unlk},
+    {"link.w", 2, 3, 8, "0100111001010xxx", 3, 3, MC68000, InstrId::LINK, link_unlk},
     {"unlk", 6, 3, 21, "0100111001011xxx", 0, 0, MC68000, InstrId::UNLK, link_unlk},
     /* MOVE to USP */
     {"move.", 5, 3, 26, "0100111001100xxx", 4, 4, MC68000, InstrId::MOVE_TO_USP, move_usp},

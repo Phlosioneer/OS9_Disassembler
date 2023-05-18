@@ -8,6 +8,7 @@
 #include "commonsubs.h"
 #include "disglobs.h"
 #include "dismain.h"
+#include "dprint.h"
 #include "exit.h"
 #include "main_support.h"
 #include "modtypes.h"
@@ -86,11 +87,11 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     /* Eliminate illegal Addressing modes */
     switch (op->id)
     {
-    case InstrId::CHK:         /* chk */
+    case InstrId::CHK:  /* chk */
     case InstrId::DIVU: /* divu */
-    case InstrId::DIVS:     /* divs */
-    case InstrId::MULU:     /* mulu */
-    case InstrId::MULS:         /* muls */
+    case InstrId::DIVS: /* divs */
+    case InstrId::MULU: /* mulu */
+    case InstrId::MULS: /* muls */
         if ((mode == 1)) return 0;
         break;
 
@@ -207,30 +208,23 @@ int movem_cmd(struct cmd_items* ci, const struct opst* op, struct parse_state* s
 
 int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
-    int regno = ci->cmd_wrd & 7;
-    int ext_w;
-
+    auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
 
-    switch (op->id)
+    if (op->id == InstrId::UNLK)
     {
-    case InstrId::UNLK: /* "unlink: only needs regno for the opcode */
-        sprintf(ci->params, "a%d", regno);
-
-        if ((ci->mnem[strlen(ci->mnem) - 1]) == '.')
-        {
-            ci->mnem[strlen(ci->mnem) - 1] = '\0';
-        }
-
-        break;
-    default:
-        if (!hasnext_w(state)) return 0;
-        ext_w = getnext_w(ci, state);
-
-        sprintf(ci->params, "a%d,#%d", regno, ext_w);
-        strcat(ci->mnem, (op->id == InstrId::LINK) ? "w" : "l");
+        strcpy(ci->params, Registers::getName(reg));
     }
+    else
+    {
+        if (!hasnext_w(state)) return 0;
+        auto ext_w = getnext_w(ci, state);
 
+        std::ostringstream paramsBuffer;
+        paramsBuffer << Registers::getName(reg) << ",#" << PrettyNumber<int16_t>(ext_w);
+        auto params = paramsBuffer.str();
+        strcpy(ci->params, params.c_str());
+    }
     return 1;
 }
 
