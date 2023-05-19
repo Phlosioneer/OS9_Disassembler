@@ -56,7 +56,7 @@ _sysdate: link.w a5,#0
  bcs.s L000b4
  movea.l -20(a5),a0
  move.l d0,(a0)
- lea.l 8(a5),a0
+ lea 8(a5),a0
  movea.l (a0)+,a1
  move.l d1,(a1)
  movea.l (a0)+,a1

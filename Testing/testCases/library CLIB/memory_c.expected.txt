@@ -26,7 +26,7 @@
    23  00000 4e55 L00000     link.w a5,#0      
    24  00004 48e7            movem.l a2-a4/d0-d1,-(sp) 
    25  00008 2440            movea.l d0,a2      
-   26  0000a 49ee            lea.l  _00008(a6),a4 
+   26  0000a 49ee            lea    _00008(a6),a4 
    27  0000e 266e            movea.l _00008(a6),a3 
    28  00012 6068            bra.s  L0007c     
    29  00014 202a L00014     move.l 4(a2),d0   
@@ -149,7 +149,7 @@
   146  0014c 4e55 L0014c     link.w a5,#0      
   147  00150 48e7            movem.l a0/d0-d1,-(sp) 
   148  00154 598f            subq.l #4,sp      
-  149  00156 41ee            lea.l  _00000(a6),a0 
+  149  00156 41ee            lea    _00000(a6),a0 
   150  0015a 2d48            move.l a0,_00010(a6) 
   151  0015e 7204            moveq  #4,d1      
   152  00160 707c            moveq  #124,d0    
@@ -196,7 +196,7 @@
   193  001d6 2440            movea.l d0,a2      
   194  001d8 2801            move.l d1,d4      
   195  001da 2a2f            move.l 48(sp),d5  
-  196  001de 4fef            lea.l  -12(sp),a7 
+  196  001de 4fef            lea    -12(sp),sp 
   197  001e2 200a            move.l a2,d0      
   198  001e4 660a            bne.s  L001f0     
   199  001e6 2004            move.l d4,d0      
@@ -325,7 +325,7 @@
   322  00320 200c L00320     move.l a4,d0      
   323  00322 6100            bsr.w  L0061e     
   324  00326 2006 L00326     move.l d6,d0      
-  325  00328 4fef L00328     lea.l  12(sp),a7  
+  325  00328 4fef L00328     lea    12(sp),sp  
   326  0032c 4ced            movem.l -32(a5),a0/a2-a4/d4-d7 
   327  00332 4e5d            unlk   a5         
   328  00334 4e75            rts               
@@ -615,7 +615,7 @@
   612  00634 200a            move.l a2,d0      
   613  00636 5180            subq.l #8,d0      
   614  00638 2840            movea.l d0,a4      
-  615  0063a 41ee            lea.l  _00008(a6),a0 
+  615  0063a 41ee            lea    _00008(a6),a0 
   616  0063e 2808            move.l a0,d4      
   617  00640 266e            movea.l _00008(a6),a3 
   618  00644 6008            bra.s  L0064e     

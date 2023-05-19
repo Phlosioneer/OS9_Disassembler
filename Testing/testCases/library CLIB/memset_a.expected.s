@@ -32,7 +32,7 @@ L00046 move.w d1,d0
  move.l d2,d0
  and.w #31,d2
  eor.w d2,d0
- lea.l (a0,d0.l),a0
+ lea (a0,d0.l),a0
  movem.l a0-a2/d3-d7,-(sp)
  move.l d1,d3
  move.l d1,d4

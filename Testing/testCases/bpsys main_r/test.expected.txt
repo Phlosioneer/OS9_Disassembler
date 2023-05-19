@@ -37,7 +37,7 @@
    36  0004e 7200 L0004e     moveq  #0,d1      
    37  00050 0008            dc.w   $8         
    38  00052 0032            ori.b  #98,104(a2,d0.w) 
-   39  00058 47fa init:      lea.l  state(pc),a3 
+   39  00058 47fa init:      lea    state(pc),a3 
    40  0005a 0000 L0005a     equ    *-2        
    41  0005c 0c6b            cmpi.w #-16657,2(a3) 
    42  00062 6700 L00062     beq.w  L00080     
@@ -56,9 +56,9 @@
    55  0008a 6520 L0008a     bcs.s  L000ac     
    56  0008c 0c41            cmpi.w #16916,d1  
    57  00090 641a            bcc.s  L000ac     
-   58  00092 41fa            lea.l  drawControlArgs(pc),a0 
+   58  00092 41fa            lea    drawControlArgs(pc),a0 
    59  00096 48d0 L00096     movem.l a1-a2/a4-a6/d0,(a0) 
-   60  0009a 47fa            lea.l  function_table(pc),a3 
+   60  0009a 47fa            lea    function_table(pc),a3 
    61  0009e 92bc            sub.l  #16896,d1  
    62  000a4 307b            movea.w function_table(pc,d1.l),a0 
    63  000a6 0000 L000a6     equ    *-2        

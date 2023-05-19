@@ -9,7 +9,7 @@ strtoul: link.w a5,#0
 L00014 move.b (a2)+,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #4,d0
@@ -84,7 +84,7 @@ L000cc addq.l #1,a2
 L000ce move.b (a2),d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -115,7 +115,7 @@ L00120 addq.l #1,a2
 L00122 move.b (a2),d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -129,7 +129,7 @@ L00122 move.b (a2),d0
 L00146 move.b (a2),d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  andi.w #6,d0

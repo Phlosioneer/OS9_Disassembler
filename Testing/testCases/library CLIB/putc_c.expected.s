@@ -17,7 +17,7 @@ L00001 equ *-3
 L00032 btst.b #2,13(a2)
  beq.s L00060
  pea (L00001).w
- lea.l 7(sp),a0
+ lea 7(sp),a0
  move.l a0,d1
  movea.w 14(a2),a0
  move.l a0,d0
@@ -72,12 +72,12 @@ putw: link.w a5,#0
  rts 
 _tidyup: link.w a5,#0
  movem.l a0/a2/d0,-(sp)
- lea.l _iob(a6),a2
+ lea _iob(a6),a2
  bra.s L000ea
 L000e0 move.l a2,d0
  bsr.s fclose
  adda.l #28,a2
-L000ea lea.l _iob+896(a6),a0
+L000ea lea _iob+896(a6),a0
  cmpa.l a2,a0
  bhi.s L000e0
  movem.l -8(a5),a0/a2

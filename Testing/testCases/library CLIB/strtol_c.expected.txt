@@ -9,7 +9,7 @@
     8  00014 101a L00014     move.b (a2)+,d0   
     9  00016 4880            ext.w  d0         
    10  00018 48c0            ext.l  d0         
-   11  0001a 41ee            lea.l  _chcodes(a6),a0 
+   11  0001a 41ee            lea    _chcodes(a6),a0 
    12  0001e 1030            move.b (a0,d0.l),d0 
    13  00022 4880            ext.w  d0         
    14  00024 0800            btst.l #4,d0      

@@ -56,7 +56,7 @@
    55  00092 6520            bcs.s  L000b4     
    56  00094 206d            movea.l -20(a5),a0 
    57  00098 2080            move.l d0,(a0)    
-   58  0009a 41ed            lea.l  8(a5),a0   
+   58  0009a 41ed            lea    8(a5),a0   
    59  0009e 2258            movea.l (a0)+,a1   
    60  000a0 2281            move.l d1,(a1)    
    61  000a2 2258            movea.l (a0)+,a1   

@@ -5,7 +5,7 @@ gets: link.w a5,#0
  movea.l a2,a3
  bra.s L00010
 L0000e move.b d4,(a3)+
-L00010 lea.l _iob(a6),a0
+L00010 lea _iob(a6),a0
  move.l a0,d0
  bsr.w getc
  move.l d0,d4

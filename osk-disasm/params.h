@@ -40,7 +40,7 @@ enum class RegParamMode
     PreDecrement
 };
 
-enum class OperandSize
+enum class OperandSize : uint8_t
 {
     Byte,
     Word,
@@ -125,7 +125,8 @@ class FormattedNumber
 
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
+FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize = 4, AddrSpaceHandle space = nullptr);
+FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexSize = OperandSize::Long, AddrSpaceHandle space = nullptr);
 
 typedef Either<std::string, FormattedNumber> LabelOrNumber;
 

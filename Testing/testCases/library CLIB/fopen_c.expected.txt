@@ -2,7 +2,7 @@
     1  00000 4e55 L00000     link.w a5,#0      
     2  00002 0000 L00002     equ    *-2        
     3  00004 48e7            movem.l a0/a2/d0,-(sp) 
-    4  00008 45ee            lea.l  _iob(a6),a2 
+    4  00008 45ee            lea    _iob(a6),a2 
     5  0000c 6012            bra.s  L00020     
     6  0000e 7003 L0000e     moveq  #3,d0      
     7  00010 c06a            and.w  12(a2),d0  
@@ -10,7 +10,7 @@
     9  00016 200a            move.l a2,d0      
    10  00018 6018            bra.s  L00032     
    11  0001a d5fc L0001a     adda.l #28,a2     
-   12  00020 41ee L00020     lea.l  _iob+896(a6),a0 
+   12  00020 41ee L00020     lea    _iob+896(a6),a0 
    13  00024 b1ca            cmpa.l a2,a0      
    14  00026 62e6            bhi.s  L0000e     
    15  00028 2d7c            move.l #200,errno(a6) 
@@ -112,7 +112,7 @@
   111  00140 6100            bsr.w  open       
   112  00144 2800 L00144     move.l d0,d4      
   113  00146 6036            bra.s  L0017e     
-  114  00148 4fed L00148     lea.l  -24(a5),a7 
+  114  00148 4fed L00148     lea    -24(a5),sp 
   115  0014c 2d7c            move.l #203,errno(a6) 
   116  00154 70ff            moveq  #255,d0    
   117  00156 6028            bra.s  L00180     

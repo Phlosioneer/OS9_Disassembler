@@ -424,7 +424,7 @@ L00028 cmpi.l #10000,d4
  movea.l #loremIpsum,a0
  adda.l a6,a0
  move.l a0,d1
- lea.l L0004e(pc),a0
+ lea L0004e(pc),a0
  move.l a0,d0
  bsr.w printf
  movem.l -12(a5),a0/d1/d4

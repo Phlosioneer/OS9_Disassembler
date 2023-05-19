@@ -16,17 +16,17 @@ scanf: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  move.l #-80,d0
  bsr.w _stkcheck
- lea.l _iob(a6),a0
+ lea _iob(a6),a0
  move.l a0,D00084(a6)
  pea 20(sp)
  pea 8(sp)
  move.l 8(sp),-(sp)
- lea.l L0082a(pc),a0
+ lea L0082a(pc),a0
  move.l a0,d1
- lea.l L0080c(pc),a0
+ lea L0080c(pc),a0
  move.l a0,d0
  bsr.w L000c0
- lea.l 12(sp),a7
+ lea 12(sp),sp
  movem.l -4(a5),a0
  unlk a5
  rts 
@@ -38,12 +38,12 @@ fscanf: link.w a5,#0
  pea 24(sp)
  pea 24(sp)
  move.l 12(sp),-(sp)
- lea.l L0082a(pc),a0
+ lea L0082a(pc),a0
  move.l a0,d1
- lea.l L0080c(pc),a0
+ lea L0080c(pc),a0
  move.l a0,d0
  bsr.s L000c0
- lea.l 12(sp),a7
+ lea 12(sp),sp
  movem.l -4(a5),a0
  unlk a5
  rts 
@@ -55,12 +55,12 @@ sscanf: link.w a5,#0
  pea 24(sp)
  pea 24(sp)
  move.l 12(sp),-(sp)
- lea.l L00886(pc),a0
+ lea L00886(pc),a0
  move.l a0,d1
- lea.l L00850(pc),a0
+ lea L00850(pc),a0
  move.l a0,d0
  bsr.s L000c0
- lea.l 12(sp),a7
+ lea 12(sp),sp
  movem.l -4(a5),a0
  unlk a5
  rts 
@@ -71,7 +71,7 @@ L000c0 link.w a5,#0
  movea.l 48(sp),a4
  move.l #-104,d0
  bsr.w _stkcheck
- lea.l -16(sp),a7
+ lea -16(sp),sp
  moveq #1,d0
  move.b d0,D00020(a6)
  move.b d0,D0000d(a6)
@@ -115,7 +115,7 @@ L0013a move.l d6,d0
 L00152 move.b d4,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -172,7 +172,7 @@ L001e0 beq.s L001b0
  bra.s L001fc
  moveq #1,d0
 L001fa move.l d0,(sp)
-L001fc lea.l -56(a5),a7
+L001fc lea -56(a5),sp
  pea 8(sp)
  move.l 4(sp),-(sp)
  move.l d6,-(sp)
@@ -184,7 +184,7 @@ L001fc lea.l -56(a5),a7
  move.l a3,d1
  move.l a2,d0
  bsr.w L00380
- lea.l 20(sp),a7
+ lea 20(sp),sp
  bra.s L00258
  move.l a4,d0
  bsr.w L0077a
@@ -205,7 +205,7 @@ L0024a pea (a0)
  move.l a3,d1
  move.l a2,d0
  bsr.w L00682
- lea.l 16(sp),a7
+ lea 16(sp),sp
 L00258 tst.l d0
  beq.w L002f0
  tst.l 12(sp)
@@ -254,7 +254,7 @@ L002f0 equ *-4
 L002fc bra.s L00342
 L002fe jsr (a2)
  move.l d0,d7
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #4,d0
@@ -265,7 +265,7 @@ L002fe jsr (a2)
  move.l d7,d0
  jsr (a3)
 L0031c bra.s L00342
-L0031e lea.l -56(a5),a7
+L0031e lea -56(a5),sp
  jsr (a2)
  move.l d0,d7
  move.b d4,d0
@@ -300,7 +300,7 @@ L0035e cmpi.w #37,d0
  cmpi.b #32,d0
  beq.w L002fe
  bra.s L0031e
-L00372 lea.l 16(sp),a7
+L00372 lea 16(sp),sp
  movem.l -32(a5),a0/a2-a4/d4-d7
  unlk a5
  rts 
@@ -311,7 +311,7 @@ L00380 link.w a5,#0
  movea.l 64(sp),a4
  move.l #-148,d0
  bsr.w _stkcheck
- lea.l -80(sp),a7
+ lea -80(sp),sp
  moveq #0,d7
  moveq #0,d0
  move.l d0,4(sp)
@@ -343,14 +343,14 @@ L003ec jsr (a2)
  move.b d0,d5
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #4,d0
  bne.s L003ec
  tst.l d6
  bne.w L004d2
- lea.l 16(sp),a0
+ lea 16(sp),a0
  move.l a0,d4
  clr.l (sp)
  moveq #63,d0
@@ -371,7 +371,7 @@ L00436 subq.l #1,136(sp)
 L0043e move.b d5,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -407,7 +407,7 @@ L0047a tst.l 12(sp)
  move.b d5,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -429,13 +429,13 @@ L004e0 cmpi.b #43,d5
  bne.s L004ea
 L004e6 jsr (a2)
  move.b d0,d5
-L004ea lea.l 16(sp),a0
+L004ea lea 16(sp),a0
  move.l a0,d4
  bra.w L005bc
 L004f4 move.b d5,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -448,7 +448,7 @@ L004f4 move.b d5,d0
 L0051a move.b d5,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #6,d0
@@ -457,7 +457,7 @@ L0051a move.b d5,d0
  move.b d5,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -478,7 +478,7 @@ L00564 add.l d0,d7
 L00568 move.b d5,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -525,7 +525,7 @@ L005ce cmpi.b #-1,d5
 L005e4 move.l #1,(a4)
 L005ea move.l a3,d0
  beq.s L005f6
- lea.l 16(sp),a0
+ lea 16(sp),a0
  cmpa.l d4,a0
  bne.s L005fc
 L005f6 moveq #0,d0
@@ -535,14 +535,14 @@ L005fc tst.l d6
  movea.l d4,a0
  clr.b (a0)
  bra.s L0062c
-L00606 lea.l 16(sp),a0
+L00606 lea 16(sp),a0
  move.l a0,d0
  bsr.w atof
  tcall T$Math1,T$DtoF
  movea.l (a3),a0
  move.l d0,(a0)
  bra.s L00672
-L0061a lea.l 16(sp),a0
+L0061a lea 16(sp),a0
  move.l a0,d0
  bsr.w atof
  movea.l (a3),a0
@@ -574,7 +574,7 @@ L00656 move.l 140(sp),d0
  cmpi.b #2,d0
  beq.s L00650
 L00672 moveq #1,d0
-L00674 lea.l 80(sp),a7
+L00674 lea 80(sp),sp
  movem.l -32(a5),a0/a2-a4/d4-d7
  unlk a5
  rts 
@@ -606,7 +606,7 @@ L006ce jsr (a2)
  move.b d0,d4
  ext.w d0
  ext.l d0
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  ext.l d0
@@ -637,7 +637,7 @@ L0071a cmpi.b #-1,d4
  move.b d4,d0
  ext.w d0
  ext.l d0
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  ext.l d0
@@ -683,10 +683,10 @@ L0079a moveq #0,d4
  bra.s L007ba
 L0079e tst.l d5
  beq.s L007ae
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  andi.b #-3,(a0,d4.l)
  bra.s L007b8
-L007ae lea.l D00000(a6),a0
+L007ae lea D00000(a6),a0
  bset.b #1,(a0,d4.l)
 L007b8 addq.l #1,d4
 L007ba cmpi.l #128,d4
@@ -696,12 +696,12 @@ L007c4 tst.l d5
  beq.s L007d8
  move.l d4,d0
  addq.l #1,d4
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  bset.b #1,(a0,d0.l)
  bra.s L007e6
 L007d8 move.l d4,d0
  addq.l #1,d4
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  andi.b #-3,(a0,d0.l)
 L007e6 tst.l d4
  bne.s L007ee

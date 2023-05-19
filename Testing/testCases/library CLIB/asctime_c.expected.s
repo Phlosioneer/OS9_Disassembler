@@ -45,19 +45,19 @@ asctime: link.w a5,#0
  move.l 12(a0),-(sp)
  move.l 16(a0),d0
  lsl.l #2,d0
- lea.l _0001c(a6),a1
+ lea _0001c(a6),a1
  move.l (a1,d0.l),-(sp)
  move.l 24(a0),d0
  lsl.l #2,d0
- lea.l _00000(a6),a1
+ lea _00000(a6),a1
  move.l (a1,d0.l),-(sp)
- lea.l L000b0(pc),a1
+ lea L000b0(pc),a1
  move.l a1,d1
- lea.l D00000(a6),a1
+ lea D00000(a6),a1
  move.l a1,d0
  bsr.w sprintf
- lea.l 28(sp),a7
- lea.l D00000(a6),a0
+ lea 28(sp),sp
+ lea D00000(a6),a0
  move.l a0,d0
  movem.l -12(a5),a0-a1/d1
  unlk a5

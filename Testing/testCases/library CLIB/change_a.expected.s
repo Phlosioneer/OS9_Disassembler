@@ -22,7 +22,7 @@ chown: link.w a5,#-28
  bcs.s L0001e
  moveq #SS_FD,d1
  moveq #16,d2
- lea.l (sp),a0
+ lea (sp),a0
  os9 I$GetStt
  bcs.s L0001e
  move.b 17(sp),FD_OWN(sp)

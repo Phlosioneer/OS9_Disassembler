@@ -2,7 +2,7 @@
     1  00000 4e55 opendir:   link.w a5,#0      
     2  00001 0000 L00001     equ    *-3        
     3  00004 48e7            movem.l a0/a2/d0-d1,-(sp) 
-    4  00008 4fef            lea.l  -132(sp),a7 
+    4  00008 4fef            lea    -132(sp),sp 
     5  0000c 223c            move.l #129,d1    
     6  00012 202f            move.l 132(sp),d0 
     7  00016 6100            bsr.w  open       
@@ -21,7 +21,7 @@
    20  00038 7000 L00038     moveq  #0,d0      
    21  0003a 601c            bra.s  L00058     
    22  0003c 2497 L0003c     move.l (sp),(a2)  
-   23  0003e 41ef            lea.l  4(sp),a0   
+   23  0003e 41ef            lea    4(sp),a0   
    24  00042 2208            move.l a0,d1      
    25  00044 2012            move.l (a2),d0    
    26  00046 6100            bsr.w  _gs_opt    
@@ -30,19 +30,19 @@
    29  00050 48c0            ext.l  d0         
    30  00052 2540            move.l d0,4(a2)   
    31  00056 200a            move.l a2,d0      
-   32  00058 4fef L00058     lea.l  132(sp),a7 
+   32  00058 4fef L00058     lea    132(sp),sp 
    33  0005c 4ced            movem.l -12(a5),a0/a2/d1 
    34  00062 4e5d            unlk   a5         
    35  00064 4e75            rts               
    36  00066 4e55 readdir:   link.w a5,#0      
    37  0006a 48e7            movem.l a0/a2-a3/d0-d1/d4,-(sp) 
    38  0006e 2440            movea.l d0,a2      
-   39  00070 4fef            lea.l  -66(sp),a7 
+   39  00070 4fef            lea    -66(sp),sp 
    40  00074 7005            moveq  #5,d0      
    41  00076 b0aa            cmp.l  4(a2),d0   
    42  0007a 6600            bne.w  L00114     
    43  0007e 4878            pea    (L00021).w 
-   44  00082 41ef            lea.l  36(sp),a0  
+   44  00082 41ef            lea    36(sp),a0  
    45  00086 2208            move.l a0,d1      
    46  00088 2012            move.l (a2),d0    
    47  0008a 6100            bsr.w  read       
@@ -96,7 +96,7 @@
    95  00110 588f            addq.l #4,sp      
    96  00112 6068            bra.s  L0017c     
    97  00114 4878 L00114     pea    (L00020).w 
-   98  00118 41ef            lea.l  4(sp),a0   
+   98  00118 41ef            lea    4(sp),a0   
    99  0011c 2208            move.l a0,d1      
   100  0011e 2012            move.l (a2),d0    
   101  00120 6100            bsr.w  read       
@@ -132,13 +132,13 @@
   131  0016a 48c1            ext.l  d1         
   132  0016c 8081            or.l   d1,d0      
   133  0016e 2680            move.l d0,(a3)    
-  134  00170 41d7            lea.l  (sp),a0    
+  134  00170 41d7            lea    (sp),a0    
   135  00172 2208            move.l a0,d1      
   136  00174 200b            move.l a3,d0      
   137  00176 5080            addq.l #8,d0      
   138  00178 6100            bsr.w  L0020a     
   139  0017c 200b L0017c     move.l a3,d0      
-  140  0017e 4fef L0017e     lea.l  66(sp),a7  
+  140  0017e 4fef L0017e     lea    66(sp),sp  
   141  00182 4ced            movem.l -20(a5),a0/a2-a3/d1/d4 
   142  00188 4e5d            unlk   a5         
   143  0018a 4e75            rts               

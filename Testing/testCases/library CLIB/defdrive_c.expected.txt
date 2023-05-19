@@ -1,7 +1,7 @@
     0  00000 0000            psect  defdrive_c,$0,$0,0,0,defdrive 
     1  00000 4e55 defdrive:  link.w a5,#0      
     2  00004 48e7            movem.l a0/d0,-(sp) 
-    3  00008 41fa            lea.l  L00018(pc),a0 
+    3  00008 41fa            lea    L00018(pc),a0 
     4  0000c 2008            move.l a0,d0      
     5  0000e 4ced            movem.l -4(a5),a0  
     6  00014 4e5d            unlk   a5         

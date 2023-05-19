@@ -53,11 +53,11 @@ L00074 tst.l d5
  beq.s L00096
  btst.l #0,d5
  bne.s L00092
- lea.l (a5,d5.l),a0
+ lea (a5,d5.l),a0
  tst.w -2(a0)
  bne.s L00092
  subq.l #4,a0
- lea.l -4(a0),a4
+ lea -4(a0),a4
  moveq #1,d0
  bra.s L000b8
 L00092 clr.b -1(a5,d5.l)
@@ -69,7 +69,7 @@ L00096 movea.l a5,a0
  move.l #664,d0
  jsr (pc,d0.l)
  bra.s L00124
-L000ae lea.l 4(a0),a1
+L000ae lea 4(a0),a1
  move.l a1,_003a2(a6)
  moveq #0,d2
 L000b8 movea.l -(a0),a1
@@ -143,7 +143,7 @@ L00178 cmp.l D00004(a6),d0
  bcs.s L00184
  move.l d0,D00008(a6)
  rts 
-L00184 lea.l L001f6(pc),a0
+L00184 lea L001f6(pc),a0
  bsr.s L0019a
  move.l #257,-(sp)
  movea.l #580,a0
@@ -166,7 +166,7 @@ L001bc movem.l a0-a3/d0-d1,-(sp)
  asr.w #2,d0
  cmpi.w #15,d0
  bne.s L001dc
- lea.l L0023d(pc),a0
+ lea L0023d(pc),a0
  moveq #0,d1
  os9 F$TLink
  bcc.s L001e8
@@ -212,16 +212,16 @@ L0023d equ *-5
  ori.b #0,d0
  move.l #64,d1
 L0024c move.l a0,-(sp)
- lea.l L00210(pc),a0
+ lea L00210(pc),a0
  bsr.w L0019a
  movea.l #-32738,a1
  adda.l a6,a1
- lea.l L00236(pc),a0
+ lea L00236(pc),a0
  bsr.s L0028c
  movea.l (sp)+,a0
  subq.l #1,a1
  bsr.s L0028c
- lea.l L00236(pc),a0
+ lea L00236(pc),a0
  subq.l #1,a1
  bsr.s L0028c
  move.b #13,-1(a1)
@@ -236,7 +236,7 @@ L0028e bne.s L0028c
 L00290 rts 
  link.w a5,#0
  movem.l a0/d0-d1,-(sp)
- lea.l L00304(pc),a0
+ lea L00304(pc),a0
  move.l a0,d0
  bsr.s L002bc
  moveq #255,d1

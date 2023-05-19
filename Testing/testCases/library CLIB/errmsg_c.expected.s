@@ -9,14 +9,14 @@ _00000 dc.l btext
 
 _errmsg: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
- lea.l _iob+28(a6),a0
+ lea _iob+28(a6),a0
  move.l a0,d0
  bsr.w fflush
  bsr.s _prgname
  move.l d0,-(sp)
- lea.l L0006c(pc),a0
+ lea L0006c(pc),a0
  move.l a0,d1
- lea.l _iob+56(a6),a0
+ lea _iob+56(a6),a0
  move.l a0,d0
  bsr.w fprintf
  addq.l #4,sp
@@ -24,11 +24,11 @@ _errmsg: link.w a5,#0
  move.l 28(sp),-(sp)
  move.l 28(sp),-(sp)
  move.l 16(sp),d1
- lea.l _iob+56(a6),a0
+ lea _iob+56(a6),a0
  move.l a0,d0
  bsr.w fprintf
- lea.l 12(sp),a7
- lea.l _iob+56(a6),a0
+ lea 12(sp),sp
+ lea _iob+56(a6),a0
  move.l a0,d0
  bsr.w fflush
  move.l (sp),d0

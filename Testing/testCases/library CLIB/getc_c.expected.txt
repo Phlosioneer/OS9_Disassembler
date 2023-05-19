@@ -84,7 +84,7 @@
    83  000e2 6600            bne.w  L00164     
    84  000e6 200a            move.l a2,d0      
    85  000e8 6100            bsr.w  _setbase   
-   86  000ec 41ee L000ec     lea.l  _iob(a6),a0 
+   86  000ec 41ee L000ec     lea    _iob(a6),a0 
    87  000f0 b1ca            cmpa.l a2,a0      
    88  000f2 661e            bne.s  L00112     
    89  000f4 302e            move.w _iob+40(a6),d0 
@@ -93,7 +93,7 @@
    92  000fe 6712            beq.s  L00112     
    93  00100 082a            btst.b #7,13(a2)  
    94  00106 660a            bne.s  L00112     
-   95  00108 41ee            lea.l  _iob+28(a6),a0 
+   95  00108 41ee            lea    _iob+28(a6),a0 
    96  0010c 2008            move.l a0,d0      
    97  0010e 6100            bsr.w  fflush     
    98  00112 082a L00112     btst.b #3,13(a2)  

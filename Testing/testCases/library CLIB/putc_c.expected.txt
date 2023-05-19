@@ -17,7 +17,7 @@
    16  00032 082a L00032     btst.b #2,13(a2)  
    17  00038 6726            beq.s  L00060     
    18  0003a 4878            pea    (L00001).w 
-   19  0003e 41ef            lea.l  7(sp),a0   
+   19  0003e 41ef            lea    7(sp),a0   
    20  00042 2208            move.l a0,d1      
    21  00044 306a            movea.w 14(a2),a0  
    22  00048 2008            move.l a0,d0      
@@ -72,12 +72,12 @@
    71  000d0 4e75            rts               
    72  000d2 4e55 _tidyup:   link.w a5,#0      
    73  000d6 48e7            movem.l a0/a2/d0,-(sp) 
-   74  000da 45ee            lea.l  _iob(a6),a2 
+   74  000da 45ee            lea    _iob(a6),a2 
    75  000de 600a            bra.s  L000ea     
    76  000e0 200a L000e0     move.l a2,d0      
    77  000e2 6118            bsr.s  fclose     
    78  000e4 d5fc            adda.l #28,a2     
-   79  000ea 41ee L000ea     lea.l  _iob+896(a6),a0 
+   79  000ea 41ee L000ea     lea    _iob+896(a6),a0 
    80  000ee b1ca            cmpa.l a2,a0      
    81  000f0 62ee            bhi.s  L000e0     
    82  000f2 4ced            movem.l -8(a5),a0/a2 

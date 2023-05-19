@@ -249,74 +249,74 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
  */
 int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    int d_mode, d_reg, src_mode, src_reg;
-    char src_ea[50], dst_ea[50];
-    register int size;
+    ci->useNewParams = true;
 
     /* Move instructions have size a bit different */
-    switch ((ci->cmd_wrd >> 12) & 3)
+    OperandSize size;
+    uint8_t sizeBits = (ci->cmd_wrd >> 12) & 3;
+    switch (sizeBits)
     {
-    case 1:
-        size = SIZ_BYTE;
+    case 0b01:
+        size = OperandSize::Byte;
         break;
-    case 3:
-        size = SIZ_WORD;
+    case 0b11:
+        size = OperandSize::Word;
         break;
-    case 2:
-        size = SIZ_LONG;
+    case 0b10:
+        size = OperandSize::Long;
         break;
     default:
         return 0;
     }
 
     /* Get Destination EA */
-    d_mode = (ci->cmd_wrd >> 6) & 7;
-    d_reg = (ci->cmd_wrd >> 9) & 7;
+    uint8_t d_reg = (ci->cmd_wrd >> 9) & 7;
+    uint8_t d_mode = (ci->cmd_wrd >> 6) & 7;
+    uint8_t src_mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t src_reg = ci->cmd_wrd & 7;
 
     if ((d_mode == 7) && (d_reg > 1))
     {
         return 0;
     }
 
-    src_mode = (ci->cmd_wrd >> 3) & 7;
-    src_reg = ci->cmd_wrd & 7;
+    ci->source = get_eff_addr(ci, src_mode, src_reg, size, state);
+    if (!ci->source) return 0;
+    ci->dest = get_eff_addr(ci, d_mode, d_reg, size, state);
+    if (!ci->dest) return 0;
+    
+    //sprintf(ci->params, "%s,%s", src_ea, dst_ea);
 
-    if (get_eff_addr(ci, src_ea, src_mode, src_reg, size, state))
+    bool addressDest = d_mode == 1;
+    if (addressDest)
     {
-        if (get_eff_addr(ci, dst_ea, d_mode, d_reg, size, state))
-        {
-            sprintf(ci->params, "%s,%s", src_ea, dst_ea);
-            strcpy(ci->mnem, "move");
-
-            if (((ci->cmd_wrd >> 6) & 7) == 1)
-            {
-                strcat(ci->mnem, "a");
-            }
-
-            switch (size)
-            {
-            case SIZ_BYTE:
-                if (((ci->cmd_wrd >> 6) & 7) == 1)
-                {
-                    return 0;
-                }
-                else
-                {
-                    strcat(ci->mnem, ".b");
-                }
-                break;
-            case SIZ_WORD:
-                strcat(ci->mnem, ".w");
-                break;
-            case SIZ_LONG:
-                strcat(ci->mnem, ".l");
-            }
-
-            return 1;
-        }
+        strcpy(ci->mnem, "movea");
+    }
+    else
+    {
+        strcpy(ci->mnem, "move");
     }
 
-    return 0;
+    switch (size)
+    {
+    case OperandSize::Byte:
+        if (addressDest)
+        {
+            return 0;
+        }
+        else
+        {
+            strcat(ci->mnem, ".b");
+        }
+        break;
+    case OperandSize::Word:
+        strcat(ci->mnem, ".w");
+        break;
+    case OperandSize::Long:
+        strcat(ci->mnem, ".l");
+    }
+
+    return 1;
 }
 
 int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)

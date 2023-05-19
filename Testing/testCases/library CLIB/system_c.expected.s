@@ -2,14 +2,14 @@
 system: link.w a5,#0
  movem.l a0/a2/d0-d2/d4-d5,-(sp)
  movea.l d0,a2
- lea.l -20(sp),a7
+ lea -20(sp),sp
  clr.l (sp)
- lea.l L000b6(pc),a0
+ lea L000b6(pc),a0
  move.l a0,d0
  bsr.w getenv
  move.l d0,4(sp)
  bne.s L00028
- lea.l L000bc(pc),a0
+ lea L000bc(pc),a0
  move.l a0,4(sp)
 L00028 move.l a2,d0
  bne.s L0005e
@@ -41,23 +41,23 @@ L0005e move.l 4(sp),8(sp)
  move.l environ(a6),-(sp)
  pea 24(sp)
  move.l 28(sp),d1
- lea.l os9fork(pc),a0
+ lea os9fork(pc),a0
  move.l a0,d0
  bsr.w os9exec
- lea.l 20(sp),a7
+ lea 20(sp),sp
  move.l d0,d4
  moveq #255,d0
  cmp.l d4,d0
  bne.s L0009a
  move.l errno(a6),d0
  bra.s L000a8
-L0009a lea.l (sp),a0
+L0009a lea (sp),a0
  move.l a0,d0
  bsr.w wait
  cmp.l d4,d0
  bne.s L0009a
 L000a6 move.l (sp),d0
-L000a8 lea.l 20(sp),a7
+L000a8 lea 20(sp),sp
  movem.l -24(a5),a0/a2/d1-d2/d4-d5
  unlk a5
  rts 

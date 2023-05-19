@@ -1,7 +1,7 @@
     0  00000 0000            psect  clock_c,$0,$0,0,0,clock 
     1  00000 4e55 clock:     link.w a5,#0      
     2  00004 48e7            movem.l d0-d1,-(sp) 
-    3  00008 4fef            lea.l  -2048(sp),a7 
+    3  00008 4fef            lea    -2048(sp),sp 
     4  0000c 4857            pea    (sp)       
     5  0000e 223c            move.l #2048,d1   
     6  00014 6100            bsr.w  getpid     
@@ -14,7 +14,7 @@
    13  00026 6008            bra.s  L00030     
    14  00028 202f L00028     move.l 692(sp),d0 
    15  0002c d0af            add.l  696(sp),d0 
-   16  00030 4fef L00030     lea.l  2048(sp),a7 
+   16  00030 4fef L00030     lea    2048(sp),sp 
    17  00034 4ced            movem.l -4(a5),d1  
    18  0003a 4e5d            unlk   a5         
    19  0003c 4e75            rts               

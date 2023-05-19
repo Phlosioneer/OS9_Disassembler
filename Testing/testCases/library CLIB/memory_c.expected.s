@@ -24,7 +24,7 @@ _00014 dc.l $00000200
 L00000 link.w a5,#0
  movem.l a2-a4/d0-d1,-(sp)
  movea.l d0,a2
- lea.l _00008(a6),a4
+ lea _00008(a6),a4
  movea.l _00008(a6),a3
  bra.s L0007c
 L00014 move.l 4(a2),d0
@@ -147,7 +147,7 @@ L00142 movem.l -16(a5),a2-a3/d4-d5
 L0014c link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  subq.l #4,sp
- lea.l _00000(a6),a0
+ lea _00000(a6),a0
  move.l a0,_00010(a6)
  moveq #4,d1
  moveq #124,d0
@@ -194,7 +194,7 @@ _lrealloc: link.w a5,#0
  movea.l d0,a2
  move.l d1,d4
  move.l 48(sp),d5
- lea.l -12(sp),a7
+ lea -12(sp),sp
  move.l a2,d0
  bne.s L001f0
  move.l d4,d0
@@ -323,7 +323,7 @@ L0031c move.l a4,d0
 L00320 move.l a4,d0
  bsr.w L0061e
 L00326 move.l d6,d0
-L00328 lea.l 12(sp),a7
+L00328 lea 12(sp),sp
  movem.l -32(a5),a0/a2-a4/d4-d7
  unlk a5
  rts 
@@ -613,7 +613,7 @@ L0061e link.w a5,#0
  move.l a2,d0
  subq.l #8,d0
  movea.l d0,a4
- lea.l _00008(a6),a0
+ lea _00008(a6),a0
  move.l a0,d4
  movea.l _00008(a6),a3
  bra.s L0064e

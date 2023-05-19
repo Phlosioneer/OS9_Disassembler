@@ -10,7 +10,7 @@
     8
     9  00000 4e55 intercept: link.w a5,#0      
    10  00004 48e7            movem.l a0/d1-d2,-(sp) 
-   11  00008 41fa            lea.l  L0001c(pc),a0 
+   11  00008 41fa            lea    L0001c(pc),a0 
    12  0000c 2d40            move.l d0,D00000(a6) 
    13  00010 6602            bne.s  L00014     
    14  00012 2040            movea.l d0,a0      

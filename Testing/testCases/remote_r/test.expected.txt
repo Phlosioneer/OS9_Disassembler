@@ -426,7 +426,7 @@
   423  00030 207c            movea.l #loremIpsum,a0 
   424  00036 d1ce            adda.l a6,a0      
   425  00038 2208            move.l a0,d1      
-  426  0003a 41fa            lea.l  L0004e(pc),a0 
+  426  0003a 41fa            lea    L0004e(pc),a0 
   427  0003e 2008            move.l a0,d0      
   428  00040 6100            bsr.w  printf     
   429  00044 4ced            movem.l -12(a5),a0/d1/d4 

@@ -56,7 +56,7 @@ _T$UMod: bsr.s _T$UDiv
 _T$UDiv: movem.l d2-d4,-(sp)
  move.l d1,d2
  bne.s L00080
- divs #0,d0
+ divs.w #0,d0
  bra.s L000ee
 L00080 subq.l #1,d1
  beq.s L000ee

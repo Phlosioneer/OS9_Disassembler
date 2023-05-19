@@ -2,7 +2,7 @@
 opendir: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)
- lea.l -132(sp),a7
+ lea -132(sp),sp
  move.l #129,d1
  move.l 132(sp),d0
  bsr.w open
@@ -21,7 +21,7 @@ L00021 equ *-1
 L00038 moveq #0,d0
  bra.s L00058
 L0003c move.l (sp),(a2)
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l (a2),d0
  bsr.w _gs_opt
@@ -30,19 +30,19 @@ L0003c move.l (sp),(a2)
  ext.l d0
  move.l d0,4(a2)
  move.l a2,d0
-L00058 lea.l 132(sp),a7
+L00058 lea 132(sp),sp
  movem.l -12(a5),a0/a2/d1
  unlk a5
  rts 
 readdir: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2
- lea.l -66(sp),a7
+ lea -66(sp),sp
  moveq #5,d0
  cmp.l 4(a2),d0
  bne.w L00114
  pea (L00021).w
- lea.l 36(sp),a0
+ lea 36(sp),a0
  move.l a0,d1
  move.l (a2),d0
  bsr.w read
@@ -96,7 +96,7 @@ L000f2 pea (L00001).w
  addq.l #4,sp
  bra.s L0017c
 L00114 pea (L00020).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l (a2),d0
  bsr.w read
@@ -132,13 +132,13 @@ L0013a moveq #12,d0
  ext.l d1
  or.l d1,d0
  move.l d0,(a3)
- lea.l (sp),a0
+ lea (sp),a0
  move.l a0,d1
  move.l a3,d0
  addq.l #8,d0
  bsr.w L0020a
 L0017c move.l a3,d0
-L0017e lea.l 66(sp),a7
+L0017e lea 66(sp),sp
  movem.l -20(a5),a0/a2-a3/d1/d4
  unlk a5
  rts 

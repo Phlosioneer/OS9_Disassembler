@@ -87,8 +87,8 @@ _setbase: link.w a5,#0
  move.w #192,d0
  and.w 12(a2),d0
  bne.s L00130
- lea.l -128(sp),a7
- lea.l (sp),a0
+ lea -128(sp),sp
+ lea (sp),a0
  move.l a0,d1
  movea.w 14(a2),a0
  move.l a0,d0
@@ -105,17 +105,17 @@ L0011c move.b (sp),d0
  cmpi.w #2,d0
  beq.s L0010c
  bra.s L00114
-L0012c lea.l 128(sp),a7
+L0012c lea 128(sp),sp
 L00130 bset.b #7,12(a2)
  btst.b #7,13(a2)
  beq.s L0014c
- lea.l read(pc),a0
+ lea read(pc),a0
  move.l a0,20(a2)
- lea.l write(pc),a0
+ lea write(pc),a0
  bra.s L00158
-L0014c lea.l readln(pc),a0
+L0014c lea readln(pc),a0
  move.l a0,20(a2)
- lea.l writeln(pc),a0
+ lea writeln(pc),a0
 L00158 move.l a0,24(a2)
  tst.w 18(a2)
  bne.s L00178

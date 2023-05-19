@@ -2,7 +2,7 @@
     1  00000 4e55 puts:      link.w a5,#0      
     2  00004 48e7            movem.l a0/a2/d0-d1,-(sp) 
     3  00008 2440            movea.l d0,a2      
-    4  0000a 41ee            lea.l  _iob+28(a6),a0 
+    4  0000a 41ee            lea    _iob+28(a6),a0 
     5  0000e 2208            move.l a0,d1      
     6  00010 200a            move.l a2,d0      
     7  00012 6120            bsr.s  fputs      
@@ -11,7 +11,7 @@
    10  00018 6604            bne.s  L0001e     
    11  0001a 70ff            moveq  #255,d0    
    12  0001c 600c            bra.s  L0002a     
-   13  0001e 41ee L0001e     lea.l  _iob+28(a6),a0 
+   13  0001e 41ee L0001e     lea    _iob+28(a6),a0 
    14  00022 2208            move.l a0,d1      
    15  00024 700d            moveq  #13,d0     
    16  00026 6100            bsr.w  putc       

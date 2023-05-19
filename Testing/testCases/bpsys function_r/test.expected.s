@@ -30,7 +30,7 @@ driver_get_stat_GC: movem.l a1-a6,-(sp)
  movem.l graphicsCursorArgs(pc),a1-a2/a4-a6/d0
  movea.l 74(a2),a3
  bra.s pt_gc_common_call
-get_credits: lea.l credits(pc),a0
+get_credits: lea credits(pc),a0
  move.l a0,0(a5)
  rts 
 get_init_confirm: move.w 4(a3),0(a5)

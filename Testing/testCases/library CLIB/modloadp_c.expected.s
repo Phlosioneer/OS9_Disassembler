@@ -3,11 +3,11 @@ modloadp: link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
  movea.l d0,a2
  movea.l 48(sp),a3
- lea.l -256(sp),a7
+ lea -256(sp),sp
  moveq #0,d7
  move.l a3,d0
  bne.s L0001a
- lea.l (sp),a3
+ lea (sp),a3
 L0001a movea.w 262(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -20,7 +20,7 @@ L0001a movea.w 262(sp),a0
  bne.w L000ca
  cmpi.b #47,(a2)
  beq.w L000ca
- lea.l L000e6(pc),a0
+ lea L000e6(pc),a0
  move.l a0,d0
  bsr.w getenv
  movea.l d0,a4
@@ -78,7 +78,7 @@ L000ce move.l a2,d1
  move.l a3,d0
  bsr.w strcpy
 L000d6 move.l d5,d0
- lea.l 256(sp),a7
+ lea 256(sp),sp
  movem.l -32(a5),a0/a2-a4/d4-d7
  unlk a5
  rts 

@@ -2,14 +2,14 @@
     1  00000 4e55 system:    link.w a5,#0      
     2  00004 48e7            movem.l a0/a2/d0-d2/d4-d5,-(sp) 
     3  00008 2440            movea.l d0,a2      
-    4  0000a 4fef            lea.l  -20(sp),a7 
+    4  0000a 4fef            lea    -20(sp),sp 
     5  0000e 4297            clr.l  (sp)       
-    6  00010 41fa            lea.l  L000b6(pc),a0 
+    6  00010 41fa            lea    L000b6(pc),a0 
     7  00014 2008            move.l a0,d0      
     8  00016 6100            bsr.w  getenv     
     9  0001a 2f40            move.l d0,4(sp)   
    10  0001e 6608            bne.s  L00028     
-   11  00020 41fa            lea.l  L000bc(pc),a0 
+   11  00020 41fa            lea    L000bc(pc),a0 
    12  00024 2f48            move.l a0,4(sp)   
    13  00028 200a L00028     move.l a2,d0      
    14  0002a 6632            bne.s  L0005e     
@@ -41,23 +41,23 @@
    40  00072 2f2e            move.l environ(a6),-(sp) 
    41  00076 486f            pea    24(sp)     
    42  0007a 222f            move.l 28(sp),d1  
-   43  0007e 41fa            lea.l  os9fork(pc),a0 
+   43  0007e 41fa            lea    os9fork(pc),a0 
    44  00082 2008            move.l a0,d0      
    45  00084 6100            bsr.w  os9exec    
-   46  00088 4fef            lea.l  20(sp),a7  
+   46  00088 4fef            lea    20(sp),sp  
    47  0008c 2800            move.l d0,d4      
    48  0008e 70ff            moveq  #255,d0    
    49  00090 b084            cmp.l  d4,d0      
    50  00092 6606            bne.s  L0009a     
    51  00094 202e            move.l errno(a6),d0 
    52  00098 600e            bra.s  L000a8     
-   53  0009a 41d7 L0009a     lea.l  (sp),a0    
+   53  0009a 41d7 L0009a     lea    (sp),a0    
    54  0009c 2008            move.l a0,d0      
    55  0009e 6100            bsr.w  wait       
    56  000a2 b084            cmp.l  d4,d0      
    57  000a4 66f4            bne.s  L0009a     
    58  000a6 2017 L000a6     move.l (sp),d0    
-   59  000a8 4fef L000a8     lea.l  20(sp),a7  
+   59  000a8 4fef L000a8     lea    20(sp),sp  
    60  000ac 4ced            movem.l -24(a5),a0/a2/d1-d2/d4-d5 
    61  000b2 4e5d            unlk   a5         
    62  000b4 4e75            rts               

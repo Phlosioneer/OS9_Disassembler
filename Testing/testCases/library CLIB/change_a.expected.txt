@@ -22,7 +22,7 @@
    21  0003c 65e0            bcs.s  L0001e     
    22  0003e 7200            moveq  #SS_FD,d1  
    23  00040 7410            moveq  #16,d2     
-   24  00042 41d7            lea.l  (sp),a0    
+   24  00042 41d7            lea    (sp),a0    
    25  00044 4e40            os9    I$GetStt   
    26  00048 65d4            bcs.s  L0001e     
    27  0004a 1f6f            move.b 17(sp),FD_OWN(sp) 

@@ -9,7 +9,7 @@
     8  00014 101a L00014     move.b (a2)+,d0   
     9  00016 4880            ext.w  d0         
    10  00018 48c0            ext.l  d0         
-   11  0001a 41ee            lea.l  _chcodes(a6),a0 
+   11  0001a 41ee            lea    _chcodes(a6),a0 
    12  0001e 1030            move.b (a0,d0.l),d0 
    13  00022 4880            ext.w  d0         
    14  00024 0800            btst.l #4,d0      
@@ -84,7 +84,7 @@
    83  000ce 1012 L000ce     move.b (a2),d0    
    84  000d0 4880            ext.w  d0         
    85  000d2 48c0            ext.l  d0         
-   86  000d4 41ee            lea.l  _chcodes(a6),a0 
+   86  000d4 41ee            lea    _chcodes(a6),a0 
    87  000d8 1030            move.b (a0,d0.l),d0 
    88  000dc 4880            ext.w  d0         
    89  000de 0800            btst.l #3,d0      
@@ -115,7 +115,7 @@
   114  00122 1012 L00122     move.b (a2),d0    
   115  00124 4880            ext.w  d0         
   116  00126 48c0            ext.l  d0         
-  117  00128 41ee            lea.l  _chcodes(a6),a0 
+  117  00128 41ee            lea    _chcodes(a6),a0 
   118  0012c 1030            move.b (a0,d0.l),d0 
   119  00130 4880            ext.w  d0         
   120  00132 0800            btst.l #3,d0      
@@ -129,7 +129,7 @@
   128  00146 1012 L00146     move.b (a2),d0    
   129  00148 4880            ext.w  d0         
   130  0014a 48c0            ext.l  d0         
-  131  0014c 41ee            lea.l  _chcodes(a6),a0 
+  131  0014c 41ee            lea    _chcodes(a6),a0 
   132  00150 1030            move.b (a0,d0.l),d0 
   133  00154 4880            ext.w  d0         
   134  00156 0240            andi.w #6,d0      

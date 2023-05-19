@@ -2,7 +2,7 @@
 strtod: link.w a5,#0
  movem.l a0/a2/d0-d1/d4-d5,-(sp)
  movea.l d1,a2
- lea.l -16(sp),a7
+ lea -16(sp),sp
  moveq #0,d4
  clr.l 12(sp)
  clr.l 8(sp)
@@ -12,7 +12,7 @@ L0001a movea.l 16(sp),a0
  move.b (a0),d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #4,d0
@@ -25,7 +25,7 @@ L00042 movea.l 16(sp),a0
  move.b (a0),d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #3,d0
@@ -54,9 +54,9 @@ L00096 move.l (sp),d0
  tcall T$Math1,T$UtoD
  movem.l d0-d1,8(sp)
  bra.s L000c0
-L000a4 lea.l (sp),a0
+L000a4 lea (sp),a0
  move.l a0,d1
- lea.l 16(sp),a0
+ lea 16(sp),a0
  move.l a0,d0
  bsr.s L000ee
  cmpi.l #1,d0
@@ -72,7 +72,7 @@ L000c8 tst.l d4
  tcall T$Math1,T$DNeg
  movem.l d0-d1,8(sp)
 L000dc movem.l 8(sp),d0-d1
- lea.l 16(sp),a7
+ lea 16(sp),sp
  movem.l -16(a5),a0/a2/d4-d5
  bra.s L00112
 L000ee link.w a5,#0

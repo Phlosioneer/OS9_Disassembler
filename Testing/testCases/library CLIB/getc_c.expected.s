@@ -84,7 +84,7 @@ L000ba link.w a5,#0
  bne.w L00164
  move.l a2,d0
  bsr.w _setbase
-L000ec lea.l _iob(a6),a0
+L000ec lea _iob(a6),a0
  cmpa.l a2,a0
  bne.s L00112
  move.w _iob+40(a6),d0
@@ -93,7 +93,7 @@ L000ec lea.l _iob(a6),a0
  beq.s L00112
  btst.b #7,13(a2)
  bne.s L00112
- lea.l _iob+28(a6),a0
+ lea _iob+28(a6),a0
  move.l a0,d0
  bsr.w fflush
 L00112 btst.b #3,13(a2)

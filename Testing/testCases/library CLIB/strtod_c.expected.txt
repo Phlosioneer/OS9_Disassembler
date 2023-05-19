@@ -2,7 +2,7 @@
     1  00000 4e55 strtod:    link.w a5,#0      
     2  00004 48e7            movem.l a0/a2/d0-d1/d4-d5,-(sp) 
     3  00008 2441            movea.l d1,a2      
-    4  0000a 4fef            lea.l  -16(sp),a7 
+    4  0000a 4fef            lea    -16(sp),sp 
     5  0000e 7800            moveq  #0,d4      
     6  00010 42af            clr.l  12(sp)     
     7  00014 42af            clr.l  8(sp)      
@@ -12,7 +12,7 @@
    11  00022 1010            move.b (a0),d0    
    12  00024 4880            ext.w  d0         
    13  00026 48c0            ext.l  d0         
-   14  00028 41ee            lea.l  _chcodes(a6),a0 
+   14  00028 41ee            lea    _chcodes(a6),a0 
    15  0002c 1030            move.b (a0,d0.l),d0 
    16  00030 4880            ext.w  d0         
    17  00032 0800            btst.l #4,d0      
@@ -25,7 +25,7 @@
    24  00046 1010            move.b (a0),d0    
    25  00048 4880            ext.w  d0         
    26  0004a 48c0            ext.l  d0         
-   27  0004c 41ee            lea.l  _chcodes(a6),a0 
+   27  0004c 41ee            lea    _chcodes(a6),a0 
    28  00050 1030            move.b (a0,d0.l),d0 
    29  00054 4880            ext.w  d0         
    30  00056 0800            btst.l #3,d0      
@@ -54,9 +54,9 @@
    53  00098 4e40            tcall  T$Math1,T$UtoD 
    54  0009c 48ef            movem.l d0-d1,8(sp) 
    55  000a2 601c            bra.s  L000c0     
-   56  000a4 41d7 L000a4     lea.l  (sp),a0    
+   56  000a4 41d7 L000a4     lea    (sp),a0    
    57  000a6 2208            move.l a0,d1      
-   58  000a8 41ef            lea.l  16(sp),a0  
+   58  000a8 41ef            lea    16(sp),a0  
    59  000ac 2008            move.l a0,d0      
    60  000ae 613e            bsr.s  L000ee     
    61  000b0 0c80            cmpi.l #1,d0      
@@ -72,7 +72,7 @@
    71  000d2 4e40            tcall  T$Math1,T$DNeg 
    72  000d6 48ef            movem.l d0-d1,8(sp) 
    73  000dc 4cef L000dc     movem.l 8(sp),d0-d1 
-   74  000e2 4fef            lea.l  16(sp),a7  
+   74  000e2 4fef            lea    16(sp),sp  
    75  000e6 4ced            movem.l -16(a5),a0/a2/d4-d5 
    76  000ec 6024            bra.s  L00112     
    77  000ee 4e55 L000ee     link.w a5,#0      

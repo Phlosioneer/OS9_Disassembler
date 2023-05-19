@@ -50,7 +50,7 @@ L00060 subq.w #1,d4
  rts 
 os9exec: link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
- lea.l -12(sp),a7
+ lea -12(sp),sp
  moveq #0,d0
  move.w d0,10(sp)
  move.w d0,4(sp)
@@ -122,7 +122,7 @@ L00102 move.l d4,d0
  add.l d1,d0
  addq.l #8,d0
  move.l d0,d6
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  move.l a0,d1
  move.l d6,d0
  bsr.w L00022
@@ -163,7 +163,7 @@ L00194 tst.l (a3)
  clr.b -1(a2)
  move.l #64513,(sp)
  pea (L00002).w
- lea.l 6(sp),a0
+ lea 6(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -177,7 +177,7 @@ L00194 tst.l (a3)
  addq.l #6,d0
  move.l d0,(sp)
  pea (L00004).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -196,7 +196,7 @@ L001f4 clr.b (a2)+
  move.b #13,(a2)+
  clr.l (sp)
  pea (L00004).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -207,7 +207,7 @@ L001f4 clr.b (a2)+
  movea.l d0,a3
  bra.s L0023a
 L0021a pea (L00004).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -222,7 +222,7 @@ L0023a tst.l (a3)
  bne.s L0021a
  clr.l (sp)
  pea (L00004).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -235,7 +235,7 @@ L0023a tst.l (a3)
  movea.l 64(sp),a3
  bra.s L00284
 L00264 pea (L00004).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -250,7 +250,7 @@ L00284 tst.l (a3)
  bne.s L00264
  clr.l (sp)
  pea (L00004).w
- lea.l 4(sp),a0
+ lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
  bsr.w L0004c
@@ -258,7 +258,7 @@ L00284 tst.l (a3)
  movea.l d0,a2
  suba.l a2,a2
  clr.w 10(sp)
-L002a4 lea.l -52(a5),a7
+L002a4 lea -52(a5),sp
  movea.w 78(sp),a0
  move.l a0,-(sp)
  movea.w 78(sp),a0
@@ -271,7 +271,7 @@ L002a4 lea.l -52(a5),a7
  move.l 40(sp),d0
  movea.l 36(sp),a0
  jsr (a0)
- lea.l 24(sp),a7
+ lea 24(sp),sp
  move.l d0,(sp)
  moveq #255,d1
  cmp.l d0,d1
@@ -300,7 +300,7 @@ L0030e move.l a4,d1
  move.l D00000(a6),d0
  bsr.w L00040
  move.l (sp),d0
-L0031a lea.l 12(sp),a7
+L0031a lea 12(sp),sp
  movem.l -32(a5),a0/a2-a4/d4-d7
  unlk a5
  rts 

@@ -2,7 +2,7 @@
     1  00000 4e55 toupper:   link.w a5,#0      
     2  00004 48e7            movem.l a0/d0-d1,-(sp) 
     3  00008 2017            move.l (sp),d0    
-    4  0000a 41ee            lea.l  _chcodes(a6),a0 
+    4  0000a 41ee            lea    _chcodes(a6),a0 
     5  0000e 1230            move.b (a0,d0.l),d1 
     6  00012 4881            ext.w  d1         
     7  00014 0801            btst.l #2,d1      
@@ -16,7 +16,7 @@
    15  0002e 4e55 tolower:   link.w a5,#0      
    16  00032 48e7            movem.l a0/d0-d1,-(sp) 
    17  00036 2017            move.l (sp),d0    
-   18  00038 41ee            lea.l  _chcodes(a6),a0 
+   18  00038 41ee            lea    _chcodes(a6),a0 
    19  0003c 1230            move.b (a0,d0.l),d1 
    20  00040 4881            ext.w  d1         
    21  00042 0801            btst.l #1,d1      

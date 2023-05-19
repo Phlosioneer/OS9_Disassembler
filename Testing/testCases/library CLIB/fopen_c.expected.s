@@ -2,7 +2,7 @@
 L00000 link.w a5,#0
 L00002 equ *-2
  movem.l a0/a2/d0,-(sp)
- lea.l _iob(a6),a2
+ lea _iob(a6),a2
  bra.s L00020
 L0000e moveq #3,d0
  and.w 12(a2),d0
@@ -10,7 +10,7 @@ L0000e moveq #3,d0
  move.l a2,d0
  bra.s L00032
 L0001a adda.l #28,a2
-L00020 lea.l _iob+896(a6),a0
+L00020 lea _iob+896(a6),a0
  cmpa.l a2,a0
  bhi.s L0000e
  move.l #200,errno(a6)
@@ -112,7 +112,7 @@ L0013c move.l d0,d1
  bsr.w open
 L00144 move.l d0,d4
  bra.s L0017e
-L00148 lea.l -24(a5),a7
+L00148 lea -24(a5),sp
  move.l #203,errno(a6)
  moveq #255,d0
  bra.s L00180

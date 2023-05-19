@@ -34,7 +34,7 @@
    29  00072 4cfa            movem.l graphicsCursorArgs(pc),a1-a2/a4-a6/d0 
    30  00078 266a            movea.l 74(a2),a3  
    31  0007c 60ca            bra.s  pt_gc_common_call 
-   32  0007e 41fa get_credits: lea.l  credits(pc),a0 
+   32  0007e 41fa get_credits: lea    credits(pc),a0 
    33  00082 2b48            move.l a0,0(a5)   
    34  00086 4e75            rts               
    35  00088 3b6b get_init_confirm: move.w 4(a3),0(a5) 

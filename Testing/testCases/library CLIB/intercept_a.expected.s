@@ -9,7 +9,7 @@ D00000 ds.b 4
 
 intercept: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
- lea.l L0001c(pc),a0
+ lea L0001c(pc),a0
  move.l d0,D00000(a6)
  bne.s L00014
  movea.l d0,a0

@@ -7,8 +7,8 @@
 //#include <ostream>
 
 #include "disglobs.h"
-#include "reader.h"
 #include "params.h"
+#include "reader.h"
 
 struct opst;
 struct options;
@@ -66,6 +66,10 @@ struct parse_state
 };
 
 int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, struct parse_state* state);
+std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, uint8_t size,
+                                         struct parse_state* state);
+std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
+                                         struct parse_state* state);
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 
 int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state);

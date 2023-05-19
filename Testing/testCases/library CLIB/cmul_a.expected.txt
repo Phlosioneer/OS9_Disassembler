@@ -56,7 +56,7 @@
    55  00072 48e7 _T$UDiv:   movem.l d2-d4,-(sp) 
    56  00076 2401            move.l d1,d2      
    57  00078 6606            bne.s  L00080     
-   58  0007a 81fc            divs   #0,d0      
+   58  0007a 81fc            divs.w #0,d0      
    59  0007e 606e            bra.s  L000ee     
    60  00080 5381 L00080     subq.l #1,d1      
    61  00082 676a            beq.s  L000ee     

@@ -60,12 +60,12 @@ L00001 equ *-3
  move.l #-76,d0
  bsr.w _stkcheck
 L0000f equ *-3
- lea.l _iob+28(a6),a0
+ lea _iob+28(a6),a0
  move.l a0,D00214(a6)
  pea 24(sp)
  pea 8(sp)
  move.l 8(sp),d1
- lea.l L003d4(pc),a0
+ lea L003d4(pc),a0
  move.l a0,d0
  bsr.w L000d0
  addq.l #8,sp
@@ -86,7 +86,7 @@ fprintf: link.w a5,#0
  pea 24(sp)
  clr.l -(sp)
  move.l 12(sp),d1
- lea.l L003d4(pc),a0
+ lea L003d4(pc),a0
  move.l a0,d0
  bsr.s L000d0
  addq.l #8,sp
@@ -108,7 +108,7 @@ sprintf: link.w a5,#0
  pea 24(sp)
  clr.l -(sp)
  move.l 12(sp),d1
- lea.l L00474(pc),a0
+ lea L00474(pc),a0
  move.l a0,d0
  bsr.s L000d0
  addq.l #8,sp
@@ -125,7 +125,7 @@ L000d0 link.w a5,#0
  movea.l d1,a3
  move.l #-78,d0
  bsr.w _stkcheck
- lea.l -10(sp),a7
+ lea -10(sp),sp
  tst.l 58(sp)
  beq.s L000f4
  moveq #1,d0
@@ -229,7 +229,7 @@ L00200 move.l D00208(a6),d0
  ext.w d0
  ext.l d0
  move.l d0,d5
-L0021c lea.l _chcodes(a6),a0
+L0021c lea _chcodes(a6),a0
  move.b (a0,d5.l),d0
  ext.w d0
  btst.l #3,d0
@@ -266,7 +266,7 @@ L00262 move.l D0020c(a6),d0
  ext.w d0
  ext.l d0
  move.l d0,d5
-L0027e lea.l _chcodes(a6),a0
+L0027e lea _chcodes(a6),a0
  move.b (a0,d5.l),d0
  ext.w d0
  btst.l #3,d0
@@ -286,7 +286,7 @@ L0029e cmpi.l #255,d5
  beq.s L00290
  cmpi.b #108,d5
  beq.s L00290
-L002b8 lea.l _chcodes(a6),a0
+L002b8 lea _chcodes(a6),a0
  move.b (a0,d5.l),d0
  ext.w d0
  btst.l #1,d0
@@ -304,15 +304,15 @@ L002d6 moveq #97,d0
  moveq #159,d0
  add.l d5,d0
  lsl.l #2,d0
- lea.l _00000(a6),a0
+ lea _00000(a6),a0
  move.l (a0,d0.l),2(sp)
  bne.s L00342
 L002f4 move.l d5,D00210(a6)
  bne.s L002fc
  subq.l #1,a3
-L002fc lea.l L00524(pc),a0
+L002fc lea L00524(pc),a0
  move.l a0,2(sp)
- lea.l D00210(a6),a0
+ lea D00210(a6),a0
 L00308 move.l a0,d6
  bra.s L0037a
  tst.b 1(sp)
@@ -324,7 +324,7 @@ L0031a move.l a4,d6
  addq.l #8,d0
  movea.l d0,a4
  bra.s L0037a
- lea.l 6(sp),a0
+ lea 6(sp),a0
  bra.s L00308
  move.l (a4)+,d6
  bra.s L00332
@@ -367,7 +367,7 @@ L0037a move.l d6,d0
  bne.s L0038e
  movea.l d6,a0
  bra.s L00392
-L0038e lea.l D00000(a6),a0
+L0038e lea D00000(a6),a0
 L00392 move.l a0,d0
  jsr (a2)
  add.l d0,6(sp)
@@ -387,7 +387,7 @@ L0039a move.b (a3)+,d0
  jsr (a2)
  add.l d0,6(sp)
 L003c2 move.l 6(sp),d0
- lea.l 10(sp),a7
+ lea 10(sp),sp
  movem.l -32(a5),a0/a2-a4/d4-d7
  unlk a5
  rts 
@@ -403,12 +403,12 @@ L003d4 link.w a5,#0
  bgt.s L003f8
  move.l d4,d7
  bra.s L0041e
-L003f8 lea.l D00000(a6),a0
+L003f8 lea D00000(a6),a0
  cmpa.l a2,a0
  bne.s L00406
- lea.l (a2,d4.l),a0
+ lea (a2,d4.l),a0
  bra.s L0040a
-L00406 lea.l D00000(a6),a0
+L00406 lea D00000(a6),a0
 L0040a movea.l a0,a4
  movea.l a0,a3
  move.l d6,d5
@@ -523,7 +523,7 @@ L0054a link.w a5,#0
  movem.l a0/a2-a4/d0/d4,-(sp)
  move.l #-64,d0
  bsr.w _stkcheck
- lea.l D00000(a6),a4
+ lea D00000(a6),a4
  movea.l (sp),a0
  move.l (a0),d4
  beq.s L0057e
@@ -538,11 +538,11 @@ L0057a moveq #120,d0
 L0057c move.b d0,(a4)+
 L0057e tst.b D00200(a6)
  beq.s L0058a
- lea.l L00a5a(pc),a0
+ lea L00a5a(pc),a0
  bra.s L0058e
-L0058a lea.l L00a6b(pc),a0
+L0058a lea L00a6b(pc),a0
 L0058e movea.l a0,a2
- lea.l D00218(a6),a3
+ lea D00218(a6),a3
 L00594 moveq #15,d0
  and.l d4,d0
  move.b (a2,d0.l),(a3)+
@@ -550,10 +550,10 @@ L00594 moveq #15,d0
  bne.s L00594
  bra.s L005a4
 L005a2 move.b -(a3),(a4)+
-L005a4 lea.l D00218(a6),a0
+L005a4 lea D00218(a6),a0
  cmpa.l a3,a0
  bcs.s L005a2
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  move.l a4,d0
  sub.l a0,d0
  movem.l -20(a5),a0/a2-a4/d4
@@ -563,14 +563,14 @@ L005be link.w a5,#0
  movem.l a0/a2-a3/d0/d4,-(sp)
  move.l #-64,d0
  bsr.w _stkcheck
- lea.l D00000(a6),a3
+ lea D00000(a6),a3
  movea.l (sp),a0
  move.l (a0),d4
  beq.s L005e4
  tst.b D00204(a6)
  beq.s L005e4
  move.b #48,(a3)+
-L005e4 lea.l D00218(a6),a2
+L005e4 lea D00218(a6),a2
 L005e8 moveq #7,d0
  and.b d4,d0
  addi.b #48,d0
@@ -579,10 +579,10 @@ L005e8 moveq #7,d0
  bne.s L005e8
  bra.s L005fa
 L005f8 move.b -(a2),(a3)+
-L005fa lea.l D00218(a6),a0
+L005fa lea D00218(a6),a0
  cmpa.l a2,a0
  bcs.s L005f8
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  move.l a3,d0
  sub.l a0,d0
  movem.l -16(a5),a0/a2-a3/d4
@@ -593,7 +593,7 @@ L00614 link.w a5,#0
  movea.l d0,a2
  move.l #-68,d0
  bsr.w _stkcheck
- lea.l D00000(a6),a3
+ lea D00000(a6),a3
  move.l (a2),d4
  bge.s L0063c
  move.l d4,d0
@@ -619,7 +619,7 @@ L00662 link.w a5,#0
  movea.l d0,a2
  move.l #-68,d0
  bsr.w _stkcheck
- lea.l D00000(a6),a3
+ lea D00000(a6),a3
  move.l (a2),d4
  tst.b D00202(a6)
  beq.s L00688
@@ -640,7 +640,7 @@ L006a2 link.w a5,#0
  move.l d1,d4
  move.l #-64,d0
  bsr.w _stkcheck
- lea.l D00218(a6),a3
+ lea D00218(a6),a3
 L006bc move.l d4,d0
  moveq #10,d1
  bsr.w _T$UMod
@@ -653,10 +653,10 @@ L006bc move.l d4,d0
  bne.s L006bc
  bra.s L006da
 L006d8 move.b -(a3),(a2)+
-L006da lea.l D00218(a6),a0
+L006da lea D00218(a6),a0
  cmpa.l a3,a0
  bcs.s L006d8
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  move.l a2,d0
  sub.l a0,d0
  movem.l -16(a5),a0/a2-a3/d4
@@ -667,7 +667,7 @@ L006f4 link.w a5,#0
  movea.l d0,a2
  move.l #-64,d0
  bsr.w _stkcheck
- lea.l D00000(a6),a3
+ lea D00000(a6),a3
  movem.l (a2),d0-d1
  movem.l d0-d1,D00222(a6)
  tst.l d0
@@ -784,7 +784,7 @@ L00836 link.w a5,#0
  pea (a3)
  movem.l D00222(a6),d0-d1
  bsr.w L00a36
- lea.l 16(sp),a7
+ lea 16(sp),sp
  subq.l #1,d0
  move.l d0,d4
  move.l d4,d1
@@ -792,7 +792,7 @@ L00836 link.w a5,#0
  addq.l #1,d0
  bsr.w L0075e
  bsr.w L007b8
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  sub.l a0,d0
  addq.l #4,sp
  movem.l -20(a5),a0/a2-a3/d1/d4
@@ -813,13 +813,13 @@ L00896 link.w a5,#0
  pea (a3)
  movem.l D00222(a6),d0-d1
  bsr.w L00a36
- lea.l 16(sp),a7
+ lea 16(sp),sp
  subq.l #1,d0
  move.l d0,d4
  move.l d4,d1
  move.l a3,d0
  bsr.w L00998
- lea.l D00000(a6),a0
+ lea D00000(a6),a0
  sub.l a0,d0
  addq.l #4,sp
  movem.l -20(a5),a0/a2-a3/d1/d4
@@ -844,7 +844,7 @@ L00916 pea (sp)
  pea (a3)
  movem.l D00222(a6),d0-d1
  bsr.w L00a36
- lea.l 16(sp),a7
+ lea 16(sp),sp
  subq.l #1,d0
  move.l d0,d4
  moveq #252,d0
@@ -878,7 +878,7 @@ L00968 move.l d4,d1
  move.l a3,d0
  bsr.w L00788
 L00982 movea.l d0,a3
-L00984 lea.l D00000(a6),a0
+L00984 lea D00000(a6),a0
  move.l a3,d0
  sub.l a0,d0
  addq.l #4,sp

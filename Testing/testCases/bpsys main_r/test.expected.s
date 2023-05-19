@@ -37,7 +37,7 @@ credits: dc.w $4d2e
 L0004e moveq #0,d1
  dc.w $8
  ori.b #98,104(a2,d0.w)
-init: lea.l state(pc),a3
+init: lea state(pc),a3
 L0005a equ *-2
  cmpi.w #-16657,2(a3)
 L00062 beq.w L00080
@@ -56,9 +56,9 @@ L00086 cmpi.w #16896,d1
 L0008a bcs.s L000ac
  cmpi.w #16916,d1
  bcc.s L000ac
- lea.l drawControlArgs(pc),a0
+ lea drawControlArgs(pc),a0
 L00096 movem.l a1-a2/a4-a6/d0,(a0)
- lea.l function_table(pc),a3
+ lea function_table(pc),a3
  sub.l #16896,d1
  movea.w function_table(pc,d1.l),a0
 L000a6 equ *-2

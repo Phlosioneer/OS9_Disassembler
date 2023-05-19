@@ -2,7 +2,7 @@
 puts: link.w a5,#0
  movem.l a0/a2/d0-d1,-(sp)
  movea.l d0,a2
- lea.l _iob+28(a6),a0
+ lea _iob+28(a6),a0
  move.l a0,d1
  move.l a2,d0
  bsr.s fputs
@@ -11,7 +11,7 @@ puts: link.w a5,#0
  bne.s L0001e
  moveq #255,d0
  bra.s L0002a
-L0001e lea.l _iob+28(a6),a0
+L0001e lea _iob+28(a6),a0
  move.l a0,d1
  moveq #13,d0
  bsr.w putc

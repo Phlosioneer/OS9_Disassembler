@@ -87,8 +87,8 @@
    86  000ee 303c            move.w #192,d0    
    87  000f2 c06a            and.w  12(a2),d0  
    88  000f6 6638            bne.s  L00130     
-   89  000f8 4fef            lea.l  -128(sp),a7 
-   90  000fc 41d7            lea.l  (sp),a0    
+   89  000f8 4fef            lea    -128(sp),sp 
+   90  000fc 41d7            lea    (sp),a0    
    91  000fe 2208            move.l a0,d1      
    92  00100 306a            movea.w 14(a2),a0  
    93  00104 2008            move.l a0,d0      
@@ -105,17 +105,17 @@
   104  00124 0c40            cmpi.w #2,d0      
   105  00128 67e2            beq.s  L0010c     
   106  0012a 60e8            bra.s  L00114     
-  107  0012c 4fef L0012c     lea.l  128(sp),a7 
+  107  0012c 4fef L0012c     lea    128(sp),sp 
   108  00130 08ea L00130     bset.b #7,12(a2)  
   109  00136 082a            btst.b #7,13(a2)  
   110  0013c 670e            beq.s  L0014c     
-  111  0013e 41fa            lea.l  read(pc),a0 
+  111  0013e 41fa            lea    read(pc),a0 
   112  00142 2548            move.l a0,20(a2)  
-  113  00146 41fa            lea.l  write(pc),a0 
+  113  00146 41fa            lea    write(pc),a0 
   114  0014a 600c            bra.s  L00158     
-  115  0014c 41fa L0014c     lea.l  readln(pc),a0 
+  115  0014c 41fa L0014c     lea    readln(pc),a0 
   116  00150 2548            move.l a0,20(a2)  
-  117  00154 41fa            lea.l  writeln(pc),a0 
+  117  00154 41fa            lea    writeln(pc),a0 
   118  00158 2548 L00158     move.l a0,24(a2)  
   119  0015c 4a6a            tst.w  18(a2)     
   120  00160 6616            bne.s  L00178     

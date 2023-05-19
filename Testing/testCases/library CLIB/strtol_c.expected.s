@@ -9,7 +9,7 @@ strtol: link.w a5,#0
 L00014 move.b (a2)+,d0
  ext.w d0
  ext.l d0
- lea.l _chcodes(a6),a0
+ lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
  btst.l #4,d0

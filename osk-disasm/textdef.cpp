@@ -173,8 +173,8 @@ extern const OPSTRUCTURE instr04[] = {
     {"move.", 2, 18, 0, "0100000011xxxxxx", 8, 8, MC68000, InstrId::MOVE_FROM_SR, move_ccr_sr},
     {"negx.", 0, 0, 21, "01000000xxxxxxxx", 7, 6, MC68000, InstrId::NEGX, one_ea},
     /* CHK 68000 */
-    {"chk.", 2, 2, 4, "0100xxx110xxxxxx", 6, 6, MC68000, InstrId::CHK, reg_ea},
-    {"lea.", 5, 5, 3, "0100xxx111xxxxxx", 12, 12, MC68000, InstrId::LEA, reg_ea},
+    {"chk", 2, 2, 4, "0100xxx110xxxxxx", 6, 6, MC68000, InstrId::CHK, reg_ea},
+    {"lea", 5, 5, 3, "0100xxx111xxxxxx", 12, 12, MC68000, InstrId::LEA, reg_ea},
     {"clr.", 0, 0, 21, "01000010xxxxxxxx", 7, 6, MC68000, InstrId::CLR, one_ea},
     /* MOVE to CCR */
     {"move.", 2, 2, 17, "0100010011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_CCR, move_ccr_sr},
@@ -239,9 +239,9 @@ extern const OPSTRUCTURE instr08[] = {
     {"sbcd.", 1, 4, 4, "1000xxx100000xxx", 4, 4, MC68000, InstrId::SBCD_DATA_REG, abcd_sbcd},
     {"sbcd.", 1, 13, 13, "1000xxx100001xxx", 4, 4, MC68000, InstrId::SBCD_ADDR_REG, abcd_sbcd},
     /* DIVU */
-    {"divu.", 2, 2, 4, "1000xxx011xxxxxx", 8, 8, MC68000, InstrId::DIVU, reg_ea},
+    {"divu.w", 2, 2, 4, "1000xxx011xxxxxx", 8, 8, MC68000, InstrId::DIVU, reg_ea},
     /* DIVS */
-    {"divs.", 2, 2, 4, "1000xxx111xxxxxx", 12, 12, MC68000, InstrId::DIVS, reg_ea},
+    {"divs.w", 2, 2, 4, "1000xxx111xxxxxx", 12, 12, MC68000, InstrId::DIVS, reg_ea},
     /* OR  */
     {"or.", 0, 4, 12, "1000xxx1xxxxxxxx", 7, 6, MC68000, InstrId::OR_TO_REG, add_sub},
     {"or.", 0, 2, 4, "1000xxx0xxxxxxxx", 7, 6, MC68000, InstrId::OR_TO_EA, add_sub},
@@ -267,9 +267,9 @@ extern const OPSTRUCTURE instr11[] = {
 
 extern const OPSTRUCTURE instr12[] = {
     /* MULU WORD */
-    {"mulu.", 2, 2, 4, "1100xxx011xxxxxx", 8, 8, MC68000, InstrId::MULU, reg_ea},
+    {"mulu.w", 2, 2, 4, "1100xxx011xxxxxx", 8, 8, MC68000, InstrId::MULU, reg_ea},
     /* MULS WORD */
-    {"muls.", 2, 2, 4, "1100xxx111xxxxxx", 12, 12, MC68000, InstrId::MULS, reg_ea},
+    {"muls.w", 2, 2, 4, "1100xxx111xxxxxx", 12, 12, MC68000, InstrId::MULS, reg_ea},
     /* ABCD */
     {"abcd.", 1, 4, 4, "1100xxx100000xxx", 7, 6, MC68000, InstrId::ABCD_DATA_REG, abcd_sbcd},
     {"abcd.", 1, 13, 13, "1100xxx100001xxx", 7, 6, MC68000, InstrId::ABCD_ADDR_REG, abcd_sbcd},
