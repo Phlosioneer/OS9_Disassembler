@@ -118,7 +118,7 @@ struct rof_extrn
             *MyNext = nullptr;          /* Next ref for this name.  If NULL, we can free EName */
 };
 
-typedef std::map<uint32_t, rof_extrn> refmap;
+typedef std::unordered_map<uint32_t, rof_extrn> refmap;
 
 extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns; /* Generic external pointer */
 

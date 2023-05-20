@@ -11,11 +11,6 @@
 
 struct cmd_items;
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
 class Label
 {
   public:
@@ -100,8 +95,8 @@ class LabelCategory
   private:
     // This list is always sorted by address / value.
     std::vector<Label*> _labels;
-    std::map<long, Label*> _labelsByValue;
-    std::map<long, Label*> _labelRedirects;
+    std::unordered_map<long, Label*> _labelsByValue;
+    std::unordered_map<long, Label*> _labelRedirects;
 
     // Because of _handle, need to ensure it is always allocated/freed correctly.
     LabelCategory(LabelCategory const&) = delete;
@@ -121,7 +116,7 @@ class LabelManager
     void printAll();
 
   private:
-    std::map<std::string, LabelCategory*> _labelCategories;
+    std::unordered_map<std::string, LabelCategory*> _labelCategories;
 
     LabelManager(LabelManager const&) = delete;
     LabelManager& operator=(LabelManager const&) = delete;
