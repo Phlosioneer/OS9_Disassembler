@@ -36,7 +36,7 @@ namespace UnitTests
 
 		TEST_METHOD(RegParamTest)
 		{
-			Assert::AreEqual(std::string("d0"), RegParam(Register::REG_D0).toStr());
+			Assert::AreEqual(std::string("d0"), RegParam(Register::D0).toStr());
 			Assert::AreEqual(std::string("a3"), RegParam(Register::A3).toStr());
 
 			Assert::AreEqual(std::string("(a2)"), RegParam(Register::A2, RegParamMode::Indirect).toStr());
@@ -59,7 +59,7 @@ namespace UnitTests
 			zeroLabel.setShouldForceZero(true);
 			Assert::AreEqual(std::string("hello(a2)"), zeroLabel.toStr());
 
-			auto nonzeroOffset = RegOffsetParam(Register::REG_PC, FormattedNumber(40));
+			auto nonzeroOffset = RegOffsetParam(Register::PC, FormattedNumber(40));
 			Assert::AreEqual(std::string("40(pc)"), nonzeroOffset.toStr());
 			zeroLabel.setShouldForceZero(true);
 			Assert::AreEqual(std::string("40(pc)"), nonzeroOffset.toStr());
@@ -70,10 +70,10 @@ namespace UnitTests
 			auto zeroLabel2 = RegOffsetParam(Register::A2, Register::D5, OperandSize::Long, std::string("hello"));
 			Assert::AreEqual(std::string("hello(a2,d5.l)"), zeroLabel2.toStr());
 
-			auto nonzeroOffset2 = RegOffsetParam(Register::REG_PC, Register::D1, OperandSize::Word, FormattedNumber(40));
+			auto nonzeroOffset2 = RegOffsetParam(Register::PC, Register::D1, OperandSize::Word, FormattedNumber(40));
 			Assert::AreEqual(std::string("40(pc,d1.w)"), nonzeroOffset2.toStr());
 
-			auto badBaseReg = [] { RegOffsetParam test(Register::REG_D0, FormattedNumber(0)); };
+			auto badBaseReg = [] { RegOffsetParam test(Register::D0, FormattedNumber(0)); };
 			Assert::ExpectException<std::exception>(badBaseReg);
 		}
 	};

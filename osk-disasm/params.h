@@ -21,15 +21,17 @@ enum class Register
     A5,
     A6,
     SP,
-    REG_PC,
-    REG_D0,
+    PC,
+    D0,
     D1,
     D2,
     D3,
     D4,
     D5,
     D6,
-    D7
+    D7,
+    CCR,
+    SR
 };
 
 enum class RegParamMode

@@ -144,8 +144,6 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     uint8_t sourceReg = ci->cmd_wrd & 7;
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
     int size = (ci->cmd_wrd >> 7) & 3;
-    char ea[50];
-    char* regname = "d";
 
     /* Eliminate illegal Addressing modes */
     switch (op->id)
@@ -194,11 +192,6 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
         break;
     default:
         throw std::runtime_error("Unexpected instruction id");
-    }
-
-    if (op->id == InstrId::LEA)
-    {
-        regname = "a";
     }
 
     ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
@@ -579,12 +572,12 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             ext1 = getnext_w(ci, state);
             if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
             {
-                param = std::make_unique<RegOffsetParam>(Register::REG_PC, std::string(dispstr));
+                param = std::make_unique<RegOffsetParam>(Register::PC, std::string(dispstr));
             }
             else
             {
                 auto number = MakeFormattedNumber(ext1, AM_REL, size);
-                param = std::make_unique<RegOffsetParam>(Register::REG_PC, number);
+                param = std::make_unique<RegOffsetParam>(Register::PC, number);
             }
             break;
         case 3: /* d8(PC,Xn) */
@@ -603,14 +596,14 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                     ew_b.displ -= 2;
                     if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
                     {
-                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
                                                                  std::string(dispstr));
                     }
                     else
                     {
                         // TODO: Is the -2 to displacement correct here?
                         auto number = MakeFormattedNumber(ew_b.displ, AM_REL, size);
-                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize, number);
+                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize, number);
                     }
                 }
                 else
@@ -619,12 +612,12 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                     // extension word.
                     if (state->opt->IsROF && IsRef(dispstr, state->PCPos - 1, 0, state->Pass))
                     {
-                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
                                                                  std::string(dispstr));
                     }
                     else
                     {
-                        param = std::make_unique<RegOffsetParam>(Register::REG_PC, offsetReg, offsetRegSize,
+                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
                                                                  FormattedNumber(0));
                     }
                 }

@@ -141,18 +141,5 @@ location of program counter, status register and stack pointer in mpu register
 list.
 */
 
-#define PC 0
-#define SR 1
-#define USP 3
-#define MSP 4
-#define ISP 5
-#define VBR 6
-#define CACR 7
-#define CAAR 8
-#define SFC 9
-#define DFC 10
-#define D0 12
-#define A7 28
-
 /* **********	end of hardware and MPU dependant code  *************** */
 #endif

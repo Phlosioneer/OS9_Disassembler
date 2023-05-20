@@ -11,8 +11,8 @@
 
 #pragma region Registers
 
-const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp", "pc",
-                               "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7"};
+const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp", "pc", "d0",
+                               "d1", "d2", "d3", "d4", "d5", "d6", "d7", "ccr", "sr"};
 const char sizeLetters[] = {'b', 'w', 'l'};
 const char* sizeSuffixes[] = {".b", ".w", ".l"};
 
@@ -29,7 +29,7 @@ const char* getName(Register reg)
 constexpr Register makeDReg(unsigned int id)
 {
     if (id >= 8) throw std::exception();
-    return fromIdUnchecked(id + getId(Register::REG_D0));
+    return fromIdUnchecked(id + getId(Register::D0));
 }
 
 constexpr Register makeAReg(unsigned int id)
@@ -40,29 +40,29 @@ constexpr Register makeAReg(unsigned int id)
 
 constexpr Register fromId(unsigned int id)
 {
-    if (id >= 17) throw std::exception();
+    if (id > getId(Register::SR)) throw std::exception();
     return fromIdUnchecked(id);
 }
 
 constexpr bool isDReg(Register reg)
 {
-    return getId(reg) < getId(Register::REG_PC);
+    return getId(reg) >= getId(Register::D0) && getId(reg) <= getId(Register::D7);
 }
 
 constexpr bool isAReg(Register reg)
 {
-    return getId(reg) > getId(Register::REG_PC);
+    return getId(reg) >= getId(Register::A0) && getId(reg) <= getId(Register::SP);
 }
 
 constexpr uint8_t getIndex(Register reg)
 {
-    if (reg == Register::REG_PC) throw std::runtime_error("PC register doesn't have an index");
+    if (!isDReg(reg) && !isAReg(reg)) throw std::runtime_error("Register doesn't have an index");
     return getIndexUnchecked(reg);
 }
 
 constexpr uint8_t getIndexUnchecked(Register reg)
 {
-    if (isDReg(reg)) return getId(reg) - getId(Register::REG_D0);
+    if (isDReg(reg)) return getId(reg) - getId(Register::D0);
     return getId(reg) - getId(Register::A0);
 }
 
@@ -121,7 +121,7 @@ void RegisterSet::format(std::ostream& stream) const
     if (_hasPC)
     {
         if (hasOutputAnything) stream << '/';
-        stream << Registers::getName(Register::REG_PC);
+        stream << Registers::getName(Register::PC);
         hasOutputAnything = true;
     }
     if (_dataRegisters.any())
@@ -138,7 +138,7 @@ void RegisterSet::format(std::ostream& stream) const
 
 bool RegisterSet::contains(Register reg) const
 {
-    if (reg == Register::REG_PC)
+    if (reg == Register::PC)
     {
         return _hasPC;
     }
@@ -155,7 +155,7 @@ bool RegisterSet::contains(Register reg) const
 bool RegisterSet::add(Register reg)
 {
     bool ret;
-    if (reg == Register::REG_PC)
+    if (reg == Register::PC)
     {
         ret = _hasPC;
         _hasPC = true;
@@ -178,7 +178,7 @@ bool RegisterSet::add(Register reg)
 bool RegisterSet::remove(Register reg)
 {
     bool ret;
-    if (reg == Register::REG_PC)
+    if (reg == Register::PC)
     {
         ret = _hasPC;
         _hasPC = false;
@@ -442,7 +442,7 @@ RegParam::RegParam(Register reg) : RegParam(reg, RegParamMode::Direct)
 
 RegParam::RegParam(Register reg, RegParamMode mode) : reg(reg), mode(mode)
 {
-    if (reg >= Register::REG_D0 && reg <= Register::D7)
+    if (reg >= Register::D0 && reg <= Register::D7)
     {
         if (mode != RegParamMode::Direct) throw std::exception();
     }
@@ -508,7 +508,7 @@ RegOffsetParam::RegOffsetParam(Register addressReg, FormattedNumber offset)
     : addressReg(addressReg), offset(offset), _hasOffsetReg(false), _offsetReg(), _offsetRegSize(OperandSize::Word),
       _forceZero(false)
 {
-    if (addressReg < Register::A0 || addressReg > Register::REG_PC)
+    if (addressReg < Register::A0 || addressReg > Register::PC)
     {
         throw std::exception();
     }
@@ -518,7 +518,7 @@ RegOffsetParam::RegOffsetParam(Register addressReg, std::string offsetLabel)
     : addressReg(addressReg), offset(offsetLabel), _hasOffsetReg(false), _offsetReg(),
       _offsetRegSize(OperandSize::Word), _forceZero(false)
 {
-    if (addressReg < Register::A0 || addressReg > Register::REG_PC)
+    if (addressReg < Register::A0 || addressReg > Register::PC)
     {
         throw std::exception();
     }
@@ -529,7 +529,7 @@ RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandS
     : addressReg(addressReg), offset(offset), _hasOffsetReg(true), _offsetReg(offsetReg), _offsetRegSize(offsetRegSize),
       _forceZero(false)
 {
-    if (addressReg < Register::A0 || addressReg > Register::REG_PC)
+    if (addressReg < Register::A0 || addressReg > Register::PC)
     {
         throw std::exception();
     }
@@ -544,7 +544,7 @@ RegOffsetParam::RegOffsetParam(Register addressReg, Register offsetReg, OperandS
     : addressReg(addressReg), offset(offsetLabel), _hasOffsetReg(true), _offsetReg(offsetReg),
       _offsetRegSize(offsetRegSize), _forceZero(false)
 {
-    if (addressReg < Register::A0 || addressReg > Register::REG_PC)
+    if (addressReg < Register::A0 || addressReg > Register::PC)
     {
         throw std::exception();
     }
