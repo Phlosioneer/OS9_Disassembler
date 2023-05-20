@@ -122,6 +122,16 @@ void LabelManager::printAll()
     }
 }
 
+void LabelManager::clear()
+{
+    for (auto pair : _labelCategories)
+    {
+        delete pair.second;
+        pair.second = nullptr;
+    }
+    _labelCategories.clear();
+}
+
 Label* LabelManager::addLabel(AddrSpaceHandle code, long value, const char* name)
 {
     return getCategory(code)->add(value, name);

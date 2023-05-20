@@ -53,31 +53,21 @@ enum
  */
 int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    static char* sr[2] = {"ccr", "sr"};
-    register int size;
+    ci->useNewParams = true;
 
     if (!hasnext_w(state)) return 0;
-    register int ext1 = getnext_w(ci, state);
-    size = (ci->cmd_wrd >> 6) & 1;
+    uint16_t ext1 = getnext_w(ci, state);
+    auto reg = ((ci->cmd_wrd >> 6) & 1) == 0 ? Register::CCR : Register::SR;
 
-    /*    if (ext1 & 0xff00)
-        {
-            ungetnext_w(ci);
-            return 0;
-        }*/
-
-    if ((size == 0) && (ext1 > 0x1f))
+    if ((reg == Register::CCR) && (ext1 > 0x1f))
     {
         ungetnext_w(ci, state);
         return 0;
     }
 
-    // TODO: Add functions to retrieve label
-    if (state->Pass == 2)
-    {
-        strcpy(ci->mnem, op->name);
-        sprintf(ci->params, "#%d,%s", ext1, sr[size]);
-    }
+    strcpy(ci->mnem, op->name);
+    ci->setSource(LiteralParam(FormattedNumber(ext1, OperandSize::Byte, &LITERAL_DEC_SPACE)));
+    ci->setDest(RegParam(reg));
 
     return 1;
 }
@@ -85,20 +75,29 @@ int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 /*
  * Immediate bit operations not involving status registers
  */
+// Note, all immediate values are unsigned (SUBI, CMPI don't sign extend, rest are
+// bitwise.)
 int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int size = (ci->cmd_wrd >> 6) & 3;
-    register int mode = (ci->cmd_wrd >> 3) & 7;
-    register int reg;
-    /*register int firstword = ci->wcount;*/
-    char ea[30];
-    int data;
+    ci->useNewParams = true;
 
-    std::ostringstream EaStringBuffer;
-    reg = (ci->cmd_wrd) & 7;
-
-    if (size > SIZ_LONG)
+    uint8_t size = (ci->cmd_wrd >> 6) & 3;
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t regCode = (ci->cmd_wrd) & 7;
+    
+    OperandSize sizeOp;
+    switch (size)
     {
+    case SIZ_BYTE:
+        sizeOp = OperandSize::Byte;
+        break;
+    case SIZ_WORD:
+        sizeOp = OperandSize::Word;
+        break;
+    case SIZ_LONG:
+        sizeOp = OperandSize::Long;
+        break;
+    default:
         return 0;
     }
 
@@ -110,62 +109,28 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     if (mode == 7)
     {
         /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
-        if (reg > 1)
+        if (regCode > 1)
         {
             return 0;
         }
     }
 
+    AddrSpaceHandle space = &LITERAL_HEX_SPACE;
+    if (op->id == InstrId::SUBI || op->id == InstrId::CMPI)
+    {
+        space = &LITERAL_DEC_SPACE;
+    }
+    
     /* The source here is always immediate, but go through
      * get_eff_addr to get the label, if needed
      */
-    if (!get_eff_addr(ci, ea, 7, 4, size, state))
-    {
-        return 0;
-    }
+    ci->source = get_eff_addr(ci, (uint8_t)Special, (uint8_t)ImmediateData, sizeOp, state);
+    if (!ci->source) return 0;
 
-    switch (size)
-    {
-    case SIZ_BYTE:
-        data = ci->code[0];
+    ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state);
+    if (!ci->dest) return 0;
 
-        if ((data < -128) || (data > 0xff))
-        {
-            ungetnext_w(ci, state);
-            return 0;
-        }
-
-        break;
-    case SIZ_WORD:
-        data = ci->code[0];
-
-        if ((data < -32768) || (data > 0xffff))
-        {
-            ungetnext_w(ci, state);
-            return 0;
-        }
-
-        break;
-    case SIZ_LONG:
-        break;
-    }
-
-    auto eaStringResult = EaStringBuffer.str();
-    if (eaStringResult.empty())
-    {
-        char tmp[200];
-        if (!get_eff_addr(ci, tmp, mode, reg, SIZ_LONG, state))
-        {
-            return 0;
-        }
-        eaStringResult = tmp;
-    }
-
-    auto params = (std::string(ea) + ",") + eaStringResult;
-    strcpy(ci->params, params.c_str());
-
-    if (size >= 3) throw std::runtime_error("SizSufx overrun");
-    auto mnem = std::string(op->name) + SizSufx[size];
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
     strcpy(ci->mnem, mnem.c_str());
     return 1;
 }

@@ -114,6 +114,7 @@ class LabelManager
     Label* addLabel(AddrSpaceHandle code, long value, const char* name);
     Label* getLabel(AddrSpaceHandle code, long value);
     void printAll();
+    void clear();
 
   private:
     std::unordered_map<std::string, LabelCategory*> _labelCategories;

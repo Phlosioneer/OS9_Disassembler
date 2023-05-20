@@ -100,7 +100,7 @@ namespace UnitTests
 
 			const uint16_t SUBX = 0b1001000100000000;
 			const uint16_t SUBX_ADDR_MODE_BIT = 0b1000;
-			
+
 			subtestName = L"SUBX register";
 			pushWord(SUBX | SUB_REG(2) | SUBX_SIZE(0b01) | 4);
 			runTest("subx.w", "d4,d2");
@@ -128,6 +128,60 @@ namespace UnitTests
 			subtestName = L"UNLINK";
 			pushWord(UNLK | 5);
 			runTest("unlk", "a5");
+		}
+
+		TEST_METHOD(biti_size)
+		{
+			const uint16_t ORI = 0 << 9;
+			const uint16_t ANDI = 1 << 9;
+			const uint16_t SUBI = 2 << 9;
+			const uint16_t ADDI = 3 << 9;
+			/* 4 << 9 is part of the bit test opcodes */
+			const uint16_t EORI = 5 << 9;
+			const uint16_t CMPI = 6 << 9;
+
+			const auto SIZE = [](uint16_t value) { return value << 6; };
+
+			// Bitwise stuff should always use hex constants
+
+			subtestName = L"ORI.b";
+			pushWord(ORI | SIZE(0) | EA_MODE(0) | 4);
+			pushWord(0x45);
+			//runTest("ori.b", "#$45,d4");
+			runTest("ori.b", "#69,d4");
+
+			subtestName = L"ANDI.w";
+			pushWord(ANDI | SIZE(1) | EA_MODE(2) | 5);
+			pushWord(0x22b0);
+			//runTest("andi.w", "#$22b0,(a5)");
+			runTest("andi.w", "#8880,(a5)");
+
+			// Other stuff is dependent on size
+
+			subtestName = L"SUBI.l";
+			pushWord(SUBI | SIZE(2) | EA_MODE(0) | 0);
+			pushWord(0xdead);
+			pushWord(0xbeef);
+			//runTest("subi.l", "#$deadbeef,d0");
+			runTest("subi.l", "#-559038737,d0");
+
+			subtestName = L"CMPI.b";
+			pushWord(CMPI | SIZE(0) | EA_MODE(3) | 4);
+			pushWord(78);
+			runTest("cmpi.b", "#78,(a4)+");
+
+			// Make sure labels work correctly
+
+			subtestName = L"ORI labelled memory address";
+			pushWord(ORI | SIZE(1) | EA_MODE(5) | 6);
+			pushWord(0x31);
+			pushWord(88);
+			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
+			//runTest("ori.w", "#$31,hello(a6)");
+			runTest("ori.w", "#49,hello(a6)");
+			labelManager->clear();
+
+			// TODO: ANDI external-ref constant
 		}
 	};
 }

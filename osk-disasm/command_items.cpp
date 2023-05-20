@@ -380,8 +380,9 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
     return get_eff_addr(ci, mode, reg, opSize, state);
 }
 
+// literalSpaceHint applies to (xxx).w, (xxx).l, and #<data> cases.
 std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
-                                         struct parse_state* state)
+                                         struct parse_state* state, AddrSpaceHandle literalSpaceHint)
 {
     int ext1;
     int ext2;
@@ -398,19 +399,17 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
 
     switch (mode)
     {
-    default:
-        return 0;
-    case 0: /* "Dn" */
+    case DirectDataReg: /* "Dn" */
         param = std::make_unique<RegParam>(Registers::makeDReg(reg));
         break;
-    case 1: /* "An" */
+    case DirectAddrReg: /* "An" */
         if (size == OperandSize::Byte) return nullptr;
-    case 2: /* (An) */
-    case 3: /* (An)+ */
-    case 4: /* -(An) */
+    case Indirect: /* (An) */
+    case PostIncrement: /* (An)+ */
+    case PreDecrement: /* -(An) */
         param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
-    case 5: /* d{16}(An) */
+    case Displacement: /* d{16}(An) */
         if (!hasnext_w(state)) return nullptr;
         ext1 = getnext_w(ci, state);
 
@@ -439,7 +438,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
         ((RegOffsetParam*)param.get())->setShouldForceZero(true);
 
         break;
-    case 6: /* d{8}(An,Xn) */
+    case Index: /* d{8}(An,Xn) */
         if (get_ext_wrd(ci, &ew_b, mode, reg, state))
         {
             if (ew_b.scale != 0)
@@ -480,11 +479,11 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
         /* We now go to mode %111, where the mode is determined
          * by the register field
          */
-    case 7:
+    case Special:
         switch (reg)
         {
-        case 0: /* (xxx).W */
-        case 1: /* (xxx).L */
+        case AbsoluteWord: /* (xxx).W */
+        case AbsoluteLong: /* (xxx).L */
         {
             OperandSize opSize;
             int amode_local;
@@ -510,13 +509,13 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             }
             else
             {
-                auto number = MakeFormattedNumber(ext1, amode_local, size);
+                auto number = MakeFormattedNumber(ext1, amode_local, size, literalSpaceHint);
                 param = std::make_unique<AbsoluteAddrParam>(number, opSize);
             }
 
             break;
         }
-        case 4: /* #<data> */
+        case ImmediateData: /* #<data> */
         {
             ref_ptr = state->PCPos;
             if (!hasnext_w(state)) return 0;
@@ -562,12 +561,12 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             }
             else
             {
-                auto number = MakeFormattedNumber(ext1, AM_IMM, size);
+                auto number = MakeFormattedNumber(ext1, AM_IMM, size, literalSpaceHint);
                 param = std::make_unique<LiteralParam>(number);
             }
             break;
         }
-        case 2: /* (d16,PC) */
+        case PcDisplacement: /* (d16,PC) */
             if (!hasnext_w(state)) return 0;
             ext1 = getnext_w(ci, state);
             if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
@@ -580,7 +579,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 param = std::make_unique<RegOffsetParam>(Register::PC, number);
             }
             break;
-        case 3: /* d8(PC,Xn) */
+        case PcIndex: /* d8(PC,Xn) */
             if (get_ext_wrd(ci, &ew_b, mode, reg, state))
             {
                 if (ew_b.scale != 0)
@@ -628,8 +627,12 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             }
 
             break;
+        default:
+            return 0;
         }
         break;
+    default:
+        return 0;
     }
 
     return param;

@@ -69,7 +69,7 @@ int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, st
 std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, uint8_t size,
                                          struct parse_state* state);
 std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
-                                         struct parse_state* state);
+                                         struct parse_state* state, AddrSpaceHandle literalSpaceHint = nullptr);
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 
 int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state);

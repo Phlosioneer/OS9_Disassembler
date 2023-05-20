@@ -11,6 +11,27 @@
 
 class Label;
 
+enum EffectiveAddressMode
+{
+    DirectDataReg, // Dn
+    DirectAddrReg, // An
+    Indirect,      // (An)
+    PostIncrement, // (An)+
+    PreDecrement,  // -(An)
+    Displacement,  // d16(An)
+    Index,         // d8(An,An) or d8(An,Dn)
+    Special        // One of the SpecialAddressMode options
+};
+
+enum SpecialAddressMode
+{
+    AbsoluteWord,   // (xxx).W
+    AbsoluteLong,   // (xxx).L
+    PcDisplacement, // #<data>
+    PcIndex,        // d16(PC)
+    ImmediateData   // d8(PC,An) or d8(PC,Dn)
+};
+
 enum class Register
 {
     A0,
@@ -128,7 +149,8 @@ class FormattedNumber
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
 FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize = 4, AddrSpaceHandle space = nullptr);
-FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexSize = OperandSize::Long, AddrSpaceHandle space = nullptr);
+FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexSize = OperandSize::Long,
+                                    AddrSpaceHandle space = nullptr);
 
 typedef Either<std::string, FormattedNumber> LabelOrNumber;
 
