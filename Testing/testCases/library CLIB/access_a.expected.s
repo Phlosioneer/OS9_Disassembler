@@ -4,8 +4,7 @@ access: link.w a5,#0
  movea.l d0,a0
  move.w d1,d0
  os9 I$Open
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  os9 I$Close
  bra.w _sysret0
 open: link.w a5,#0
@@ -50,23 +49,18 @@ creat: link.w a5,#0
  moveq #0,d2
  os9 I$Create
  movea.l (sp)+,a0
- dc.w $6400
- dc.w $0
- cmpi.b #E$CEF,d1
- dc.w $6600
- dc.w $0
+ bcc.w _sysret
+ cmpi.b E$CEF,d1
+ bne.w _os9err
  move.w 2(sp),d0
- dc.w $6b00
- dc.w $0
+ bmi.w _os9err
  andi.w #Write_,d0
  os9 I$Open
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  moveq #0,d2
  moveq SS_Size,d1
  os9 I$SetStt
- dc.w $6400
- dc.w $0
+ bcc.w _sysret
  move.w d1,d2
  os9 I$Close
  move.w d2,d1

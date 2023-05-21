@@ -3,13 +3,12 @@
     2  00004 48e7            movem.l a0/d1-d2,-(sp) 
     3  00008 7200            moveq  SS_Lock,d1 
     4  0000a 4e40            os9    I$SetStt   
-    5  0000e 6500            dc.w   $6500      
-    6  00010 0000            dc.w   $0         
-    7  00012 2057            movea.l (sp),a0    
-    8  00014 2080            move.l d0,(a0)    
-    9  00016 206d            movea.l 8(a5),a0   
-   10  0001a 2081            move.l d1,(a0)    
-   11  0001c 6000            bra.w  _sysret    
+    5  0000e 6500            bcs.w  _os9err    
+    6  00012 2057            movea.l (sp),a0    
+    7  00014 2080            move.l d0,(a0)    
+    8  00016 206d            movea.l 8(a5),a0   
+    9  0001a 2081            move.l d1,(a0)    
+   10  0001c 6000            bra.w  _sysret    
+   11
+   12  00020 0000            ends              
    12
-   13  00020 0000            ends              
-   13

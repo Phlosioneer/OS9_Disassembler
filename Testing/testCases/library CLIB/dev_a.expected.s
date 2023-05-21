@@ -7,8 +7,7 @@ attach: link.w a5,#0
  os9 I$Attach
  movea.l a2,a0
  movea.l (sp)+,a2
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l a0,d0
  bra.w _sysret
 detach: link.w a5,#0

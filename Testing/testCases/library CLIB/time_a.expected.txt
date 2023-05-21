@@ -16,73 +16,72 @@
    15  0002a e140            asl.w  #8,d0      
    16  0002c 1028            move.b 5(a0),d0   
    17  00030 4e40            os9    F$STime    
-   18  00034 6500            dc.w   $6500      
-   19  00036 0000            dc.w   $0         
-   20  00038 2008            move.l a0,d0      
-   21  0003a 6000            bra.w  _sysret    
-   22  0003e 4e55 getime:    link.w a5,#0      
-   23  00042 48e7            movem.l a0/d1-d3,-(sp) 
-   24  00046 2040            movea.l d0,a0      
-   25  00048 7000            moveq  #0,d0      
-   26  0004a 4e40            os9    F$Time     
-   27  0004e 652c            bcs.s  L0007c     
-   28  00050 2408            move.l a0,d2      
-   29  00052 4841            swap   d1         
-   30  00054 927c            sub.w  #1900,d1   
-   31  00058 10c1            move.b d1,(a0)+   
-   32  0005a 4841            swap   d1         
-   33  0005c e159            rol.w  #8,d1      
-   34  0005e 10c1            move.b d1,(a0)+   
-   35  00060 e159            rol.w  #8,d1      
-   36  00062 10c1            move.b d1,(a0)+   
-   37  00064 4840            swap   d0         
-   38  00066 10c0            move.b d0,(a0)+   
-   39  00068 4840            swap   d0         
-   40  0006a e158            rol.w  #8,d0      
-   41  0006c 10c0            move.b d0,(a0)+   
-   42  0006e e158            rol.w  #8,d0      
-   43  00070 10c0            move.b d0,(a0)+   
-   44  00072 2002            move.l d2,d0      
-   45  00074 4cdf L00074     movem.l (sp)+,a0/d1-d3 
-   46  00078 4e5d            unlk   a5         
-   47  0007a 4e75            rts               
-   48  0007c 70ff L0007c     moveq  #255,d0    
-   49  0007e 2d41            move.l d1,errno(a6) 
-   50  00082 60f0            bra.s  L00074     
-   51  00084 4e55 _sysdate:  link.w a5,#0      
-   52  00088 48e7            movem.l a0-a1/d1-d3,-(sp) 
-   53  0008c 7400            moveq  #0,d2      
-   54  0008e 4e40            os9    F$Time     
-   55  00092 6520            bcs.s  L000b4     
-   56  00094 206d            movea.l -20(a5),a0 
-   57  00098 2080            move.l d0,(a0)    
-   58  0009a 41ed            lea    8(a5),a0   
-   59  0009e 2258            movea.l (a0)+,a1   
-   60  000a0 2281            move.l d1,(a1)    
-   61  000a2 2258            movea.l (a0)+,a1   
-   62  000a4 3282            move.w d2,(a1)    
-   63  000a6 2250            movea.l (a0),a1    
-   64  000a8 2283            move.l d3,(a1)    
-   65  000aa 7000 L000aa     moveq  #0,d0      
-   66  000ac 4cdf            movem.l (sp)+,a0-a1/d1-d3 
-   67  000b0 4e5d            unlk   a5         
-   68  000b2 4e75            rts               
-   69  000b4 70ff L000b4     moveq  #255,d0    
-   70  000b6 2d41            move.l d1,errno(a6) 
-   71  000ba 60ee            bra.s  L000aa     
-   72  000bc 4e55 _julian:   link.w a5,#0      
-   73  000c0 48e7            movem.l a0/d1-d2,-(sp) 
-   74  000c4 2f09            move.l a1,-(sp)   
-   75  000c6 2040            movea.l d0,a0      
-   76  000c8 2241            movea.l d1,a1      
-   77  000ca 2010            move.l (a0),d0    
-   78  000cc 2211            move.l (a1),d1    
-   79  000ce 4e40            os9    F$Julian   
-   80  000d2 6500            bcs.w  L000da     
-   81  000d6 2080            move.l d0,(a0)    
-   82  000d8 2281            move.l d1,(a1)    
-   83  000da 225f L000da     movea.l (sp)+,a1   
-   84  000dc 6000            bra.w  _sysret    
+   18  00034 6500            bcs.w  _os9err    
+   19  00038 2008            move.l a0,d0      
+   20  0003a 6000            bra.w  _sysret    
+   21  0003e 4e55 getime:    link.w a5,#0      
+   22  00042 48e7            movem.l a0/d1-d3,-(sp) 
+   23  00046 2040            movea.l d0,a0      
+   24  00048 7000            moveq  #0,d0      
+   25  0004a 4e40            os9    F$Time     
+   26  0004e 652c            bcs.s  L0007c     
+   27  00050 2408            move.l a0,d2      
+   28  00052 4841            swap   d1         
+   29  00054 927c            sub.w  #1900,d1   
+   30  00058 10c1            move.b d1,(a0)+   
+   31  0005a 4841            swap   d1         
+   32  0005c e159            rol.w  #8,d1      
+   33  0005e 10c1            move.b d1,(a0)+   
+   34  00060 e159            rol.w  #8,d1      
+   35  00062 10c1            move.b d1,(a0)+   
+   36  00064 4840            swap   d0         
+   37  00066 10c0            move.b d0,(a0)+   
+   38  00068 4840            swap   d0         
+   39  0006a e158            rol.w  #8,d0      
+   40  0006c 10c0            move.b d0,(a0)+   
+   41  0006e e158            rol.w  #8,d0      
+   42  00070 10c0            move.b d0,(a0)+   
+   43  00072 2002            move.l d2,d0      
+   44  00074 4cdf L00074     movem.l (sp)+,a0/d1-d3 
+   45  00078 4e5d            unlk   a5         
+   46  0007a 4e75            rts               
+   47  0007c 70ff L0007c     moveq  #255,d0    
+   48  0007e 2d41            move.l d1,errno(a6) 
+   49  00082 60f0            bra.s  L00074     
+   50  00084 4e55 _sysdate:  link.w a5,#0      
+   51  00088 48e7            movem.l a0-a1/d1-d3,-(sp) 
+   52  0008c 7400            moveq  #0,d2      
+   53  0008e 4e40            os9    F$Time     
+   54  00092 6520            bcs.s  L000b4     
+   55  00094 206d            movea.l -20(a5),a0 
+   56  00098 2080            move.l d0,(a0)    
+   57  0009a 41ed            lea    8(a5),a0   
+   58  0009e 2258            movea.l (a0)+,a1   
+   59  000a0 2281            move.l d1,(a1)    
+   60  000a2 2258            movea.l (a0)+,a1   
+   61  000a4 3282            move.w d2,(a1)    
+   62  000a6 2250            movea.l (a0),a1    
+   63  000a8 2283            move.l d3,(a1)    
+   64  000aa 7000 L000aa     moveq  #0,d0      
+   65  000ac 4cdf            movem.l (sp)+,a0-a1/d1-d3 
+   66  000b0 4e5d            unlk   a5         
+   67  000b2 4e75            rts               
+   68  000b4 70ff L000b4     moveq  #255,d0    
+   69  000b6 2d41            move.l d1,errno(a6) 
+   70  000ba 60ee            bra.s  L000aa     
+   71  000bc 4e55 _julian:   link.w a5,#0      
+   72  000c0 48e7            movem.l a0/d1-d2,-(sp) 
+   73  000c4 2f09            move.l a1,-(sp)   
+   74  000c6 2040            movea.l d0,a0      
+   75  000c8 2241            movea.l d1,a1      
+   76  000ca 2010            move.l (a0),d0    
+   77  000cc 2211            move.l (a1),d1    
+   78  000ce 4e40            os9    F$Julian   
+   79  000d2 6500            bcs.w  L000da     
+   80  000d6 2080            move.l d0,(a0)    
+   81  000d8 2281            move.l d1,(a1)    
+   82  000da 225f L000da     movea.l (sp)+,a1   
+   83  000dc 6000            bra.w  _sysret    
+   84
+   85  000e0 0000            ends              
    85
-   86  000e0 0000            ends              
-   86

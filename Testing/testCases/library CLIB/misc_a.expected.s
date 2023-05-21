@@ -11,8 +11,7 @@ crc: link.w a5,#0
  movea.l d0,a0
  move.l (sp),d0
  os9 F$CRC
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  movea.l 8(a5),a0
  move.l d1,(a0)
  bra.w _sysret0
@@ -97,16 +96,14 @@ _get_module_dir: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  os9 F$GModDr
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d1,d0
  bra.w _sysret
 _get_process_table: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
  os9 F$GPrDBT
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d1,d0
  bra.w _sysret
 _get_process_desc: link.w a5,#0
@@ -127,8 +124,7 @@ _setsys: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l 8(a5),d2
 L0018e os9 F$SetSys
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d2,d0
  bra.w _sysret
 _suspend: link.w a5,#0

@@ -8,11 +8,9 @@ wait: link.w a5,#0
  movea.l d0,a0
  moveq #0,d0
  os9 F$Wait
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l a0,d2
- dc.w $6700
- dc.w $0
+ beq.w _sysret
  clr.w (a0)+
  move.w d1,(a0)
  bra.w _sysret

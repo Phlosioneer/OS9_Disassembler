@@ -6,8 +6,7 @@ getpid: link.w a5,#0
 getuid: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$ID
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d1,d0
  bra.w _sysret
 setuid: link.w a5,#0

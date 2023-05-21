@@ -404,9 +404,9 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
         break;
     case DirectAddrReg: /* "An" */
         if (size == OperandSize::Byte) return nullptr;
-    case Indirect: /* (An) */
+    case Indirect:      /* (An) */
     case PostIncrement: /* (An)+ */
-    case PreDecrement: /* -(An) */
+    case PreDecrement:  /* -(An) */
         param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
     case Displacement: /* d{16}(An) */
@@ -533,6 +533,9 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                     ungetnext_w(ci, state);
                     return 0;
                 }
+
+                // The byte is not aligned.
+                ref_ptr += 1;
 
                 break;
             case OperandSize::Word:

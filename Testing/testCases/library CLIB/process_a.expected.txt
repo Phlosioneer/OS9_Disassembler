@@ -8,56 +8,54 @@
     7  00018 2040            movea.l d0,a0      
     8  0001a 7000            moveq  #0,d0      
     9  0001c 4e40            os9    F$Wait     
-   10  00020 6500            dc.w   $6500      
-   11  00022 0000            dc.w   $0         
-   12  00024 2408            move.l a0,d2      
-   13  00026 6700            dc.w   $6700      
-   14  00028 0000            dc.w   $0         
-   15  0002a 4258            clr.w  (a0)+      
-   16  0002c 3081            move.w d1,(a0)    
-   17  0002e 6000            bra.w  _sysret    
-   18  00032 4e55 setpr:     link.w a5,#0      
-   19  00036 48e7            movem.l a0/d1-d2,-(sp) 
-   20  0003a 4e40            os9    F$SPrior   
-   21  0003e 6000            bra.w  _sysret    
-   22  00042 4e55 chainc:    link.w a5,#0      
-   23  00046 48e7            movem.l a0/d1-d2,-(sp) 
-   24  0004a 48e7            movem.l a1/d3-d5,-(sp) 
-   25  0004e 7a03            moveq  #3,d5      
-   26  00050 602e            bra.s  L00080     
-   27  00052 4e55 chain:     link.w a5,#0      
-   28  00056 48e7            movem.l a0/d1-d2,-(sp) 
-   29  0005a 48e7            movem.l a1/d3-d5,-(sp) 
-   30  0005e 7a01            moveq  #1,d5      
-   31  00060 601e            bra.s  L00080     
-   32  00062 4e55 os9forkc:  link.w a5,#0      
-   33  00066 48e7            movem.l a0/d1-d2,-(sp) 
-   34  0006a 48e7            movem.l a1/d3-d5,-(sp) 
-   35  0006e 7a02            moveq  #2,d5      
-   36  00070 600e            bra.s  L00080     
-   37  00072 4e55 os9fork:   link.w a5,#0      
-   38  00076 48e7            movem.l a0/d1-d2,-(sp) 
-   39  0007a 48e7            movem.l a1/d3-d5,-(sp) 
-   40  0007e 7a00            moveq  #0,d5      
-   41  00080 2040 L00080     movea.l d0,a0      
-   42  00082 2401            move.l d1,d2      
-   43  00084 226d            movea.l 8(a5),a1   
-   44  00088 302d            move.w 18(a5),d0  
-   45  0008c 4840            swap   d0         
-   46  0008e 302d            move.w 14(a5),d0  
-   47  00092 222d            move.l 20(a5),d1  
-   48  00096 7603            moveq  #3,d3      
-   49  00098 0805            btst.l #1,d5      
-   50  0009c 6704            beq.s  L000a2     
-   51  0009e 262d            move.l 28(a5),d3  
-   52  000a2 282d L000a2     move.l 24(a5),d4  
-   53  000a6 0805            btst.l #0,d5      
-   54  000aa 6606            bne.s  L000b2     
-   55  000ac 4e40            os9    F$Fork     
-   56  000b0 6004            bra.s  L000b6     
-   57  000b2 4e40 L000b2     os9    F$Chain    
-   58  000b6 4cdf L000b6     movem.l (sp)+,a1/d3-d5 
-   59  000ba 6000            bra.w  _sysret    
-   60
-   61  000be 0000            ends              
-   61
+   10  00020 6500            bcs.w  _os9err    
+   11  00024 2408            move.l a0,d2      
+   12  00026 6700            beq.w  _sysret    
+   13  0002a 4258            clr.w  (a0)+      
+   14  0002c 3081            move.w d1,(a0)    
+   15  0002e 6000            bra.w  _sysret    
+   16  00032 4e55 setpr:     link.w a5,#0      
+   17  00036 48e7            movem.l a0/d1-d2,-(sp) 
+   18  0003a 4e40            os9    F$SPrior   
+   19  0003e 6000            bra.w  _sysret    
+   20  00042 4e55 chainc:    link.w a5,#0      
+   21  00046 48e7            movem.l a0/d1-d2,-(sp) 
+   22  0004a 48e7            movem.l a1/d3-d5,-(sp) 
+   23  0004e 7a03            moveq  #3,d5      
+   24  00050 602e            bra.s  L00080     
+   25  00052 4e55 chain:     link.w a5,#0      
+   26  00056 48e7            movem.l a0/d1-d2,-(sp) 
+   27  0005a 48e7            movem.l a1/d3-d5,-(sp) 
+   28  0005e 7a01            moveq  #1,d5      
+   29  00060 601e            bra.s  L00080     
+   30  00062 4e55 os9forkc:  link.w a5,#0      
+   31  00066 48e7            movem.l a0/d1-d2,-(sp) 
+   32  0006a 48e7            movem.l a1/d3-d5,-(sp) 
+   33  0006e 7a02            moveq  #2,d5      
+   34  00070 600e            bra.s  L00080     
+   35  00072 4e55 os9fork:   link.w a5,#0      
+   36  00076 48e7            movem.l a0/d1-d2,-(sp) 
+   37  0007a 48e7            movem.l a1/d3-d5,-(sp) 
+   38  0007e 7a00            moveq  #0,d5      
+   39  00080 2040 L00080     movea.l d0,a0      
+   40  00082 2401            move.l d1,d2      
+   41  00084 226d            movea.l 8(a5),a1   
+   42  00088 302d            move.w 18(a5),d0  
+   43  0008c 4840            swap   d0         
+   44  0008e 302d            move.w 14(a5),d0  
+   45  00092 222d            move.l 20(a5),d1  
+   46  00096 7603            moveq  #3,d3      
+   47  00098 0805            btst.l #1,d5      
+   48  0009c 6704            beq.s  L000a2     
+   49  0009e 262d            move.l 28(a5),d3  
+   50  000a2 282d L000a2     move.l 24(a5),d4  
+   51  000a6 0805            btst.l #0,d5      
+   52  000aa 6606            bne.s  L000b2     
+   53  000ac 4e40            os9    F$Fork     
+   54  000b0 6004            bra.s  L000b6     
+   55  000b2 4e40 L000b2     os9    F$Chain    
+   56  000b6 4cdf L000b6     movem.l (sp)+,a1/d3-d5 
+   57  000ba 6000            bra.w  _sysret    
+   58
+   59  000be 0000            ends              
+   59

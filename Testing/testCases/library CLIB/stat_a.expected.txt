@@ -16,33 +16,31 @@
    15  00028 003c            ori    #1,ccr     
    16  0002c 6000            bra.w  _os9err    
    17  00030 4e40 L00030     os9    I$GetStt   
-   18  00034 6500            dc.w   $6500      
-   19  00036 0000            dc.w   $0         
-   20  00038 206d            movea.l 8(a5),a0   
-   21  0003c 2082            move.l d2,(a0)    
-   22  0003e 6000            bra.w  _sysret0   
-   23  00042 4e40 L00042     os9    I$GetStt   
-   24  00046 6500            dc.w   $6500      
-   25  00048 0000            dc.w   $0         
-   26  0004a 2001            move.l d1,d0      
-   27  0004c 6000            bra.w  _sysret    
-   28  00050 206d L00050     movea.l 8(a5),a0   
-   29  00054 4e40 L00054     os9    I$GetStt   
-   30  00058 6000            bra.w  _sysret    
-   31  0005c 4e55 setstat:   link.w a5,#0      
-   32  00060 48e7            movem.l a0/d1-d2,-(sp) 
-   33  00064 c141            exg    d0,d1      
-   34  00066 4a81            tst.l  d1         
-   35  00068 6608            bne.s  L00072     
-   36  0006a 206d            movea.l 8(a5),a0   
-   37  0006e 7200            moveq  SS_Opt,d1  
-   38  00070 600c            bra.s  L0007e     
-   39  00072 0c01 L00072     cmpi.b #2,d1      
-   40  00076 66ae            bne.s  L00026     
-   41  00078 242d            move.l 8(a5),d2   
-   42  0007c 7200            moveq  SS_Size,d1 
-   43  0007e 4e40 L0007e     os9    I$SetStt   
-   44  00082 6000            bra.w  _sysret    
-   45
-   46  00086 0000            ends              
-   46
+   18  00034 6500            bcs.w  _os9err    
+   19  00038 206d            movea.l 8(a5),a0   
+   20  0003c 2082            move.l d2,(a0)    
+   21  0003e 6000            bra.w  _sysret0   
+   22  00042 4e40 L00042     os9    I$GetStt   
+   23  00046 6500            bcs.w  _os9err    
+   24  0004a 2001            move.l d1,d0      
+   25  0004c 6000            bra.w  _sysret    
+   26  00050 206d L00050     movea.l 8(a5),a0   
+   27  00054 4e40 L00054     os9    I$GetStt   
+   28  00058 6000            bra.w  _sysret    
+   29  0005c 4e55 setstat:   link.w a5,#0      
+   30  00060 48e7            movem.l a0/d1-d2,-(sp) 
+   31  00064 c141            exg    d0,d1      
+   32  00066 4a81            tst.l  d1         
+   33  00068 6608            bne.s  L00072     
+   34  0006a 206d            movea.l 8(a5),a0   
+   35  0006e 7200            moveq  SS_Opt,d1  
+   36  00070 600c            bra.s  L0007e     
+   37  00072 0c01 L00072     cmpi.b #2,d1      
+   38  00076 66ae            bne.s  L00026     
+   39  00078 242d            move.l 8(a5),d2   
+   40  0007c 7200            moveq  SS_Size,d1 
+   41  0007e 4e40 L0007e     os9    I$SetStt   
+   42  00082 6000            bra.w  _sysret    
+   43
+   44  00086 0000            ends              
+   44

@@ -11,142 +11,138 @@
    10  00020 2040            movea.l d0,a0      
    11  00022 2017            move.l (sp),d0    
    12  00024 4e40            os9    F$CRC      
-   13  00028 6500            dc.w   $6500      
-   14  0002a 0000            dc.w   $0         
-   15  0002c 206d            movea.l 8(a5),a0   
-   16  00030 2081            move.l d1,(a0)    
-   17  00032 6000            bra.w  _sysret0   
-   18  00036 4e55 prerr:     link.w a5,#0      
-   19  0003a 48e7            movem.l a0/d1-d2,-(sp) 
-   20  0003e 4e40            os9    F$PErr     
-   21  00042 6000            bra.w  _sysret    
-   22  00046 e188 sleep:     lsl.l  #8,d0      
-   23  00048 08c0            bset.l #31,d0     
-   24  0004c 4e55 tsleep:    link.w a5,#0      
-   25  00050 48e7            movem.l a0/d1-d2,-(sp) 
-   26  00054 4e40            os9    F$Sleep    
-   27  00058 6000            bra.w  _sysret    
-   28  0005c 4e55 _cmpnam:   link.w a5,#0      
-   29  00060 48e7            movem.l a0-a1,-(sp) 
-   30  00064 2041            movea.l d1,a0      
-   31  00066 2240            movea.l d0,a1      
-   32  00068 222d            move.l 8(a5),d1   
-   33  0006c 4e40            os9    F$CmpNam   
-   34  00070 6560            bcs.s  L000d2     
-   35  00072 7000            moveq  #0,d0      
-   36  00074 6068            bra.s  L000de     
-   37  00076 4e55 _prsnam:   link.w a5,#0      
-   38  0007a 48e7            movem.l a0-a1/d0-d1,-(sp) 
-   39  0007e 2040            movea.l d0,a0      
-   40  00080 4e40            os9    F$PrsNam   
-   41  00084 6454            bcc.s  L000da     
-   42  00086 604a            bra.s  L000d2     
-   43  00088 4e55 _parsepath: link.w a5,#0      
-   44  0008c 48e7            movem.l a0-a1/d0-d1,-(sp) 
-   45  00090 2040            movea.l d0,a0      
-   46  00092 2248            movea.l a0,a1      
-   47  00094 1019 L00094     move.b (a1)+,d0   
-   48  00096 0c00            cmpi.b #47,d0     
-   49  0009a 671a            beq.s  L000b6     
-   50  0009c 0c00            cmpi.b #46,d0     
-   51  000a0 6622            bne.s  L000c4     
-   52  000a2 0c19 L000a2     cmpi.b #46,(a1)+  
-   53  000a6 67fa            beq.s  L000a2     
-   54  000a8 1021            move.b -(a1),d0   
-   55  000aa 672e            beq.s  L000da     
-   56  000ac 0c00            cmpi.b #47,d0     
-   57  000b0 6612            bne.s  L000c4     
-   58  000b2 2049            movea.l a1,a0      
-   59  000b4 60de            bra.s  L00094     
-   60  000b6 1019 L000b6     move.b (a1)+,d0   
-   61  000b8 0c00            cmpi.b #47,d0     
-   62  000bc 6706            beq.s  L000c4     
-   63  000be 0c00            cmpi.b #46,d0     
-   64  000c2 67de            beq.s  L000a2     
-   65  000c4 4e40 L000c4     os9    F$PrsNam   
-   66  000c8 6508            bcs.s  L000d2     
-   67  000ca 4a00            tst.b  d0         
-   68  000cc 670c            beq.s  L000da     
-   69  000ce 2049            movea.l a1,a0      
-   70  000d0 60c2            bra.s  L00094     
-   71  000d2 2d41 L000d2     move.l d1,errno(a6) 
-   72  000d6 70ff            moveq  #255,d0    
-   73  000d8 6004            bra.s  L000de     
-   74  000da 2009 L000da     move.l a1,d0      
-   75  000dc 9097            sub.l  (sp),d0    
-   76  000de 4ced L000de     movem.l -12(a5),a0-a1/d1 
-   77  000e4 4e5d            unlk   a5         
-   78  000e6 4e75            rts               
-   79  000e8 4e55 _mkdata_module: link.w a5,#0      
-   80  000ec 48e7            movem.l a0/d1-d2,-(sp) 
-   81  000f0 48e7            movem.l a1-a2/d3-d4,-(sp) 
-   82  000f4 242d            move.l 12(a5),d2  
-   83  000f8 0802            btst.l #15,d2     
-   84  000fc 6708            beq.s  L00106     
-   85  000fe 262d            move.l 16(a5),d3  
-   86  00102 282d            move.l 20(a5),d4  
-   87  00106 2040 L00106     movea.l d0,a0      
-   88  00108 2001            move.l d1,d0      
-   89  0010a 222d            move.l 8(a5),d1   
-   90  0010e 4e40            os9    F$DatMod   
-   91  00112 6502            bcs.s  L00116     
-   92  00114 200a            move.l a2,d0      
-   93  00116 4cdf L00116     movem.l (sp)+,a1-a2/d3-d4 
-   94  0011a 6000            bra.w  _sysret    
-   95  0011e 4e55 _get_module_dir: link.w a5,#0      
-   96  00122 48e7            movem.l a0/d1-d2,-(sp) 
-   97  00126 2040            movea.l d0,a0      
-   98  00128 4e40            os9    F$GModDr   
-   99  0012c 6500            dc.w   $6500      
-  100  0012e 0000            dc.w   $0         
-  101  00130 2001            move.l d1,d0      
-  102  00132 6000            bra.w  _sysret    
-  103  00136 4e55 _get_process_table: link.w a5,#0      
-  104  0013a 48e7            movem.l a0/d1-d2,-(sp) 
-  105  0013e 2040            movea.l d0,a0      
-  106  00140 4e40            os9    F$GPrDBT   
-  107  00144 6500            dc.w   $6500      
-  108  00146 0000            dc.w   $0         
-  109  00148 2001            move.l d1,d0      
-  110  0014a 6000            bra.w  _sysret    
-  111  0014e 4e55 _get_process_desc: link.w a5,#0      
-  112  00152 48e7            movem.l a0/d1-d2,-(sp) 
-  113  00156 206d            movea.l 8(a5),a0   
-  114  0015a 4e40            os9    F$GPrDsc   
-  115  0015e 6000            bra.w  _sysret    
-  116  00162 4e55 _setcrc:   link.w a5,#0      
-  117  00166 48e7            movem.l a0/d1-d2,-(sp) 
-  118  0016a 2040            movea.l d0,a0      
-  119  0016c 4e40            os9    F$SetCRC   
-  120  00170 6000            bra.w  _sysret    
-  121  00174 4e55 _getsys:   link.w a5,#0      
-  122  00178 48e7            movem.l a0/d1-d2,-(sp) 
-  123  0017c 08c1            bset.l #31,d1     
-  124  00180 600c            bra.s  L0018e     
-  125  00182 4e55 _setsys:   link.w a5,#0      
-  126  00186 48e7            movem.l a0/d1-d2,-(sp) 
-  127  0018a 242d            move.l 8(a5),d2   
-  128  0018e 4e40 L0018e     os9    F$SetSys   
-  129  00192 6500            dc.w   $6500      
-  130  00194 0000            dc.w   $0         
-  131  00196 2002            move.l d2,d0      
-  132  00198 6000            bra.w  _sysret    
-  133  0019c 4e55 _suspend:  link.w a5,#0      
-  134  001a0 48e7            movem.l a0/d1-d2,-(sp) 
-  135  001a4 4e40            os9    F$SSpd     
-  136  001a8 6000            bra.w  _sysret    
-  137  001ac 4e55 _sysdbg:   link.w a5,#0      
-  138  001b0 4e40            os9    F$SysDbg   
-  139  001b4 4e5d            unlk   a5         
-  140  001b6 4e75            rts               
-  141  001b8 4e55 _cpymem:   link.w a5,#0      
-  142  001bc 48e7            movem.l a0/d1-d2,-(sp) 
-  143  001c0 2f09            move.l a1,-(sp)   
-  144  001c2 206d            movea.l 8(a5),a0   
-  145  001c6 226d            movea.l 12(a5),a1  
-  146  001ca 4e40            os9    F$CpyMem   
-  147  001ce 225f            movea.l (sp)+,a1   
-  148  001d0 6000            bra.w  _sysret    
-  149
-  150  001d4 0000            ends              
-  150
+   13  00028 6500            bcs.w  _os9err    
+   14  0002c 206d            movea.l 8(a5),a0   
+   15  00030 2081            move.l d1,(a0)    
+   16  00032 6000            bra.w  _sysret0   
+   17  00036 4e55 prerr:     link.w a5,#0      
+   18  0003a 48e7            movem.l a0/d1-d2,-(sp) 
+   19  0003e 4e40            os9    F$PErr     
+   20  00042 6000            bra.w  _sysret    
+   21  00046 e188 sleep:     lsl.l  #8,d0      
+   22  00048 08c0            bset.l #31,d0     
+   23  0004c 4e55 tsleep:    link.w a5,#0      
+   24  00050 48e7            movem.l a0/d1-d2,-(sp) 
+   25  00054 4e40            os9    F$Sleep    
+   26  00058 6000            bra.w  _sysret    
+   27  0005c 4e55 _cmpnam:   link.w a5,#0      
+   28  00060 48e7            movem.l a0-a1,-(sp) 
+   29  00064 2041            movea.l d1,a0      
+   30  00066 2240            movea.l d0,a1      
+   31  00068 222d            move.l 8(a5),d1   
+   32  0006c 4e40            os9    F$CmpNam   
+   33  00070 6560            bcs.s  L000d2     
+   34  00072 7000            moveq  #0,d0      
+   35  00074 6068            bra.s  L000de     
+   36  00076 4e55 _prsnam:   link.w a5,#0      
+   37  0007a 48e7            movem.l a0-a1/d0-d1,-(sp) 
+   38  0007e 2040            movea.l d0,a0      
+   39  00080 4e40            os9    F$PrsNam   
+   40  00084 6454            bcc.s  L000da     
+   41  00086 604a            bra.s  L000d2     
+   42  00088 4e55 _parsepath: link.w a5,#0      
+   43  0008c 48e7            movem.l a0-a1/d0-d1,-(sp) 
+   44  00090 2040            movea.l d0,a0      
+   45  00092 2248            movea.l a0,a1      
+   46  00094 1019 L00094     move.b (a1)+,d0   
+   47  00096 0c00            cmpi.b #47,d0     
+   48  0009a 671a            beq.s  L000b6     
+   49  0009c 0c00            cmpi.b #46,d0     
+   50  000a0 6622            bne.s  L000c4     
+   51  000a2 0c19 L000a2     cmpi.b #46,(a1)+  
+   52  000a6 67fa            beq.s  L000a2     
+   53  000a8 1021            move.b -(a1),d0   
+   54  000aa 672e            beq.s  L000da     
+   55  000ac 0c00            cmpi.b #47,d0     
+   56  000b0 6612            bne.s  L000c4     
+   57  000b2 2049            movea.l a1,a0      
+   58  000b4 60de            bra.s  L00094     
+   59  000b6 1019 L000b6     move.b (a1)+,d0   
+   60  000b8 0c00            cmpi.b #47,d0     
+   61  000bc 6706            beq.s  L000c4     
+   62  000be 0c00            cmpi.b #46,d0     
+   63  000c2 67de            beq.s  L000a2     
+   64  000c4 4e40 L000c4     os9    F$PrsNam   
+   65  000c8 6508            bcs.s  L000d2     
+   66  000ca 4a00            tst.b  d0         
+   67  000cc 670c            beq.s  L000da     
+   68  000ce 2049            movea.l a1,a0      
+   69  000d0 60c2            bra.s  L00094     
+   70  000d2 2d41 L000d2     move.l d1,errno(a6) 
+   71  000d6 70ff            moveq  #255,d0    
+   72  000d8 6004            bra.s  L000de     
+   73  000da 2009 L000da     move.l a1,d0      
+   74  000dc 9097            sub.l  (sp),d0    
+   75  000de 4ced L000de     movem.l -12(a5),a0-a1/d1 
+   76  000e4 4e5d            unlk   a5         
+   77  000e6 4e75            rts               
+   78  000e8 4e55 _mkdata_module: link.w a5,#0      
+   79  000ec 48e7            movem.l a0/d1-d2,-(sp) 
+   80  000f0 48e7            movem.l a1-a2/d3-d4,-(sp) 
+   81  000f4 242d            move.l 12(a5),d2  
+   82  000f8 0802            btst.l #15,d2     
+   83  000fc 6708            beq.s  L00106     
+   84  000fe 262d            move.l 16(a5),d3  
+   85  00102 282d            move.l 20(a5),d4  
+   86  00106 2040 L00106     movea.l d0,a0      
+   87  00108 2001            move.l d1,d0      
+   88  0010a 222d            move.l 8(a5),d1   
+   89  0010e 4e40            os9    F$DatMod   
+   90  00112 6502            bcs.s  L00116     
+   91  00114 200a            move.l a2,d0      
+   92  00116 4cdf L00116     movem.l (sp)+,a1-a2/d3-d4 
+   93  0011a 6000            bra.w  _sysret    
+   94  0011e 4e55 _get_module_dir: link.w a5,#0      
+   95  00122 48e7            movem.l a0/d1-d2,-(sp) 
+   96  00126 2040            movea.l d0,a0      
+   97  00128 4e40            os9    F$GModDr   
+   98  0012c 6500            bcs.w  _os9err    
+   99  00130 2001            move.l d1,d0      
+  100  00132 6000            bra.w  _sysret    
+  101  00136 4e55 _get_process_table: link.w a5,#0      
+  102  0013a 48e7            movem.l a0/d1-d2,-(sp) 
+  103  0013e 2040            movea.l d0,a0      
+  104  00140 4e40            os9    F$GPrDBT   
+  105  00144 6500            bcs.w  _os9err    
+  106  00148 2001            move.l d1,d0      
+  107  0014a 6000            bra.w  _sysret    
+  108  0014e 4e55 _get_process_desc: link.w a5,#0      
+  109  00152 48e7            movem.l a0/d1-d2,-(sp) 
+  110  00156 206d            movea.l 8(a5),a0   
+  111  0015a 4e40            os9    F$GPrDsc   
+  112  0015e 6000            bra.w  _sysret    
+  113  00162 4e55 _setcrc:   link.w a5,#0      
+  114  00166 48e7            movem.l a0/d1-d2,-(sp) 
+  115  0016a 2040            movea.l d0,a0      
+  116  0016c 4e40            os9    F$SetCRC   
+  117  00170 6000            bra.w  _sysret    
+  118  00174 4e55 _getsys:   link.w a5,#0      
+  119  00178 48e7            movem.l a0/d1-d2,-(sp) 
+  120  0017c 08c1            bset.l #31,d1     
+  121  00180 600c            bra.s  L0018e     
+  122  00182 4e55 _setsys:   link.w a5,#0      
+  123  00186 48e7            movem.l a0/d1-d2,-(sp) 
+  124  0018a 242d            move.l 8(a5),d2   
+  125  0018e 4e40 L0018e     os9    F$SetSys   
+  126  00192 6500            bcs.w  _os9err    
+  127  00196 2002            move.l d2,d0      
+  128  00198 6000            bra.w  _sysret    
+  129  0019c 4e55 _suspend:  link.w a5,#0      
+  130  001a0 48e7            movem.l a0/d1-d2,-(sp) 
+  131  001a4 4e40            os9    F$SSpd     
+  132  001a8 6000            bra.w  _sysret    
+  133  001ac 4e55 _sysdbg:   link.w a5,#0      
+  134  001b0 4e40            os9    F$SysDbg   
+  135  001b4 4e5d            unlk   a5         
+  136  001b6 4e75            rts               
+  137  001b8 4e55 _cpymem:   link.w a5,#0      
+  138  001bc 48e7            movem.l a0/d1-d2,-(sp) 
+  139  001c0 2f09            move.l a1,-(sp)   
+  140  001c2 206d            movea.l 8(a5),a0   
+  141  001c6 226d            movea.l 12(a5),a1  
+  142  001ca 4e40            os9    F$CpyMem   
+  143  001ce 225f            movea.l (sp)+,a1   
+  144  001d0 6000            bra.w  _sysret    
+  145
+  146  001d4 0000            ends              
+  146

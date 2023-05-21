@@ -9,19 +9,16 @@ _gs_rdy: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.w #SS_Ready,d1
  os9 I$GetStt
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d1,d0
  bra.w _sysret
 _gs_eof: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.w #SS_EOF,d1
  os9 I$GetStt
- dc.w $6400
- dc.w $0
+ bcc.w _sysret0
  cmpi.w #E$EOF,d1
- dc.w $6600
- dc.w $0
+ bne.w _os9err
  moveq #1,d0
  bra.w _sysret
 _gs_gfd: link.w a5,#0
@@ -39,8 +36,7 @@ _gs_size: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.w #SS_Size,d1
 L00082 os9 I$GetStt
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d2,d0
  bra.w _sysret
 _gs_pos: link.w a5,#0

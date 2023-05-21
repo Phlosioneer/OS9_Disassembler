@@ -455,108 +455,6 @@ int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     return 1;
 }
 
-/*
- * Calculates the size of a branch and places the size
- *          suffix in the string provided in the parameters.
- * Returns: The branch size (sign extended) if valid, 0 on uneven branch size
- */
-static int branch_displ(struct cmd_items* ci, int cmd_word, char* siz_suffix, struct parse_state* state)
-{
-    register int displ = cmd_word & 0xff;
-
-    switch (displ)
-    {
-    case 0:
-        if (!hasnext_w(state)) return 0;
-        displ = getnext_w(ci, state);
-
-        if (displ & 1)
-        {
-            ungetnext_w(ci, state);
-            return 0;
-        }
-
-        strcpy(siz_suffix, "w");
-        break;
-    case 0xff:
-        return 0; /* Long branch not available for < 68020 */
-    default:
-        if (displ & 1) return 0;
-
-        /* Sign extend the 8-bit displacement */
-        if (displ & 0x80)
-        {
-            displ |= (-1 ^ 0xff);
-        }
-
-        strcpy(siz_suffix, "s");
-    }
-
-    return displ;
-}
-
-int bra_bsr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
-{
-    register int displ;
-    register int jmp_base = state->PCPos;
-    char siz[4];
-
-    displ = branch_displ(ci, ci->cmd_wrd, siz, state);
-
-    if (displ & 1) return 0;
-
-    if (!state->opt->IsROF)
-    {
-        if (displ == 0)
-        {
-            return 0;
-        }
-    }
-    else
-    {
-        int ref_addr = ci->cmd_wrd & 0xff;
-
-        if ((ref_addr == 0) || (ref_addr == 0xff))
-        {
-            ref_addr = state->CmdEnt + 2;
-        }
-        else
-        {
-            ref_addr = state->CmdEnt + 1;
-        }
-
-        if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
-        {
-            strcpy(ci->mnem, op->name);
-            strcat(ci->mnem, siz);
-            return 1;
-        }
-        else
-        {
-            if (displ == 0) return 0;
-        }
-    }
-
-    strcpy(ci->mnem, op->name);
-    strcat(ci->mnem, siz);
-    /*dstAddr = jmp_base + displ;
-
-    //if (IsROF && (Pass == 2))
-    //{
-    //    if (IsRef(ci->params, jmp_base))
-    //    {
-    //        return 1;
-    //    }
-    //}*/
-
-    if (!LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass))
-    {
-        PrintNumber(ci->params, displ, AM_REL, 4);
-    }
-
-    return 1;
-}
-
 int cmd_no_opcode(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     ci->params[0] = '\0';
@@ -624,80 +522,73 @@ int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
     return 1;
 }
 
-int br_cond(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int jmp_base = state->PCPos;
-    register char* condit = typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition;
-    char siz[5];
-    register int displ;
-    char* subst;
+    ci->useNewParams = true;
 
-    displ = branch_displ(ci, ci->cmd_wrd, siz, state);
+    uint32_t displ = ci->cmd_wrd & 0xff;
+    OperandSize size;
+    uint32_t immAddress;
+
+    if (displ == 0)
+    {
+        immAddress = state->PCPos;
+        if (!hasnext_w(state)) return 0;
+        displ = getnext_w(ci, state);
+
+        size = OperandSize::Word;
+    }
+    else if (displ == 0xff)
+    {
+        return 0; /* Long branch not available for < 68020 */
+    }
+    else
+    {
+        immAddress = state->CmdEnt + 1;
+        /* Sign extend the 8-bit displacement */
+        displ = (int8_t)displ;
+        size = OperandSize::Byte;
+    }
 
     if (displ & 1) return 0;
 
-    /* It wouldn't seem likely that a conditional branch would
-     * ever branch to an external ref, and would probably ever
-     * occur in C-generated code, but manually-written asm source
-     * could contain this
-     */
-
-    if (state->opt->IsROF)
+    char temp[200];
+    temp[0] = '\0';
+    if (state->opt->IsROF && rof_setup_ref(refs_code, immAddress, temp, displ))
     {
-        if (displ == 0)
-        {
-            return 0;
-        }
+        ci->setSource(LiteralParam(temp));
+    }
+    else if (LblCalc(temp, displ, AM_REL, state->CmdEnt + 2, state->opt->IsROF, state->Pass))
+    {
+        if (displ == 0) return 0;
+        ci->setSource(LiteralParam(temp));
     }
     else
     {
-        int ref_addr = ci->cmd_wrd & 0xff;
-
-        if ((ref_addr == 0) || (ref_addr == 0xff))
-        {
-            ref_addr = state->CmdEnt + 2;
-        }
-        else
-        {
-            ref_addr = state->CmdEnt + 1;
-        }
-
-        if (rof_setup_ref(refs_code, ref_addr, ci->params, displ))
-        {
-            strcpy(ci->mnem, op->name);
-            strcat(ci->mnem, siz);
-            return 1;
-        }
-        else
-        {
-            if (displ == 0) return 0;
-        }
+        if (displ == 0) return 0;
+        ci->setSource(LiteralParam(FormattedNumber(displ, size)));
+    }
+    
+    std::string mnem(op->name);
+    auto conditionStart = mnem.find('~');
+    if (conditionStart != std::string::npos)
+    {
+        uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
+        mnem = mnem.substr(0, conditionStart);
+        mnem += typecondition[conditionCode].condition;
+        mnem += '.';
     }
 
-    strcpy(ci->mnem, op->name);
-
-    subst = strchr(ci->mnem, '~');
-    if (subst)
+    // Branches use ".s" instead of ".b"
+    if (size == OperandSize::Byte)
     {
-        while (*condit)
-        {
-            *(subst++) = *(condit++);
-        }
-
-        *(subst++) = '.';
-        strcpy(subst, siz);
+        mnem += 's';
     }
     else
     {
-        return 0;
+        mnem += getOperandSizeLetter(size);
     }
-
-    /* We need to calculate the address here */
-    if (!LblCalc(ci->params, displ, AM_REL, jmp_base, state->opt->IsROF, state->Pass))
-    {
-        PrintNumber(ci->params, displ, AM_REL, 4);
-    }
-    /*sprintf (ci->params, "L%05x", jmp_base + displ);*/
+    strcpy(ci->mnem, mnem.c_str());
 
     return 1;
 }

@@ -16,14 +16,12 @@ L00026 moveq E$UnkSvc,d1
  ori #1,ccr
  bra.w _os9err
 L00030 os9 I$GetStt
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  movea.l 8(a5),a0
  move.l d2,(a0)
  bra.w _sysret0
 L00042 os9 I$GetStt
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d1,d0
  bra.w _sysret
 L00050 movea.l 8(a5),a0

@@ -5,8 +5,7 @@ chmod: link.w a5,#0
  movea.l d0,a0
  moveq #0,d0
  os9 I$Open
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  moveq SS_Attr,d1
  os9 I$SetStt
  bcc.s L0005c

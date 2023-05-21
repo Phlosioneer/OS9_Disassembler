@@ -6,8 +6,7 @@ read: link.w a5,#0
  os9 I$Read
  bcc.s L00034
 L00014 cmpi.w #E$EOF,d1
- dc.w $6600
- dc.w $0
+ bne.w _os9err
  bra.w _sysret0
 readln: link.w a5,#0
  movem.l a0/d1-d2,-(sp)

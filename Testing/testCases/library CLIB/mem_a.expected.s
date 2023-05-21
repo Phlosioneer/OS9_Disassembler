@@ -39,8 +39,7 @@ L00030 move.l _memmins(a6),d0
 L0003a movea.l a2,a0
  os9 F$SRqMem
  exg a2,a0
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l a0,D00000(a6)
  move.l d0,D00004(a6)
  add.l d0,_totmem(a6)
@@ -70,8 +69,7 @@ sbrk: link.w a5,#0
  movea.l a1,a0
  os9 F$Mem
  exg a1,a0
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l d0,_sbsize(a6)
  add.l d1,_totmem(a6)
  move.l a0,d0

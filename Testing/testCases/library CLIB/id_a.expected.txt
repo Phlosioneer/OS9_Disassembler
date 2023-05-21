@@ -6,15 +6,14 @@
     5  00010 4e55 getuid:    link.w a5,#0      
     6  00014 48e7            movem.l a0/d1-d2,-(sp) 
     7  00018 4e40            os9    F$ID       
-    8  0001c 6500            dc.w   $6500      
-    9  0001e 0000            dc.w   $0         
-   10  00020 2001            move.l d1,d0      
-   11  00022 6000            bra.w  _sysret    
-   12  00026 4e55 setuid:    link.w a5,#0      
-   13  0002a 48e7            movem.l a0/d1-d2,-(sp) 
-   14  0002e 2200            move.l d0,d1      
-   15  00030 4e40            os9    F$SUser    
-   16  00034 6000            bra.w  _sysret    
+    8  0001c 6500            bcs.w  _os9err    
+    9  00020 2001            move.l d1,d0      
+   10  00022 6000            bra.w  _sysret    
+   11  00026 4e55 setuid:    link.w a5,#0      
+   12  0002a 48e7            movem.l a0/d1-d2,-(sp) 
+   13  0002e 2200            move.l d0,d1      
+   14  00030 4e40            os9    F$SUser    
+   15  00034 6000            bra.w  _sysret    
+   16
+   17  00038 0000            ends              
    17
-   18  00038 0000            ends              
-   18

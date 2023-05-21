@@ -220,10 +220,10 @@ extern const OPSTRUCTURE instr05[] = {
     {"addq.", 7, 8, 3, "0101xxx0xxxxxxxx", 7, 6, MC68000, InstrId::SUBQ_DUP, addq_subq},
     {0}};
 
-extern const OPSTRUCTURE instr06[] = {{"bra.", 0, 23, 21, "01100000xxxxxxxx", 10, 10, MC68000, InstrId::BRA, bra_bsr},
-                                      {"bsr.", 0, 23, 21, "01100001xxxxxxxx", 10, 10, MC68000, InstrId::BSR, bra_bsr},
+extern const OPSTRUCTURE instr06[] = {{"bra.", 0, 23, 21, "01100000xxxxxxxx", 10, 10, MC68000, InstrId::BRA, branch},
+                                      {"bsr.", 0, 23, 21, "01100001xxxxxxxx", 10, 10, MC68000, InstrId::BSR, branch},
                                       /* Bcc */
-                                      {"b~~.", 0, 23, 21, "0110xxxxxxxxxxxx", 10, 10, MC68000, InstrId::BCC, br_cond},
+                                      {"b~~.", 0, 23, 21, "0110xxxxxxxxxxxx", 10, 10, MC68000, InstrId::BCC, branch},
                                       {0}};
 
 extern const OPSTRUCTURE instr07[] = {{"moveq", 5, 8, 4, "0111xxx0xxxxxxxx", 8, 8, MC68000, InstrId::MOVEQ, moveq},

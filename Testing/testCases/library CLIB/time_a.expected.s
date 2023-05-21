@@ -16,8 +16,7 @@ setime: link.w a5,#0
  asl.w #8,d0
  move.b 5(a0),d0
  os9 F$STime
- dc.w $6500
- dc.w $0
+ bcs.w _os9err
  move.l a0,d0
  bra.w _sysret
 getime: link.w a5,#0
