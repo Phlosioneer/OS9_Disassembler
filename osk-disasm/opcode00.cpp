@@ -593,14 +593,6 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     return 1;
 }
 
-typedef struct add_sub_def
-{
-    int size;
-    int direction;
-    char regname;
-    int allmodes;
-} ADDSUBDEF;
-
 /*
  * Handles add, sub, and, or, eor instructions
  *   Cmd modes:
@@ -612,81 +604,97 @@ typedef struct add_sub_def
  */
 int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    /*int datareg = (ci->cmd_wrd >> 9) & 7;*/
-    int ea_mode = (ci->cmd_wrd >> 3) & 7;
-    int ea_reg = ci->cmd_wrd & 7;
-    register int opmode = (ci->cmd_wrd >> 6) & 7;
-    register int cmdcode = ci->cmd_wrd >> 12;
-    static ADDSUBDEF AddSubDefs[] = {{SIZ_BYTE, EA2REG, 'd', 0}, {SIZ_WORD, EA2REG, 'd', 0}, {SIZ_LONG, EA2REG, 'd', 0},
-                                     {SIZ_WORD, EA2REG, 'a', 1}, {SIZ_BYTE, REG2EA, 'd', 0}, {SIZ_WORD, REG2EA, 'd', 0},
-                                     {SIZ_LONG, REG2EA, 'd', 0}, {SIZ_LONG, EA2REG, 'a', 1}};
-    register ADDSUBDEF* asDef = &AddSubDefs[opmode];
-    char ea[50];
+    ci->useNewParams = true;
+    uint8_t ea_mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t ea_reg = ci->cmd_wrd & 7;
+    uint8_t size = (ci->cmd_wrd >> 6) & 3;
+    bool eaIsDest = ((ci->cmd_wrd >> 8) & 1) != 0;
+    uint8_t dataRegCode = (ci->cmd_wrd >> 9) & 7;
 
-    if (asDef->direction == EA2REG)
+    auto dataReg = Registers::makeDReg(dataRegCode);
+
+    OperandSize sizeOp;
+    switch (size)
     {
-        // Byte ops can't be used with address regs.
-        if ((ea_mode == 1) && (asDef->size < SIZ_WORD))
-        {
-            return 0;
-        }
-
-        if (cmdcode == 0x1011) /* eor */
-        {
-            return 0;
-        }
-
-        if ((cmdcode & 3) != 1) /* Only "add"/"sub" allow An direct */
-        {
-            if (ea_mode == 1)
-            {
-                return 0;
-            }
-        }
-
-        /* If not "add" or "sub", An cannot be a Dest */
-        if ((cmdcode != 0x09) && (cmdcode != 0x0d))
-        {
-            if (asDef->regname == 'a') return 0;
-        }
+    case SIZ_BYTE:
+        sizeOp = OperandSize::Byte;
+        break;
+    case SIZ_WORD:
+        sizeOp = OperandSize::Word;
+        break;
+    case SIZ_LONG:
+        sizeOp = OperandSize::Long;
+        break;
+    default:
+        return 0;
     }
-    else /* else asDef->Direction = REG2EA */
+
+    if (eaIsDest)
     {
-        if (cmdcode == 0x0b) /* "eor" allows Dn, others don't */
+        if (!isWritableMode(ea_mode, ea_reg)) return 0;
+
+        if (op->id == InstrId::EOR)
         {
-            if (ea_mode == 1) return 0;
+            // EOR allows DirectDataReg destination, because it's not reversible.
+            if (ea_mode == DirectAddrReg) return 0;
         }
         else
         {
-            if (ea_mode < 2) return 0;
+            // Address and data registers aren't allowed.
+            if (ea_mode == DirectAddrReg || ea_mode == DirectDataReg) return 0;
         }
-
-        if ((ea_mode == 7) && (ea_reg > 1))
-        {
-            return 0;
-        }
-    }
-
-    if (get_eff_addr(ci, ea, ea_mode, ea_reg, asDef->size, state))
-    {
-        if (asDef->direction == REG2EA)
-        {
-            sprintf(ci->params, "%c%d,%s", asDef->regname, (ci->cmd_wrd >> 9) & 7, ea);
-        }
-        else
-        {
-            sprintf(ci->params, "%s,%c%d", ea, asDef->regname, (ci->cmd_wrd >> 9) & 7);
-        }
-
-        strcpy(ci->mnem, op->name);
-        if (asDef->size >= 3) throw std::runtime_error("SizSufx overrun");
-        strcat(ci->mnem, SizSufx[asDef->size]);
-        return 1;
+        ci->setSource(RegParam(dataReg, RegParamMode::Direct));
+        ci->dest = get_eff_addr(ci, ea_mode, ea_reg, sizeOp, state);
+        if (!ci->dest) return 0;
     }
     else
     {
-        return 0;
+        switch (op->id)
+        {
+        case InstrId::EOR:
+            // EOR only goes one direction.
+            return 0;
+        case InstrId::ADD:
+        case InstrId::SUB:
+            // Address registers can be used for "sub" and "add", unless the size is byte.
+            if (ea_mode == DirectAddrReg && sizeOp == OperandSize::Byte) return 0;
+            break;
+        default:
+            // Other opcodes don't allow address reg sources
+            if (ea_mode == DirectAddrReg) return 0;
+            break;
+        }
+
+        ci->source = get_eff_addr(ci, ea_mode, ea_reg, sizeOp, state);
+        if (!ci->source) return 0;
+        ci->setDest(RegParam(dataReg, RegParamMode::Direct));
     }
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+    strcpy(ci->mnem, mnem.c_str());
+    return 1;
+}
+
+int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    ci->useNewParams = true;
+    uint8_t sourceMode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t sourceRegCode = ci->cmd_wrd & 7;
+    uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
+    auto destReg = Registers::makeAReg(destRegCode);
+
+    bool isLong = (ci->cmd_wrd >> 8) & 1;
+    OperandSize size = isLong ? OperandSize::Long : OperandSize::Word;
+
+    // All EA modes are allowed
+    ci->source = get_eff_addr(ci, sourceMode, sourceRegCode, size, state);
+    if (!ci->source) return 0;
+
+    ci->setDest(RegParam(destReg, RegParamMode::Direct));
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    strcpy(ci->mnem, mnem.c_str());
+    return 1;
 }
 
 int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -728,33 +736,44 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 }
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    int mode = (ci->cmd_wrd >> 3) & 7;
-    int reg = ci->cmd_wrd & 7;
-    int size = (ci->cmd_wrd >> 6) & 3;
-    int data = (ci->cmd_wrd >> 9) & 7;
+    ci->useNewParams = true;
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t reg = ci->cmd_wrd & 7;
+    uint8_t size = (ci->cmd_wrd >> 6) & 3;
+    uint8_t data = (ci->cmd_wrd >> 9) & 7;
 
-    if ((mode == 7) && (reg > 1))
-    {
-        return 0;
-    }
+    if (!isWritableMode(mode, reg)) return 0;
 
     if (data == 0)
     {
         data = 8;
     }
 
-    char EaStringBuffer[200];
-    EaStringBuffer[0] = '\0';
-    if (get_eff_addr(ci, EaStringBuffer, mode, reg, size, state))
+    OperandSize sizeOp;
+    switch (size)
     {
-        sprintf(ci->params, "#%d,%s", data, EaStringBuffer);
-        strcpy(ci->mnem, op->name);
-        if (size >= 3) throw std::runtime_error("SizSufx overrun");
-        strcat(ci->mnem, SizSufx[size]);
-        return 1;
+    case SIZ_BYTE:
+        sizeOp = OperandSize::Byte;
+        break;
+    case SIZ_WORD:
+        sizeOp = OperandSize::Word;
+        break;
+    case SIZ_LONG:
+        sizeOp = OperandSize::Long;
+        break;
+    default:
+        return 0;
     }
 
-    return 0;
+    ci->dest = get_eff_addr(ci, mode, reg, sizeOp, state);
+    if (!ci->dest) return 0;
+
+    ci->setSource(LiteralParam(FormattedNumber(data, OperandSize::Byte)));
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+    strcpy(ci->mnem, mnem.c_str());
+
+    return 1;
 }
 
 int abcd_sbcd(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)

@@ -238,16 +238,14 @@ extern const OPSTRUCTURE instr08[] = {
     /* DIVS */
     {"divs.w", 2, 2, 4, "1000xxx111xxxxxx", 12, 12, MC68000, InstrId::DIVS, reg_ea},
     /* OR  */
-    {"or.", 0, 4, 12, "1000xxx1xxxxxxxx", 7, 6, MC68000, InstrId::OR_TO_REG, add_sub},
-    {"or.", 0, 2, 4, "1000xxx0xxxxxxxx", 7, 6, MC68000, InstrId::OR_TO_EA, add_sub},
+    {"or.", 0, 2, 4, "1000xxxxxxxxxxxx", 7, 6, MC68000, InstrId::OR, add_sub},
     {0}};
 
 extern const OPSTRUCTURE instr09[] = {
     /* SUBA */
-    {"suba.", 9, 10, 3, "1001xxxx11xxxxxx", 8, 7, MC68000, InstrId::SUBA, add_sub},
+    {"suba.", 9, 10, 3, "1001xxxx11xxxxxx", 8, 7, MC68000, InstrId::SUBA, add_sub_addr},
     /* SUB */
-    {"sub.", 0, 2, 4, "1001xxx0xxxxxxxx", 7, 6, MC68000, InstrId::SUB, add_sub},
-    {"sub.", 7, 3, 4, "1001xxx1xxxxxxxx", 7, 6, MC68000, InstrId::SUB_DUP, add_sub},
+    {"sub.", 0, 2, 4, "1001xxxxxxxxxxxx", 7, 6, MC68000, InstrId::SUB, add_sub},
     /* SUBX */
     {"subx.", 0, 4, 4, "1001xxx1xx000xxx", 7, 6, MC68000, InstrId::SUBX_DATA_REG, cmpm_addx_subx},
     {"subx.", 0, 13, 13, "1001xxx1xx001xxx", 7, 6, MC68000, InstrId::SUBX_ADDR_REG, cmpm_addx_subx},
@@ -275,20 +273,17 @@ extern const OPSTRUCTURE instr12[] = {
     /* EXG data register and address  */
     {"exg.", 5, 4, 3, "1100xxx110001xxx", 4, 4, MC68000, InstrId::EXG_DATA_AND_ADDR, cmd_exg},
     /* AND  */
-    {"and.", 0, 2, 4, "1100xxx0xxxxxxxx", 7, 6, MC68000, InstrId::AND_TO_REG, add_sub},
-    {"and.", 0, 4, 12, "1100xxx1xxxxxxxx", 7, 6, MC68000, InstrId::AND_TO_EA, add_sub},
+    {"and.", 0, 2, 4, "1100xxxxxxxxxxxx", 7, 6, MC68000, InstrId::AND, add_sub},
     {0}};
 
 extern const OPSTRUCTURE instr13[] = {
     /* ADDA */
-    {"adda.", 9, 10, 3, "1101xxxx11xxxxxx", 8, 7, MC68000, InstrId::ADDA, add_sub},
+    {"adda.", 9, 10, 3, "1101xxxx11xxxxxx", 8, 7, MC68000, InstrId::ADDA, add_sub_addr},
     /* ADDX */
     {"addx.", 0, 4, 4, "1101xxx1xx000xxx", 7, 6, MC68000, InstrId::ADDX_DATA_REG, cmpm_addx_subx},
     {"addx.", 0, 13, 13, "1101xxx1xx001xxx", 7, 6, MC68000, InstrId::ADDX_ADDR_REG, cmpm_addx_subx},
     /* ADD */
-    {"add.", 0, 2, 4, "1101xxx0xxxxxxxx", 7, 6, MC68000, InstrId::ADD_TO_REG, add_sub},
-    {"add.", 7, 3, 4, "1101xxx0xxxxxxxx", 7, 6, MC68000, InstrId::ADD_TO_REG_DUP, add_sub},
-    {"add.", 0, 4, 12, "1101xxx1xxxxxxxx", 7, 6, MC68000, InstrId::ADD_TO_EA, add_sub},
+    {"add.", 0, 2, 4, "1101xxxxxxxxxxxx", 7, 6, MC68000, InstrId::ADD, add_sub},
     {0}};
 
 extern const OPSTRUCTURE instr14[] = {

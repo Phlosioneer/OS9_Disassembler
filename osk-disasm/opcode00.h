@@ -25,6 +25,7 @@ int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int abcd_sbcd(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
