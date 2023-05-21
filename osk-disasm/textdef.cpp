@@ -169,20 +169,17 @@ extern const OPSTRUCTURE instr03[] = {
     {0}};
 
 extern const OPSTRUCTURE instr04[] = {
-    /* MOVE from SR */
-    {"move.", 2, 18, 0, "0100000011xxxxxx", 8, 8, MC68000, InstrId::MOVE_FROM_SR, move_ccr_sr},
+    /* MOVE to/from CCR/SR */
+    {"move", 2, 18, 0, "0100000011xxxxxx", 8, 8, MC68000, InstrId::MOVE_FROM_SR, move_ccr_sr},
+    {"move", 2, 17, 0, "0100001011xxxxxx", 8, 8, MC68000, InstrId::MOVE_FROM_CCR, move_ccr_sr},
+    {"move", 2, 2, 17, "0100010011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_CCR, move_ccr_sr},
+    {"move", 2, 2, 18, "0100011011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_SR, move_ccr_sr},
     {"negx.", 0, 0, 21, "01000000xxxxxxxx", 7, 6, MC68000, InstrId::NEGX, one_ea},
     /* CHK 68000 */
     {"chk", 2, 2, 4, "0100xxx110xxxxxx", 6, 6, MC68000, InstrId::CHK, reg_ea},
     {"lea", 5, 5, 3, "0100xxx111xxxxxx", 12, 12, MC68000, InstrId::LEA, reg_ea},
     {"clr.", 0, 0, 21, "01000010xxxxxxxx", 7, 6, MC68000, InstrId::CLR, one_ea},
-    /* MOVE to CCR */
-    {"move.", 2, 2, 17, "0100010011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_CCR, move_ccr_sr},
-    /* MOVE from CCR */
-    {"move.", 2, 17, 0, "0100001011xxxxxx", 8, 8, MC68000, InstrId::MOVE_FROM_CCR, move_ccr_sr},
     {"neg.", 0, 0, 21, "01000100xxxxxxxx", 7, 6, MC68000, InstrId::NEG, one_ea},
-    /* MOVE to SR */
-    {"move.", 2, 2, 18, "0100011011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_SR, move_ccr_sr},
     {"not.", 0, 0, 21, "01000110xxxxxxxx", 7, 6, MC68000, InstrId::NOT, one_ea},
     {"nbcd.", 1, 0, 21, "0100100000xxxxxx", 6, 6, MC68000, InstrId::NBCD, one_ea},
     {"swap.", 2, 4, 21, "0100100001000xxx", 3, 3, MC68000, InstrId::SWAP, one_ea},

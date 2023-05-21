@@ -194,5 +194,16 @@ namespace UnitTests
 
 			// TODO: ANDI external-ref constant
 		}
+
+		TEST_METHOD(bit_dynamic)
+		{
+			const auto DEST_REG = [](uint16_t reg) { return reg << 9; };
+			const uint16_t BSET = 0b111000000;
+
+			subtestName = L"Regression test: make sure writable modes are allowed";
+			pushWord(BSET | DEST_REG(5) | EA_MODE(Displacement) | 1);
+			pushWord(-1);
+			runTest("bset.b", "d5,-1(a1)");
+		}
 	};
 }

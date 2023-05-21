@@ -32,6 +32,12 @@ enum SpecialAddressMode
     ImmediateData   // d8(PC,An) or d8(PC,Dn)
 };
 
+// Extremely common address mode check for destination EA's
+inline constexpr bool isWritableMode(uint8_t mode, uint8_t reg)
+{
+    return mode != Special || reg == AbsoluteWord || reg == AbsoluteLong;
+}
+
 enum class Register
 {
     A0,

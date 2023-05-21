@@ -104,27 +104,36 @@ namespace UnitTests
 		TEST_METHOD(move_ccr_sr)
 		{
 			subtestName = L"MOVE to SR from immediate";
-			const uint16_t MOVE_TO_SR = 0x46C0;
+			const uint16_t MOVE_FROM_SR =  0b0100000011000000;
+			const uint16_t MOVE_FROM_CCR = 0b0100001011000000;
+			const uint16_t MOVE_TO_CCR =   0b0100010011000000;
+			const uint16_t MOVE_TO_SR =    0b0100011011000000;
+
 			pushWord(MOVE_TO_SR | EA_MODE(7) | 4);
 			pushWord(0x13); // Arbitrary 5-bit value
 			runTest("move", "#19,sr");
 
 			subtestName = L"MOVE from SR to D6";
-			const uint16_t MOVE_FROM_SR = 0b0100000011000000;
 			pushWord(MOVE_FROM_SR | EA_MODE(0) | 6);
 			runTest("move", "sr,d6");
 
 			subtestName = L"MOVE to CCR from D0";
-			const uint16_t MOVE_TO_CCR = 0b0100010011000000;
 			pushWord(MOVE_TO_CCR | EA_MODE(0) | 0);
 			runTest("move", "d0,ccr");
 
 			subtestName = L"MOVE from CCR to (A3)";
-			const uint16_t MOVE_FROM_CCR = 0b0100001011000000;
 			pushWord(MOVE_FROM_CCR | EA_MODE(2) | 3);
 			runTest("move", "ccr,(a3)");
 
-			// TODO: Test moving CCR/SR to/from A6-relative label
+			subtestName = L"Cannot MOVE from SR to Ax";
+			pushWord(MOVE_FROM_SR | EA_MODE(DirectAddrReg) | 1);
+			runFailTest();
+
+			subtestName = L"MOVE from CCR to label";
+			pushWord(MOVE_FROM_CCR | EA_MODE(Displacement) | 6);
+			pushWord(63);
+			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 63 + 0x8000, "hello");
+			runTest("move", "ccr,hello(a6)");
 
 			// TODO: Test moving ROF-external constant into CCR/SR
 		}

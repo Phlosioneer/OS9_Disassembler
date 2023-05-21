@@ -101,19 +101,8 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
         return 0;
     }
 
-    if (mode == DirectAddrReg)
-    {
-        return 0;
-    }
-
-    if (mode == Special)
-    {
-        /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
-        if (regCode != AbsoluteWord && regCode != AbsoluteLong)
-        {
-            return 0;
-        }
-    }
+    if (mode == DirectAddrReg) return 0;
+    if (!isWritableMode(mode, regCode)) return 0;
 
     AddrSpaceHandle space = &LITERAL_HEX_SPACE;
     if (op->id == InstrId::SUBI || op->id == InstrId::CMPI)
@@ -143,6 +132,8 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     uint8_t regCode = ci->cmd_wrd & 7;
 
     if (mode == DirectAddrReg) return 0;
+    if (!isWritableMode(mode, regCode)) return 0;
+
     if (!hasnext_w(state)) return 0;
     uint16_t ext1 = getnext_w(ci, state);
 
@@ -174,39 +165,32 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
 
 int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int mode, reg;
+    ci->useNewParams = true;
+    uint8_t sourceRegCode = (ci->cmd_wrd >> 9) & 7;
+    uint8_t destMode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t destRegCode = ci->cmd_wrd & 7;
 
-    mode = (ci->cmd_wrd >> 3) & 7;
-    reg = ci->cmd_wrd & 7;
+    if (destMode == DirectAddrReg) return 0;
 
-    if (mode == 1) return 0;
-
-    /*    switch (op->id)
-        {
-            case 4:
-                if (mode == 4)
-                    return 0;
-            default:
-                if (mode > 1)
-                    return 0;
-        }*/
-    char ea[200];
-    if (get_eff_addr(ci, ea, mode, reg, SIZ_LONG, state))
+    switch (op->id)
     {
-        std::ostringstream paramBuffer;
-        paramBuffer << 'd' << ((ci->cmd_wrd >> 9) & 7) << ',' << ea;
-        auto params = paramBuffer.str();
-        strcpy(ci->params, params.c_str());
-        // sprintf(ci->params, "d%d,%s", (ci->cmd_wrd >> 9) & 7, ea);
-
-        auto mnem = std::string(op->name) + ((mode == 0) ? "l" : "b");
-        strcpy(ci->mnem, mnem.c_str());
-        // strcpy(ci->mnem, op->name);
-        // strcat(ci->mnem, (mode == 0) ? "l" : "b");
-        return 1;
+    case InstrId::BTST_DYNAMIC:
+        // All modes (other than DirectAddrReg) are allowed.
+        break;
+    default:
+        // Only writeable modes are allowed.
+        if (!isWritableMode(destMode, destRegCode)) return 0;
     }
 
-    return 0;
+    OperandSize size = destMode == DirectDataReg ? OperandSize::Long : OperandSize::Byte;
+
+    ci->dest = get_eff_addr(ci, destMode, destRegCode, size, state);
+    if (!ci->dest) return 0;
+
+    ci->setSource(RegParam(Registers::makeDReg(sourceRegCode), RegParamMode::Direct));
+    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    strcpy(ci->mnem, mnem.c_str());
+    return 1;
 }
 
 /*
@@ -216,7 +200,7 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
 {
     ci->useNewParams = true;
 
-    /* Move instructions have size a bit different */
+    // Move instructions encode size a bit different
     OperandSize size;
     uint8_t sizeBits = (ci->cmd_wrd >> 12) & 3;
     switch (sizeBits)
@@ -234,113 +218,77 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
         return 0;
     }
 
-    /* Get Destination EA */
     uint8_t d_reg = (ci->cmd_wrd >> 9) & 7;
     uint8_t d_mode = (ci->cmd_wrd >> 6) & 7;
     uint8_t src_mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t src_reg = ci->cmd_wrd & 7;
 
-    if ((d_mode == 7) && (d_reg > 1))
-    {
-        return 0;
-    }
+    if (size == OperandSize::Byte && d_mode == DirectAddrReg) return 0;
+    if (!isWritableMode(d_mode, d_reg)) return 0;
 
     ci->source = get_eff_addr(ci, src_mode, src_reg, size, state);
     if (!ci->source) return 0;
     ci->dest = get_eff_addr(ci, d_mode, d_reg, size, state);
     if (!ci->dest) return 0;
 
-    // sprintf(ci->params, "%s,%s", src_ea, dst_ea);
-
-    bool addressDest = d_mode == 1;
-    if (addressDest)
-    {
-        strcpy(ci->mnem, "movea");
-    }
-    else
-    {
-        strcpy(ci->mnem, "move");
-    }
-
-    switch (size)
-    {
-    case OperandSize::Byte:
-        if (addressDest)
-        {
-            return 0;
-        }
-        else
-        {
-            strcat(ci->mnem, ".b");
-        }
-        break;
-    case OperandSize::Word:
-        strcat(ci->mnem, ".w");
-        break;
-    case OperandSize::Long:
-        strcat(ci->mnem, ".l");
-    }
+    std::string mnem(d_mode == DirectAddrReg ? "movea" : "move");
+    mnem += getOperandSizeSuffix(size);
+    strcpy(ci->mnem, mnem.c_str());
 
     return 1;
 }
 
 int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
-    int dir;
-    char* statReg;
-    int mode = (ci->cmd_wrd >> 3) & 7;
-    int reg = ci->cmd_wrd & 7;
+    ci->useNewParams = true;
 
-    switch (ci->cmd_wrd & 0x0f00)
+    /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t regCode = ci->cmd_wrd & 7;
+
+    // None of the directions or registers allow DirectAddrReg mode.
+    if (mode == DirectAddrReg) return 0;
+
+    // First, figure out the register to use.
+    Register specialReg;
+    switch (op->id)
     {
-    case 0:
-        statReg = "sr";
-        dir = REG2EA;
+    case InstrId::MOVE_TO_CCR:
+    case InstrId::MOVE_FROM_CCR:
+        specialReg = Register::CCR;
         break;
-    case 0x0200:
-        statReg = "ccr";
-        dir = REG2EA;
-        break;
-    case 0x400:
-        statReg = "ccr";
-        dir = EA2REG;
-        break;
-    case 0x600:
-        statReg = "sr";
-        dir = EA2REG;
+    case InstrId::MOVE_TO_SR:
+    case InstrId::MOVE_FROM_SR:
+        specialReg = Register::SR;
         break;
     default:
-        return 0;
+        throw std::runtime_error("Unexpected op id");
     }
 
-    char EaStringBuffer[200];
-    EaStringBuffer[0] = '\0';
-    if (get_eff_addr(ci, EaStringBuffer, mode, reg, SIZ_WORD, state))
+    // Next figure out direction.
+    switch (op->id)
     {
-        register char* dot;
+    case InstrId::MOVE_TO_SR:
+    case InstrId::MOVE_TO_CCR:
+        ci->source = get_eff_addr(ci, mode, regCode, OperandSize::Word, state);
+        ci->setDest(RegParam(specialReg, RegParamMode::Direct));
+        if (!ci->source) return 0;
+        break;
+    case InstrId::MOVE_FROM_SR:
+    case InstrId::MOVE_FROM_CCR:
+        // Check that the destination is writable first.
+        if (!isWritableMode(mode, regCode)) return 0;
 
-        switch (dir)
-        {
-        case EA2REG:
-            sprintf(ci->params, "%s,%s", EaStringBuffer, statReg);
-            break;
-        default:
-            sprintf(ci->params, "%s,%s", statReg, EaStringBuffer);
-        }
-
-        strcpy(ci->mnem, op->name);
-
-        dot = strchr(ci->mnem, '.');
-        if (dot)
-        {
-            *dot = '\0';
-        }
-
-        return 1;
+        ci->setSource(RegParam(specialReg, RegParamMode::Direct));
+        ci->dest = get_eff_addr(ci, mode, regCode, OperandSize::Word, state);
+        if (!ci->dest) return 0;
+        break;
+    default:
+        // Unreachable
+        ;
     }
-
-    return 0;
+    strcpy(ci->mnem, op->name);
+    return 1;
 }
 
 int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
