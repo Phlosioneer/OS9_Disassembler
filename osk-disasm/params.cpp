@@ -99,6 +99,36 @@ uint8_t getOperandSizeInBytes(OperandSize size)
     }
 }
 
+uint32_t truncateUnsignedToOperandSize(OperandSize size, uint32_t value)
+{
+    switch (size)
+    {
+    case OperandSize::Byte:
+        return value & 0xFF;
+    case OperandSize::Word:
+        return value & 0xFFFF;
+    case OperandSize::Long:
+        return value;
+    default:
+        throw std::runtime_error("Unexpected size");
+    }
+}
+
+int32_t truncateSignedToOperandSize(OperandSize size, int32_t value)
+{
+    switch (size)
+    {
+    case OperandSize::Byte:
+        return (int32_t)((int8_t)value);
+    case OperandSize::Word:
+        return (int32_t)((int16_t)value);
+    case OperandSize::Long:
+        return value;
+    default:
+        throw std::runtime_error("Unexpected size");
+    }
+}
+
 #pragma region RegisterSet
 
 RegisterSet::RegisterSet() : RegisterSet(0, 0)
@@ -280,8 +310,9 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
     if (!self.labelSpace) throw std::runtime_error("Unexpected class!");
     if (*self.labelSpace == LITERAL_HEX_SPACE)
     {
+        uint32_t trunc = truncateUnsignedToOperandSize(self.size, self.number);
         os << '$'
-           << PrettyNumber<int32_t>(self.number).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
+           << PrettyNumber<int32_t>(trunc).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
     }
     else if (*self.labelSpace == LITERAL_DEC_SPACE || *self.labelSpace == LITERAL_SPACE)
     {
@@ -328,7 +359,7 @@ FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize, Add
 
 FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexSize, AddrSpaceHandle space)
 {
-    if (amod)
+    if (!space && amod)
     {
         if (amod == AM_A6)
         {

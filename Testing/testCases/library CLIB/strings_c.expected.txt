@@ -98,7 +98,7 @@
    97  000d2 10d9 L000d2     move.b (a1)+,(a0)+ 
    98  000d4 6afc            bpl.s  L000d2     
    99  000d6 4210            clr.b  (a0)       
-  100  000d8 0220            andi.b #127,-(a0) 
+  100  000d8 0220            andi.b #$7f,-(a0) 
   101  000dc 205f            movea.l (sp)+,a0   
   102  000de c389            exg    d1,a1      
   103  000e0 4e75            rts               

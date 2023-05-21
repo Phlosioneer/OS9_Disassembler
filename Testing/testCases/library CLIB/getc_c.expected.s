@@ -18,7 +18,7 @@ L0001e move.l (a2),d0
  addq.l #1,(a2)
  move.b (a0),d0
  ext.w d0
- andi.w #255,d0
+ andi.w #$00ff,d0
  ext.l d0
  bra.s L0003c
 L00036 move.l a2,d0
@@ -75,7 +75,7 @@ L000ba link.w a5,#0
  movea.l d0,a2
  move.w 12(a2),d0
  ext.l d0
- andi.l #32817,d0
+ andi.l #$00008031,d0
  cmpi.l #32769,d0
  beq.s L000ec
  moveq #49,d0
@@ -134,7 +134,7 @@ L00168 move.l 4(a2),d0
  movea.l 4(a2),a0
  move.b (a0),d0
  ext.w d0
- andi.w #255,d0
+ andi.w #$00ff,d0
  ext.l d0
 L00188 movem.l -16(a5),a0/a2/d1/d4
  unlk a5

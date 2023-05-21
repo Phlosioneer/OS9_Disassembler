@@ -178,7 +178,7 @@ L001e8 movem.l (sp)+,a0-a3/d0-d1
  subq.l #4,(sp)
  rts 
  dc.w $4afb
- ori.w #10794,(a0)
+ ori.w #$2a2a,(a0)
 L001f6 equ *-2
  move.l 8275(a2),d5
  moveq #97,d2
@@ -207,9 +207,9 @@ L00210 move.l 10794(a2),d5
  btst.l d6,d0
 L00236 move.l 10794(a2),d0
  move.l -(a0),d5
- ori.w #24948,26624(a5)
+ ori.w #$6174,26624(a5)
 L0023d equ *-5
- ori.b #0,d0
+ ori.b #$00,d0
  move.l #64,d1
 L0024c move.l a0,-(sp)
  lea L00210(pc),a0

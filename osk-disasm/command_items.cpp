@@ -524,7 +524,11 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             switch (size)
             {
             case OperandSize::Byte:
-                if ((ext1 < -128) || (ext1 > 0xff))
+                // We read a word, so byte values should never be negative at this stage
+                // (even if they should be interpreted as a signed value later).
+                // Even though it's not allowed by the standard, assemblers don't
+                // respect that and output 0xFF for negative numbers.
+                if ((ext1 < CHAR_MIN) || (ext1 > 0xff))
                 {
                     ungetnext_w(ci, state);
                     return 0;
@@ -532,12 +536,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
 
                 break;
             case OperandSize::Word:
-                if ((ext1 < -32768) || (ext1 > 0xffff))
-                {
-                    ungetnext_w(ci, state);
-                    return 0;
-                }
-
+                // We read exactly 2 bytes, there's no need to check anything.
                 break;
             case OperandSize::Long:
                 if (!hasnext_w(state)) return 0;

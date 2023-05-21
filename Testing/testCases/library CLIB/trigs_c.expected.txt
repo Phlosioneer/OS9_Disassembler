@@ -4,7 +4,7 @@
     3  00004 86a1            or.l   -(a1),d3   
     4  00006 2b9c            dc.w   $2b9c      
     5  00008 3fe0            dc.w   $3fe0      
-    6  0000a 0000            ori.b  #0,d0      
+    6  0000a 0000            ori.b  #$00,d0    
     7  0000e 0000            dc.w   $0         
     8  00010 48e7 sin:       movem.l d2-d3,-(sp) 
     9  00014 4cfa            movem.l L00000(pc),d2-d3 

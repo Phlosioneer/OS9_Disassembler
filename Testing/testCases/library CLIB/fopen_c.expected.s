@@ -33,7 +33,7 @@ L00052 move.l a3,d0
  beq.s L0006c
  cmpi.b #43,2(a2)
  bne.s L00074
-L0006c ori.w #3,12(a3)
+L0006c ori.w #$0003,12(a3)
  bra.s L0008a
 L00074 cmpi.b #114,(a2)
  beq.s L00080

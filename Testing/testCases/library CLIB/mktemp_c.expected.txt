@@ -12,7 +12,7 @@
    11  0001a 2005 L0001a     move.l d5,d0      
    12  0001c 720a            moveq  #10,d1     
    13  0001e 6100            bsr.w  _T$LMod    
-   14  00022 0600            addi.b #48,d0     
+   14  00022 0600            addi.b #$30,d0    
    15  00026 1480            move.b d0,(a2)    
    16  00028 720a            moveq  #10,d1     
    17  0002a 2005            move.l d5,d0      

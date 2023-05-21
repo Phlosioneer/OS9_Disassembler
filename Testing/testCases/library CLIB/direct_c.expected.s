@@ -116,19 +116,19 @@ L0013a moveq #12,d0
  movea.l d0,a3
  move.b 29(sp),d0
  ext.w d0
- andi.w #255,d0
+ andi.w #$00ff,d0
  ext.l d0
  moveq #16,d1
  lsl.l d1,d0
  move.b 30(sp),d1
  ext.w d1
- andi.w #255,d1
+ andi.w #$00ff,d1
  ext.l d1
  lsl.l #8,d1
  or.l d1,d0
  move.b 31(sp),d1
  ext.w d1
- andi.w #255,d1
+ andi.w #$00ff,d1
  ext.l d1
  or.l d1,d0
  move.l d0,(a3)
@@ -190,7 +190,7 @@ L0020a link.w a5,#0
 L00218 move.b (a3)+,d0
  move.b d0,(a4)+
  bgt.s L00218
- andi.b #127,-1(a4)
+ andi.b #$7f,-1(a4)
  clr.b (a4)
  move.l a2,d0
  movem.l -12(a5),a2-a4

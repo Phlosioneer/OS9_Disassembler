@@ -12,7 +12,7 @@ L00012 tst.b (a2)+
 L0001a move.l d5,d0
  moveq #10,d1
  bsr.w _T$LMod
- addi.b #48,d0
+ addi.b #$30,d0
  move.b d0,(a2)
  moveq #10,d1
  move.l d5,d0

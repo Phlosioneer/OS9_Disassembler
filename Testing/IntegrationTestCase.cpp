@@ -15,6 +15,8 @@
 
 #include "util.h"
 
+#define REGEN_TEST_CASES false
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 // Tests are run from "$(SolutionDir)/x64/Debug".
@@ -127,7 +129,7 @@ void IntegrationTestCase::run()
 	// Scoped to auto-close the ifstream.
 	{
 		std::ifstream expectedStdOutputFile(expectedStdOutputFilePath);
-		if (expectedStdOutputFile.good())
+		if (expectedStdOutputFile.good() && !REGEN_TEST_CASES)
 		{
 			//Logger::WriteMessage(temp2.c_str());
 			std::istringstream actualStdOut(standardOutputString);
@@ -148,7 +150,7 @@ void IntegrationTestCase::run()
 	// Scoped to auto-close the ifstream.
 	{
 		std::ifstream expectedAsmOutputFile(expectedAsmOutputFilePath);
-		if (expectedAsmOutputFile.good())
+		if (expectedAsmOutputFile.good() && !REGEN_TEST_CASES)
 		{
 			//Logger::WriteMessage(temp1.c_str());
 			std::istringstream actualOutputFile(asmOutputString);

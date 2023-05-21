@@ -98,6 +98,10 @@ constexpr uint8_t getIndexUnchecked(Register reg);
 char getOperandSizeLetter(OperandSize size);
 const char* getOperandSizeSuffix(OperandSize size);
 uint8_t getOperandSizeInBytes(OperandSize size);
+// Excess bytes are filled with 0
+uint32_t truncateUnsignedToOperandSize(OperandSize size, uint32_t value);
+// Excess bytes are sign-extended
+int32_t truncateSignedToOperandSize(OperandSize size, int32_t value);
 
 class RegisterSet
 {

@@ -198,14 +198,14 @@
   195  001b8 4efb            jmp    L001ba(pc,d0.w) 
   196  001ba 0000 L001ba     equ    *-2        
   197  001bc ffba            dc.w   $ffba      
-  198  001be 0022            ori.b  #34,-(a2)  
+  198  001be 0022            ori.b  #$22,-(a2) 
   199  001c2 ffda            dc.w   $ffda      
-  200  001c4 0022            ori.b  #34,-(a2)  
-  201  001c8 0022            ori.b  #34,-(a2)  
-  202  001cc 0022            ori.b  #34,-(a2)  
-  203  001d0 0022            ori.b  #-54,-(a2) 
-  204  001d4 0022            ori.b  #-62,-(a2) 
-  205  001d8 0022            ori.b  #34,-(a2)  
+  200  001c4 0022            ori.b  #$22,-(a2) 
+  201  001c8 0022            ori.b  #$22,-(a2) 
+  202  001cc 0022            ori.b  #$22,-(a2) 
+  203  001d0 0022            ori.b  #$ca,-(a2) 
+  204  001d4 0022            ori.b  #$c2,-(a2) 
+  205  001d8 0022            ori.b  #$22,-(a2) 
   206  001dc ffd2            dc.w   $ffd2      
   207  001de 702a L001de     moveq  #42,d0     
   208  001e0 b085            cmp.l  d5,d0      
@@ -575,7 +575,7 @@
   572  005e4 45ee L005e4     lea    D00218(a6),a2 
   573  005e8 7007 L005e8     moveq  #7,d0      
   574  005ea c004            and.b  d4,d0      
-  575  005ec 0600            addi.b #48,d0     
+  575  005ec 0600            addi.b #$30,d0    
   576  005f0 14c0            move.b d0,(a2)+   
   577  005f2 e68c            lsr.l  #3,d4      
   578  005f4 66f2            bne.s  L005e8     
@@ -646,7 +646,7 @@
   643  006bc 2004 L006bc     move.l d4,d0      
   644  006be 720a            moveq  #10,d1     
   645  006c0 6100            bsr.w  _T$UMod    
-  646  006c4 0600            addi.b #48,d0     
+  646  006c4 0600            addi.b #$30,d0    
   647  006c8 16c0            move.b d0,(a3)+   
   648  006ca 720a            moveq  #10,d1     
   649  006cc 2004            move.l d4,d0      
@@ -749,7 +749,7 @@
   746  007f6 2004            move.l d4,d0      
   747  007f8 7264            moveq  #100,d1    
   748  007fa 6100            bsr.w  _T$LDiv    
-  749  007fe 0600            addi.b #48,d0     
+  749  007fe 0600            addi.b #$30,d0    
   750  00802 14c0            move.b d0,(a2)+   
   751  00804 7264            moveq  #100,d1    
   752  00806 2004            move.l d4,d0      
@@ -758,12 +758,12 @@
   755  0080e 2004 L0080e     move.l d4,d0      
   756  00810 720a            moveq  #10,d1     
   757  00812 6100            bsr.w  _T$LDiv    
-  758  00816 0600            addi.b #48,d0     
+  758  00816 0600            addi.b #$30,d0    
   759  0081a 14c0            move.b d0,(a2)+   
   760  0081c 2004            move.l d4,d0      
   761  0081e 720a            moveq  #10,d1     
   762  00820 6100            bsr.w  _T$LMod    
-  763  00824 0600            addi.b #48,d0     
+  763  00824 0600            addi.b #$30,d0    
   764  00828 14c0            move.b d0,(a2)+   
   765  0082a 200a            move.l a2,d0      
   766  0082c 4ced            movem.l -8(a5),a2/d4 

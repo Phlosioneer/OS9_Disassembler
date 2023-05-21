@@ -21,7 +21,7 @@ L00032 move.w 12(a2),d0
  beq.s L00060
  move.l a2,d0
  bsr.w fflush
- andi.w #-257,12(a2)
+ andi.w #$feff,12(a2)
  move.l 4(a2),d0
  move.w 18(a2),d1
  ext.l d1
@@ -55,7 +55,7 @@ L00080 move.w 18(a2),d1
  cmpa.l 8(a2),a3
  bcc.s L000b6
  move.l a3,(a2)
- andi.w #-17,12(a2)
+ andi.w #$ffef,12(a2)
  bra.s L000ec
 L000a6 move.l 36(sp),d0
  tst.l d0
@@ -69,7 +69,7 @@ L000b6 moveq #1,d0
  sub.l (a2),d0
  sub.l d0,d4
 L000c6 move.l 8(a2),(a2)
-L000ca andi.w #-17,12(a2)
+L000ca andi.w #$ffef,12(a2)
  move.l 36(sp),-(sp)
  move.l d4,d1
  movea.w 14(a2),a0

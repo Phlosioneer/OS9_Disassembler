@@ -84,7 +84,7 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t regCode = (ci->cmd_wrd) & 7;
-    
+
     OperandSize sizeOp;
     switch (size)
     {
@@ -101,15 +101,15 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
         return 0;
     }
 
-    if (mode == 1)
+    if (mode == DirectAddrReg)
     {
         return 0;
     }
 
-    if (mode == 7)
+    if (mode == Special)
     {
         /* Note: for "cmpi"(0x0cxx), 68020-up allow all codes < 4 */
-        if (regCode > 1)
+        if (regCode != AbsoluteWord && regCode != AbsoluteLong)
         {
             return 0;
         }
@@ -120,11 +120,11 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     {
         space = &LITERAL_DEC_SPACE;
     }
-    
+
     /* The source here is always immediate, but go through
      * get_eff_addr to get the label, if needed
      */
-    ci->source = get_eff_addr(ci, (uint8_t)Special, (uint8_t)ImmediateData, sizeOp, state);
+    ci->source = get_eff_addr(ci, (uint8_t)Special, (uint8_t)ImmediateData, sizeOp, state, space);
     if (!ci->source) return 0;
 
     ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state);
@@ -137,39 +137,39 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
 int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int ext0, mode, reg;
-    char ea[30];
+    ci->useNewParams = true;
 
-    mode = (ci->cmd_wrd >> 3) & 7;
-    reg = ci->cmd_wrd & 7;
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t regCode = ci->cmd_wrd & 7;
 
-    if (mode == 1) return 0;
+    if (mode == DirectAddrReg) return 0;
     if (!hasnext_w(state)) return 0;
-    ext0 = getnext_w(ci, state);
+    uint16_t ext1 = getnext_w(ci, state);
 
-    /* The MS byte must be zero */
-    if (ext0 & 0xff00)
+    // Also the bit number has limits: 32 for D registers, 8 for all other modes.
+    if (mode == DirectDataReg && ext1 > 32)
+    {
+        ungetnext_w(ci, state);
+        return 0;
+    }
+    else if (mode != DirectDataReg && ext1 > 8)
     {
         ungetnext_w(ci, state);
         return 0;
     }
 
-    /* Also the bt number has limits */
-    if (((mode > 1) && (ext0 > 7)) || ext0 > 0x1f)
-    {
-        ungetnext_w(ci, state);
-        return 0;
-    }
+    OperandSize sizeOp = mode == DirectDataReg ? OperandSize::Long : OperandSize::Byte;
 
-    if (get_eff_addr(ci, ea, mode, reg, (ext0 > 7) ? SIZ_LONG : SIZ_BYTE, state))
-    {
-        sprintf(ci->params, "#%d,%s", ext0, ea);
-        strcpy(ci->mnem, op->name);
-        strcat(ci->mnem, (mode == 0) ? "l" : "b");
-        return 1;
-    }
+    // The literal only makes sense as a decimal number.
+    ci->setSource(LiteralParam(FormattedNumber(ext1, OperandSize::Byte, &LITERAL_DEC_SPACE)));
 
-    return 0;
+    // Any literals tested should be hexadecimal.
+    ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state, &LITERAL_HEX_SPACE);
+    if (!ci->dest) return 0;
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+    strcpy(ci->mnem, mnem.c_str());
+    return 1;
 }
 
 int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -249,8 +249,8 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     if (!ci->source) return 0;
     ci->dest = get_eff_addr(ci, d_mode, d_reg, size, state);
     if (!ci->dest) return 0;
-    
-    //sprintf(ci->params, "%s,%s", src_ea, dst_ea);
+
+    // sprintf(ci->params, "%s,%s", src_ea, dst_ea);
 
     bool addressDest = d_mode == 1;
     if (addressDest)

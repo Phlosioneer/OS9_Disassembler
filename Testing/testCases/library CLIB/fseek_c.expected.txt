@@ -21,7 +21,7 @@
    20  0003c 6722            beq.s  L00060     
    21  0003e 200a            move.l a2,d0      
    22  00040 6100            bsr.w  fflush     
-   23  00044 026a            andi.w #-257,12(a2) 
+   23  00044 026a            andi.w #$feff,12(a2) 
    24  0004a 202a            move.l 4(a2),d0   
    25  0004e 322a            move.w 18(a2),d1  
    26  00052 48c1            ext.l  d1         
@@ -55,7 +55,7 @@
    54  00096 b7ea            cmpa.l 8(a2),a3   
    55  0009a 641a            bcc.s  L000b6     
    56  0009c 248b            move.l a3,(a2)    
-   57  0009e 026a            andi.w #-17,12(a2) 
+   57  0009e 026a            andi.w #$ffef,12(a2) 
    58  000a4 6046            bra.s  L000ec     
    59  000a6 202f L000a6     move.l 36(sp),d0  
    60  000aa 4a80            tst.l  d0         
@@ -69,7 +69,7 @@
    68  000c2 9092            sub.l  (a2),d0    
    69  000c4 9880            sub.l  d0,d4      
    70  000c6 24aa L000c6     move.l 8(a2),(a2) 
-   71  000ca 026a L000ca     andi.w #-17,12(a2) 
+   71  000ca 026a L000ca     andi.w #$ffef,12(a2) 
    72  000d0 2f2f            move.l 36(sp),-(sp) 
    73  000d4 2204            move.l d4,d1      
    74  000d6 306a            movea.w 14(a2),a0  

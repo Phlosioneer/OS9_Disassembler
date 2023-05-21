@@ -7,7 +7,7 @@ toupper: link.w a5,#0
  ext.w d1
  btst.l #2,d1
  beq.s L00022
- andi.l #223,d0
+ andi.l #$000000df,d0
  bra.s L00024
 L00022 move.l (sp),d0
 L00024 movem.l -8(a5),a0/d1

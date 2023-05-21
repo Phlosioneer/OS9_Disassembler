@@ -4,7 +4,7 @@ L00000 move.w d6,-(a6)
  or.l -(a1),d3
  dc.w $2b9c
  dc.w $3fe0
- ori.b #0,d0
+ ori.b #$00,d0
  dc.w $0
 sin: movem.l d2-d3,-(sp)
  movem.l L00000(pc),d2-d3

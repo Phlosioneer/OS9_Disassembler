@@ -34,7 +34,7 @@ _T$LDiv: move.l d2,-(sp)
 L00044 tst.l d1
  bpl.s L0004e
  neg.l d1
- eori.b #1,d2
+ eori.b #$01,d2
 L0004e bsr.s _T$UDiv
  lsr.b #1,d2
  bcc.s L00056

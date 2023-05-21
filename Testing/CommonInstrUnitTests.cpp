@@ -147,14 +147,27 @@ namespace UnitTests
 			subtestName = L"ORI.b";
 			pushWord(ORI | SIZE(0) | EA_MODE(0) | 4);
 			pushWord(0x45);
-			//runTest("ori.b", "#$45,d4");
-			runTest("ori.b", "#69,d4");
+			runTest("ori.b", "#$45,d4");
 
 			subtestName = L"ANDI.w";
 			pushWord(ANDI | SIZE(1) | EA_MODE(2) | 5);
 			pushWord(0x22b0);
-			//runTest("andi.w", "#$22b0,(a5)");
-			runTest("andi.w", "#8880,(a5)");
+			runTest("andi.w", "#$22b0,(a5)");
+
+			subtestName = L"Negative byte sized values are printed correctly";
+			pushWord(ORI | SIZE(0) | EA_MODE(0) | 0);
+			pushWord(0xFF);
+			runTest("ori.b", "#$ff,d0");
+
+			subtestName = L"Invalid byte values are ignored";
+			pushWord(ORI | SIZE(0) | EA_MODE(0) | 0);
+			pushWord(0x01FF);
+			runFailTest();
+
+			subtestName = L"Non-spec negative byte values are allowed";
+			pushWord(ORI | SIZE(0) | EA_MODE(0) | 0);
+			pushWord(0xFFFF);
+			runTest("ori.b", "#$ff,d0");
 
 			// Other stuff is dependent on size
 
@@ -162,7 +175,6 @@ namespace UnitTests
 			pushWord(SUBI | SIZE(2) | EA_MODE(0) | 0);
 			pushWord(0xdead);
 			pushWord(0xbeef);
-			//runTest("subi.l", "#$deadbeef,d0");
 			runTest("subi.l", "#-559038737,d0");
 
 			subtestName = L"CMPI.b";
@@ -177,8 +189,7 @@ namespace UnitTests
 			pushWord(0x31);
 			pushWord(88);
 			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
-			//runTest("ori.w", "#$31,hello(a6)");
-			runTest("ori.w", "#49,hello(a6)");
+			runTest("ori.w", "#$0031,hello(a6)");
 			labelManager->clear();
 
 			// TODO: ANDI external-ref constant

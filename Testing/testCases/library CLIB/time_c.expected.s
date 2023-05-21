@@ -446,7 +446,7 @@ L00444 movea.l 4(sp),a0
  move.l d4,d0
  move.l #86400,d1
  bsr.w _T$LDiv
- addi.l #2440587,d0
+ addi.l #$00253d8b,d0
  move.l d0,(sp)
  move.l (sp),d0
  addq.l #2,d0
@@ -577,7 +577,7 @@ L005d6 movea.l (sp),a0
  bsr.w strcmp
  tst.l d0
  beq.s L005f4
- addi.l #12,(sp)
+ addi.l #$0000000c,(sp)
 L005ee movea.l (sp),a0
  tst.l (a0)
  bne.s L005d6
@@ -904,7 +904,7 @@ L00978 dc.w $474d
 L0097c subq.w #2,(a4)
  dc.w $4300
 L00980 addq.w #2,(a2)+
- ori.w #29537,101(a5,d0.w)
+ ori.w #$7361,101(a5,d0.w)
 L00983 equ *-5
 L00987 equ *-1
  dc.w $7572

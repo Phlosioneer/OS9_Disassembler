@@ -196,14 +196,14 @@ L0019c move.b (a3)+,d0
  jmp L001ba(pc,d0.w)
 L001ba equ *-2
  dc.w $ffba
- ori.b #34,-(a2)
+ ori.b #$22,-(a2)
  dc.w $ffda
- ori.b #34,-(a2)
- ori.b #34,-(a2)
- ori.b #34,-(a2)
- ori.b #-54,-(a2)
- ori.b #-62,-(a2)
- ori.b #34,-(a2)
+ ori.b #$22,-(a2)
+ ori.b #$22,-(a2)
+ ori.b #$22,-(a2)
+ ori.b #$ca,-(a2)
+ ori.b #$c2,-(a2)
+ ori.b #$22,-(a2)
  dc.w $ffd2
 L001de moveq #42,d0
  cmp.l d5,d0
@@ -573,7 +573,7 @@ L005be link.w a5,#0
 L005e4 lea D00218(a6),a2
 L005e8 moveq #7,d0
  and.b d4,d0
- addi.b #48,d0
+ addi.b #$30,d0
  move.b d0,(a2)+
  lsr.l #3,d4
  bne.s L005e8
@@ -644,7 +644,7 @@ L006a2 link.w a5,#0
 L006bc move.l d4,d0
  moveq #10,d1
  bsr.w _T$UMod
- addi.b #48,d0
+ addi.b #$30,d0
  move.b d0,(a3)+
  moveq #10,d1
  move.l d4,d0
@@ -747,7 +747,7 @@ L007f0 moveq #99,d0
  move.l d4,d0
  moveq #100,d1
  bsr.w _T$LDiv
- addi.b #48,d0
+ addi.b #$30,d0
  move.b d0,(a2)+
  moveq #100,d1
  move.l d4,d0
@@ -756,12 +756,12 @@ L007f0 moveq #99,d0
 L0080e move.l d4,d0
  moveq #10,d1
  bsr.w _T$LDiv
- addi.b #48,d0
+ addi.b #$30,d0
  move.b d0,(a2)+
  move.l d4,d0
  moveq #10,d1
  bsr.w _T$LMod
- addi.b #48,d0
+ addi.b #$30,d0
  move.b d0,(a2)+
  move.l a2,d0
  movem.l -8(a5),a2/d4

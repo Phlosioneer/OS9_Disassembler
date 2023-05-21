@@ -5,7 +5,7 @@ L00001 equ *-3
  movea.l d1,a2
  move.w 12(a2),d0
  ext.l d0
- andi.l #32802,d0
+ andi.l #$00008022,d0
  cmpi.l #32770,d0
  beq.s L00032
  moveq #34,d0

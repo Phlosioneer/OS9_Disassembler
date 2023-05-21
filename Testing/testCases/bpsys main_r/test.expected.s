@@ -36,7 +36,7 @@ credits: dc.w $4d2e
  moveq #101,d2
 L0004e moveq #0,d1
  dc.w $8
- ori.b #98,104(a2,d0.w)
+ ori.b #$62,104(a2,d0.w)
 init: lea state(pc),a3
 L0005a equ *-2
  cmpi.w #-16657,2(a3)

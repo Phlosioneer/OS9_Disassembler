@@ -98,7 +98,7 @@ strhcpy: move.l a0,-(sp)
 L000d2 move.b (a1)+,(a0)+
  bpl.s L000d2
  clr.b (a0)
- andi.b #127,-(a0)
+ andi.b #$7f,-(a0)
  movea.l (sp)+,a0
  exg d1,a1
  rts 

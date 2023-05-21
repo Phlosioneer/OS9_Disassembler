@@ -224,28 +224,28 @@ L00284 equ *-2
  dc.w $ff60
  dc.w $ff60
  dc.w $ff60
- ori.l #11534512,-80(a0,d0.w)
- ori.l #11534512,-80(a0,d0.w)
+ ori.l #$00b000b0,-80(a0,d0.w)
+ ori.l #$00b000b0,-80(a0,d0.w)
  dc.w $ff60
- ori.l #11534512,-80(a0,d0.w)
- ori.l #11534512,-80(a0,d0.w)
+ ori.l #$00b000b0,-80(a0,d0.w)
+ ori.l #$00b000b0,-80(a0,d0.w)
  dc.w $ff60
- ori.l #11599774,-80(a0,d0.w)
- ori.l #11534512,-80(a0,d0.w)
+ ori.l #$00b0ff9e,-80(a0,d0.w)
+ ori.l #$00b000b0,-80(a0,d0.w)
  dc.w $b0
  dc.w $b0
  dc.w $ffa6
  dc.w $ff72
  dc.w $ff72
  dc.w $ff72
- ori.l #-13762384,-80(a0,d0.w)
- ori.l #-17301328,-80(a0,d0.w)
+ ori.l #$ff2e00b0,-80(a0,d0.w)
+ ori.l #$fef800b0,-80(a0,d0.w)
  dc.w $ff72
  dc.w $b0
- ori.l #11599782,-80(a0,d0.w)
+ ori.l #$00b0ffa6,-80(a0,d0.w)
  dc.w $b0
  dc.w $b0
- ori.l #-9286993,8(a0,d0.w)
+ ori.l #$ff724aaf,8(a0,d0.w)
 L002f0 equ *-4
  beq.s L002fc
  tst.l d5
@@ -684,7 +684,7 @@ L0079a moveq #0,d4
 L0079e tst.l d5
  beq.s L007ae
  lea D00000(a6),a0
- andi.b #-3,(a0,d4.l)
+ andi.b #$fd,(a0,d4.l)
  bra.s L007b8
 L007ae lea D00000(a6),a0
  bset.b #1,(a0,d4.l)
@@ -702,7 +702,7 @@ L007c4 tst.l d5
 L007d8 move.l d4,d0
  addq.l #1,d4
  lea D00000(a6),a0
- andi.b #-3,(a0,d0.l)
+ andi.b #$fd,(a0,d0.l)
 L007e6 tst.l d4
  bne.s L007ee
  subq.l #1,a2

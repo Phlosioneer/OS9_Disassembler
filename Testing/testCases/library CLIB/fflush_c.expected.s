@@ -157,8 +157,8 @@ L001ce move.w 12(a2),d0
  beq.s L001e8
  move.l 4(a2),d0
  bsr.w free
- andi.w #-513,12(a2)
-L001e8 andi.w #-269,12(a2)
+ andi.w #$fdff,12(a2)
+L001e8 andi.w #$fef3,12(a2)
  move.l 4(sp),4(a2)
  beq.s L0020a
  bset.b #3,13(a2)

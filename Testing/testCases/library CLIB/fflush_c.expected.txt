@@ -157,8 +157,8 @@
   156  001d8 670e            beq.s  L001e8     
   157  001da 202a            move.l 4(a2),d0   
   158  001de 6100            bsr.w  free       
-  159  001e2 026a            andi.w #-513,12(a2) 
-  160  001e8 026a L001e8     andi.w #-269,12(a2) 
+  159  001e2 026a            andi.w #$fdff,12(a2) 
+  160  001e8 026a L001e8     andi.w #$fef3,12(a2) 
   161  001ee 256f            move.l 4(sp),4(a2) 
   162  001f4 6714            beq.s  L0020a     
   163  001f6 08ea            bset.b #3,13(a2)  

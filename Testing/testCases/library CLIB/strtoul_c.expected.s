@@ -132,11 +132,11 @@ L00146 move.b (a2),d0
  lea _chcodes(a6),a0
  move.b (a0,d0.l),d0
  ext.w d0
- andi.w #6,d0
+ andi.w #$0006,d0
  beq.s L00170
  move.b (a2),d0
  ext.w d0
- andi.w #223,d0
+ andi.w #$00df,d0
  ext.l d0
  moveq #55,d1
  sub.l d1,d0
