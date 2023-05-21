@@ -18001,7 +18001,7 @@ L0d13c addq.w #1,908(a2)
 L0d14c move.w 908(a2),d0
  ext.l d0
  divs.w #10,d0
- swap.w d0
+ swap d0
  tst.w d0
  bne.s L0d178
  pea (L00002).w
@@ -20072,7 +20072,7 @@ L0ed8e link.w a5,#0
  move.w 6(sp),d0
  ext.l d0
  divs.w #2,d0
- swap.w d0
+ swap d0
  tst.w d0
  beq.s L0edbe
  addq.w #1,6(sp)
@@ -20232,7 +20232,7 @@ L0ef52 link.w a5,#0
  move.w 4(sp),d0
  ext.l d0
  divs.w #2,d0
- swap.w d0
+ swap d0
  tst.w d0
  beq.s L0ef80
  addq.w #1,4(sp)
@@ -32790,12 +32790,12 @@ L18a92 btst.b #7,-1(a0)
  bset.l #31,d0
  bra.w L18a46
 L18aa4 move.b d6,d5
- swap.w d3
+ swap d3
  move.b #255,d3
  sub.b d4,d5
  lsl.b d4,d3
  and.b d3,(a1)+
- swap.w d3
+ swap d3
  moveq #8,d4
  sub.b d5,d4
  lsl.b d4,d3
@@ -32954,13 +32954,13 @@ L18c16 move.b (a0),d3
  moveq #8,d4
  sub.b d5,d4
 L18c28 lsr.b d4,d3
- swap.w d7
+ swap d7
  move.b #8,d7
  sub.b d5,d7
  moveq #255,d5
  lsr.b d7,d5
  and.b d5,d3
- swap.w d7
+ swap d7
 L18c3a or.b d3,d0
  bclr.b #7,-1(a1)
  bra.s L18c4e
@@ -33887,12 +33887,12 @@ L19754 move.l d5,d0
 L1975e movem.l -20(a5),a2-a3/d4-d6
  unlk a5
  rts 
-L19768 swap.w d0
+L19768 swap d0
  move.b #8,d0
  sub.b d1,d0
  moveq #255,d1
  lsr.b d0,d1
- swap.w d0
+ swap d0
  lsl.b d0,d1
  moveq #0,d0
  move.b d1,d0
@@ -35454,7 +35454,7 @@ L1a9de movem.l d2,-(sp)
  move.w #16914,d2
  os9 I$SetStt
  clr.w d0
- swap.w d0
+ swap d0
  movem.l (sp)+,d2
  rts 
 L1a9fa link.w a5,#0
@@ -35576,7 +35576,7 @@ L1ab14 link.w a5,#0
  lsl.l #8,d4
  or.w d1,d4
  move.w d4,d1
- swap.w d4
+ swap d4
  or.l d1,d4
  bra.w L1ab36
 L1ab32 move.b d4,(a2)+
@@ -36489,7 +36489,7 @@ L1b504 movem.l a0/d1-d7,-(sp)
  move.w d1,d0
  ext.l d0
  move.l d0,(a0)
- swap.w d1
+ swap d1
  ext.l d1
  movea.l 16(sp),a0
  clr.l (a0)
@@ -36503,7 +36503,7 @@ L1b546 move.l d1,D0000c(a6)
 L1b54e movem.l d1-d3,-(sp)
  moveq #3,d2
 L1b554 move.w d1,d3
- swap.w d3
+ swap d3
  move.w 18(sp),d3
  move.w #89,d1
  os9 I$SetStt
@@ -36523,7 +36523,7 @@ L1b56e move.l d1,D0000c(a6)
 L1b586 movem.l d1-d3,-(sp)
  moveq #0,d2
 L1b58c move.w d1,d3
- swap.w d3
+ swap d3
  move.w 18(sp),d3
  bra.s L1b5ae
 L1b596 movem.l d1-d3,-(sp)
@@ -36546,10 +36546,10 @@ L1b5c0 move.l d1,D0000c(a6)
  bra.s L1b5ba
  movem.l a0/d1-d5,-(sp)
  move.w d1,d3
- swap.w d3
+ swap d3
  move.w 30(sp),d3
  move.w 34(sp),d4
- swap.w d4
+ swap d4
  move.w 38(sp),d4
  move.w 42(sp),d5
  movea.l 44(sp),a0
@@ -38461,7 +38461,7 @@ L1c9c6 btst.l #1,d0
  move.w d1,(a0)+
  subq.l #2,d2
 L1c9d0 move.w d1,d0
- swap.w d1
+ swap d1
  move.w d0,d1
  moveq #96,d0
  cmp.l d0,d2
@@ -38508,24 +38508,24 @@ L1ca36 movem.l -12(a5),a0/d0/d2
 L1ca40 movem.l d2-d4,-(sp)
  move.l d0,d2
  move.l d0,d3
- swap.w d3
+ swap d3
  move.l d1,d4
- swap.w d4
+ swap d4
  mulu.w d1,d0
  mulu.w d3,d1
  mulu.w d4,d2
  mulu.w d4,d3
- swap.w d0
+ swap d0
  add.w d1,d0
  moveq #0,d4
  addx.l d4,d3
  add.w d2,d0
  addx.l d4,d3
- swap.w d0
+ swap d0
  clr.w d1
- swap.w d1
+ swap d1
  clr.w d2
- swap.w d2
+ swap d2
  add.l d2,d1
  add.l d3,d1
  tst.l d0
@@ -39287,13 +39287,13 @@ L1d350 moveq #255,d0
  moveq #0,d1
  move.b (a0),d1
  add.w #1900,d1
- swap.w d1
+ swap d1
  move.b 1(a0),d1
  asl.w #8,d1
  move.b 2(a0),d1
  moveq #0,d0
  move.b 3(a0),d0
- swap.w d0
+ swap d0
  move.b 4(a0),d0
  asl.w #8,d0
  move.b 5(a0),d0
@@ -39308,17 +39308,17 @@ L1d350 moveq #255,d0
  os9 F$Time
  bcs.s L1d3d4
  move.l a0,d2
- swap.w d1
+ swap d1
  sub.w #1900,d1
  move.b d1,(a0)+
- swap.w d1
+ swap d1
  rol.w #8,d1
  move.b d1,(a0)+
  rol.w #8,d1
  move.b d1,(a0)+
- swap.w d0
+ swap d0
  move.b d0,(a0)+
- swap.w d0
+ swap d0
  rol.w #8,d0
  move.b d0,(a0)+
  rol.w #8,d0
@@ -39406,7 +39406,7 @@ L1d4b8 movea.l d0,a0
  move.l d1,d2
  movea.l 8(a5),a1
  move.w 18(a5),d0
- swap.w d0
+ swap d0
  move.w 14(a5),d0
  move.l 20(a5),d1
  moveq #3,d3

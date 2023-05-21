@@ -90,7 +90,7 @@ _ss_wtrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movem.l a1/d3-d4,-(sp)
  move.l d1,d2
- moveq #SS_WTrk,d1
+ moveq SS_WTrk,d1
  movem.l 8(a5),a0-a1/d3-d4
  os9 I$SetStt
  movem.l (sp)+,a1/d3-d4

@@ -2,24 +2,24 @@
 _T$UMul: movem.l d2-d4,-(sp)
  move.l d0,d2
  move.l d0,d3
- swap.w d3
+ swap d3
  move.l d1,d4
- swap.w d4
+ swap d4
  mulu.w d1,d0
  mulu.w d3,d1
  mulu.w d4,d2
  mulu.w d4,d3
- swap.w d0
+ swap d0
  add.w d1,d0
  moveq #0,d4
  addx.l d4,d3
  add.w d2,d0
  addx.l d4,d3
- swap.w d0
+ swap d0
  clr.w d1
- swap.w d1
+ swap d1
  clr.w d2
- swap.w d2
+ swap d2
  add.l d2,d1
  add.l d3,d1
  tst.l d0

@@ -2,24 +2,24 @@
     1  00000 48e7 _T$UMul:   movem.l d2-d4,-(sp) 
     2  00004 2400            move.l d0,d2      
     3  00006 2600            move.l d0,d3      
-    4  00008 4843            swap.w d3         
+    4  00008 4843            swap   d3         
     5  0000a 2801            move.l d1,d4      
-    6  0000c 4844            swap.w d4         
+    6  0000c 4844            swap   d4         
     7  0000e c0c1            mulu.w d1,d0      
     8  00010 c2c3            mulu.w d3,d1      
     9  00012 c4c4            mulu.w d4,d2      
    10  00014 c6c4            mulu.w d4,d3      
-   11  00016 4840            swap.w d0         
+   11  00016 4840            swap   d0         
    12  00018 d041            add.w  d1,d0      
    13  0001a 7800            moveq  #0,d4      
    14  0001c d784            addx.l d4,d3      
    15  0001e d042            add.w  d2,d0      
    16  00020 d784            addx.l d4,d3      
-   17  00022 4840            swap.w d0         
+   17  00022 4840            swap   d0         
    18  00024 4241            clr.w  d1         
-   19  00026 4841            swap.w d1         
+   19  00026 4841            swap   d1         
    20  00028 4242            clr.w  d2         
-   21  0002a 4842            swap.w d2         
+   21  0002a 4842            swap   d2         
    22  0002c d282            add.l  d2,d1      
    23  0002e d283            add.l  d3,d1      
    24  00030 4a80            tst.l  d0         

@@ -17,6 +17,8 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
 int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int bra_bsr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_no_opcode(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);

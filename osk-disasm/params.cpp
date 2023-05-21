@@ -11,10 +11,12 @@
 
 #pragma region Registers
 
-const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp", "pc", "d0",
-                               "d1", "d2", "d3", "d4", "d5", "d6", "d7", "ccr", "sr"};
+const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp",  "pc", "d0",
+                               "d1", "d2", "d3", "d4", "d5", "d6", "d7", "ccr", "sr", "usp"};
 const char sizeLetters[] = {'b', 'w', 'l'};
 const char* sizeSuffixes[] = {".b", ".w", ".l"};
+
+static_assert(_countof(registerNames) == Registers::MAX_ID + 1, "Some registers are missing names");
 
 namespace Registers
 {
@@ -22,7 +24,7 @@ namespace Registers
 const char* getName(Register reg)
 {
     auto regNumber = static_cast<size_t>(reg);
-    if (regNumber >= _countof(registerNames)) throw std::exception();
+    if (regNumber >= _countof(registerNames)) throw std::runtime_error("");
     return registerNames[regNumber];
 }
 
@@ -40,7 +42,7 @@ constexpr Register makeAReg(unsigned int id)
 
 constexpr Register fromId(unsigned int id)
 {
-    if (id > getId(Register::SR)) throw std::exception();
+    if (id > MAX_ID) throw std::exception();
     return fromIdUnchecked(id);
 }
 
@@ -311,8 +313,7 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
     if (*self.labelSpace == LITERAL_HEX_SPACE)
     {
         uint32_t trunc = truncateUnsignedToOperandSize(self.size, self.number);
-        os << '$'
-           << PrettyNumber<int32_t>(trunc).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
+        os << '$' << PrettyNumber<int32_t>(trunc).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
     }
     else if (*self.labelSpace == LITERAL_DEC_SPACE || *self.labelSpace == LITERAL_SPACE)
     {

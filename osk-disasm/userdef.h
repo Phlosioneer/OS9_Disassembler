@@ -65,9 +65,9 @@ enum class InstrId : int
     TRAP,
     LINK,
     UNLK,
-    MOVE_TO_USP,
-    MOVE_FROM_USP,
-    RESET,
+    MOVE_USP,
+
+    RESET = 50,
     NOP,
     STOP,
     RTE,

@@ -174,30 +174,28 @@ extern const OPSTRUCTURE instr04[] = {
     {"move", 2, 17, 0, "0100001011xxxxxx", 8, 8, MC68000, InstrId::MOVE_FROM_CCR, move_ccr_sr},
     {"move", 2, 2, 17, "0100010011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_CCR, move_ccr_sr},
     {"move", 2, 2, 18, "0100011011xxxxxx", 8, 8, MC68000, InstrId::MOVE_TO_SR, move_ccr_sr},
-    {"negx.", 0, 0, 21, "01000000xxxxxxxx", 7, 6, MC68000, InstrId::NEGX, one_ea},
+    {"negx.", 0, 0, 21, "01000000xxxxxxxx", 7, 6, MC68000, InstrId::NEGX, one_ea_sized},
     /* CHK 68000 */
     {"chk", 2, 2, 4, "0100xxx110xxxxxx", 6, 6, MC68000, InstrId::CHK, reg_ea},
     {"lea", 5, 5, 3, "0100xxx111xxxxxx", 12, 12, MC68000, InstrId::LEA, reg_ea},
-    {"clr.", 0, 0, 21, "01000010xxxxxxxx", 7, 6, MC68000, InstrId::CLR, one_ea},
-    {"neg.", 0, 0, 21, "01000100xxxxxxxx", 7, 6, MC68000, InstrId::NEG, one_ea},
-    {"not.", 0, 0, 21, "01000110xxxxxxxx", 7, 6, MC68000, InstrId::NOT, one_ea},
-    {"nbcd.", 1, 0, 21, "0100100000xxxxxx", 6, 6, MC68000, InstrId::NBCD, one_ea},
-    {"swap.", 2, 4, 21, "0100100001000xxx", 3, 3, MC68000, InstrId::SWAP, one_ea},
+    {"clr.", 0, 0, 21, "01000010xxxxxxxx", 7, 6, MC68000, InstrId::CLR, one_ea_sized},
+    {"neg.", 0, 0, 21, "01000100xxxxxxxx", 7, 6, MC68000, InstrId::NEG, one_ea_sized},
+    {"not.", 0, 0, 21, "01000110xxxxxxxx", 7, 6, MC68000, InstrId::NOT, one_ea_sized},
+    {"nbcd.", 1, 0, 21, "0100100000xxxxxx", 6, 6, MC68000, InstrId::NBCD, one_ea_sized},
+    {"swap", 2, 4, 21, "0100100001000xxx", 3, 3, MC68000, InstrId::SWAP, swap},
     {"pea", 5, 5, 21, "0100100001xxxxxx", 7, 7, MC68000, InstrId::PEA, one_ea},
     /* MOVEM Registers to EA */
     {"movem.", 4, 20, 6, "010010001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_FROM_REGS, movem_cmd},
     {"illegal", 6, 21, 21, "0100101011111100", 0, 0, MC68000, InstrId::ILLEGAL, cmd_no_opcode},
-    {"tas.", 1, 0, 21, "0100101011xxxxxx", 8, 8, MC68000, InstrId::TAS, one_ea},
-    {"tst.", 0, 1, 21, "01001010xxxxxxxx", 7, 6, MC68000, InstrId::TST, one_ea},
+    {"tas.", 1, 0, 21, "0100101011xxxxxx", 8, 8, MC68000, InstrId::TAS, one_ea_sized},
+    {"tst.", 0, 1, 21, "01001010xxxxxxxx", 7, 6, MC68000, InstrId::TST, one_ea_sized},
     /* MOVEM EA to Registers */
     {"movem.", 4, 7, 20, "010011001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_TO_REGS, movem_cmd},
     {"trap", 6, 8, 21, "010011100100xxxx", 0, 0, MC68000, InstrId::TRAP, trap},
     {"link.w", 2, 3, 8, "0100111001010xxx", 3, 3, MC68000, InstrId::LINK, link_unlk},
     {"unlk", 6, 3, 21, "0100111001011xxx", 0, 0, MC68000, InstrId::UNLK, link_unlk},
-    /* MOVE to USP */
-    {"move.", 5, 3, 26, "0100111001100xxx", 4, 4, MC68000, InstrId::MOVE_TO_USP, move_usp},
-    /* MOVE from USP */
-    {"move.", 5, 26, 3, "0100111001101xxx", 4, 4, MC68000, InstrId::MOVE_FROM_USP, move_usp},
+    /* MOVE to/from USP */
+    {"move", 5, 3, 26, "010011100110xxxx", 4, 4, MC68000, InstrId::MOVE_USP, move_usp},
     {"reset", 6, 21, 21, "0100111001110000", 0, 0, MC68000, InstrId::RESET, cmd_no_opcode},
     {"nop", 6, 21, 21, "0100111001110001", 0, 0, MC68000, InstrId::NOP, cmd_no_opcode},
     {"stop", 6, 8, 21, "0100111001110010", 0, 0, MC68000, InstrId::STOP, cmd_stop},
@@ -228,7 +226,7 @@ extern const OPSTRUCTURE instr06[] = {{"bra.", 0, 23, 21, "01100000xxxxxxxx", 10
                                       {"b~~.", 0, 23, 21, "0110xxxxxxxxxxxx", 10, 10, MC68000, InstrId::BCC, br_cond},
                                       {0}};
 
-extern const OPSTRUCTURE instr07[] = {{"moveq.", 5, 8, 4, "0111xxx0xxxxxxxx", 8, 8, MC68000, InstrId::MOVEQ, moveq},
+extern const OPSTRUCTURE instr07[] = {{"moveq", 5, 8, 4, "0111xxx0xxxxxxxx", 8, 8, MC68000, InstrId::MOVEQ, moveq},
                                       {0}};
 
 extern const OPSTRUCTURE instr08[] = {

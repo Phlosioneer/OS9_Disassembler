@@ -22,7 +22,7 @@ close: link.w a5,#0
 mknod: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
- moveq #Write_,d0
+ moveq Write_,d0
  moveq #0,d2
 L00050 os9 I$MakDir
  bra.w _sysret0
@@ -63,7 +63,7 @@ creat: link.w a5,#0
  dc.w $6500
  dc.w $0
  moveq #0,d2
- moveq #SS_Size,d1
+ moveq SS_Size,d1
  os9 I$SetStt
  dc.w $6400
  dc.w $0
@@ -80,7 +80,7 @@ unlinkx: link.w a5,#0
 unlink: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
- moveq #Write_,d0
+ moveq Write_,d0
  os9 I$Delete
  bra.w _sysret0
 dup: link.w a5,#0

@@ -24,7 +24,7 @@ L0003c btst.l #1,d0
  move.w d1,(a0)+
  subq.l #2,d2
 L00046 move.w d1,d0
- swap.w d1
+ swap d1
  move.w d0,d1
  moveq #96,d0
  cmp.l d0,d2

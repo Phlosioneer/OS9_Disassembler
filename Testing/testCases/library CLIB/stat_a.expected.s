@@ -12,7 +12,7 @@ getstat: link.w a5,#0
  beq.s L00030
  cmpi.b #5,d1
  beq.s L00030
-L00026 moveq #E$UnkSvc,d1
+L00026 moveq E$UnkSvc,d1
  ori #1,ccr
  bra.w _os9err
 L00030 os9 I$GetStt
@@ -35,12 +35,12 @@ setstat: link.w a5,#0
  tst.l d1
  bne.s L00072
  movea.l 8(a5),a0
- moveq #SS_Opt,d1
+ moveq SS_Opt,d1
  bra.s L0007e
 L00072 cmpi.b #2,d1
  bne.s L00026
  move.l 8(a5),d2
- moveq #SS_Size,d1
+ moveq SS_Size,d1
 L0007e os9 I$SetStt
  bra.w _sysret
 

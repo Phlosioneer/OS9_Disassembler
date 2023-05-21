@@ -5,13 +5,13 @@
     4  0000a 7200            moveq  #0,d1      
     5  0000c 1210            move.b (a0),d1    
     6  0000e d27c            add.w  #1900,d1   
-    7  00012 4841            swap.w d1         
+    7  00012 4841            swap   d1         
     8  00014 1228            move.b 1(a0),d1   
     9  00018 e141            asl.w  #8,d1      
    10  0001a 1228            move.b 2(a0),d1   
    11  0001e 7000            moveq  #0,d0      
    12  00020 1028            move.b 3(a0),d0   
-   13  00024 4840            swap.w d0         
+   13  00024 4840            swap   d0         
    14  00026 1028            move.b 4(a0),d0   
    15  0002a e140            asl.w  #8,d0      
    16  0002c 1028            move.b 5(a0),d0   
@@ -27,17 +27,17 @@
    26  0004a 4e40            os9    F$Time     
    27  0004e 652c            bcs.s  L0007c     
    28  00050 2408            move.l a0,d2      
-   29  00052 4841            swap.w d1         
+   29  00052 4841            swap   d1         
    30  00054 927c            sub.w  #1900,d1   
    31  00058 10c1            move.b d1,(a0)+   
-   32  0005a 4841            swap.w d1         
+   32  0005a 4841            swap   d1         
    33  0005c e159            rol.w  #8,d1      
    34  0005e 10c1            move.b d1,(a0)+   
    35  00060 e159            rol.w  #8,d1      
    36  00062 10c1            move.b d1,(a0)+   
-   37  00064 4840            swap.w d0         
+   37  00064 4840            swap   d0         
    38  00066 10c0            move.b d0,(a0)+   
-   39  00068 4840            swap.w d0         
+   39  00068 4840            swap   d0         
    40  0006a e158            rol.w  #8,d0      
    41  0006c 10c0            move.b d0,(a0)+   
    42  0006e e158            rol.w  #8,d0      

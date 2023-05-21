@@ -43,7 +43,7 @@ L00080 movea.l d0,a0
  move.l d1,d2
  movea.l 8(a5),a1
  move.w 18(a5),d0
- swap.w d0
+ swap d0
  move.w 14(a5),d0
  move.l 20(a5),d1
  moveq #3,d3

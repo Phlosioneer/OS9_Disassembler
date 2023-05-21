@@ -38,7 +38,7 @@ inline constexpr bool isWritableMode(uint8_t mode, uint8_t reg)
     return mode != Special || reg == AbsoluteWord || reg == AbsoluteLong;
 }
 
-enum class Register
+enum class Register : uint8_t
 {
     A0,
     A1,
@@ -58,7 +58,8 @@ enum class Register
     D6,
     D7,
     CCR,
-    SR
+    SR,
+    USP
 };
 
 enum class RegParamMode
@@ -79,6 +80,8 @@ enum class OperandSize : uint8_t
 // Helper methods for the Register enum.
 namespace Registers
 {
+const size_t MAX_ID = static_cast<size_t>(Register::USP);
+
 typedef Register (*RegMaker)(unsigned int id);
 constexpr Register makeDReg(unsigned int id);
 constexpr Register makeAReg(unsigned int id);

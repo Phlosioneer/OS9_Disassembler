@@ -39,13 +39,13 @@ lseek: link.w a5,#0
  beq.s L00094
  cmpi.b #2,d1
  beq.s L0008a
- moveq #E$BMode,d1
+ moveq E$BMode,d1
 L00086 bra.w _os9err
-L0008a moveq #SS_Size,d1
+L0008a moveq SS_Size,d1
  os9 I$GetStt
  bcc.s L000a0
  bra.s L00086
-L00094 moveq #SS_Pos,d1
+L00094 moveq SS_Pos,d1
  os9 I$GetStt
  bcc.s L000a0
  bra.s L00086

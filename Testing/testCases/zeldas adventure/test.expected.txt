@@ -18001,7 +18001,7 @@
 18000  0d14c 302a L0d14c     move.w 908(a2),d0 
 18001  0d150 48c0            ext.l  d0         
 18002  0d152 81fc            divs.w #10,d0     
-18003  0d156 4840            swap.w d0         
+18003  0d156 4840            swap   d0         
 18004  0d158 4a40            tst.w  d0         
 18005  0d15a 661c            bne.s  L0d178     
 18006  0d15c 4878            pea    (L00002).w 
@@ -20072,7 +20072,7 @@
 20071  0edaa 302f            move.w 6(sp),d0   
 20072  0edae 48c0            ext.l  d0         
 20073  0edb0 81fc            divs.w #2,d0      
-20074  0edb4 4840            swap.w d0         
+20074  0edb4 4840            swap   d0         
 20075  0edb6 4a40            tst.w  d0         
 20076  0edb8 6704            beq.s  L0edbe     
 20077  0edba 526f            addq.w #1,6(sp)   
@@ -20232,7 +20232,7 @@
 20231  0ef6c 302f            move.w 4(sp),d0   
 20232  0ef70 48c0            ext.l  d0         
 20233  0ef72 81fc            divs.w #2,d0      
-20234  0ef76 4840            swap.w d0         
+20234  0ef76 4840            swap   d0         
 20235  0ef78 4a40            tst.w  d0         
 20236  0ef7a 6704            beq.s  L0ef80     
 20237  0ef7c 526f            addq.w #1,4(sp)   
@@ -32790,12 +32790,12 @@
 32789  18a9c 08c0            bset.l #31,d0     
 32790  18aa0 6000            bra.w  L18a46     
 32791  18aa4 1a06 L18aa4     move.b d6,d5      
-32792  18aa6 4843            swap.w d3         
+32792  18aa6 4843            swap   d3         
 32793  18aa8 163c            move.b #255,d3    
 32794  18aac 9a04            sub.b  d4,d5      
 32795  18aae e92b            lsl.b  d4,d3      
 32796  18ab0 c719            and.b  d3,(a1)+   
-32797  18ab2 4843            swap.w d3         
+32797  18ab2 4843            swap   d3         
 32798  18ab4 7808            moveq  #8,d4      
 32799  18ab6 9805            sub.b  d5,d4      
 32800  18ab8 e92b            lsl.b  d4,d3      
@@ -32954,13 +32954,13 @@
 32953  18c24 7808            moveq  #8,d4      
 32954  18c26 9805            sub.b  d5,d4      
 32955  18c28 e82b L18c28     lsr.b  d4,d3      
-32956  18c2a 4847            swap.w d7         
+32956  18c2a 4847            swap   d7         
 32957  18c2c 1e3c            move.b #8,d7      
 32958  18c30 9e05            sub.b  d5,d7      
 32959  18c32 7aff            moveq  #255,d5    
 32960  18c34 ee2d            lsr.b  d7,d5      
 32961  18c36 c605            and.b  d5,d3      
-32962  18c38 4847            swap.w d7         
+32962  18c38 4847            swap   d7         
 32963  18c3a 8003 L18c3a     or.b   d3,d0      
 32964  18c3c 08a9            bclr.b #7,-1(a1)  
 32965  18c42 600a            bra.s  L18c4e     
@@ -33887,12 +33887,12 @@
 33886  1975e 4ced L1975e     movem.l -20(a5),a2-a3/d4-d6 
 33887  19764 4e5d            unlk   a5         
 33888  19766 4e75            rts               
-33889  19768 4840 L19768     swap.w d0         
+33889  19768 4840 L19768     swap   d0         
 33890  1976a 103c            move.b #8,d0      
 33891  1976e 9001            sub.b  d1,d0      
 33892  19770 72ff            moveq  #255,d1    
 33893  19772 e029            lsr.b  d0,d1      
-33894  19774 4840            swap.w d0         
+33894  19774 4840            swap   d0         
 33895  19776 e129            lsl.b  d0,d1      
 33896  19778 7000            moveq  #0,d0      
 33897  1977a 1001            move.b d1,d0      
@@ -35454,7 +35454,7 @@
 35453  1a9e8 343c            move.w #16914,d2  
 35454  1a9ec 4e40            os9    I$SetStt   
 35455  1a9f0 4240            clr.w  d0         
-35456  1a9f2 4840            swap.w d0         
+35456  1a9f2 4840            swap   d0         
 35457  1a9f4 4cdf            movem.l (sp)+,d2   
 35458  1a9f8 4e75            rts               
 35459  1a9fa 4e55 L1a9fa     link.w a5,#0      
@@ -35576,7 +35576,7 @@
 35575  1ab24 e18c            lsl.l  #8,d4      
 35576  1ab26 8841            or.w   d1,d4      
 35577  1ab28 3204            move.w d4,d1      
-35578  1ab2a 4844            swap.w d4         
+35578  1ab2a 4844            swap   d4         
 35579  1ab2c 8881            or.l   d1,d4      
 35580  1ab2e 6000            bra.w  L1ab36     
 35581  1ab32 14c4 L1ab32     move.b d4,(a2)+   
@@ -36489,7 +36489,7 @@
 36488  1b52c 3001            move.w d1,d0      
 36489  1b52e 48c0            ext.l  d0         
 36490  1b530 2080            move.l d0,(a0)    
-36491  1b532 4841            swap.w d1         
+36491  1b532 4841            swap   d1         
 36492  1b534 48c1            ext.l  d1         
 36493  1b536 206f            movea.l 16(sp),a0  
 36494  1b53a 4290            clr.l  (a0)       
@@ -36503,7 +36503,7 @@
 36502  1b54e 48e7 L1b54e     movem.l d1-d3,-(sp) 
 36503  1b552 7403            moveq  #3,d2      
 36504  1b554 3601 L1b554     move.w d1,d3      
-36505  1b556 4843            swap.w d3         
+36505  1b556 4843            swap   d3         
 36506  1b558 362f            move.w 18(sp),d3  
 36507  1b55c 323c            move.w #89,d1     
 36508  1b560 4e40            os9    I$SetStt   
@@ -36523,7 +36523,7 @@
 36522  1b586 48e7 L1b586     movem.l d1-d3,-(sp) 
 36523  1b58a 7400            moveq  #0,d2      
 36524  1b58c 3601 L1b58c     move.w d1,d3      
-36525  1b58e 4843            swap.w d3         
+36525  1b58e 4843            swap   d3         
 36526  1b590 362f            move.w 18(sp),d3  
 36527  1b594 6018            bra.s  L1b5ae     
 36528  1b596 48e7 L1b596     movem.l d1-d3,-(sp) 
@@ -36546,10 +36546,10 @@
 36545  1b5c6 60f2            bra.s  L1b5ba     
 36546  1b5c8 48e7            movem.l a0/d1-d5,-(sp) 
 36547  1b5cc 3601            move.w d1,d3      
-36548  1b5ce 4843            swap.w d3         
+36548  1b5ce 4843            swap   d3         
 36549  1b5d0 362f            move.w 30(sp),d3  
 36550  1b5d4 382f            move.w 34(sp),d4  
-36551  1b5d8 4844            swap.w d4         
+36551  1b5d8 4844            swap   d4         
 36552  1b5da 382f            move.w 38(sp),d4  
 36553  1b5de 3a2f            move.w 42(sp),d5  
 36554  1b5e2 206f            movea.l 44(sp),a0  
@@ -38461,7 +38461,7 @@
 38460  1c9cc 30c1            move.w d1,(a0)+   
 38461  1c9ce 5582            subq.l #2,d2      
 38462  1c9d0 3001 L1c9d0     move.w d1,d0      
-38463  1c9d2 4841            swap.w d1         
+38463  1c9d2 4841            swap   d1         
 38464  1c9d4 3200            move.w d0,d1      
 38465  1c9d6 7060            moveq  #96,d0     
 38466  1c9d8 b480            cmp.l  d0,d2      
@@ -38508,24 +38508,24 @@
 38507  1ca40 48e7 L1ca40     movem.l d2-d4,-(sp) 
 38508  1ca44 2400            move.l d0,d2      
 38509  1ca46 2600            move.l d0,d3      
-38510  1ca48 4843            swap.w d3         
+38510  1ca48 4843            swap   d3         
 38511  1ca4a 2801            move.l d1,d4      
-38512  1ca4c 4844            swap.w d4         
+38512  1ca4c 4844            swap   d4         
 38513  1ca4e c0c1            mulu.w d1,d0      
 38514  1ca50 c2c3            mulu.w d3,d1      
 38515  1ca52 c4c4            mulu.w d4,d2      
 38516  1ca54 c6c4            mulu.w d4,d3      
-38517  1ca56 4840            swap.w d0         
+38517  1ca56 4840            swap   d0         
 38518  1ca58 d041            add.w  d1,d0      
 38519  1ca5a 7800            moveq  #0,d4      
 38520  1ca5c d784            addx.l d4,d3      
 38521  1ca5e d042            add.w  d2,d0      
 38522  1ca60 d784            addx.l d4,d3      
-38523  1ca62 4840            swap.w d0         
+38523  1ca62 4840            swap   d0         
 38524  1ca64 4241            clr.w  d1         
-38525  1ca66 4841            swap.w d1         
+38525  1ca66 4841            swap   d1         
 38526  1ca68 4242            clr.w  d2         
-38527  1ca6a 4842            swap.w d2         
+38527  1ca6a 4842            swap   d2         
 38528  1ca6c d282            add.l  d2,d1      
 38529  1ca6e d283            add.l  d3,d1      
 38530  1ca70 4a80            tst.l  d0         
@@ -39287,13 +39287,13 @@
 39286  1d362 7200            moveq  #0,d1      
 39287  1d364 1210            move.b (a0),d1    
 39288  1d366 d27c            add.w  #1900,d1   
-39289  1d36a 4841            swap.w d1         
+39289  1d36a 4841            swap   d1         
 39290  1d36c 1228            move.b 1(a0),d1   
 39291  1d370 e141            asl.w  #8,d1      
 39292  1d372 1228            move.b 2(a0),d1   
 39293  1d376 7000            moveq  #0,d0      
 39294  1d378 1028            move.b 3(a0),d0   
-39295  1d37c 4840            swap.w d0         
+39295  1d37c 4840            swap   d0         
 39296  1d37e 1028            move.b 4(a0),d0   
 39297  1d382 e140            asl.w  #8,d0      
 39298  1d384 1028            move.b 5(a0),d0   
@@ -39308,17 +39308,17 @@
 39307  1d3a2 4e40            os9    F$Time     
 39308  1d3a6 652c            bcs.s  L1d3d4     
 39309  1d3a8 2408            move.l a0,d2      
-39310  1d3aa 4841            swap.w d1         
+39310  1d3aa 4841            swap   d1         
 39311  1d3ac 927c            sub.w  #1900,d1   
 39312  1d3b0 10c1            move.b d1,(a0)+   
-39313  1d3b2 4841            swap.w d1         
+39313  1d3b2 4841            swap   d1         
 39314  1d3b4 e159            rol.w  #8,d1      
 39315  1d3b6 10c1            move.b d1,(a0)+   
 39316  1d3b8 e159            rol.w  #8,d1      
 39317  1d3ba 10c1            move.b d1,(a0)+   
-39318  1d3bc 4840            swap.w d0         
+39318  1d3bc 4840            swap   d0         
 39319  1d3be 10c0            move.b d0,(a0)+   
-39320  1d3c0 4840            swap.w d0         
+39320  1d3c0 4840            swap   d0         
 39321  1d3c2 e158            rol.w  #8,d0      
 39322  1d3c4 10c0            move.b d0,(a0)+   
 39323  1d3c6 e158            rol.w  #8,d0      
@@ -39406,7 +39406,7 @@
 39405  1d4ba 2401            move.l d1,d2      
 39406  1d4bc 226d            movea.l 8(a5),a1   
 39407  1d4c0 302d            move.w 18(a5),d0  
-39408  1d4c4 4840            swap.w d0         
+39408  1d4c4 4840            swap   d0         
 39409  1d4c6 302d            move.w 14(a5),d0  
 39410  1d4ca 222d            move.l 20(a5),d1  
 39411  1d4ce 7603            moveq  #3,d3      

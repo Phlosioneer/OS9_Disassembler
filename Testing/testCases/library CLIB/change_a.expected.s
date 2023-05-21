@@ -7,7 +7,7 @@ chmod: link.w a5,#0
  os9 I$Open
  dc.w $6500
  dc.w $0
- moveq #SS_Attr,d1
+ moveq SS_Attr,d1
  os9 I$SetStt
  bcc.s L0005c
 L0001e move.l d1,d2
@@ -20,7 +20,7 @@ chown: link.w a5,#-28
  moveq #2,d0
  os9 I$Open
  bcs.s L0001e
- moveq #SS_FD,d1
+ moveq SS_FD,d1
  moveq #16,d2
  lea (sp),a0
  os9 I$GetStt

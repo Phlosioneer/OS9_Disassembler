@@ -22,7 +22,7 @@
    21  00042 4e55 mknod:     link.w a5,#0      
    22  00046 48e7            movem.l a0/d1-d2,-(sp) 
    23  0004a 2040            movea.l d0,a0      
-   24  0004c 7000            moveq  #Write_,d0 
+   24  0004c 7000            moveq  Write_,d0  
    25  0004e 7400            moveq  #0,d2      
    26  00050 4e40 L00050     os9    I$MakDir   
    27  00054 6000            bra.w  _sysret0   
@@ -63,7 +63,7 @@
    62  000c2 6500            dc.w   $6500      
    63  000c4 0000            dc.w   $0         
    64  000c6 7400            moveq  #0,d2      
-   65  000c8 7200            moveq  #SS_Size,d1 
+   65  000c8 7200            moveq  SS_Size,d1 
    66  000ca 4e40            os9    I$SetStt   
    67  000ce 6400            dc.w   $6400      
    68  000d0 0000            dc.w   $0         
@@ -80,7 +80,7 @@
    79  000f2 4e55 unlink:    link.w a5,#0      
    80  000f6 48e7            movem.l a0/d1-d2,-(sp) 
    81  000fa 2040            movea.l d0,a0      
-   82  000fc 7000            moveq  #Write_,d0 
+   82  000fc 7000            moveq  Write_,d0  
    83  000fe 4e40            os9    I$Delete   
    84  00102 6000            bra.w  _sysret0   
    85  00106 4e55 dup:       link.w a5,#0      

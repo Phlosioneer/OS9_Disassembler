@@ -5,13 +5,13 @@ setime: link.w a5,#0
  moveq #0,d1
  move.b (a0),d1
  add.w #1900,d1
- swap.w d1
+ swap d1
  move.b 1(a0),d1
  asl.w #8,d1
  move.b 2(a0),d1
  moveq #0,d0
  move.b 3(a0),d0
- swap.w d0
+ swap d0
  move.b 4(a0),d0
  asl.w #8,d0
  move.b 5(a0),d0
@@ -27,17 +27,17 @@ getime: link.w a5,#0
  os9 F$Time
  bcs.s L0007c
  move.l a0,d2
- swap.w d1
+ swap d1
  sub.w #1900,d1
  move.b d1,(a0)+
- swap.w d1
+ swap d1
  rol.w #8,d1
  move.b d1,(a0)+
  rol.w #8,d1
  move.b d1,(a0)+
- swap.w d0
+ swap d0
  move.b d0,(a0)+
- swap.w d0
+ swap d0
  rol.w #8,d0
  move.b d0,(a0)+
  rol.w #8,d0

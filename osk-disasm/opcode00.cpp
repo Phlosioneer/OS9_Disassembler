@@ -293,28 +293,26 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
 
 int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register char* dot;
+    ci->useNewParams = true;
 
-    char EaStringBuffer[200];
-    EaStringBuffer[0] = '\0';
-    sprintf(EaStringBuffer, "a%d", ci->cmd_wrd & 7);
+    uint8_t regCode = ci->cmd_wrd & 7;
+    bool moveFromUSP = ((ci->cmd_wrd >> 3) & 1) != 0;
 
-    if ((ci->cmd_wrd >> 3) & 1)
+    const RegParam usp(Register::USP, RegParamMode::Direct);
+    const RegParam otherReg(Registers::makeAReg(regCode), RegParamMode::Direct);
+
+    if (moveFromUSP)
     {
-        sprintf(ci->params, "%s,%s", "usp", EaStringBuffer);
+        ci->setSource(usp);
+        ci->setDest(otherReg);
     }
     else
     {
-        sprintf(ci->params, "%s,%s", EaStringBuffer, "usp");
+        ci->setSource(otherReg);
+        ci->setDest(usp);
     }
 
     strcpy(ci->mnem, op->name);
-
-    dot = strchr(ci->mnem, '.');
-    if (dot)
-    {
-        *dot = '\0';
-    }
 
     return 1;
 }
@@ -359,25 +357,27 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
 
 int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register char* dot;
+    ci->useNewParams = true;
 
-    char EaStringBuffer[200];
-    EaStringBuffer[0] = '\0';
+    uint8_t immParamValue = ci->cmd_wrd & 0xff;
+
+    char labelBuffer[200];
+    labelBuffer[0] = '\0';
     // The immediate value is at address+1
-    auto immParamValue = ci->cmd_wrd & 0xff;
     auto immParamAddress = state->CmdEnt + 1;
-    if (!LblCalc(EaStringBuffer, immParamValue, AM_IMM, immParamAddress, state->opt->IsROF, state->Pass))
+    if (LblCalc(labelBuffer, immParamValue, AM_IMM, immParamAddress, state->opt->IsROF, state->Pass))
     {
-        PrintNumber(EaStringBuffer, immParamValue, AM_IMM, 4);
+        ci->setSource(LiteralParam(std::string(labelBuffer)));
     }
-    sprintf(ci->params, "#%s,d%d", EaStringBuffer, (ci->cmd_wrd >> 9) & 7);
-    strcpy(ci->mnem, op->name);
+    else
+    {
+        ci->setSource(LiteralParam(FormattedNumber(immParamValue, OperandSize::Byte)));
+    }
 
-    dot = strchr(ci->mnem, '.');
-    if (dot)
-    {
-        *dot = '\0';
-    }
+    uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
+    ci->setDest(RegParam(Registers::makeDReg(destRegCode), RegParamMode::Direct));
+
+    strcpy(ci->mnem, op->name);
 
     return 1;
 }
@@ -386,96 +386,72 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
  * A generic handler for when the basic command is a
  *      single word and the EA is in the lower 6 bytes
  */
+int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    ci->useNewParams = true;
+
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t reg = ci->cmd_wrd & 7;
+    uint8_t size = (ci->cmd_wrd >> 6) & 3;
+
+    OperandSize sizeOp;
+    switch (size)
+    {
+    case SIZ_BYTE:
+        sizeOp = OperandSize::Byte;
+        break;
+    case SIZ_WORD:
+        sizeOp = OperandSize::Word;
+        break;
+    case SIZ_LONG:
+        sizeOp = OperandSize::Long;
+        break;
+    default:
+        return 0;
+    }
+
+    // TST allows all modes.
+    if (op->id != InstrId::TST)
+    {
+        // Disallow address regs, and the EA needs to be writable.
+        if (mode == DirectAddrReg) return 0;
+        if (!isWritableMode(mode, reg)) return 0;
+    }
+
+    ci->source = get_eff_addr(ci, mode, reg, sizeOp, state);
+    if (!ci->source) return 0;
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+    strcpy(ci->mnem, mnem.c_str());
+    return 1;
+}
+
 int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    int mode = (ci->cmd_wrd >> 3) & 7;
-    int reg = ci->cmd_wrd & 7;
-    int size = (ci->cmd_wrd >> 6) & 3;
-    char ea[50];
+    ci->useNewParams = true;
 
-    if (strchr(op->name, '.'))
-    {
-        if (size >= sizeof(SizSufx) / sizeof(SizSufx[0]))
-        {
-            return 0;
-        }
-    }
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t reg = ci->cmd_wrd & 7;
 
-    if (op->id == InstrId::SWAP) /* swap */
-    {
-        sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
-    }
-    else
-    {
-        /* eliminate modes */
-        switch (op->id)
-        {
-        case InstrId::TST: /* tst  */
-            break;         /* Allow all modes */
-        case InstrId::PEA: /* pea  */
-        case InstrId::JSR: /* jsr  */
-        case InstrId::JMP: /* jmp  */
-            if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
-        default:
-            if (mode == 1) return 0;
-        }
+    /* eliminate modes */
+    if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
+    if (mode == 7 && reg == 4) return 0;
 
-        /* Eliminate mode-7 regs */
-
-        if (mode == 7)
-        {
-            switch (op->id)
-            {
-            case InstrId::CLR: /* Allow all modes */
-            case InstrId::SWAP:
-                break;
-            case InstrId::PEA:
-            case InstrId::JSR: /* jsr  */
-            case InstrId::JMP: /* jmp  */
-                if (reg == 4) return 0;
-                break;
-            default:
-                if (reg > 1) return 0;
-            }
-        }
-
-        /* Handle opcode */
-
-        if (get_eff_addr(ci, ea, mode, reg, size, state))
-        {
-            char* statreg = "ccr";
-
-            switch (op->id)
-            {
-            case InstrId::MOVE_FROM_SR: /* Move from SR */
-            case InstrId::MOVE_TO_SR:
-                statreg = "sr";
-            case InstrId::MOVE_TO_CCR:   /* Move to CCR  */
-            case InstrId::MOVE_FROM_CCR: /* Move from CCR */
-                if (ci->cmd_wrd & 0x400)
-                    sprintf(ci->params, "%s,%s", ea, statreg);
-                else
-                    sprintf(ci->params, "%s,%s", statreg, ea);
-                break;
-            default: /* A single ea */
-                strcpy(ci->params, ea);
-                break;
-            }
-        }
-        else
-        {
-            return 0;
-        }
-    }
+    ci->source = get_eff_addr(ci, mode, reg, OperandSize::Long, state);
+    if (!ci->source) return 0;
 
     strcpy(ci->mnem, op->name);
 
-    if (strchr(ci->mnem, '.'))
-    {
-        if (size >= 3) throw std::runtime_error("SizSufx overrun");
-        strcat(ci->mnem, SizSufx[size]);
-    }
+    return 1;
+}
 
+int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    ci->useNewParams = true;
+
+    uint8_t regCode = ci->cmd_wrd & 7;
+    ci->setSource(RegParam(Registers::makeDReg(regCode), RegParamMode::Direct));
+    strcpy(ci->mnem, op->name);
     return 1;
 }
 
