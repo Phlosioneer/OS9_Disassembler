@@ -9,3 +9,4 @@ dis68
 *.ilk
 *.actual.s
 *.actual.txt
+/osk-disasm/x64/Release
