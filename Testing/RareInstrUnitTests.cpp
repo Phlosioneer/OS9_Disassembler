@@ -244,9 +244,26 @@ namespace UnitTests
 			// TODO: L"STOP with external constant";
 		}
 
-		// TODO: TEST_METHOD(cmd_scc)
-		//{
-		//
-		//}
+		TEST_METHOD(cmd_scc)
+		{
+			const auto CONDITION = [](uint16_t code) { return code << 8; };
+			const uint16_t SCC = 0b0101000011000000;
+
+			subtestName = L"Data reg";
+			pushWord(SCC | CONDITION(Condition::EQ) | EA_MODE(DirectDataReg) | 4);
+			runTest("seq", "d4");
+
+			subtestName = L"Labelled data";
+			pushWord(SCC | CONDITION(Condition::T) | EA_MODE(Displacement) | 6);
+			pushWord(88);
+			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
+			runTest("st", "hello(a6)");
+			labelManager->clear();
+
+			subtestName = L"Constant fail";
+			pushWord(SCC | CONDITION(Condition::GT) | EA_MODE(Special) | ImmediateData);
+			pushWord(2);
+			runFailTest();
+		}
 	};
 }

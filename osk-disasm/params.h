@@ -32,6 +32,29 @@ enum SpecialAddressMode
     ImmediateData   // d8(PC,An) or d8(PC,Dn)
 };
 
+namespace Condition
+{
+enum ConditionCode
+{
+    T,
+    F,
+    HI,
+    LS,
+    CC,
+    CS,
+    NE,
+    EQ,
+    VC,
+    VS,
+    PL,
+    MI,
+    GE,
+    LT,
+    GT,
+    LE
+};
+} // namespace Condition
+
 // Extremely common address mode check for destination EA's
 inline constexpr bool isWritableMode(uint8_t mode, uint8_t reg)
 {

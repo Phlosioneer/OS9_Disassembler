@@ -936,45 +936,33 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 
 int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
+    ci->useNewParams = true;
+
     if (!hasnext_w(state)) return 0;
-    sprintf(ci->params, "#%d", getnext_w(ci, state));
+    uint8_t imm = getnext_w(ci, state);
+    ci->setSource(LiteralParam(FormattedNumber(imm, OperandSize::Word)));
     strcpy(ci->mnem, op->name);
     return 1;
 }
 
 int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    int mode = (ci->cmd_wrd >> 3) & 7;
-    int reg = ci->cmd_wrd & 7;
-    char* condpos;
+    ci->useNewParams = true;
 
-    if (mode == 1)
-    {
-        return 0;
-    }
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t reg = ci->cmd_wrd & 7;
+    uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
 
-    if ((mode == 7) && (reg > 1))
-    {
-        return 0;
-    }
+    if (mode == DirectAddrReg) return 0;
+    if (!isWritableMode(mode, reg)) return 0;
 
-    strcpy(ci->mnem, op->name);
+    ci->source = get_eff_addr(ci, mode, reg, OperandSize::Byte, state);
+    if (!ci->source) return 0;
 
-    condpos = strchr(ci->mnem, '~');
-    if (condpos)
-    {
-        strcpy(condpos, typecondition[(ci->cmd_wrd >> 8) & 0x0f].condition);
+    auto mnem = std::string("s") + typecondition[conditionCode].condition;
+    strcpy(ci->mnem, mnem.c_str());
 
-        char EaStringBuffer[200];
-        EaStringBuffer[0] = '\0';
-        if (get_eff_addr(ci, EaStringBuffer, mode, reg, SIZ_BYTE, state))
-        {
-            strcpy(ci->params, EaStringBuffer);
-            return 1;
-        }
-    }
-
-    return 0;
+    return 1;
 }
 
 int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
