@@ -5,7 +5,7 @@ _strass: movem.l a0-a1,-(sp)
  move.l 12(sp),d0
  bra.s L00010
 L0000e move.b (a1)+,(a0)+
-L00010 dbra d0,L0000e
+L00010 dbf d0,L0000e
  movem.l (sp)+,a0-a1
  rts 
 

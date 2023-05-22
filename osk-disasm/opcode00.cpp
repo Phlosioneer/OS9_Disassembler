@@ -50,6 +50,9 @@ enum
     REG2EA
 };
 
+static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state, int32_t displ,
+                         OperandSize size, uint32_t immAddress, uint8_t conditionCode);
+
 /*
  * Immediate bit operations involving the status registers (ori, andi, eori)
  * Returns 1 on success, 0 on failure
@@ -528,8 +531,8 @@ int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     ci->useNewParams = true;
-
-    uint32_t displ = ci->cmd_wrd & 0xff;
+    uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
+    int32_t displ = ci->cmd_wrd & 0xff;
     OperandSize size;
     uint32_t immAddress;
 
@@ -537,7 +540,7 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     {
         immAddress = state->PCPos;
         if (!hasnext_w(state)) return 0;
-        displ = getnext_w(ci, state);
+        displ = (int16_t)getnext_w(ci, state);
 
         size = OperandSize::Word;
     }
@@ -553,6 +556,39 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         size = OperandSize::Byte;
     }
 
+    // Condition codes 0 (true) and 1 (false) aren't allowed.
+    if (op->id != InstrId::BRA && op->id != InstrId::BSR && conditionCode <= 1) return 0;
+
+    return branch_common(ci, op, state, displ, size, immAddress, conditionCode);
+}
+
+int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    ci->useNewParams = true;
+
+    uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
+    uint32_t immAddress = state->PCPos;
+    if (!hasnext_w(state)) return 0;
+    int16_t displ = getnext_w(ci, state);
+
+    if (branch_common(ci, op, state, displ, OperandSize::Word, immAddress, conditionCode))
+    {
+        // Swap the source into the destination.
+        ci->source.swap(ci->dest);
+
+        // Decode the register parameter.
+        uint8_t regCode = ci->cmd_wrd & 7;
+        auto reg = Registers::makeDReg(regCode);
+        ci->setSource(RegParam(reg, RegParamMode::Direct));
+
+        return 1;
+    }
+    return 0;
+}
+
+static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state, int32_t displ,
+                         OperandSize size, uint32_t immAddress, uint8_t conditionCode)
+{
     if (displ & 1) return 0;
 
     char temp[200];
@@ -571,25 +607,27 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         if (displ == 0) return 0;
         ci->setSource(LiteralParam(FormattedNumber(displ, size)));
     }
-    
+
     std::string mnem(op->name);
     auto conditionStart = mnem.find('~');
     if (conditionStart != std::string::npos)
     {
-        uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
         mnem = mnem.substr(0, conditionStart);
         mnem += typecondition[conditionCode].condition;
-        mnem += '.';
     }
 
-    // Branches use ".s" instead of ".b"
-    if (size == OperandSize::Byte)
+    // DBcc is always word sized, so no suffix is needed.
+    if (op->id != InstrId::DBCC)
     {
-        mnem += 's';
-    }
-    else
-    {
-        mnem += getOperandSizeLetter(size);
+        // Branches use ".s" instead of ".b"
+        if (size == OperandSize::Byte)
+        {
+            mnem += ".s";
+        }
+        else
+        {
+            mnem += getOperandSizeSuffix(size);
+        }
     }
     strcpy(ci->mnem, mnem.c_str());
 
@@ -830,7 +868,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     {
         ci->setSource(LiteralParam(extern_def_name(vec_ref)));
         strcpy(ci->mnem, "tcall");
-            
+
         // Only guess math syscall if this is the math trap lib.
         shouldGuessMathLib = !strcmp(extern_def_name(vec_ref), MATH_TRAP_LIB_NAME);
     }
@@ -902,50 +940,6 @@ int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     sprintf(ci->params, "#%d", getnext_w(ci, state));
     strcpy(ci->mnem, op->name);
     return 1;
-}
-
-int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
-{
-    /*int br_from = PCPos;
-    register int dest;*/
-    char* condpos;
-
-    strcpy(ci->mnem, op->name);
-
-    condpos = strchr(ci->mnem, '~');
-    if (condpos)
-    {
-        register int offset;
-        int ent = (ci->cmd_wrd >> 8) & 0x0f;
-
-        switch (ent)
-        {
-        case 0:
-            strcpy(condpos, "rn");
-            break;
-        case 1:
-            strcpy(condpos, "ra");
-            break;
-        default:
-            strcpy(condpos, typecondition[ent].condition);
-        }
-
-        if (!hasnext_w(state)) return 0;
-        offset = getnext_w(ci, state);
-        /*dest  = br_from + offset;*/
-
-        char EaStringBuffer[200];
-        EaStringBuffer[0] = '\0';
-        if (!LblCalc(EaStringBuffer, offset, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
-        {
-            PrintNumber(EaStringBuffer, offset, AM_REL, 4);
-        }
-        sprintf(ci->params, "d%d,%s", ci->cmd_wrd & 7, EaStringBuffer);
-
-        return 1;
-    }
-
-    return 0;
 }
 
 int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)

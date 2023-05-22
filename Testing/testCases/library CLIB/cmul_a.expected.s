@@ -101,13 +101,13 @@ L000d0 asl.l #1,d0
 L000d4 sub.l d2,d1
  bcs.s L000e8
 L000d8 addq.l #1,d0
- dbra d3,L000d0
+ dbf d3,L000d0
  bra.s L000ee
 L000e0 asl.l #1,d0
  lsr.l #1,d2
  add.l d2,d1
  bcs.s L000d8
-L000e8 dbra d3,L000e0
+L000e8 dbf d3,L000e0
  add.l d2,d1
 L000ee movem.l (sp)+,d2-d4
  tst.l d0

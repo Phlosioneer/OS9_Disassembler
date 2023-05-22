@@ -32,14 +32,14 @@ L00046 lsr.l #1,d2
  move.w (a2)+,(a0)+
  bra.s L00050
 L0004e move.l (a2)+,(a0)+
-L00050 dbra d2,L0004e
+L00050 dbf d2,L0004e
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L0004e
  moveq #0,d2
  rts 
 L0005e move.b (a2)+,(a0)+
-L00060 dbra d2,L0005e
+L00060 dbf d2,L0005e
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L0005e
@@ -65,14 +65,14 @@ L00090 lsr.l #1,d2
  move.w -(a2),-(a0)
  bra.s L0009a
 L00098 move.l -(a2),-(a0)
-L0009a dbra d2,L00098
+L0009a dbf d2,L00098
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L00098
  moveq #0,d2
  rts 
 L000a8 move.b -(a2),-(a0)
-L000aa dbra d2,L000a8
+L000aa dbf d2,L000a8
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L000a8

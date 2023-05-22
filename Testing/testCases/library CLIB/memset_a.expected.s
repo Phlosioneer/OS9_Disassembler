@@ -8,7 +8,7 @@ memset: link.w a5,#0
  subq.w #1,d2
  bcs.w L000ac
 L0001c move.b d1,(a0)+
- dbra d2,L0001c
+ dbf d2,L0001c
  bra.w L000ac
 L00026 move.l d1,-(sp)
  asl.w #8,d1
@@ -44,7 +44,7 @@ L00046 move.w d1,d0
  lsr.l #5,d0
  subq.l #1,d0
 L00074 movem.l a1-a2/d1/d3-d7,-(a0)
- dbra d0,L00074
+ dbf d0,L00074
  addq.w #1,d0
  subq.l #1,d0
  bcc.s L00074
@@ -58,7 +58,7 @@ L00090 move.w d2,d0
  lsr.w #2,d0
 L00094 subq.w #1,d0
 L00096 move.l d1,(a0)+
- dbra d0,L00096
+ dbf d0,L00096
 L0009c btst.l #1,d2
  beq.s L000a4
  move.w d1,(a0)+

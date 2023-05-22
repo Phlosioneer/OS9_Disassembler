@@ -81,7 +81,7 @@ L000b0 movea.l d0,a0
  move.w d2,(a0)+
  bra.s L000be
 L000bc move.l d2,(a0)+
-L000be dbra d1,L000bc
+L000be dbf d1,L000bc
  addq.w #1,d1
  subq.l #1,d1
  bcc.s L000bc

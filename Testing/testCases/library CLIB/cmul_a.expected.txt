@@ -101,13 +101,13 @@
   100  000d4 9282 L000d4     sub.l  d2,d1      
   101  000d6 6510            bcs.s  L000e8     
   102  000d8 5280 L000d8     addq.l #1,d0      
-  103  000da 51cb            dbra   d3,L000d0  
+  103  000da 51cb            dbf    d3,L000d0  
   104  000de 600e            bra.s  L000ee     
   105  000e0 e380 L000e0     asl.l  #1,d0      
   106  000e2 e28a            lsr.l  #1,d2      
   107  000e4 d282            add.l  d2,d1      
   108  000e6 65f0            bcs.s  L000d8     
-  109  000e8 51cb L000e8     dbra   d3,L000e0  
+  109  000e8 51cb L000e8     dbf    d3,L000e0  
   110  000ec d282            add.l  d2,d1      
   111  000ee 4cdf L000ee     movem.l (sp)+,d2-d4 
   112  000f2 4a80            tst.l  d0         

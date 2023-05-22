@@ -5,7 +5,7 @@
     4  00008 202f            move.l 12(sp),d0  
     5  0000c 6002            bra.s  L00010     
     6  0000e 10d9 L0000e     move.b (a1)+,(a0)+ 
-    7  00010 51c8 L00010     dbra   d0,L0000e  
+    7  00010 51c8 L00010     dbf    d0,L0000e  
     8  00014 4cdf            movem.l (sp)+,a0-a1 
     9  00018 4e75            rts               
    10

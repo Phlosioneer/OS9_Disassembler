@@ -34226,7 +34226,7 @@ L19b38 lea _013b2(a6),a0
  lea (a2),a1
  moveq #18,d0
 L19b40 move.l (a0)+,(a1)+
- dbra d0,L19b40
+ dbf d0,L19b40
  move.w (a0)+,(a1)+
  move.w d4,8(a2)
  bsr.s L19bac
@@ -34243,7 +34243,7 @@ L19b40 move.l (a0)+,(a1)+
  lea (a3),a1
  moveq #32,d0
 L19b72 move.l (a0)+,(a1)+
- dbra d0,L19b72
+ dbf d0,L19b72
  move.w (a0)+,(a1)+
  move.l a2,d0
  bsr.w L19ec2
@@ -38358,14 +38358,14 @@ L1c8b6 lsr.l #1,d2
  move.w (a2)+,(a0)+
  bra.s L1c8c0
 L1c8be move.l (a2)+,(a0)+
-L1c8c0 dbra d2,L1c8be
+L1c8c0 dbf d2,L1c8be
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L1c8be
  moveq #0,d2
  rts 
 L1c8ce move.b (a2)+,(a0)+
-L1c8d0 dbra d2,L1c8ce
+L1c8d0 dbf d2,L1c8ce
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L1c8ce
@@ -38391,14 +38391,14 @@ L1c900 lsr.l #1,d2
  move.w -(a2),-(a0)
  bra.s L1c90a
 L1c908 move.l -(a2),-(a0)
-L1c90a dbra d2,L1c908
+L1c90a dbf d2,L1c908
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L1c908
  moveq #0,d2
  rts 
 L1c918 move.b -(a2),-(a0)
-L1c91a dbra d2,L1c918
+L1c91a dbf d2,L1c918
  addq.w #1,d2
  subq.l #1,d2
  bcc.s L1c918
@@ -38445,7 +38445,7 @@ L1c98a link.w a5,#0
  subq.w #1,d2
  bcs.w L1ca36
 L1c9a6 move.b d1,(a0)+
- dbra d2,L1c9a6
+ dbf d2,L1c9a6
  bra.w L1ca36
 L1c9b0 move.l d1,-(sp)
  asl.w #8,d1
@@ -38481,7 +38481,7 @@ L1c9d0 move.w d1,d0
  lsr.l #5,d0
  subq.l #1,d0
 L1c9fe movem.l a1-a2/d1/d3-d7,-(a0)
- dbra d0,L1c9fe
+ dbf d0,L1c9fe
  addq.w #1,d0
  subq.l #1,d0
  bcc.s L1c9fe
@@ -38495,7 +38495,7 @@ L1ca1a move.w d2,d0
  lsr.w #2,d0
 L1ca1e subq.w #1,d0
 L1ca20 move.l d1,(a0)+
- dbra d0,L1ca20
+ dbf d0,L1ca20
 L1ca26 btst.l #1,d2
  beq.s L1ca2e
  move.w d1,(a0)+
@@ -38607,13 +38607,13 @@ L1cb10 asl.l #1,d0
 L1cb14 sub.l d2,d1
  bcs.s L1cb28
 L1cb18 addq.l #1,d0
- dbra d3,L1cb10
+ dbf d3,L1cb10
  bra.s L1cb2e
 L1cb20 asl.l #1,d0
  lsr.l #1,d2
  add.l d2,d1
  bcs.s L1cb18
-L1cb28 dbra d3,L1cb20
+L1cb28 dbf d3,L1cb20
  add.l d2,d1
 L1cb2e movem.l (sp)+,d2-d4
  tst.l d0
@@ -39258,7 +39258,7 @@ L1d30a movea.l d0,a0
  move.w d2,(a0)+
  bra.s L1d318
 L1d316 move.l d2,(a0)+
-L1d318 dbra d1,L1d316
+L1d318 dbf d1,L1d316
  addq.w #1,d1
  subq.l #1,d1
  bcc.s L1d316

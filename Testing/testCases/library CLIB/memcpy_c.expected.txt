@@ -32,14 +32,14 @@
    31  0004a 30da            move.w (a2)+,(a0)+ 
    32  0004c 6002            bra.s  L00050     
    33  0004e 20da L0004e     move.l (a2)+,(a0)+ 
-   34  00050 51ca L00050     dbra   d2,L0004e  
+   34  00050 51ca L00050     dbf    d2,L0004e  
    35  00054 5242            addq.w #1,d2      
    36  00056 5382            subq.l #1,d2      
    37  00058 64f4            bcc.s  L0004e     
    38  0005a 7400            moveq  #0,d2      
    39  0005c 4e75            rts               
    40  0005e 10da L0005e     move.b (a2)+,(a0)+ 
-   41  00060 51ca L00060     dbra   d2,L0005e  
+   41  00060 51ca L00060     dbf    d2,L0005e  
    42  00064 5242            addq.w #1,d2      
    43  00066 5382            subq.l #1,d2      
    44  00068 64f4            bcc.s  L0005e     
@@ -65,14 +65,14 @@
    64  00094 3122            move.w -(a2),-(a0) 
    65  00096 6002            bra.s  L0009a     
    66  00098 2122 L00098     move.l -(a2),-(a0) 
-   67  0009a 51ca L0009a     dbra   d2,L00098  
+   67  0009a 51ca L0009a     dbf    d2,L00098  
    68  0009e 5242            addq.w #1,d2      
    69  000a0 5382            subq.l #1,d2      
    70  000a2 64f4            bcc.s  L00098     
    71  000a4 7400            moveq  #0,d2      
    72  000a6 4e75            rts               
    73  000a8 1122 L000a8     move.b -(a2),-(a0) 
-   74  000aa 51ca L000aa     dbra   d2,L000a8  
+   74  000aa 51ca L000aa     dbf    d2,L000a8  
    75  000ae 5242            addq.w #1,d2      
    76  000b0 5382            subq.l #1,d2      
    77  000b2 64f4            bcc.s  L000a8     
