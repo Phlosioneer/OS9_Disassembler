@@ -222,10 +222,40 @@ namespace UnitTests
 			runTest("roxr", "(a1)");
 		}
 
-		// TODO: TEST_METHOD(cmp_cmpa)
-		//{
-		//
-		//}
+		TEST_METHOD(cmp_cmpa)
+		{
+			const uint16_t CMP = 0b1011 << 12;
+			const auto DATA_REG = [](uint16_t code) { return code << 9; };
+			const auto OPMODE = [](uint16_t code) { return code << 6; };
+			const uint16_t CMP_BYTE = 0;
+			const uint16_t CMP_WORD = 1;
+			const uint16_t CMP_LONG = 2;
+			const uint16_t CMPA_WORD = 3;
+			const uint16_t CMPA_LONG = 7;
+
+			subtestName = L"CMP Byte";
+			pushWord(CMP | DATA_REG(4) | OPMODE(CMP_BYTE) | EA_MODE(PreDecrement) | 7);
+			runTest("cmp.b", "-(sp),d4");
+
+			subtestName = L"CMP Word";
+			pushWord(CMP | DATA_REG(0) | OPMODE(CMP_WORD) | EA_MODE(Displacement) | 6);
+			pushWord(88);
+			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
+			runTest("cmp.w", "hello(a6),d0");
+			labelManager->clear();
+
+			subtestName = L"CMP Long";
+			pushWord(CMP | DATA_REG(1) | OPMODE(CMP_LONG) | EA_MODE(DirectAddrReg) | 2);
+			runTest("cmp.l", "a2,d1");
+			
+			subtestName = L"CMPA Word";
+			pushWord(CMP | DATA_REG(2) | OPMODE(CMPA_WORD) | EA_MODE(DirectAddrReg) | 0);
+			runTest("cmpa.w", "a0,a2");
+
+			subtestName = L"CMPA Long";
+			pushWord(CMP | DATA_REG(7) | OPMODE(CMPA_LONG) | EA_MODE(DirectDataReg) | 7);
+			runTest("cmpa.l", "d7,sp");
+		}
 
 		TEST_METHOD(cmd_stop)
 		{

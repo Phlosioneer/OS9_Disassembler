@@ -340,5 +340,27 @@ namespace UnitTests
 			runTest("tcall", "T$Math,T$Tan");
 			refs_code.clear();
 		}
+
+		TEST_METHOD(cmd_exg)
+		{
+			const auto SOURCE_REG = [](uint16_t code) { return code << 9; };
+			const auto OPMODE = [](uint16_t code) { return code << 3; };
+			const uint16_t EXG = 0b1100000100000000;
+			const uint16_t DATA_TO_DATA = 0b01000;
+			const uint16_t ADDR_TO_ADDR = 0b01001;
+			const uint16_t DATA_TO_ADDR = 0b10001;
+
+			subtestName = L"Data to data";
+			pushWord(EXG | SOURCE_REG(4) | OPMODE(DATA_TO_DATA) | 5);
+			runTest("exg", "d4,d5");
+
+			subtestName = L"Addr to addr";
+			pushWord(EXG | SOURCE_REG(7) | OPMODE(ADDR_TO_ADDR) | 0);
+			runTest("exg", "sp,a0");
+
+			subtestName = L"Data to addr";
+			pushWord(EXG | SOURCE_REG(3) | OPMODE(DATA_TO_ADDR) | 1);
+			runTest("exg", "d3,a1");
+		}
 	};
 }

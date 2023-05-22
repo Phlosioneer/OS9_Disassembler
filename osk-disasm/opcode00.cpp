@@ -461,9 +461,9 @@ int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     return 1;
 }
 
-int cmd_no_opcode(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_no_params(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->params[0] = '\0';
+    ci->useNewParams = true;
     strcpy(ci->mnem, op->name);
 
     return 1;
@@ -740,40 +740,44 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
 
 int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int mode = (ci->cmd_wrd >> 3) & 7;
-    register int reg = ci->cmd_wrd & 7;
-    register int size = (ci->cmd_wrd >> 6) & 7;
-    char regName = 'd';
+    ci->useNewParams = true;
 
-    if (size > 2)
+    uint8_t sourceMode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t sourceReg = ci->cmd_wrd & 7;
+    uint8_t opmode = (ci->cmd_wrd >> 6) & 7;
+
+    OperandSize size;
+    switch (opmode)
     {
-        switch (size)
-        {
-        case 3:
-            size = SIZ_WORD;
-            regName = 'a';
-            break;
-        case 7:
-            size = SIZ_LONG;
-            regName = 'a';
-            break;
-        default:
-            return 0;
-        }
+    case 0b000:
+        size = OperandSize::Byte;
+        break;
+    case 0b001:
+    case 0b011:
+        size = OperandSize::Word;
+        break;
+    case 0b010:
+    case 0b111:
+        size = OperandSize::Long;
+        break;
+    default:
+        return 0;
     }
 
-    char EaStringBuffer[200];
-    EaStringBuffer[0] = '\0';
-    if (get_eff_addr(ci, EaStringBuffer, mode, reg, size, state))
-    {
-        sprintf(ci->params, "%s,%c%d", EaStringBuffer, regName, (ci->cmd_wrd >> 9) & 7);
-        strcpy(ci->mnem, op->name);
-        if (size >= 3) throw std::runtime_error("SizSufx overrun");
-        strcat(ci->mnem, SizSufx[size]);
-        return 1;
-    }
+    // Can't do byte operations on address registers.
+    if (size == OperandSize::Byte && sourceMode == DirectAddrReg) return 0;
 
-    return 0;
+    uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
+    auto destReg = opmode > 2 ? Registers::makeAReg(destRegCode) : Registers::makeDReg(destRegCode);
+    
+    ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
+    if (!ci->source) return 0;
+
+    ci->setDest(RegParam(destReg, RegParamMode::Direct));
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    strcpy(ci->mnem, mnem.c_str());
+    return 1;
 }
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
@@ -941,40 +945,36 @@ int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
 int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int regnumSrc = (ci->cmd_wrd >> 9) & 7;
-    register int regnumDst = ci->cmd_wrd & 7;
-    char regnameSrc = 'd';
-    char regnameDst = 'd';
-    char* dot;
+    ci->useNewParams = true;
+    uint8_t sourceRegCode = (ci->cmd_wrd >> 9) & 7;
+    uint8_t destRegCode = ci->cmd_wrd & 7;
+    Register sourceReg;
+    Register destReg;
 
-    int opMode = (ci->cmd_wrd >> 3) & 0x1f;
-    switch (opMode)
+    switch (op->id)
     {
-    case 0x08:
+    case InstrId::EXG_DATA_REG:
         // Both are data registers
+        sourceReg = Registers::makeDReg(sourceRegCode);
+        destReg = Registers::makeDReg(destRegCode);
         break;
-    case 0x09:
+    case InstrId::EXG_ADDR_REG:
         // Both are address registers
-        regnameSrc = 'a';
-        regnameDst = 'a';
+        sourceReg = Registers::makeAReg(sourceRegCode);
+        destReg = Registers::makeAReg(destRegCode);
         break;
-    case 0x11:
+    case InstrId::EXG_DATA_AND_ADDR:
         // Source is data, dest is address
-        regnameDst = 'a';
+        sourceReg = Registers::makeDReg(sourceRegCode);
+        destReg = Registers::makeAReg(destRegCode);
         break;
     default:
         return 0;
     }
 
-    sprintf(ci->params, "%c%d,%c%d", regnameSrc, regnumSrc, regnameDst, regnumDst);
+    ci->setSource(RegParam(sourceReg, RegParamMode::Direct));
+    ci->setDest(RegParam(destReg, RegParamMode::Direct));
     strcpy(ci->mnem, op->name);
-
-    dot = strchr(ci->mnem, '.');
-    if (dot)
-    {
-        *dot = '\0';
-    }
-
     return 1;
 }
 

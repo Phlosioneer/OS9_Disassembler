@@ -20,7 +20,7 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
 int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
-int cmd_no_opcode(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int cmd_no_params(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);

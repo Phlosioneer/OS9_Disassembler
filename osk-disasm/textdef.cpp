@@ -186,7 +186,7 @@ extern const OPSTRUCTURE instr04[] = {
     {"pea", 5, 5, 21, "0100100001xxxxxx", 7, 7, MC68000, InstrId::PEA, one_ea},
     /* MOVEM Registers to EA */
     {"movem.", 4, 20, 6, "010010001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_FROM_REGS, movem_cmd},
-    {"illegal", 6, 21, 21, "0100101011111100", 0, 0, MC68000, InstrId::ILLEGAL, cmd_no_opcode},
+    {"illegal", 6, 21, 21, "0100101011111100", 0, 0, MC68000, InstrId::ILLEGAL, cmd_no_params},
     {"tas.", 1, 0, 21, "0100101011xxxxxx", 8, 8, MC68000, InstrId::TAS, one_ea_sized},
     {"tst.", 0, 1, 21, "01001010xxxxxxxx", 7, 6, MC68000, InstrId::TST, one_ea_sized},
     /* MOVEM EA to Registers */
@@ -196,13 +196,13 @@ extern const OPSTRUCTURE instr04[] = {
     {"unlk", 6, 3, 21, "0100111001011xxx", 0, 0, MC68000, InstrId::UNLK, link_unlk},
     /* MOVE to/from USP */
     {"move", 5, 3, 26, "010011100110xxxx", 4, 4, MC68000, InstrId::MOVE_USP, move_usp},
-    {"reset", 6, 21, 21, "0100111001110000", 0, 0, MC68000, InstrId::RESET, cmd_no_opcode},
-    {"nop", 6, 21, 21, "0100111001110001", 0, 0, MC68000, InstrId::NOP, cmd_no_opcode},
+    {"reset", 6, 21, 21, "0100111001110000", 0, 0, MC68000, InstrId::RESET, cmd_no_params},
+    {"nop", 6, 21, 21, "0100111001110001", 0, 0, MC68000, InstrId::NOP, cmd_no_params},
     {"stop", 6, 8, 21, "0100111001110010", 0, 0, MC68000, InstrId::STOP, cmd_stop},
-    {"rte", 6, 21, 21, "0100111001110011", 0, 0, MC68000, InstrId::RTE, cmd_no_opcode},
-    {"rts", 6, 21, 21, "0100111001110101", 0, 0, MC68000, InstrId::RTS, cmd_no_opcode},
-    {"trapv", 6, 21, 21, "0100111001110110", 0, 0, MC68000, InstrId::TRAPV, cmd_no_opcode},
-    {"rtr", 6, 21, 21, "0100111001110111", 0, 0, MC68000, InstrId::RTR, cmd_no_opcode},
+    {"rte", 6, 21, 21, "0100111001110011", 0, 0, MC68000, InstrId::RTE, cmd_no_params},
+    {"rts", 6, 21, 21, "0100111001110101", 0, 0, MC68000, InstrId::RTS, cmd_no_params},
+    {"trapv", 6, 21, 21, "0100111001110110", 0, 0, MC68000, InstrId::TRAPV, cmd_no_params},
+    {"rtr", 6, 21, 21, "0100111001110111", 0, 0, MC68000, InstrId::RTR, cmd_no_params},
     {"jsr", 6, 5, 21, "0100111010xxxxxx", 0, 0, MC68000, InstrId::JSR, one_ea},
     {"jmp", 6, 5, 21, "0100111011xxxxxx", 0, 0, MC68000, InstrId::JMP, one_ea},
     {"ext.", 10, 4, 21, "01001000xx000xxx", 7, 6, MC68000, InstrId::EXT, cmd_ext},
@@ -264,11 +264,11 @@ extern const OPSTRUCTURE instr12[] = {
     /* ABCD */
     {"abcd", 1, 4, 4, "1100xxx10000xxxx", 7, 6, MC68000, InstrId::ABCD, data_or_predec},
     /* EXG data registers  */
-    {"exg.", 5, 4, 4, "1100xxx101000xxx", 3, 3, MC68000, InstrId::EXG_DATA_REG, cmd_exg},
+    {"exg", 5, 4, 4, "1100xxx101000xxx", 3, 3, MC68000, InstrId::EXG_DATA_REG, cmd_exg},
     /* EXG address registers  */
-    {"exg.", 5, 3, 3, "1100xxx101001xxx", 4, 4, MC68000, InstrId::EXG_ADDR_REG, cmd_exg},
+    {"exg", 5, 3, 3, "1100xxx101001xxx", 4, 4, MC68000, InstrId::EXG_ADDR_REG, cmd_exg},
     /* EXG data register and address  */
-    {"exg.", 5, 4, 3, "1100xxx110001xxx", 4, 4, MC68000, InstrId::EXG_DATA_AND_ADDR, cmd_exg},
+    {"exg", 5, 4, 3, "1100xxx110001xxx", 4, 4, MC68000, InstrId::EXG_DATA_AND_ADDR, cmd_exg},
     /* AND  */
     {"and.", 0, 2, 4, "1100xxxxxxxxxxxx", 7, 6, MC68000, InstrId::AND, add_sub},
     {0}};
