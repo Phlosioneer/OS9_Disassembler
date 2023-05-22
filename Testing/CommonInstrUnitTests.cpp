@@ -205,5 +205,91 @@ namespace UnitTests
 			pushWord(-1);
 			runTest("bset.b", "d5,-1(a1)");
 		}
+
+		// Test situations (in roff or module) where trap has to guess parameters.
+		TEST_METHOD(trap_guess)
+		{
+			const uint16_t TRAP = 0b0100111001000000;
+			const uint16_t MATH_TRAP = 15;
+
+			// Test valid OS9 traps
+			subtestName = L"OS9 Unlink Trap";
+			pushWord(TRAP | 0);
+			pushWord(0x02);
+			runTest("os9", "F$UnLink");
+
+			subtestName = L"OS9 Event trap";
+			pushWord(TRAP | 0);
+			pushWord(0x53);
+			runTest("os9", "F$Event");
+
+			subtestName = L"OS9 Seek trap";
+			pushWord(TRAP | 0);
+			pushWord(0x88);
+			runTest("os9", "I$Seek");
+
+			// Test invalid OS9 traps
+			subtestName = L"Invalid Syscall: Too big";
+			pushWord(TRAP | 0);
+			pushWord(163);
+			runTest("os9", "#163");
+
+			subtestName = L"Invalid Syscall: Gap between syscalls";
+			pushWord(TRAP | 0);
+			pushWord(0x70);
+			runTest("os9", "#112");
+
+			// Test valid T$Math traps
+			subtestName = L"Math Tangent trap";
+			pushWord(TRAP | MATH_TRAP);
+			pushWord(0x30);
+			runTest("tcall", "T$Math,T$Tan");
+
+			// Test invalid T$Math traps
+			subtestName = L"Math invalid trap";
+			pushWord(TRAP | MATH_TRAP);
+			pushWord(68);
+			runTest("tcall", "#15,#68");
+
+			// Test user traps
+			subtestName = L"User trap";
+			pushWord(TRAP | 1);
+			pushWord(0x40);
+			runTest("tcall", "#1,#64");
+		}
+
+		// Test situations where ROF symbols are defined for the trap site.
+		TEST_METHOD(trap_noguess)
+		{
+			const uint16_t TRAP = 0b0100111001000000;
+			const uint16_t MATH_TRAP = 15;
+			opt.IsROF = true;
+
+			// Test valid syscalls
+			subtestName = L"Syscall Unlink trap";
+			pushWord(TRAP | 0);
+			pushWord(0);
+			rof_extrn unlink(0, 2, true);
+			unlink.hasName = true;
+			unlink.nam = "F$UnLink";
+			refs_code.insert(std::make_pair<uint32_t, rof_extrn>(2, std::move(unlink)));
+			runTest("os9", "F$UnLink");
+			refs_code.clear();
+
+			// Test valid T$Math traps
+			subtestName = L"Math Tangent trap";
+			pushWord(TRAP | MATH_TRAP);
+			pushWord(0);
+			rof_extrn temp(0, 1, true);
+			temp.hasName = true;
+			temp.nam = "T$Math";
+			refs_code.insert(std::make_pair<uint32_t, rof_extrn>(1, std::move(temp)));
+			rof_extrn temp2(0, 2, true);
+			temp2.hasName = true;
+			temp2.nam = "T$Tan";
+			refs_code.insert(std::make_pair<uint32_t, rof_extrn>(2, std::move(temp2)));
+			runTest("tcall", "T$Math,T$Tan");
+			refs_code.clear();
+		}
 	};
 }

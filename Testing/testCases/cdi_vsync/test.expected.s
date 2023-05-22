@@ -261,14 +261,14 @@ L002d2 movem.l (sp)+,a0-a2
 L002d8 move.l d1,D0000c(a6)
  move.l #-1,d0
  bra.s L002d2
-L002e4 tcall $05,0002
+L002e4 tcall #5,#2
  bcs.s L002ee
  moveq #0,d0
  rts 
 L002ee move.l d1,D0000c(a6)
  move.l #-1,d0
  rts 
-L002fa tcall $05,0004
+L002fa tcall #5,#4
  bcs.s L002ee
  moveq #0,d0
  rts 

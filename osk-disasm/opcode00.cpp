@@ -41,6 +41,9 @@
 #include "textdef.h"
 #include "userdef.h"
 
+static const uint8_t MATH_TRAP_LIB = 15;
+static const char const* MATH_TRAP_LIB_NAME = "T$Math";
+
 enum
 {
     EA2REG,
@@ -804,144 +807,93 @@ int abcd_sbcd(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
 int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    unsigned int vector = ci->cmd_wrd & 0x0f;
+    ci->useNewParams = true;
+    uint8_t vector = ci->cmd_wrd & 0x0f;
     if (!hasnext_w(state)) return 0;
-    unsigned int syscall = getnext_w(ci, state);
-    unsigned int sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
-    unsigned int mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
+    uint16_t trapNumber = getnext_w(ci, state);
+    const size_t sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
+    const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
-    ci->mnem[0] = '\0';
-
-    switch (vector)
+    struct rof_extrn* vec_ref = nullptr;
+    struct rof_extrn* call_ref = nullptr;
+    if (state->opt->IsROF)
     {
-    case 0: /* System Call */
-        if (state->opt->IsROF)
-        {
-            if (state->Pass == 2)
-            {
-                struct rof_extrn* vec_ref = find_extrn(refs_code, state->CmdEnt + 1);
-                struct rof_extrn* call_ref = find_extrn(refs_code, state->CmdEnt + 2);
-                const char* callName = NULL;
-
-                if (call_ref != NULL)
-                {
-                    unsigned int x;
-
-                    // callName = call_ref->EName.nam;
-                    callName = extern_def_name(call_ref);
-
-                    for (x = 0; x < sysCallCount; x++)
-                    {
-                        if (!strcmp(callName, SysNames[x]))
-                        {
-
-                            strcpy(ci->mnem, "os9");
-                            strcpy(ci->params, callName);
-                            return 1;
-                        }
-                    }
-                } /* end - if call_ref != null */
-
-                if (vec_ref)
-                {
-                    // register char *vN = vec_ref->EName.nam;
-                    const char* vN = extern_def_name(vec_ref);
-                    unsigned int x;
-
-                    for (x = 0; x < mathCallCount; x++)
-                    {
-                        if (!strcmp("T$Math", vN) || !strcmp("T$Math", vN))
-                        {
-                            register int matched = FALSE;
-
-                            if (callName && !strcmp(callName, MathCalls[x]))
-                            {
-                                matched = 1;
-                                break;
-                            }
-
-                            if (!matched)
-                            {
-                                ungetnext_w(ci, state);
-                                return 0;
-                            }
-                        }
-                    }
-
-                    if (callName)
-                    {
-                        sprintf(ci->params, "%s,%s", vN, callName);
-                    }
-                    else
-                    {
-                        sprintf(ci->params, "%s,$%x", vN, syscall);
-                    }
-
-                    strcpy(ci->mnem, "tcall");
-                    return 1;
-                }
-                else
-                {
-                    /* TODO: Check for user defined labels?? */
-                    if (callName)
-                    {
-                        sprintf(ci->params, "$%x,%s", vector, callName);
-                    }
-                    else
-                    {
-                        sprintf(ci->params, "$%x,$%x", vector, syscall);
-                    }
-
-                    strcpy(ci->mnem, "tcall");
-                    return 1;
-                }
-                break;
-            }
-        }
-        else
-        {
-            if (state->Pass == 1)
-            {
-                if (syscall < sysCallCount)
-                {
-                    addlbl(&EQUATE_SPACE, syscall, SysNames[syscall]);
-                    return 1;
-                }
-                else
-                {
-                    ungetnext_w(ci, state);
-                    return 0;
-                }
-            }
-            else
-            {
-                strcpy(ci->params, SysNames[syscall]);
-                strcpy(ci->mnem, "os9");
-                return 1;
-            }
-        }
-    case 0x0f: /* Math trap   */
-        if (syscall < sizeof(MathCalls) / sizeof(MathCalls[0]))
-        {
-            strcpy(ci->params, "T$Math");
-            strcpy(ci->mnem, "tcall");
-            return 1;
-        }
-
-        ungetnext_w(ci, state);
-        return 0;
-        break;
-    default:
-        /* TODO: Provide for user-defined labels */
-        sprintf(ci->params, "$%02x,", vector);
-        sprintf(&ci->params[strlen(ci->params)], "%04x", syscall);
-        strcpy(ci->mnem, "tcall");
-        /*strcpy (ci->mnem, op->name);*/
-        return 1;
+        vec_ref = find_extrn(refs_code, state->CmdEnt + 1);
+        call_ref = find_extrn(refs_code, state->CmdEnt + 2);
     }
 
-    ungetnext_w(ci, state);
-    return 0;
+    // Start with vec_ref.
+    bool shouldGuessSyscall = false;
+    bool shouldGuessMathLib = false;
+    bool vectorHasName = true;
+    if (vec_ref)
+    {
+        ci->setSource(LiteralParam(extern_def_name(vec_ref)));
+        strcpy(ci->mnem, "tcall");
+            
+        // Only guess math syscall if this is the math trap lib.
+        shouldGuessMathLib = !strcmp(extern_def_name(vec_ref), MATH_TRAP_LIB_NAME);
+    }
+    else if (vector == 0)
+    {
+        strcpy(ci->mnem, "os9");
+        shouldGuessSyscall = true;
+    }
+    else
+    {
+        strcpy(ci->mnem, "tcall");
+        vectorHasName = false;
+
+        // We may change this later if the syscall matches something from T$Math
+        ci->setSource(LiteralParam(FormattedNumber(vector, OperandSize::Byte)));
+        shouldGuessMathLib = vector == MATH_TRAP_LIB;
+    }
+
+    // Then do call_ref.
+    if (call_ref)
+    {
+        // No need to guess anything.
+        ci->setDest(LiteralParam(extern_def_name(call_ref)));
+    }
+    else if (shouldGuessSyscall && trapNumber < sysCallCount)
+    {
+        auto syscall = SysNames[trapNumber];
+        if (strlen(syscall) != 0)
+        {
+            addlbl(&EQUATE_SPACE, trapNumber, syscall);
+            ci->setDest(LiteralParam(syscall));
+        }
+    }
+    else if (shouldGuessMathLib && trapNumber < mathCallCount)
+    {
+        auto functionName = MathCalls[trapNumber];
+        if (strlen(functionName) != 0)
+        {
+            // Successful match. Ensure the vector has the T$Math name.
+            if (!vectorHasName)
+            {
+                addlbl(&EQUATE_SPACE, MATH_TRAP_LIB, MATH_TRAP_LIB_NAME);
+                ci->setSource(LiteralParam(MATH_TRAP_LIB_NAME));
+            }
+
+            addlbl(&EQUATE_SPACE, trapNumber, functionName);
+            ci->setDest(LiteralParam(functionName));
+        }
+    }
+
+    // If we were unable to guess the trap name, give it a number literal.
+    if (!ci->dest)
+    {
+        ci->setDest(LiteralParam(FormattedNumber(trapNumber, OperandSize::Word)));
+    }
+
+    // If ci->source is null (an os9 syscall), move dest to source.
+    if (!ci->source)
+    {
+        ci->dest.swap(ci->source);
+    }
+
+    return 1;
 }
 
 int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)

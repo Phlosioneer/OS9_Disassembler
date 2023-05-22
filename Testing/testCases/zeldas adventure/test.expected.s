@@ -18780,7 +18780,7 @@ L0dc08 dc.w $454d
 L0dc0e neg.w d5
  dc.w $4c45
  addq.w #2,a1
- tcall $07,0068
+ tcall #7,#104
 L0dc17 equ *-1
  dc.w $6f77
  ori.w #$7265,-(a3)
@@ -33583,7 +33583,7 @@ L193fe movem.l (sp)+,a0-a2
 L19404 move.l d1,D0000c(a6)
  move.l #-1,d0
  bra.s L193fe
-L19410 tcall $05,0000
+L19410 tcall #5,#0
  bcs.s L1941a
  moveq #0,d0
  rts 
@@ -33693,7 +33693,7 @@ L19520 link.w a5,#0
  movem.l -12(a5),a0/a2/d1
  unlk a5
  rts 
-L19554 tcall $05,0008
+L19554 tcall #5,#8
  bcs.s L1955e
  moveq #0,d0
  rts 
@@ -34278,7 +34278,7 @@ L19bca move.l d5,d0
  movem.l -8(a5),d4-d5
  unlk a5
  rts 
-L19bd6 tcall $05,0008
+L19bd6 tcall #5,#8
  bcs.s L19be0
  moveq #0,d0
  rts 
