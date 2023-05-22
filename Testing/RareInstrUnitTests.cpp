@@ -104,10 +104,10 @@ namespace UnitTests
 		TEST_METHOD(move_ccr_sr)
 		{
 			subtestName = L"MOVE to SR from immediate";
-			const uint16_t MOVE_FROM_SR =  0b0100000011000000;
+			const uint16_t MOVE_FROM_SR = 0b0100000011000000;
 			const uint16_t MOVE_FROM_CCR = 0b0100001011000000;
-			const uint16_t MOVE_TO_CCR =   0b0100010011000000;
-			const uint16_t MOVE_TO_SR =    0b0100011011000000;
+			const uint16_t MOVE_TO_CCR = 0b0100010011000000;
+			const uint16_t MOVE_TO_SR = 0b0100011011000000;
 
 			pushWord(MOVE_TO_SR | EA_MODE(7) | 4);
 			pushWord(0x13); // Arbitrary 5-bit value
@@ -142,7 +142,7 @@ namespace UnitTests
 		{
 			const uint16_t MOVE_USP = 0b0100111001100000;
 			const uint16_t INTO_REG_FLAG = 0b1000;
-			
+
 			subtestName = L"MOVE from USP to A2";
 			pushWord(MOVE_USP | INTO_REG_FLAG | 2);
 			runTest("move", "usp,a2");
@@ -235,7 +235,7 @@ namespace UnitTests
 		TEST_METHOD(cmd_stop)
 		{
 			const uint16_t STOP = 0b0100111001110010;
-			
+
 			subtestName = L"STOP with immediate";
 			pushWord(STOP);
 			pushWord(9);
