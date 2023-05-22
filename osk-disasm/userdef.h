@@ -91,15 +91,13 @@ enum class InstrId : int
 
     MOVEQ = 67,
 
-    SBCD_DATA_REG = 68,
-    SBCD_ADDR_REG,
-    DIVU,
+    SBCD = 68,
+    DIVU = 70,
     DIVS,
     OR = 120,
 
     SUBA = 72,
-    SUBX_DATA_REG,
-    SUBX_ADDR_REG,
+    SUBX,
     SUB = 122,
 
     CMPA = 75,
@@ -109,17 +107,16 @@ enum class InstrId : int
 
     MULU = 79,
     MULS,
-    ABCD_DATA_REG,
-    ABCD_ADDR_REG,
-    EXG_DATA_REG,
+    ABCD,
+
+    EXG_DATA_REG = 83,
     EXG_ADDR_REG,
     EXG_DATA_AND_ADDR,
     AND,
 
     ADDA = 88,
-    ADDX_DATA_REG,
-    ADDX_ADDR_REG,
-    ADD,
+    ADDX,
+    ADD = 91,
 
     ROL_MEM = 94,
     ROR_MEM,

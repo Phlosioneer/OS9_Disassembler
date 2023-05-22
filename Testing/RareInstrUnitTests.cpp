@@ -227,11 +227,6 @@ namespace UnitTests
 		//
 		//}
 
-		// TODO: TEST_METHOD(abcd_sbcd)
-		//{
-		//
-		//}
-
 		TEST_METHOD(cmd_stop)
 		{
 			const uint16_t STOP = 0b0100111001110010;
@@ -264,6 +259,28 @@ namespace UnitTests
 			pushWord(SCC | CONDITION(Condition::GT) | EA_MODE(Special) | ImmediateData);
 			pushWord(2);
 			runFailTest();
+		}
+
+		TEST_METHOD(cmd_cmpm)
+		{
+			const auto SIZE = [](uint16_t code) { return code << 6; };
+			const auto DEST_REG = [](uint16_t code) { return code << 9; };
+			const uint16_t CMPM = 0b1011000100001000;
+			const uint16_t BYTE = 0;
+			const uint16_t WORD = 1;
+			const uint16_t LONG = 2;
+
+			subtestName = L"Byte";
+			pushWord(CMPM | DEST_REG(3) | SIZE(BYTE) | 0);
+			runTest("cmpm.b", "(a0)+,(a3)+");
+
+			subtestName = L"Word";
+			pushWord(CMPM | DEST_REG(2) | SIZE(WORD) | 7);
+			runTest("cmpm.w", "(sp)+,(a2)+");
+
+			subtestName = L"Long";
+			pushWord(CMPM | DEST_REG(6) | SIZE(LONG) | 4);
+			runTest("cmpm.l", "(a4)+,(a6)+");
 		}
 	};
 }

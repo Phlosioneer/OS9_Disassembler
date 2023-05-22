@@ -205,7 +205,7 @@ extern const OPSTRUCTURE instr04[] = {
     {"rtr", 6, 21, 21, "0100111001110111", 0, 0, MC68000, InstrId::RTR, cmd_no_opcode},
     {"jsr", 6, 5, 21, "0100111010xxxxxx", 0, 0, MC68000, InstrId::JSR, one_ea},
     {"jmp", 6, 5, 21, "0100111011xxxxxx", 0, 0, MC68000, InstrId::JMP, one_ea},
-    {"ext.", 10, 4, 21, "01001000xx000xxx", 7, 6, MC68000, InstrId::EXT, ext_extb},
+    {"ext.", 10, 4, 21, "01001000xx000xxx", 7, 6, MC68000, InstrId::EXT, cmd_ext},
     {0}};
 
 extern const OPSTRUCTURE instr05[] = {
@@ -231,8 +231,7 @@ extern const OPSTRUCTURE instr07[] = {{"moveq", 5, 8, 4, "0111xxx0xxxxxxxx", 8, 
 
 extern const OPSTRUCTURE instr08[] = {
     /* SBCD */
-    {"sbcd.", 1, 4, 4, "1000xxx100000xxx", 4, 4, MC68000, InstrId::SBCD_DATA_REG, abcd_sbcd},
-    {"sbcd.", 1, 13, 13, "1000xxx100001xxx", 4, 4, MC68000, InstrId::SBCD_ADDR_REG, abcd_sbcd},
+    {"sbcd", 1, 4, 4, "1000xxx10000xxxx", 4, 4, MC68000, InstrId::SBCD, data_or_predec},
     /* DIVU */
     {"divu.w", 2, 2, 4, "1000xxx011xxxxxx", 8, 8, MC68000, InstrId::DIVU, reg_ea},
     /* DIVS */
@@ -244,18 +243,17 @@ extern const OPSTRUCTURE instr08[] = {
 extern const OPSTRUCTURE instr09[] = {
     /* SUBA */
     {"suba.", 9, 10, 3, "1001xxxx11xxxxxx", 8, 7, MC68000, InstrId::SUBA, add_sub_addr},
+    /* SUBX */
+    {"subx.", 0, 4, 4, "1001xxx1xx00xxxx", 7, 6, MC68000, InstrId::SUBX, data_or_predec},
     /* SUB */
     {"sub.", 0, 2, 4, "1001xxxxxxxxxxxx", 7, 6, MC68000, InstrId::SUB, add_sub},
-    /* SUBX */
-    {"subx.", 0, 4, 4, "1001xxx1xx000xxx", 7, 6, MC68000, InstrId::SUBX_DATA_REG, cmpm_addx_subx},
-    {"subx.", 0, 13, 13, "1001xxx1xx001xxx", 7, 6, MC68000, InstrId::SUBX_ADDR_REG, cmpm_addx_subx},
     {0}};
 
 extern const OPSTRUCTURE instr11[] = {
     {"cmpa.", 9, 10, 3, "1011xxxx11xxxxxx", 8, 7, MC68000, InstrId::CMPA, cmp_cmpa},
     {"cmp.", 0, 10, 4, "1011xxx0xxxxxxxx", 7, 6, MC68000, InstrId::CMP, cmp_cmpa},
     {"eor.", 0, 4, 0, "1011xxx1xxxxxxxx", 7, 6, MC68000, InstrId::EOR, add_sub},
-    {"cmpm.", 0, 24, 24, "1011xxx1xx001xxx", 7, 6, MC68000, InstrId::CMPM, cmpm_addx_subx},
+    {"cmpm.", 0, 24, 24, "1011xxx1xx001xxx", 7, 6, MC68000, InstrId::CMPM, cmd_cmpm},
     {0}};
 
 extern const OPSTRUCTURE instr12[] = {
@@ -264,8 +262,7 @@ extern const OPSTRUCTURE instr12[] = {
     /* MULS WORD */
     {"muls.w", 2, 2, 4, "1100xxx111xxxxxx", 12, 12, MC68000, InstrId::MULS, reg_ea},
     /* ABCD */
-    {"abcd.", 1, 4, 4, "1100xxx100000xxx", 7, 6, MC68000, InstrId::ABCD_DATA_REG, abcd_sbcd},
-    {"abcd.", 1, 13, 13, "1100xxx100001xxx", 7, 6, MC68000, InstrId::ABCD_ADDR_REG, abcd_sbcd},
+    {"abcd", 1, 4, 4, "1100xxx10000xxxx", 7, 6, MC68000, InstrId::ABCD, data_or_predec},
     /* EXG data registers  */
     {"exg.", 5, 4, 4, "1100xxx101000xxx", 3, 3, MC68000, InstrId::EXG_DATA_REG, cmd_exg},
     /* EXG address registers  */
@@ -280,8 +277,7 @@ extern const OPSTRUCTURE instr13[] = {
     /* ADDA */
     {"adda.", 9, 10, 3, "1101xxxx11xxxxxx", 8, 7, MC68000, InstrId::ADDA, add_sub_addr},
     /* ADDX */
-    {"addx.", 0, 4, 4, "1101xxx1xx000xxx", 7, 6, MC68000, InstrId::ADDX_DATA_REG, cmpm_addx_subx},
-    {"addx.", 0, 13, 13, "1101xxx1xx001xxx", 7, 6, MC68000, InstrId::ADDX_ADDR_REG, cmpm_addx_subx},
+    {"addx.", 0, 4, 4, "1101xxx1xx00xxxx", 7, 6, MC68000, InstrId::ADDX, data_or_predec},
     /* ADD */
     {"add.", 0, 2, 4, "1101xxxxxxxxxxxx", 7, 6, MC68000, InstrId::ADD, add_sub},
     {0}};

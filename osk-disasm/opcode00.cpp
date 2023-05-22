@@ -817,32 +817,6 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     return 1;
 }
 
-int abcd_sbcd(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
-{
-    register int srcReg = ci->cmd_wrd & 7;
-    register int dstReg = (ci->cmd_wrd >> 9) & 7;
-    register char* dot;
-
-    if (ci->cmd_wrd & 0x08)
-    {
-        sprintf(ci->params, "-(a%d),-(a%d)", srcReg, dstReg);
-    }
-    else
-    {
-        sprintf(ci->params, "d%d,d%d", srcReg, dstReg);
-    }
-
-    strcpy(ci->mnem, op->name);
-
-    dot = strchr(ci->mnem, '.');
-    if (dot)
-    {
-        *dot = '\0';
-    }
-
-    return 1;
-}
-
 int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     ci->useNewParams = true;
@@ -1004,64 +978,108 @@ int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     return 1;
 }
 
-int ext_extb(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register char* sufx;
+    ci->useNewParams = true;
 
-    sprintf(ci->params, "d%d", ci->cmd_wrd & 7);
-    strcpy(ci->mnem, op->name);
+    uint8_t regCode = ci->cmd_wrd & 7;
+    uint8_t opmode = (ci->cmd_wrd >> 6) & 7;
+    OperandSize size;
 
-    switch (ci->cmd_wrd & 0x01c0)
+    auto reg = Registers::makeDReg(regCode);
+    switch (opmode)
     {
-    case 0x80:
-        sufx = "w";
+    case 0b010:
+        size = OperandSize::Word;
         break;
-    case 0xc0:
-        sufx = "l";
+    case 0b011:
+        size = OperandSize::Long;
         break;
-    case 0x1c0:
-        /* m68020+ */
+    case 0b111:
+        // 68020+
         return 0;
     default:
         return 0;
     }
 
-    strcat(ci->mnem, sufx);
+    ci->setSource(RegParam(reg, RegParamMode::Direct));
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    strcpy(ci->mnem, mnem.c_str());
     return 1;
 }
 
-int cmpm_addx_subx(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int srcRegno = ci->cmd_wrd & 7;
-    register int dstRegno = (ci->cmd_wrd >> 9) & 7;
-    register int size = (ci->cmd_wrd >> 6) & 3;
-    char* opcodeFmt;
+    ci->useNewParams = true;
 
-    if (size == 3)
+    uint8_t srcRegno = ci->cmd_wrd & 7;
+    uint8_t dstRegno = (ci->cmd_wrd >> 9) & 7;
+    bool isAddressMode = (ci->cmd_wrd >> 3) & 1;
+    
+    auto maker = isAddressMode ? Registers::makeAReg : Registers::makeDReg;
+    auto mode = isAddressMode ? RegParamMode::PreDecrement : RegParamMode::Direct;
+
+    if (op->id == InstrId::ABCD || op->id == InstrId::SBCD)
     {
+        strcpy(ci->mnem, op->name);
+    }
+    else
+    {
+        uint8_t size = (ci->cmd_wrd >> 6) & 3;
+        OperandSize sizeOp;
+        switch (size)
+        {
+        case SIZ_BYTE:
+            sizeOp = OperandSize::Byte;
+            break;
+        case SIZ_WORD:
+            sizeOp = OperandSize::Word;
+            break;
+        case SIZ_LONG:
+            sizeOp = OperandSize::Long;
+            break;
+        default:
+            return 0;
+        }
+        auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+        strcpy(ci->mnem, mnem.c_str());
+    }
+    
+    ci->setSource(RegParam(maker(srcRegno), mode));
+    ci->setDest(RegParam(maker(dstRegno), mode));
+    return 1;
+}
+
+int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    ci->useNewParams = true;
+
+    uint8_t srcRegno = ci->cmd_wrd & 7;
+    uint8_t dstRegno = (ci->cmd_wrd >> 9) & 7;
+    uint8_t size = (ci->cmd_wrd >> 6) & 3;
+
+    OperandSize sizeOp;
+    switch (size)
+    {
+    case SIZ_BYTE:
+        sizeOp = OperandSize::Byte;
+        break;
+    case SIZ_WORD:
+        sizeOp = OperandSize::Word;
+        break;
+    case SIZ_LONG:
+        sizeOp = OperandSize::Long;
+        break;
+    default:
         return 0;
     }
 
-    switch (ci->cmd_wrd & 0xf000)
-    {
-    case 0xb000: /* cmpm */
-        opcodeFmt = "(a%d)+,(a%d)+";
-        break;
-    default: /* addx/subx */
-        if (ci->cmd_wrd & 8)
-        {
-            opcodeFmt = "-(a%d),-(a%d)";
-        }
-        else
-        {
-            opcodeFmt = "d%d,d%d";
-        }
-    }
+    ci->setSource(RegParam(Registers::makeAReg(srcRegno), RegParamMode::PostIncrement));
+    ci->setDest(RegParam(Registers::makeAReg(dstRegno), RegParamMode::PostIncrement));
 
-    sprintf(ci->params, opcodeFmt, srcRegno, dstRegno);
-    strcpy(ci->mnem, op->name);
-    if (size >= 3) throw std::runtime_error("SizSufx overrun");
-    strcat(ci->mnem, SizSufx[size]);
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+    strcpy(ci->mnem, mnem.c_str());
 
     return 1;
 }

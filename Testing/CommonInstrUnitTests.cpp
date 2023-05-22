@@ -9,9 +9,6 @@
 #include "modtypes.h"
 
 #define EA_MODE(a) ((a) << 3)
-#define SUB_OPMODE(a) ((a) << 6)
-#define SUB_REG(a) ((a) << 9)
-#define SUBX_SIZE(a) ((a) << 6)
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -78,36 +75,88 @@ namespace UnitTests
 		}
 
 		// Tests all of the opcodes that begin with 0b1001
-		TEST_METHOD(sub)
+		TEST_METHOD(add_sub)
 		{
+			const uint16_t ADD = 0b1101 << 12;
 			const uint16_t SUB = 0b1001 << 12;
 
+			const auto OPMODE = [](uint16_t mode) { return mode << 6; };
+			const auto DATA_REG = [](uint16_t reg) { return reg << 9; };
+
 			subtestName = L"SUB with EA source";
-			pushWord(SUB | SUB_REG(2) | SUB_OPMODE(0b010) | EA_MODE(2) | 3);
+			pushWord(SUB | DATA_REG(2) | OPMODE(0b010) | EA_MODE(2) | 3);
 			runTest("sub.l", "(a3),d2");
 
 			subtestName = L"SUB with EA dest";
-			pushWord(SUB | SUB_REG(4) | SUB_OPMODE(0b101) | EA_MODE(2) | 5);
+			pushWord(SUB | DATA_REG(4) | OPMODE(0b101) | EA_MODE(2) | 5);
 			runTest("sub.w", "d4,(a5)");
 
 			subtestName = L"SUBA word";
-			pushWord(SUB | SUB_REG(3) | SUB_OPMODE(0b011) | EA_MODE(0) | 0);
+			pushWord(SUB | DATA_REG(3) | OPMODE(0b011) | EA_MODE(0) | 0);
 			runTest("suba.w", "d0,a3");
 
 			subtestName = L"SUBA long";
-			pushWord(SUB | SUB_REG(6) | SUB_OPMODE(0b111) | EA_MODE(0) | 5);
+			pushWord(SUB | DATA_REG(6) | OPMODE(0b111) | EA_MODE(0) | 5);
 			runTest("suba.l", "d5,a6");
 
+			subtestName = L"ADD with EA source";
+			pushWord(ADD | DATA_REG(2) | OPMODE(0b010) | EA_MODE(2) | 3);
+			runTest("add.l", "(a3),d2");
+
+			subtestName = L"ADD with EA dest";
+			pushWord(ADD | DATA_REG(4) | OPMODE(0b101) | EA_MODE(2) | 5);
+			runTest("add.w", "d4,(a5)");
+
+			subtestName = L"ADDA word";
+			pushWord(ADD | DATA_REG(3) | OPMODE(0b011) | EA_MODE(0) | 0);
+			runTest("adda.w", "d0,a3");
+		}
+
+		TEST_METHOD(data_or_predec)
+		{
+			const uint16_t SBCD = 0b1000000100000000;
 			const uint16_t SUBX = 0b1001000100000000;
-			const uint16_t SUBX_ADDR_MODE_BIT = 0b1000;
+			const uint16_t ABCD = 0b1100000100000000;
+			const uint16_t ADDX = 0b1101000100000000;
+			const uint16_t ADDR_MODE_BIT = 0b1000;
+			const uint16_t BYTE = 0;
+			const uint16_t WORD = 1;
+			const uint16_t LONG = 2;
+
+			const auto DEST_REG = [](uint16_t reg) { return reg << 9; };
+			const auto X_SIZE = [](uint16_t size) { return size << 6; };
 
 			subtestName = L"SUBX register";
-			pushWord(SUBX | SUB_REG(2) | SUBX_SIZE(0b01) | 4);
+			pushWord(SUBX | DEST_REG(2) | X_SIZE(WORD) | 4);
 			runTest("subx.w", "d4,d2");
 
 			subtestName = L"SUBX memory";
-			pushWord(SUBX | SUB_REG(4) | SUBX_SIZE(0b10) | SUBX_ADDR_MODE_BIT | 0);
+			pushWord(SUBX | DEST_REG(4) | X_SIZE(LONG) | ADDR_MODE_BIT | 0);
 			runTest("subx.l", "-(a0),-(a4)");
+
+			subtestName = L"ADDX register";
+			pushWord(ADDX | DEST_REG(0) | X_SIZE(BYTE) | 1);
+			runTest("addx.b", "d1,d0");
+
+			subtestName = L"ADDX memory";
+			pushWord(ADDX | DEST_REG(3) | X_SIZE(WORD) | ADDR_MODE_BIT | 3);
+			runTest("addx.w", "-(a3),-(a3)");
+
+			subtestName = L"ABCD register";
+			pushWord(ABCD | DEST_REG(3) | 1);
+			runTest("abcd", "d1,d3");
+
+			subtestName = L"ABCD memory";
+			pushWord(ABCD | DEST_REG(6) | ADDR_MODE_BIT | 7);
+			runTest("abcd", "-(sp),-(a6)");
+
+			subtestName = L"SBCD register";
+			pushWord(SBCD | DEST_REG(2) | 7);
+			runTest("sbcd", "d7,d2");
+
+			subtestName = L"SBCD memory";
+			pushWord(SBCD | DEST_REG(0) | ADDR_MODE_BIT | 5);
+			runTest("sbcd", "-(a5),-(a0)");
 		}
 
 		TEST_METHOD(link_unlk)
