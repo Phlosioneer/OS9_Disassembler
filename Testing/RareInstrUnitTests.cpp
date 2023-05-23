@@ -12,9 +12,6 @@
 #include "modtypes.h"
 
 #define EA_MODE(a) ((a) << 3)
-#define MOVEP_OPMODE(a) ((a) << 6)
-#define MOVEP_DAT_REG(a) ((a) << 9)
-#define MOVEP_ADDR_REG(a) (a)
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -152,36 +149,12 @@ namespace UnitTests
 			runTest("move", "a5,usp");
 		}
 
-		TEST_METHOD(movep)
-		{
-			const uint16_t MOVEP = 0b1000;
-
-			subtestName = L"MOVEP 90(a3) into D2";
-			pushWord(MOVEP | MOVEP_ADDR_REG(3) | MOVEP_DAT_REG(2) | MOVEP_OPMODE(0b101));
-			pushWord(90);
-			runTest("movep.l", "90(a3),d2");
-
-			subtestName = L"MOVEP D2 into (A1)";
-			pushWord(MOVEP | MOVEP_ADDR_REG(1) | MOVEP_DAT_REG(2) | MOVEP_OPMODE(0b110));
-			pushWord(0);
-			runTest("movep.w", "d2,(a1)");
-
-			subtestName = L"MOVEP Invalid OPMODE=3";
-			pushWord(MOVEP | MOVEP_OPMODE(0b011));
-			pushWord(0);
-			runFailTest();
-
-			subtestName = L"MOVEP Invalid OPMODE=0";
-			pushWord(MOVEP | MOVEP_OPMODE(0));
-			pushWord(0);
-			runFailTest();
-
-			// TODO: Test moving to/from A6-relative label
-		}
-
 		TEST_METHOD(bit_rotate_mem)
 		{
-			const uint16_t A_SHIFT = 0b1110000011000000;
+			const uint16_t A_SHIFT =    0b1110000011000000;
+			const uint16_t L_SHIFT =    0b1110001011000000;
+			const uint16_t ROTATE_EXT = 0b1110010011000000;
+			const uint16_t ROTATE =     0b1110011011000000;
 			const uint16_t LEFT_BIT = 1 << 8;
 
 			subtestName = L"ASL";
@@ -194,7 +167,6 @@ namespace UnitTests
 			pushWord(80);
 			runTest("asr", "hello(a6)");
 
-			const uint16_t L_SHIFT = 0b1110001011000000;
 			subtestName = L"LSL";
 			pushWord(L_SHIFT | LEFT_BIT | EA_MODE(2) | 0);
 			runTest("lsl", "(a0)");
@@ -203,7 +175,6 @@ namespace UnitTests
 			pushWord(L_SHIFT | EA_MODE(4) | 4);
 			runTest("lsr", "-(a4)");
 
-			const uint16_t ROTATE = 0b1110011011000000;
 			subtestName = L"ROL";
 			pushWord(ROTATE | LEFT_BIT | EA_MODE(2) | 1);
 			runTest("rol", "(a1)");
@@ -212,7 +183,6 @@ namespace UnitTests
 			pushWord(ROTATE | EA_MODE(2) | 7);
 			runTest("ror", "(sp)");
 
-			const uint16_t ROTATE_EXT = 0b1110010011000000;
 			subtestName = L"ROXL";
 			pushWord(ROTATE_EXT | LEFT_BIT | EA_MODE(2) | 1);
 			runTest("roxl", "(a1)");
@@ -220,6 +190,57 @@ namespace UnitTests
 			subtestName = L"ROXR";
 			pushWord(ROTATE_EXT | EA_MODE(2) | 1);
 			runTest("roxr", "(a1)");
+		}
+
+		TEST_METHOD(bit_rotate_reg)
+		{
+			const uint16_t A_SHIFT =    0b1110000000000000;
+			const uint16_t L_SHIFT =    0b1110000000001000;
+			const uint16_t ROTATE_EXT = 0b1110000000010000;
+			const uint16_t ROTATE =     0b1110000000011000;
+			const uint16_t LEFT_BIT = 1 << 8;
+			const auto COUNT = [](uint16_t n) { return ((n % 8) << 9) | (0 << 5); };
+			const auto AMOUNT_REG = [](uint16_t code) { return (code << 9) | (1 << 5); };
+			const auto SIZE = [](uint16_t code) { return code << 6; };
+			const uint16_t BYTE = 0;
+			const uint16_t WORD = 1;
+			const uint16_t LONG = 2;
+
+			subtestName = L"ASL byte with count";
+			pushWord(A_SHIFT | LEFT_BIT | COUNT(5) | SIZE(BYTE) | 3);
+			runTest("asl.b", "#5,d3");
+
+			subtestName = L"ASL long with reg";
+			pushWord(A_SHIFT | LEFT_BIT | AMOUNT_REG(5) | SIZE(LONG) | 3);
+			runTest("asl.l", "d5,d3");
+
+			subtestName = L"ASR word with count of 8";
+			pushWord(A_SHIFT | COUNT(8) | SIZE(WORD) | 6);
+			runTest("asr.w", "#8,d6");
+
+			subtestName = L"LSL with reg";
+			pushWord(L_SHIFT | LEFT_BIT | AMOUNT_REG(2) | SIZE(BYTE) | 0);
+			runTest("lsl.b", "d2,d0");
+
+			subtestName = L"LSR with count";
+			pushWord(L_SHIFT | COUNT(1) | SIZE(BYTE) | 7);
+			runTest("lsr.b", "#1,d7");
+
+			subtestName = L"ROL with count";
+			pushWord(ROTATE | LEFT_BIT | COUNT(7) | SIZE(LONG) | 4);
+			runTest("rol.l", "#7,d4");
+
+			subtestName = L"ROR with reg";
+			pushWord(ROTATE | AMOUNT_REG(0) | SIZE(WORD) | 2);
+			runTest("ror.w", "d0,d2");
+
+			subtestName = L"ROXL with reg";
+			pushWord(ROTATE_EXT | LEFT_BIT | AMOUNT_REG(4) | SIZE(LONG) | 4);
+			runTest("roxl.l", "d4,d4");
+
+			subtestName = L"ROXR with count";
+			pushWord(ROTATE_EXT | COUNT(3) | SIZE(BYTE) | 0);
+			runTest("roxr.b", "#3,d0");
 		}
 
 		TEST_METHOD(cmp_cmpa)
@@ -247,7 +268,7 @@ namespace UnitTests
 			subtestName = L"CMP Long";
 			pushWord(CMP | DATA_REG(1) | OPMODE(CMP_LONG) | EA_MODE(DirectAddrReg) | 2);
 			runTest("cmp.l", "a2,d1");
-			
+
 			subtestName = L"CMPA Word";
 			pushWord(CMP | DATA_REG(2) | OPMODE(CMPA_WORD) | EA_MODE(DirectAddrReg) | 0);
 			runTest("cmpa.w", "a0,a2");
@@ -311,6 +332,54 @@ namespace UnitTests
 			subtestName = L"Long";
 			pushWord(CMPM | DEST_REG(6) | SIZE(LONG) | 4);
 			runTest("cmpm.l", "(a4)+,(a6)+");
+		}
+
+		TEST_METHOD(movep)
+		{
+			const auto DATA_REG = [](uint16_t code) { return code << 9; };
+			const auto OPMODE = [](uint16_t code) { return code << 6; };
+			const uint16_t MOVEP = 0b0000000000001000;
+			const uint16_t WORD_MEM_TO_REG = 0b100;
+			const uint16_t LONG_MEM_TO_REG = 0b101;
+			const uint16_t WORD_REG_TO_MEM = 0b110;
+			const uint16_t LONG_REG_TO_MEM = 0b111;
+
+			subtestName = L"Word mem to reg";
+			pushWord(MOVEP | DATA_REG(6) | OPMODE(WORD_MEM_TO_REG) | 0);
+			pushWord(456);
+			runTest("movep.w", "456(a0),d6");
+
+			subtestName = L"Long mem to reg";
+			pushWord(MOVEP | DATA_REG(3) | OPMODE(LONG_MEM_TO_REG) | 4);
+			pushWord(0);
+			runTest("movep.l", "0(a4),d3");
+
+			subtestName = L"Word reg to mem";
+			pushWord(MOVEP | DATA_REG(0) | OPMODE(WORD_REG_TO_MEM) | 7);
+			pushWord(7);
+			runTest("movep.w", "d0,7(sp)");
+
+			subtestName = L"Long reg to mem";
+			pushWord(MOVEP | DATA_REG(5) | OPMODE(LONG_REG_TO_MEM) | 2);
+			pushWord(3105);
+			runTest("movep.l", "d5,3105(a2)");
+
+			subtestName = L"Displacement labels";
+			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 90 + 0x8000, "hello");
+			pushWord(MOVEP | DATA_REG(1) | OPMODE(LONG_MEM_TO_REG) | 6);
+			pushWord(90);
+			runTest("movep.l", "hello(a6),d1");
+			labelManager->clear();
+
+			subtestName = L"MOVEP Invalid OPMODE=3";
+			pushWord(MOVEP | OPMODE(0b011));
+			pushWord(0);
+			runFailTest();
+
+			subtestName = L"MOVEP Invalid OPMODE=0";
+			pushWord(MOVEP | OPMODE(0));
+			pushWord(0);
+			runFailTest();
 		}
 	};
 }

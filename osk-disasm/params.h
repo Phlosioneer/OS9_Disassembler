@@ -8,6 +8,7 @@
 
 #include "address_space.h"
 #include "either.h"
+#include "disglobs.h"
 
 class Label;
 
@@ -134,6 +135,32 @@ uint8_t getOperandSizeInBytes(OperandSize size);
 uint32_t truncateUnsignedToOperandSize(OperandSize size, uint32_t value);
 // Excess bytes are sign-extended
 int32_t truncateSignedToOperandSize(OperandSize size, int32_t value);
+
+// Parses the size field, assuming the standard size encoding. The result is written
+// into out_sizeOp. Returns true if successful.
+//
+// This is an inline function, so hopefully the compiler will optimize away the bool
+// return and the out_sizeOp reference/pointer.
+//
+// TODO: Not really sure where to put this. It doesn't really belong with OperandSize
+// functions, since it's a parsing function.
+inline bool parseStandardSize(uint8_t size, OperandSize& out_sizeOp)
+{
+    switch (size)
+    {
+    case SIZ_BYTE:
+        out_sizeOp = OperandSize::Byte;
+        return true;
+    case SIZ_WORD:
+        out_sizeOp = OperandSize::Word;
+        return true;
+    case SIZ_LONG:
+        out_sizeOp = OperandSize::Long;
+        return true;
+    default:
+        return false;
+    }
+}
 
 class RegisterSet
 {

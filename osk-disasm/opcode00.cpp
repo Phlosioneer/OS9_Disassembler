@@ -92,20 +92,7 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     uint8_t regCode = (ci->cmd_wrd) & 7;
 
     OperandSize sizeOp;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        sizeOp = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        sizeOp = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        sizeOp = OperandSize::Long;
-        break;
-    default:
-        return 0;
-    }
+    if (!parseStandardSize(size, sizeOp)) return false;
 
     if (mode == DirectAddrReg) return 0;
     if (!isWritableMode(mode, regCode)) return 0;
@@ -325,39 +312,29 @@ int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
 int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int addr_reg = ci->cmd_wrd & 7;
-    register int opMode = (ci->cmd_wrd >> 6) & 7;
-    register int size = (opMode & 1) ? SIZ_LONG : SIZ_WORD;
-    char DReg[4];
-    char AReg[50];
-    if (!hasnext_w(state)) return 0;
-    int disp = getnext_w(ci, state);
-    static char opcodeFmt[8];
+    ci->useNewParams = true;
 
-    strcpy(opcodeFmt, "%s,%s");
-    sprintf(DReg, "d%d", (ci->cmd_wrd >> 9) & 7);
+    uint8_t addrRegCode = ci->cmd_wrd & 7;
+    uint8_t dataRegCode = (ci->cmd_wrd >> 9) & 7;
+    RegParam dataParam(Registers::makeDReg(dataRegCode), RegParamMode::Direct);
+    auto size = ((ci->cmd_wrd >> 6) & 1) ? OperandSize::Long : OperandSize::Word;
+    bool destIsMemory = (ci->cmd_wrd >> 7) & 1;
 
-    if (disp == 0)
+    if (destIsMemory)
     {
-        sprintf(AReg, "(a%d)", addr_reg);
+        ci->dest = get_eff_addr(ci, Displacement, addrRegCode, size, state);
+        if (!ci->dest) return 0;
+        ci->setSource(dataParam);
     }
     else
     {
-        // TODO: Account for labels!
-        sprintf(AReg, "%d(a%d)", disp, addr_reg);
+        ci->source = get_eff_addr(ci, Displacement, addrRegCode, size, state);
+        if (!ci->source) return 0;
+        ci->setDest(dataParam);
     }
 
-    if (opMode & 2)
-    {
-        sprintf(ci->params, opcodeFmt, DReg, AReg);
-    }
-    else
-    {
-        sprintf(ci->params, opcodeFmt, AReg, DReg);
-    }
-
-    strcpy(ci->mnem, op->name);
-    strcat(ci->mnem, (size == SIZ_LONG) ? "l" : "w");
+    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    strcpy(ci->mnem, mnem.c_str());
     return 1;
 }
 
@@ -401,20 +378,7 @@ int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
 
     OperandSize sizeOp;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        sizeOp = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        sizeOp = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        sizeOp = OperandSize::Long;
-        break;
-    default:
-        return 0;
-    }
+    if (!parseStandardSize(size, sizeOp)) return 0;
 
     // TST allows all modes.
     if (op->id != InstrId::TST)
@@ -471,60 +435,49 @@ int cmd_no_params(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_stat
 
 int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    int mode = (ci->cmd_wrd >> 3) & 7;
-    int reg = ci->cmd_wrd & 7;
-    char ea[150];
+    ci->useNewParams = true;
 
-    if (mode < 2)
-    {
-        return 0;
-    }
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t regCode = ci->cmd_wrd & 7;
+    
+    // Destination must be in memory.
+    if (mode == DirectAddrReg || mode == DirectDataReg) return 0;
 
-    if ((mode == 7) && (reg > 1))
-    {
-        return 0;
-    }
+    // Destination must be writable.
+    if (!isWritableMode(mode, regCode)) return 0;
 
-    if (get_eff_addr(ci, ea, mode, reg, 8, state))
-    {
-        if (state->Pass == 2)
-        {
-            strcpy(ci->params, ea);
-            strcpy(ci->mnem, op->name);
-        }
+    ci->source = get_eff_addr(ci, mode, regCode, OperandSize::Byte, state);
+    if (!ci->source) return 0;
 
-        return 1;
-    }
-
-    return 0;
+    strcpy(ci->mnem, op->name);
+    return 1;
 }
 
 int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    register int count_reg = (ci->cmd_wrd >> 9) & 7;
-    char dest_ea[5];
+    ci->useNewParams = true;
 
-    switch ((ci->cmd_wrd >> 5) & 1)
+    uint8_t countOrReg = (ci->cmd_wrd >> 9) & 7;
+    bool sourceIsReg = (ci->cmd_wrd >> 5) & 1;
+    uint8_t size = (ci->cmd_wrd >> 6) & 3;
+    uint8_t destRegCode = ci->cmd_wrd & 7;
+
+    if (sourceIsReg)
     {
-    case 0:
-        sprintf(ci->params, "#%d,", (count_reg == 0) ? 8 : count_reg);
-        break;
-    default:
-        sprintf(ci->params, "d%d,", count_reg);
+        ci->setSource(RegParam(Registers::makeDReg(countOrReg), RegParamMode::Direct));
+    }
+    else
+    {
+        if (countOrReg == 0) countOrReg = 8;
+        ci->setSource(LiteralParam(FormattedNumber(countOrReg, OperandSize::Byte)));
     }
 
-    sprintf(dest_ea, "d%d", ci->cmd_wrd & 7);
-    strcat(ci->params, dest_ea);
-    strcpy(ci->mnem, op->name);
+    ci->setDest(RegParam(Registers::makeDReg(destRegCode), RegParamMode::Direct));
 
-    /* Use count_reg to hold Size... */
-
-    if ((count_reg = (ci->cmd_wrd >> 6) & 3) > 2)
-    {
-        return 0;
-    }
-
-    strcat(ci->mnem, SizSufx[count_reg]);
+    OperandSize sizeOp;
+    if (!parseStandardSize(size, sizeOp)) return 0;
+    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
+    strcpy(ci->mnem, mnem.c_str());
     return 1;
 }
 
@@ -655,20 +608,7 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     auto dataReg = Registers::makeDReg(dataRegCode);
 
     OperandSize sizeOp;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        sizeOp = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        sizeOp = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        sizeOp = OperandSize::Long;
-        break;
-    default:
-        return 0;
-    }
+    if (!parseStandardSize(size, sizeOp)) return 0;
 
     if (eaIsDest)
     {
@@ -795,20 +735,7 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     }
 
     OperandSize sizeOp;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        sizeOp = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        sizeOp = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        sizeOp = OperandSize::Long;
-        break;
-    default:
-        return 0;
-    }
+    if (!parseStandardSize(size, sizeOp)) return 0;
 
     ci->dest = get_eff_addr(ci, mode, reg, sizeOp, state);
     if (!ci->dest) return 0;
@@ -1028,20 +955,8 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
     {
         uint8_t size = (ci->cmd_wrd >> 6) & 3;
         OperandSize sizeOp;
-        switch (size)
-        {
-        case SIZ_BYTE:
-            sizeOp = OperandSize::Byte;
-            break;
-        case SIZ_WORD:
-            sizeOp = OperandSize::Word;
-            break;
-        case SIZ_LONG:
-            sizeOp = OperandSize::Long;
-            break;
-        default:
-            return 0;
-        }
+        if (!parseStandardSize(size, sizeOp)) return 0;
+
         auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
         strcpy(ci->mnem, mnem.c_str());
     }
@@ -1060,20 +975,7 @@ int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
 
     OperandSize sizeOp;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        sizeOp = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        sizeOp = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        sizeOp = OperandSize::Long;
-        break;
-    default:
-        return 0;
-    }
+    if (!parseStandardSize(size, sizeOp)) return 0;
 
     ci->setSource(RegParam(Registers::makeAReg(srcRegno), RegParamMode::PostIncrement));
     ci->setDest(RegParam(Registers::makeAReg(dstRegno), RegParamMode::PostIncrement));
