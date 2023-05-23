@@ -1,4 +1,5 @@
- psect remote_t_c,$0,$0,0,0,main
+ psect remote_t_c,0,0,0,0,main
+
 
 * G
  vsect remote

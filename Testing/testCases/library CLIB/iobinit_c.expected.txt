@@ -1,29 +1,30 @@
-    0  00000 0000            psect  iobinit_c,$0,$0,0,0,_iobinit 
+    0  00000 0000            psect  iobinit_c,0,0,0,0,_iobinit 
     1
-    2 * Uninitialized Data (Class "D")
-    3
-    4  00000 0000            vsect             
-    5  00000 0000 _iob:      ds.b   12         
-    6  0000c 0000 D0000c     ds.b   2          
-    7  0000e 0000 D0000e     ds.b   26         
-    8  00028 0000 D00028     ds.b   2          
-    9  0002a 0000 D0002a     ds.b   26         
-   10  00044 0000 D00044     ds.b   2          
-   11  00046 0000 D00046     ds.b   826        
-   12
+    2
+    3 * Uninitialized Data (Class "D")
+    4
+    5  00000 0000            vsect             
+    6  00000 0000 _iob:      ds.b   12         
+    7  0000c 0000 D0000c     ds.b   2          
+    8  0000e 0000 D0000e     ds.b   26         
+    9  00028 0000 D00028     ds.b   2          
+   10  0002a 0000 D0002a     ds.b   26         
+   11  00044 0000 D00044     ds.b   2          
+   12  00046 0000 D00046     ds.b   826        
    13
-   14  00000 0000            ends              
    14
-   15  00000 4e55 _iobinit:  link.w a5,#0      
-   16  00004 48e7            movem.l d0,-(sp)   
-   17  00008 3d7c            move.w #65,D0000c(a6) 
-   18  0000e 426e            clr.w  D0000e(a6) 
-   19  00012 3d7c            move.w #2,D00028(a6) 
-   20  00018 3d7c            move.w #1,D0002a(a6) 
-   21  0001e 3d7c            move.w #2,D00044(a6) 
-   22  00024 3d7c            move.w #2,D00046(a6) 
-   23  0002a 4e5d            unlk   a5         
-   24  0002c 4e75            rts               
-   25
-   26  0002e 0000            ends              
+   15  00000 0000            ends              
+   15
+   16  00000 4e55 _iobinit:  link.w a5,#0      
+   17  00004 48e7            movem.l d0,-(sp)   
+   18  00008 3d7c            move.w #65,D0000c(a6) 
+   19  0000e 426e            clr.w  D0000e(a6) 
+   20  00012 3d7c            move.w #2,D00028(a6) 
+   21  00018 3d7c            move.w #1,D0002a(a6) 
+   22  0001e 3d7c            move.w #2,D00044(a6) 
+   23  00024 3d7c            move.w #2,D00046(a6) 
+   24  0002a 4e5d            unlk   a5         
+   25  0002c 4e75            rts               
    26
+   27  0002e 0000            ends              
+   27

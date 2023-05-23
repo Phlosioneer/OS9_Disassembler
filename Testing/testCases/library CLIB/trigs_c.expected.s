@@ -1,11 +1,12 @@
- psect trigs_c,$0,$0,0,0,L00000
+ psect trigs_c,0,0,0,0,L00000
+
 L00000 move.w d6,-(a6)
  or.l (a3)+,d2
  or.l -(a1),d3
  dc.w $2b9c
  dc.w $3fe0
  ori.b #$00,d0
- dc.w $0
+ dc.w $0000
 sin: movem.l d2-d3,-(sp)
  movem.l L00000(pc),d2-d3
  tcall T$Math,T$Sin

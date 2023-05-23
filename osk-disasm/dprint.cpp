@@ -86,11 +86,12 @@ static int HadWrote;     /* flag that header has been written */
 static char* SrcHd;      /* ptr for header for source file */
 int LinNum;
 
-const struct modnam ModTyps[] = {{"Prgrm", 1},  {"Sbrtn", 2},  {"Multi", 3},  {"Data", 4},   {"CSDData", 5}, {"TrapLib", 11},
-                           {"Systm", 12}, {"FlMgr", 13}, {"Drivr", 14}, {"Devic", 15}, {"", 0}};
+const std::unordered_map<uint8_t, const char*> ModTypes{{1, "Prgrm"},   {2, "Sbrtn"},    {3, "Multi"},  {4, "Data"},
+                                                        {5, "CSDData"}, {11, "TrapLib"}, {12, "Systm"}, {13, "FlMgr"},
+                                                        {14, "Drivr"},  {15, "Devic"}};
 
-const struct modnam ModLangs[] = {{"Objct", 1},   {"ICode", 2},    {"PCode", 3}, {"CCode", 4},
-                            {"CblCode", 5}, {"FrtnCode", 6}, {"", 0}};
+const std::unordered_map<uint8_t, const char*> ModLangs{{1, "Objct"},   {2, "ICode"},    {3, "PCode"}, {4, "CCode"},
+                                  {5, "CblCode"}, {6, "FrtnCode"}};
 
 const struct modnam ModAtts[] = {{"SupStat", 0x20}, {"Ghost", 0x40}, {"ReEnt", 0x80}, {"", 0}};
 
@@ -111,116 +112,148 @@ static const struct modnam* modnam_find(const struct modnam* pt, int desired)
  *
  */
 
-void PrintPsect(struct options* opt)
+void PrintPsect(struct options* opt, bool printEquates)
 {
-    const char* ProgType = NULL;
-    const char* ProgLang = NULL;
-    char ProgAtts[50];
-    /*char *StackAddL;*/
-    int c;
-    struct cmd_items Ci;
     int pgWdthSave;
-    std::ostringstream psectParamBuffer;
+    std::vector<std::string> psectParams;
 
-    Ci.comment = "";
-    strcpy(Ci.mnem, "set");
-    BlankLine(opt);
+    if (printEquates) BlankLine(opt);
+
+    /* Type/Language */
+    std::string ProgType;
+    uint16_t type = opt->modHeader ? opt->modHeader->type : opt->ROFHd->type;
+    auto it = ModTypes.find(type);
+    if (it != ModTypes.end())
+    {
+        ProgType = it->second;
+        if (printEquates)
+        {
+            PrintDirective(ProgType, "set", FormattedNumber(type, OperandSize::Byte, &LITERAL_HEX_SPACE), 0, opt);
+        }
+    }
+    else
+    {
+        ProgType = FormattedNumber(type).str();
+    }
+
+
+    int lang = opt->modHeader ? opt->modHeader->lang : opt->ROFHd->lang;
+    std::string ProgLang;
+    it = ModLangs.find(lang);
+    if (it != ModLangs.end())
+    {
+        ProgLang = it->second;
+        if (printEquates)
+        {
+            PrintDirective(ProgLang, "set", FormattedNumber(lang, OperandSize::Byte, &LITERAL_HEX_SPACE), 0, opt);
+        }
+    }
+    else
+    {
+        ProgLang = FormattedNumber(lang).str();
+    }
+
+    /* Att/Rev */
+    std::string ProgAtts;
+    int attributes = opt->modHeader ? opt->modHeader->attributes : opt->ROFHd->attributes;
+    for (size_t c = 0; ModAtts[c].val; c++)
+    {
+        if (attributes & ModAtts[c].val)
+        {
+            if (!ProgAtts.empty())
+            {
+                ProgAtts += "+";
+            }
+            ProgAtts += ModAtts[c].name;
+
+            if (printEquates)
+            {
+                std::string attName(ModAtts[c].name);
+                PrintDirective(attName, "set", FormattedNumber(ModAtts[c].val, OperandSize::Byte, &LITERAL_HEX_SPACE),
+                               0, opt);
+            }
+        }
+    }
 
     /* Module name */
     if (!opt->psectName.empty())
     {
-        psectParamBuffer << opt->psectName;
+        psectParams.push_back(opt->psectName + "_a");
+    }
+    else if (opt->IsROF)
+    {
+        psectParams.push_back(opt->ROFHd->rname);
     }
     else if (strrchr(opt->ModFile.c_str(), PATHSEP))
     {
-        psectParamBuffer << strrchr(opt->ModFile.c_str(), PATHSEP) + 1;
+        std::string name(strrchr(opt->ModFile.c_str(), PATHSEP) + 1);
+        psectParams.push_back(name + "_a");
     }
     else
     {
-        psectParamBuffer << opt->ModFile;
+        psectParams.push_back(opt->ModFile + "_a");
     }
 
-    psectParamBuffer << "_a";
-
-    /* Type/Language */
-    InProg = 0; /* Inhibit Label Lookup */
-    int type = opt->modHeader ? opt->modHeader->type : 0;
-    ProgType = modnam_find(ModTyps, (unsigned char)type)->name;
-    Ci.cmd_wrd = type;
-    Ci.lblname = ProgType;
-    std::ostringstream paramBuffer;
-    paramBuffer << '$' << PrettyNumber<uint32_t>(type).hex();
-    auto params = paramBuffer.str();
-    strcpy(Ci.params, params.c_str());
-    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
-    /*hdrvals[0] = M_Type;*/
-
-    int lang = opt->modHeader ? opt->modHeader->lang : 0;
-    ProgLang = modnam_find(ModLangs, (unsigned char)lang)->name;
-    Ci.lblname = ProgLang;
-    Ci.cmd_wrd = lang;
-    paramBuffer = {};
-    paramBuffer << '$' << PrettyNumber<uint32_t>(lang).hex();
-    params = paramBuffer.str();
-    strcpy(Ci.params, params.c_str());
-    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
-    /*hdrvals[1] = M_Lang;*/
-
-    psectParamBuffer << ",(" << ProgType << "<<8)|" << ProgLang;
-
-    /* Att/Rev */
-    ProgAtts[0] = '\0';
-
-    for (c = 0; ModAtts[c].val; c++)
+    if (type == 0 && lang == 0)
     {
-        if (opt->modHeader && (opt->modHeader->attributes & 0xff) & ModAtts[c].val)
-        {
-            if (strlen(ProgAtts))
-            {
-                strcat(ProgAtts, "+");
-                strcat(ProgAtts, ModAtts[c].name);
-            }
-            else
-            {
-                strcpy(ProgAtts, ModAtts[c].name);
-            }
+        psectParams.push_back("0");
+    }
+    else
+    {
+        psectParams.push_back("(" + ProgType + "<<8)|" + ProgLang);
+    }
 
-            Ci.lblname = ModAtts[c].name;
-            Ci.cmd_wrd = ModAtts[c].val;
-            std::ostringstream paramsBuffer;
-            paramsBuffer << '$' << PrettyNumber<int>(ModAtts[c].val).fill('0').width(2).hex();
-            auto params = paramsBuffer.str();
-            strcpy(Ci.params, params.c_str());
-            PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
+    int revision = opt->modHeader ? opt->modHeader->revision : opt->ROFHd->revision;
+    if (revision == 0 && attributes == 0)
+    {
+        psectParams.push_back("0");
+    }
+    else
+    {
+        if (ProgAtts.empty()) ProgAtts = "0";
+        std::ostringstream attRevBuffer;
+        attRevBuffer << '(' << ProgAtts << "<<8)|" << revision;
+        psectParams.push_back(attRevBuffer.str());
+    }
+
+    int edition = opt->modHeader ? opt->modHeader->edition : opt->ROFHd->edition;
+    psectParams.push_back(FormattedNumber(edition).str());
+
+    int stack = opt->modHeader ? opt->modHeader->stackSize : opt->ROFHd->stksz;
+    psectParams.push_back(FormattedNumber(stack).str());
+
+    int execOffset = opt->modHeader ? opt->modHeader->execOffset : opt->ROFHd->code_begin;
+    auto execOffsetLabel = labelManager->getCategory(&CODE_SPACE)->get(execOffset);
+    if (execOffsetLabel)
+    {
+        psectParams.push_back(execOffsetLabel->name());
+    }
+    else
+    {
+        psectParams.push_back(FormattedNumber(execOffset).str());
+    }
+
+    uint32_t exceptOffset = opt->modHeader ? opt->modHeader->exceptionOffset : opt->ROFHd->utrap;
+    if (exceptOffset != (uint32_t)-1)
+    {
+        auto exceptOffsetLabel = labelManager->getCategory(&CODE_SPACE)->get(exceptOffset);
+        if (exceptOffsetLabel)
+        {
+            psectParams.push_back(exceptOffsetLabel->name());
+        }
+        else
+        {
+            psectParams.push_back(FormattedNumber(exceptOffset).str());
         }
     }
 
-    int revision = opt->modHeader ? opt->modHeader->revision : 0;
-    int edition = opt->modHeader ? opt->modHeader->edition : 0;
-    int execOffset = opt->modHeader ? opt->modHeader->execOffset : 0;
-    psectParamBuffer << ",(" << ProgAtts << "<<8)|" << revision;
-    psectParamBuffer << ',' << edition;
-    psectParamBuffer << ",0"; /* For the time being, don't add any stack */
-    psectParamBuffer << ',' << findlbl(&CODE_SPACE, execOffset)->name();
-
-    if (opt->modHeader && opt->modHeader->exceptionOffset)
-    {
-        Label* excep = findlbl(&CODE_SPACE, opt->modHeader->exceptionOffset);
-        psectParamBuffer << ',' << excep->name();
-    }
-
-    params = psectParamBuffer.str();
-    strcpy(Ci.params, params.c_str());
-    strcpy(Ci.mnem, "psect");
-    Ci.lblname.clear();
     /* Be sure to have enough space to write psect */
     pgWdthSave = opt->PgWidth;
     opt->PgWidth = 200;
-    BlankLine(opt);
-    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
+    if (printEquates) BlankLine(opt);
+    PrintDirective("", "psect", psectParams, 0, opt);
     BlankLine(opt);
     opt->PgWidth = pgWdthSave;
-    InProg = 1;
 }
 
 /* ************************************** *
@@ -248,18 +281,12 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
         }
     }
 
-    if (ci->useNewParams)
-    {
-        auto params = ci->renderNewParams();
-        strcpy(ci->params, params.c_str());
-    }
-
     PrintFormatted(pfmt, ci, opt, CmdEnt);
 
     if (opt->asmFile)
     {
         std::ostringstream line;
-        line << ci->lblname << ' ' << ci->mnem << ' ' << ci->params;
+        line << ci->lblname << ' ' << ci->mnem << ' ' << ci->renderNewParams();
 
         // writer_printf(opt->asmFile, "%s %s %s", ci->lblname.c_str(), ci->mnem, ci->params);
 
@@ -304,11 +331,57 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos, options* opt)
+void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
+               options* opt)
 {
     OutputLine(pfmt, ci, opt, CmdEnt);
     PrintCleanup(CmdEnt);
     NonBoundsLbl(space, opt, CmdEnt, PCPos); /*Check for non-boundary labels */
+}
+
+void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t PCPos,
+                    struct options* opt)
+{
+    // This is a hacky way to do this.
+
+    struct cmd_items instr;
+    instr.lblname = label;
+    strcpy(instr.mnem, directive);
+    instr.cmd_wrd = value.number;
+    instr.code[0] = value.number;
+    instr.wcount = 1;
+    instr.setSource(LiteralParam(value, false));
+    InProg = 0;
+    PrintLine(pseudcmd, &instr, nullptr, PCPos, PCPos, opt);
+    InProg = 1;
+}
+
+void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params,
+                    uint32_t PCPos, struct options* opt)
+{
+    std::ostringstream paramBuffer;
+
+    auto it = params.cbegin();
+    if (it != params.cend())
+    {
+        paramBuffer << *it;
+        it++;
+    }
+
+    for (it; it != params.cend(); it++)
+    {
+        paramBuffer << ',' << *it;
+    }
+
+    // This is a hacky way to do this.
+    auto paramString = paramBuffer.str();
+    struct cmd_items instr;
+    instr.lblname = label;
+    strcpy(instr.mnem, directive);
+    instr.setSource(LiteralParam(paramString, false));
+    InProg = 0;
+    PrintLine(pseudcmd, &instr, nullptr, PCPos, PCPos, opt);
+    InProg = 1;
 }
 
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
@@ -321,17 +394,18 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
     if ( ! ci->params)     strcpy(ci->params, "");*/
     if (!ci->comment) ci->comment = "";
 
+    auto params = ci->renderNewParams();
     if (pfmt == pseudcmd)
     {
         if (opt->IsUnformatted)
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, ci->params, ci->comment);
+                               ci->mnem, params.c_str(), ci->comment);
         }
         else
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, ci->params, ci->comment);
+                               ci->mnem, params.c_str(), ci->comment);
         }
     }
     else
@@ -339,12 +413,12 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
         if (opt->IsUnformatted)
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, ci->params, ci->comment);
+                               ci->mnem, params.c_str(), ci->comment);
         }
         else
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, ci->params, ci->comment);
+                               ci->mnem, params.c_str(), ci->comment);
         }
     }
 
@@ -398,56 +472,26 @@ static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t st
                 std::ostringstream paramsBuffer;
                 paramsBuffer << "*-" << (endPC - x);
                 auto params = paramsBuffer.str();
-                strcpy(Ci.params, params.c_str());
+                Ci.setSource(LiteralParam(params));
 
                 if (opt->IsUnformatted)
                 {
                     writer_printf(stdout_writer, &(pseudcmd[3]), nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
-                                  Ci.params, "");
+                                  params.c_str(), "");
                 }
                 else
                 {
                     writer_printf(stdout_writer, pseudcmd, LinNum++, nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
-                                  Ci.params, "");
+                                  params.c_str(), "");
                 }
 
                 if (opt->asmFile)
                 {
-                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname.c_str(), Ci.mnem, Ci.params);
+                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname.c_str(), Ci.mnem, params.c_str());
                 }
             }
         }
     }
-}
-
-/* ********************************************* *
- * ROFPsect() - writes out psect                 *
- * Passed: rof_header *rptr                         *
- * ********************************************* */
-void ROFPsect(struct options* opt)
-{
-    Label* nl;
-    struct cmd_items Ci;
-
-    strcpy(Ci.params, "");
-    strcpy(Ci.mnem, "psect");
-    auto paramsBuffer = rof_header_getPsectParams(opt->ROFHd.get());
-
-    nl = findlbl(&CODE_SPACE, opt->ROFHd->code_begin);
-    if (nl)
-    {
-        paramsBuffer << ',' << nl->name();
-    }
-    else
-    {
-        paramsBuffer << ",$" << PrettyNumber<uint32_t>(opt->ROFHd->code_begin).fill('0').width(4).hex();
-    }
-    auto params = paramsBuffer.str();
-    strcpy(Ci.params, params.c_str());
-
-    InProg = 0;  /* Inhibit Label Lookup */
-    PrintLine(pseudcmd, &Ci, nullptr, 0, 0, opt);
-    InProg = 1;
 }
 
 /* *************************************************** *
@@ -592,7 +636,10 @@ static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote
     BlankLine(opt);
 
     strcpy(Ci.mnem, "vsect");
-    strcpy(Ci.params, isRemote ? "remote" : "");
+    if (isRemote)
+    {
+        Ci.setSource(LiteralParam("remote"));
+    }
     Ci.cmd_wrd = 0;
     Ci.comment = "";
     PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, 0, 0, opt);
@@ -667,6 +714,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
     size_t consumedThisLine = 0;
     size_t consumedByGroup = 0;
     char group[MAX_ASCII_LINE_LEN + 5];
+    std::string paramBuffer;
     while (state->PCPos + consumedThisLine < bufEnd)
     {
         // The way this is written is kinda odd for C, but it translates well
@@ -687,7 +735,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
                 // We can use the entire line, minus the two quotes.
                 maxGroupLen = MAX_ASCII_LINE_LEN - 2;
             }
-            else if (strlen(ci->params) > MAX_ASCII_LINE_LEN - 4)
+            else if (paramBuffer.size() > MAX_ASCII_LINE_LEN - 4)
             {
                 // Need at least 4 characters to do anything meaningful
                 // (comma, quote, print character, quote) so we must force
@@ -696,7 +744,7 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
             }
             else
             {
-                maxGroupLen = MAX_ASCII_LINE_LEN - 3 - strlen(ci->params);
+                maxGroupLen = MAX_ASCII_LINE_LEN - 3 - paramBuffer.size();
             }
 
             strcpy(group, "\"");
@@ -727,14 +775,14 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
         // without a comma.
         if (consumedThisLine == 0)
         {
-            strcpy(ci->params, group);
+            paramBuffer = group;
             consumedThisLine = consumedByGroup;
         }
         // Check if the group fits, accounting for a comma with +1.
-        else if (strlen(ci->params) + 1 + strlen(group) <= MAX_ASCII_LINE_LEN)
+        else if (paramBuffer.size() + 1 + strlen(group) <= MAX_ASCII_LINE_LEN)
         {
-            strcat(ci->params, ",");
-            strcat(ci->params, group);
+            paramBuffer += ",";
+            paramBuffer += group;
             consumedThisLine += consumedByGroup;
         }
         else
@@ -743,27 +791,30 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
             count += consumedThisLine;
             state->PCPos += (uint32_t)consumedThisLine;
             strncpy(ci->mnem, "dc.b", MNEM_LEN);
+            ci->setSource(LiteralParam(paramBuffer));
             PrintLine(pseudcmd, ci, space, state->CmdEnt, state->PCPos, state->opt);
             state->CmdEnt = state->PCPos;
             ci->lblname.clear();
-            ci->params[0] = '\0';
+            ci->source = nullptr;
 
             // Then copy the whole group to the start of the next line.
-            strcpy(ci->params, group);
+            // paramBuffer.clear();
+            paramBuffer = group;
             consumedThisLine = consumedByGroup;
         }
     }
 
     // Output whatever is leftover.
-    if (strlen(ci->params))
+    if (!paramBuffer.empty())
     {
         count += consumedThisLine;
         state->PCPos += (uint32_t)consumedThisLine;
         strncpy(ci->mnem, "dc.b", MNEM_LEN);
+        ci->setSource(LiteralParam(paramBuffer));
         PrintLine(pseudcmd, ci, space, state->CmdEnt, state->PCPos, state->opt);
         state->CmdEnt = state->PCPos;
         ci->lblname.clear();
-        ci->params[0] = '\0';
+        ci->source = nullptr;
     }
 
     return (uint32_t)count;
@@ -971,7 +1022,6 @@ void OS9DataPrint(struct options* opt)
         BlankLine(opt);
 
         strcpy(Ci.mnem, "vsect");
-        strcpy(Ci.params, "");
         Ci.cmd_wrd = 0;
         Ci.comment = "";
         PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, 0, opt);
@@ -994,7 +1044,7 @@ void OS9DataPrint(struct options* opt)
     // Print the vsect footer.
     {
         strcpy(Ci.mnem, "ends");
-        strcpy(Ci.params, "");
+        Ci.source = nullptr;
         Ci.cmd_wrd = 0;
         Ci.comment = "";
         PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, state.CmdEnt, state.CmdEnt, opt);
@@ -1024,7 +1074,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     if (category->size() == 0)
     {
         strcpy(Ci.mnem, "ds.b");
-        sprintf(Ci.params, "%ld", maxAddress);
+        Ci.setSource(LiteralParam(FormattedNumber(maxAddress), false));
         Ci.lblname.clear();
         PrintLine(pseudcmd, &Ci, space, 0, 0, opt);
         return;
@@ -1036,7 +1086,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     {
         auto first = category->getFirst();
         strcpy(Ci.mnem, "ds.b");
-        sprintf(Ci.params, "%ld", first->value);
+        Ci.setSource(LiteralParam(FormattedNumber(first->value), false));
         Ci.lblname.clear();
         PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, 0, opt);
     }
@@ -1064,7 +1114,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
         }
 
         strcpy(Ci.mnem, "ds.b");
-        sprintf(Ci.params, "%d", datasize);
+        Ci.setSource(LiteralParam(FormattedNumber(datasize), false));
 
         if (opt->IsROF && (*it)->global())
         {
@@ -1236,7 +1286,7 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
 
                 // if (strchr("!^", space))
                 //{
-                sprintf(Ci.params, "$%02lx", me->value);
+                Ci.setSource(LiteralParam(FormattedNumber(me->value, OperandSize::Byte, &LITERAL_HEX_SPACE), false));
                 //}
                 // else
                 //{

@@ -1,4 +1,5 @@
- psect qsort_c,$0,$0,0,0,qsort
+ psect qsort_c,0,0,0,0,qsort
+
 
 * D
  vsect 

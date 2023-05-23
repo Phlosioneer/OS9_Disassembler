@@ -1,4 +1,5 @@
- psect iobinit_c,$0,$0,0,0,_iobinit
+ psect iobinit_c,0,0,0,0,_iobinit
+
 
 * D
  vsect 

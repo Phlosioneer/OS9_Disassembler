@@ -1,4 +1,5 @@
- psect strings_c,$0,$0,0,0,strcmp
+ psect strings_c,0,0,0,0,strcmp
+
 strcmp: move.l a0,-(sp)
  movea.l d0,a0
  eor.b d1,d0

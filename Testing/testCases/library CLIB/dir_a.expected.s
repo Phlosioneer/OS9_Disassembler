@@ -1,4 +1,5 @@
- psect dir_a,$0,$0,0,0,chdir
+ psect dir_a,0,0,0,0,chdir
+
 chdir: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  moveq Updat_,d1

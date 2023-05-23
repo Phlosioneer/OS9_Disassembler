@@ -1,4 +1,5 @@
- psect os9exec_c,$0,$0,0,0,L00000
+ psect os9exec_c,0,0,0,0,L00000
+
 
 * D
  vsect 

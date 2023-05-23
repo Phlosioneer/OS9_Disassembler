@@ -6,6 +6,7 @@
 
 #include "address_space.h"
 #include "label.h"
+#include "params.h"
 #include "rof.h"
 #include "userdef.h"
 
@@ -134,10 +135,14 @@ std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
     return os;
 }
 
-void PrintPsect(struct options* opt);
-void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos, struct options* opt);
+void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t PCPos,
+                    struct options* opt);
+void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params,
+                    uint32_t PCPos, struct options* opt);
+void PrintPsect(struct options* opt, bool printEquates);
+void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
+               struct options* opt);
 void printXtraBytes(std::string& data);
-void ROFPsect(struct options* opt);
 void WrtEnds(struct options* opt, int PCPos);
 void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 void GetIRefs(struct options* opt);

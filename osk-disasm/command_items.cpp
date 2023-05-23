@@ -132,7 +132,6 @@ cmd_items& cmd_items::operator=(struct cmd_items&& other)
     strcpy(mnem, other.mnem);
     memcpy(code, other.code, CODE_LEN * sizeof(short));
     wcount = other.wcount;
-    strcpy(params, other.params);
     comment = other.comment;
     extend = other.extend;
 

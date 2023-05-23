@@ -1,4 +1,5 @@
- psect system_c,$0,$0,0,0,system
+ psect system_c,0,0,0,0,system
+
 system: link.w a5,#0
  movem.l a0/a2/d0-d2/d4-d5,-(sp)
  movea.l d0,a2

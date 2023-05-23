@@ -1,4 +1,5 @@
- psect findstr_c,$0,$0,0,0,findstr
+ psect findstr_c,0,0,0,0,findstr
+
 findstr: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  move.l d0,d4

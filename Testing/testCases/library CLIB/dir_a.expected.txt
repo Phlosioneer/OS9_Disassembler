@@ -1,15 +1,16 @@
-    0  00000 0000            psect  dir_a,$0,$0,0,0,chdir 
-    1  00000 4e55 chdir:     link.w a5,#0      
-    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
-    3  00008 7200            moveq  Updat_,d1  
-    4  0000a 2040 L0000a     movea.l d0,a0      
-    5  0000c c141            exg    d0,d1      
-    6  0000e 4e40            os9    I$ChgDir   
-    7  00012 6000            bra.w  _sysret0   
-    8  00016 4e55 chxdir:    link.w a5,#0      
-    9  0001a 48e7            movem.l a0/d1-d2,-(sp) 
-   10  0001e 7200            moveq  Exec_,d1   
-   11  00020 60e8            bra.s  L0000a     
-   12
-   13  00022 0000            ends              
+    0  00000 0000            psect  dir_a,0,0,0,0,chdir 
+    1
+    2  00000 4e55 chdir:     link.w a5,#0      
+    3  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    4  00008 7200            moveq  Updat_,d1  
+    5  0000a 2040 L0000a     movea.l d0,a0      
+    6  0000c c141            exg    d0,d1      
+    7  0000e 4e40            os9    I$ChgDir   
+    8  00012 6000            bra.w  _sysret0   
+    9  00016 4e55 chxdir:    link.w a5,#0      
+   10  0001a 48e7            movem.l a0/d1-d2,-(sp) 
+   11  0001e 7200            moveq  Exec_,d1   
+   12  00020 60e8            bra.s  L0000a     
    13
+   14  00022 0000            ends              
+   14

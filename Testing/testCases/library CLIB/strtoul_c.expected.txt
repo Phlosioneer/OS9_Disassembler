@@ -1,160 +1,161 @@
-    0  00000 0000            psect  strtoul_c,$0,$0,0,0,strtoul 
-    1  00000 4e55 strtoul:   link.w a5,#0      
-    2  00004 48e7            movem.l a0/a2-a3/d0-d1/d4-d7,-(sp) 
-    3  00008 2440            movea.l d0,a2      
-    4  0000a 2641            movea.l d1,a3      
-    5  0000c 282f            move.l 44(sp),d4  
-    6  00010 7a00            moveq  #0,d5      
-    7  00012 7c00            moveq  #0,d6      
-    8  00014 101a L00014     move.b (a2)+,d0   
-    9  00016 4880            ext.w  d0         
-   10  00018 48c0            ext.l  d0         
-   11  0001a 41ee            lea    _chcodes(a6),a0 
-   12  0001e 1030            move.b (a0,d0.l),d0 
-   13  00022 4880            ext.w  d0         
-   14  00024 0800            btst.l #4,d0      
-   15  00028 66ea            bne.s  L00014     
-   16  0002a 538a            subq.l #1,a2      
-   17  0002c 200b            move.l a3,d0      
-   18  0002e 6702            beq.s  L00032     
-   19  00030 268a            move.l a2,(a3)    
-   20  00032 7002 L00032     moveq  #2,d0      
-   21  00034 b084            cmp.l  d4,d0      
-   22  00036 6304            bls.s  L0003c     
-   23  00038 4a84            tst.l  d4         
-   24  0003a 662a            bne.s  L00066     
-   25  0003c 7023 L0003c     moveq  #35,d0     
-   26  0003e b084            cmp.l  d4,d0      
-   27  00040 6524            bcs.s  L00066     
-   28  00042 6036            bra.s  L0007a     
-   29  00044 5285 L00044     addq.l #1,d5      
-   30  00046 528a L00046     addq.l #1,a2      
-   31  00048 0c2a L00048     cmpi.b #120,1(a2) 
-   32  0004e 6708            beq.s  L00058     
-   33  00050 0c2a            cmpi.b #88,1(a2)  
-   34  00056 6618            bne.s  L00070     
-   35  00058 4a84 L00058     tst.l  d4         
-   36  0005a 6604            bne.s  L00060     
-   37  0005c 7810            moveq  #16,d4     
-   38  0005e 600c            bra.s  L0006c     
-   39  00060 7010 L00060     moveq  #16,d0     
-   40  00062 b084            cmp.l  d4,d0      
-   41  00064 6706            beq.s  L0006c     
-   42  00066 7000 L00066     moveq  #0,d0      
-   43  00068 6000            bra.w  L00182     
-   44  0006c 548a L0006c     addq.l #2,a2      
-   45  0006e 6026            bra.s  L00096     
-   46  00070 4a84 L00070     tst.l  d4         
-   47  00072 6622            bne.s  L00096     
-   48  00074 7808            moveq  #8,d4      
-   49  00076 528a            addq.l #1,a2      
-   50  00078 601c            bra.s  L00096     
-   51  0007a 1012 L0007a     move.b (a2),d0    
-   52  0007c 4880            ext.w  d0         
-   53  0007e 0c40            cmpi.w #255,d0    
-   54  00082 6212            bhi.s  L00096     
-   55  00084 0c00            cmpi.b #43,d0     
-   56  00088 67bc            beq.s  L00046     
-   57  0008a 0c00            cmpi.b #45,d0     
-   58  0008e 67b4            beq.s  L00044     
-   59  00090 0c00            cmpi.b #48,d0     
-   60  00094 67b2            beq.s  L00048     
-   61  00096 4a84 L00096     tst.l  d4         
-   62  00098 6602            bne.s  L0009c     
-   63  0009a 780a            moveq  #10,d4     
-   64  0009c 700a L0009c     moveq  #10,d0     
-   65  0009e b084            cmp.l  d4,d0      
-   66  000a0 6500            bcs.w  L00122     
-   67  000a4 6028            bra.s  L000ce     
-   68  000a6 70ff L000a6     moveq  #255,d0    
-   69  000a8 9087            sub.l  d7,d0      
-   70  000aa 2204            move.l d4,d1      
-   71  000ac 6100            bsr.w  _T$UDiv    
-   72  000b0 b086            cmp.l  d6,d0      
-   73  000b2 650e            bcs.s  L000c2     
-   74  000b4 2006            move.l d6,d0      
-   75  000b6 2204            move.l d4,d1      
-   76  000b8 6100            bsr.w  _T$UMul    
-   77  000bc d087            add.l  d7,d0      
-   78  000be 2c00            move.l d0,d6      
-   79  000c0 600a            bra.s  L000cc     
-   80  000c2 2d7c L000c2     move.l #256,errno(a6) 
-   81  000ca 7cff            moveq  #255,d6    
-   82  000cc 528a L000cc     addq.l #1,a2      
-   83  000ce 1012 L000ce     move.b (a2),d0    
-   84  000d0 4880            ext.w  d0         
-   85  000d2 48c0            ext.l  d0         
-   86  000d4 41ee            lea    _chcodes(a6),a0 
-   87  000d8 1030            move.b (a0,d0.l),d0 
-   88  000dc 4880            ext.w  d0         
-   89  000de 0800            btst.l #3,d0      
-   90  000e2 6700            beq.w  L00170     
-   91  000e6 1012            move.b (a2),d0    
-   92  000e8 4880            ext.w  d0         
-   93  000ea 0440            subi.w #48,d0     
-   94  000ee 48c0            ext.l  d0         
-   95  000f0 2e00            move.l d0,d7      
-   96  000f2 b084            cmp.l  d4,d0      
-   97  000f4 65b0            bcs.s  L000a6     
-   98  000f6 6000            bra.w  L00170     
-   99  000fa 70ff L000fa     moveq  #255,d0    
-  100  000fc 9087            sub.l  d7,d0      
-  101  000fe 2204            move.l d4,d1      
-  102  00100 6100            bsr.w  _T$UDiv    
-  103  00104 b086            cmp.l  d6,d0      
-  104  00106 650e            bcs.s  L00116     
-  105  00108 2006            move.l d6,d0      
-  106  0010a 2204            move.l d4,d1      
-  107  0010c 6100            bsr.w  _T$UMul    
-  108  00110 d087            add.l  d7,d0      
-  109  00112 2c00            move.l d0,d6      
-  110  00114 600a            bra.s  L00120     
-  111  00116 2d7c L00116     move.l #256,errno(a6) 
-  112  0011e 7cff            moveq  #255,d6    
-  113  00120 528a L00120     addq.l #1,a2      
-  114  00122 1012 L00122     move.b (a2),d0    
-  115  00124 4880            ext.w  d0         
-  116  00126 48c0            ext.l  d0         
-  117  00128 41ee            lea    _chcodes(a6),a0 
-  118  0012c 1030            move.b (a0,d0.l),d0 
-  119  00130 4880            ext.w  d0         
-  120  00132 0800            btst.l #3,d0      
-  121  00136 670e            beq.s  L00146     
-  122  00138 1012            move.b (a2),d0    
-  123  0013a 4880            ext.w  d0         
-  124  0013c 0440            subi.w #48,d0     
-  125  00140 48c0            ext.l  d0         
-  126  00142 2e00            move.l d0,d7      
-  127  00144 60b4            bra.s  L000fa     
-  128  00146 1012 L00146     move.b (a2),d0    
-  129  00148 4880            ext.w  d0         
-  130  0014a 48c0            ext.l  d0         
-  131  0014c 41ee            lea    _chcodes(a6),a0 
-  132  00150 1030            move.b (a0,d0.l),d0 
-  133  00154 4880            ext.w  d0         
-  134  00156 0240            andi.w #$0006,d0  
-  135  0015a 6714            beq.s  L00170     
-  136  0015c 1012            move.b (a2),d0    
-  137  0015e 4880            ext.w  d0         
-  138  00160 0240            andi.w #$00df,d0  
-  139  00164 48c0            ext.l  d0         
-  140  00166 7237            moveq  #55,d1     
-  141  00168 9081            sub.l  d1,d0      
-  142  0016a 2e00            move.l d0,d7      
-  143  0016c b084            cmp.l  d4,d0      
-  144  0016e 658a            bcs.s  L000fa     
-  145  00170 200b L00170     move.l a3,d0      
-  146  00172 6702            beq.s  L00176     
-  147  00174 268a            move.l a2,(a3)    
-  148  00176 4a85 L00176     tst.l  d5         
-  149  00178 6706            beq.s  L00180     
-  150  0017a 2006            move.l d6,d0      
-  151  0017c 4480            neg.l  d0         
-  152  0017e 2c00            move.l d0,d6      
-  153  00180 2006 L00180     move.l d6,d0      
-  154  00182 4ced L00182     movem.l -28(a5),a0/a2-a3/d4-d7 
-  155  00188 4e5d            unlk   a5         
-  156  0018a 4e75            rts               
-  157
-  158  0018c 0000            ends              
+    0  00000 0000            psect  strtoul_c,0,0,0,0,strtoul 
+    1
+    2  00000 4e55 strtoul:   link.w a5,#0      
+    3  00004 48e7            movem.l a0/a2-a3/d0-d1/d4-d7,-(sp) 
+    4  00008 2440            movea.l d0,a2      
+    5  0000a 2641            movea.l d1,a3      
+    6  0000c 282f            move.l 44(sp),d4  
+    7  00010 7a00            moveq  #0,d5      
+    8  00012 7c00            moveq  #0,d6      
+    9  00014 101a L00014     move.b (a2)+,d0   
+   10  00016 4880            ext.w  d0         
+   11  00018 48c0            ext.l  d0         
+   12  0001a 41ee            lea    _chcodes(a6),a0 
+   13  0001e 1030            move.b (a0,d0.l),d0 
+   14  00022 4880            ext.w  d0         
+   15  00024 0800            btst.l #4,d0      
+   16  00028 66ea            bne.s  L00014     
+   17  0002a 538a            subq.l #1,a2      
+   18  0002c 200b            move.l a3,d0      
+   19  0002e 6702            beq.s  L00032     
+   20  00030 268a            move.l a2,(a3)    
+   21  00032 7002 L00032     moveq  #2,d0      
+   22  00034 b084            cmp.l  d4,d0      
+   23  00036 6304            bls.s  L0003c     
+   24  00038 4a84            tst.l  d4         
+   25  0003a 662a            bne.s  L00066     
+   26  0003c 7023 L0003c     moveq  #35,d0     
+   27  0003e b084            cmp.l  d4,d0      
+   28  00040 6524            bcs.s  L00066     
+   29  00042 6036            bra.s  L0007a     
+   30  00044 5285 L00044     addq.l #1,d5      
+   31  00046 528a L00046     addq.l #1,a2      
+   32  00048 0c2a L00048     cmpi.b #120,1(a2) 
+   33  0004e 6708            beq.s  L00058     
+   34  00050 0c2a            cmpi.b #88,1(a2)  
+   35  00056 6618            bne.s  L00070     
+   36  00058 4a84 L00058     tst.l  d4         
+   37  0005a 6604            bne.s  L00060     
+   38  0005c 7810            moveq  #16,d4     
+   39  0005e 600c            bra.s  L0006c     
+   40  00060 7010 L00060     moveq  #16,d0     
+   41  00062 b084            cmp.l  d4,d0      
+   42  00064 6706            beq.s  L0006c     
+   43  00066 7000 L00066     moveq  #0,d0      
+   44  00068 6000            bra.w  L00182     
+   45  0006c 548a L0006c     addq.l #2,a2      
+   46  0006e 6026            bra.s  L00096     
+   47  00070 4a84 L00070     tst.l  d4         
+   48  00072 6622            bne.s  L00096     
+   49  00074 7808            moveq  #8,d4      
+   50  00076 528a            addq.l #1,a2      
+   51  00078 601c            bra.s  L00096     
+   52  0007a 1012 L0007a     move.b (a2),d0    
+   53  0007c 4880            ext.w  d0         
+   54  0007e 0c40            cmpi.w #255,d0    
+   55  00082 6212            bhi.s  L00096     
+   56  00084 0c00            cmpi.b #43,d0     
+   57  00088 67bc            beq.s  L00046     
+   58  0008a 0c00            cmpi.b #45,d0     
+   59  0008e 67b4            beq.s  L00044     
+   60  00090 0c00            cmpi.b #48,d0     
+   61  00094 67b2            beq.s  L00048     
+   62  00096 4a84 L00096     tst.l  d4         
+   63  00098 6602            bne.s  L0009c     
+   64  0009a 780a            moveq  #10,d4     
+   65  0009c 700a L0009c     moveq  #10,d0     
+   66  0009e b084            cmp.l  d4,d0      
+   67  000a0 6500            bcs.w  L00122     
+   68  000a4 6028            bra.s  L000ce     
+   69  000a6 70ff L000a6     moveq  #255,d0    
+   70  000a8 9087            sub.l  d7,d0      
+   71  000aa 2204            move.l d4,d1      
+   72  000ac 6100            bsr.w  _T$UDiv    
+   73  000b0 b086            cmp.l  d6,d0      
+   74  000b2 650e            bcs.s  L000c2     
+   75  000b4 2006            move.l d6,d0      
+   76  000b6 2204            move.l d4,d1      
+   77  000b8 6100            bsr.w  _T$UMul    
+   78  000bc d087            add.l  d7,d0      
+   79  000be 2c00            move.l d0,d6      
+   80  000c0 600a            bra.s  L000cc     
+   81  000c2 2d7c L000c2     move.l #256,errno(a6) 
+   82  000ca 7cff            moveq  #255,d6    
+   83  000cc 528a L000cc     addq.l #1,a2      
+   84  000ce 1012 L000ce     move.b (a2),d0    
+   85  000d0 4880            ext.w  d0         
+   86  000d2 48c0            ext.l  d0         
+   87  000d4 41ee            lea    _chcodes(a6),a0 
+   88  000d8 1030            move.b (a0,d0.l),d0 
+   89  000dc 4880            ext.w  d0         
+   90  000de 0800            btst.l #3,d0      
+   91  000e2 6700            beq.w  L00170     
+   92  000e6 1012            move.b (a2),d0    
+   93  000e8 4880            ext.w  d0         
+   94  000ea 0440            subi.w #48,d0     
+   95  000ee 48c0            ext.l  d0         
+   96  000f0 2e00            move.l d0,d7      
+   97  000f2 b084            cmp.l  d4,d0      
+   98  000f4 65b0            bcs.s  L000a6     
+   99  000f6 6000            bra.w  L00170     
+  100  000fa 70ff L000fa     moveq  #255,d0    
+  101  000fc 9087            sub.l  d7,d0      
+  102  000fe 2204            move.l d4,d1      
+  103  00100 6100            bsr.w  _T$UDiv    
+  104  00104 b086            cmp.l  d6,d0      
+  105  00106 650e            bcs.s  L00116     
+  106  00108 2006            move.l d6,d0      
+  107  0010a 2204            move.l d4,d1      
+  108  0010c 6100            bsr.w  _T$UMul    
+  109  00110 d087            add.l  d7,d0      
+  110  00112 2c00            move.l d0,d6      
+  111  00114 600a            bra.s  L00120     
+  112  00116 2d7c L00116     move.l #256,errno(a6) 
+  113  0011e 7cff            moveq  #255,d6    
+  114  00120 528a L00120     addq.l #1,a2      
+  115  00122 1012 L00122     move.b (a2),d0    
+  116  00124 4880            ext.w  d0         
+  117  00126 48c0            ext.l  d0         
+  118  00128 41ee            lea    _chcodes(a6),a0 
+  119  0012c 1030            move.b (a0,d0.l),d0 
+  120  00130 4880            ext.w  d0         
+  121  00132 0800            btst.l #3,d0      
+  122  00136 670e            beq.s  L00146     
+  123  00138 1012            move.b (a2),d0    
+  124  0013a 4880            ext.w  d0         
+  125  0013c 0440            subi.w #48,d0     
+  126  00140 48c0            ext.l  d0         
+  127  00142 2e00            move.l d0,d7      
+  128  00144 60b4            bra.s  L000fa     
+  129  00146 1012 L00146     move.b (a2),d0    
+  130  00148 4880            ext.w  d0         
+  131  0014a 48c0            ext.l  d0         
+  132  0014c 41ee            lea    _chcodes(a6),a0 
+  133  00150 1030            move.b (a0,d0.l),d0 
+  134  00154 4880            ext.w  d0         
+  135  00156 0240            andi.w #$0006,d0  
+  136  0015a 6714            beq.s  L00170     
+  137  0015c 1012            move.b (a2),d0    
+  138  0015e 4880            ext.w  d0         
+  139  00160 0240            andi.w #$00df,d0  
+  140  00164 48c0            ext.l  d0         
+  141  00166 7237            moveq  #55,d1     
+  142  00168 9081            sub.l  d1,d0      
+  143  0016a 2e00            move.l d0,d7      
+  144  0016c b084            cmp.l  d4,d0      
+  145  0016e 658a            bcs.s  L000fa     
+  146  00170 200b L00170     move.l a3,d0      
+  147  00172 6702            beq.s  L00176     
+  148  00174 268a            move.l a2,(a3)    
+  149  00176 4a85 L00176     tst.l  d5         
+  150  00178 6706            beq.s  L00180     
+  151  0017a 2006            move.l d6,d0      
+  152  0017c 4480            neg.l  d0         
+  153  0017e 2c00            move.l d0,d6      
+  154  00180 2006 L00180     move.l d6,d0      
+  155  00182 4ced L00182     movem.l -28(a5),a0/a2-a3/d4-d7 
+  156  00188 4e5d            unlk   a5         
+  157  0018a 4e75            rts               
   158
+  159  0018c 0000            ends              
+  159

@@ -1,119 +1,120 @@
-    0  00000 0000            psect  ss_stat_a,$0,$0,0,0,_gs_opt 
-    1  00000 4e55 _gs_opt:   link.w a5,#0      
-    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
-    3  00008 2041            movea.l d1,a0      
-    4  0000a 323c            move.w #SS_Opt,d1 
-    5  0000e 4e40 L0000e     os9    I$GetStt   
-    6  00012 6000            bra.w  _sysret    
-    7  00016 4e55 _gs_rdy:   link.w a5,#0      
-    8  0001a 48e7            movem.l a0/d1-d2,-(sp) 
-    9  0001e 323c            move.w #SS_Ready,d1 
-   10  00022 4e40            os9    I$GetStt   
-   11  00026 6500            bcs.w  _os9err    
-   12  0002a 2001            move.l d1,d0      
-   13  0002c 6000            bra.w  _sysret    
-   14  00030 4e55 _gs_eof:   link.w a5,#0      
-   15  00034 48e7            movem.l a0/d1-d2,-(sp) 
-   16  00038 323c            move.w #SS_EOF,d1 
-   17  0003c 4e40            os9    I$GetStt   
-   18  00040 6400            bcc.w  _sysret0   
-   19  00044 0c41            cmpi.w #E$EOF,d1  
-   20  00048 6600            bne.w  _os9err    
-   21  0004c 7001            moveq  #1,d0      
-   22  0004e 6000            bra.w  _sysret    
-   23  00052 4e55 _gs_gfd:   link.w a5,#0      
-   24  00056 48e7            movem.l a0/d1-d2,-(sp) 
-   25  0005a 2041            movea.l d1,a0      
-   26  0005c 323c            move.w #SS_FD,d1  
-   27  00060 242d            move.l 8(a5),d2   
-   28  00064 60a8            bra.s  L0000e     
-   29  00066 4e55 _gs_devn:  link.w a5,#0      
-   30  0006a 48e7            movem.l a0/d1-d2,-(sp) 
-   31  0006e 2041            movea.l d1,a0      
-   32  00070 323c            move.w #SS_DevNm,d1 
-   33  00074 6098            bra.s  L0000e     
-   34  00076 4e55 _gs_size:  link.w a5,#0      
-   35  0007a 48e7            movem.l a0/d1-d2,-(sp) 
-   36  0007e 323c            move.w #SS_Size,d1 
-   37  00082 4e40 L00082     os9    I$GetStt   
-   38  00086 6500            bcs.w  _os9err    
-   39  0008a 2002            move.l d2,d0      
-   40  0008c 6000            bra.w  _sysret    
-   41  00090 4e55 _gs_pos:   link.w a5,#0      
-   42  00094 48e7            movem.l a0/d1-d2,-(sp) 
-   43  00098 323c            move.w #SS_Pos,d1 
-   44  0009c 60e4            bra.s  L00082     
-   45  0009e 4e55 _ss_opt:   link.w a5,#0      
-   46  000a2 48e7            movem.l a0/d1-d2,-(sp) 
-   47  000a6 2041            movea.l d1,a0      
-   48  000a8 323c            move.w #SS_Opt,d1 
-   49  000ac 4e40 L000ac     os9    I$SetStt   
-   50  000b0 6000            bra.w  _sysret    
-   51  000b4 4e55 _ss_rest:  link.w a5,#0      
-   52  000b8 48e7            movem.l a0/d1-d2,-(sp) 
-   53  000bc 323c            move.w #SS_Reset,d1 
-   54  000c0 60ea            bra.s  L000ac     
-   55  000c2 4e55 _ss_size:  link.w a5,#0      
-   56  000c6 48e7            movem.l a0/d1-d2,-(sp) 
-   57  000ca 2401            move.l d1,d2      
-   58  000cc 323c            move.w #SS_Size,d1 
-   59  000d0 60da            bra.s  L000ac     
-   60  000d2 4e55 _ss_pfd:   link.w a5,#0      
-   61  000d6 48e7            movem.l a0/d1-d2,-(sp) 
-   62  000da 2041            movea.l d1,a0      
-   63  000dc 323c            move.w #SS_FD,d1  
-   64  000e0 60ca            bra.s  L000ac     
-   65  000e2 4e55 _ss_tiks:  link.w a5,#0      
-   66  000e6 48e7            movem.l a0/d1-d2,-(sp) 
-   67  000ea 2401            move.l d1,d2      
-   68  000ec 323c            move.w #SS_Ticks,d1 
-   69  000f0 60ba            bra.s  L000ac     
-   70  000f2 4e55 _ss_lock:  link.w a5,#0      
-   71  000f6 48e7            movem.l a0/d1-d2,-(sp) 
-   72  000fa 2401            move.l d1,d2      
-   73  000fc 323c            move.w #SS_Lock,d1 
-   74  00100 60aa            bra.s  L000ac     
-   75  00102 4e55 _ss_ssig:  link.w a5,#0      
-   76  00106 48e7            movem.l a0/d1-d2,-(sp) 
-   77  0010a 2401            move.l d1,d2      
-   78  0010c 323c            move.w #SS_SSig,d1 
-   79  00110 609a L00110     bra.s  L000ac     
-   80  00112 4e55 _ss_rel:   link.w a5,#0      
-   81  00116 48e7            movem.l a0/d1-d2,-(sp) 
-   82  0011a 323c            move.w #SS_Relea,d1 
-   83  0011e 60f0            bra.s  L00110     
-   84  00120 4e55 _ss_wtrk:  link.w a5,#0      
-   85  00124 48e7            movem.l a0/d1-d2,-(sp) 
-   86  00128 48e7            movem.l a1/d3-d4,-(sp) 
-   87  0012c 2401            move.l d1,d2      
-   88  0012e 7200            moveq  SS_WTrk,d1 
-   89  00130 4ced            movem.l 8(a5),a0-a1/d3-d4 
-   90  00136 4e40            os9    I$SetStt   
-   91  0013a 4cdf            movem.l (sp)+,a1/d3-d4 
-   92  0013e 6000            bra.w  _sysret    
-   93  00142 4e55 _ss_attr:  link.w a5,#0      
-   94  00146 48e7            movem.l a0/d1-d2,-(sp) 
-   95  0014a 2401            move.l d1,d2      
-   96  0014c 323c            move.w #SS_Attr,d1 
-   97  00150 60be            bra.s  L00110     
-   98  00152 4e55 _ss_enrts: link.w a5,#0      
-   99  00156 48e7            movem.l a0/d1-d2,-(sp) 
-  100  0015a 323c            move.w #SS_EnRTS,d1 
-  101  0015e 60b0            bra.s  L00110     
-  102  00160 4e55 _ss_dsrts: link.w a5,#0      
-  103  00164 48e7            movem.l a0/d1-d2,-(sp) 
-  104  00168 323c            move.w #SS_DsRTS,d1 
-  105  0016c 60a2            bra.s  L00110     
-  106  0016e 4e55 _ss_dcon:  link.w a5,#0      
-  107  00172 48e7            movem.l a0/d1-d2,-(sp) 
-  108  00176 3401            move.w d1,d2      
-  109  00178 323c            move.w #SS_DCOn,d1 
-  110  0017c 6092            bra.s  L00110     
-  111  0017e 4e55 _ss_dcoff: link.w a5,#0      
-  112  00182 48e7            movem.l a0/d1-d2,-(sp) 
-  113  00186 3401            move.w d1,d2      
-  114  00188 323c            move.w #SS_DCOff,d1 
-  115  0018c 6082            bra.s  L00110     
-  116
-  117  0018e 0000            ends              
+    0  00000 0000            psect  ss_stat_a,0,0,0,0,_gs_opt 
+    1
+    2  00000 4e55 _gs_opt:   link.w a5,#0      
+    3  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    4  00008 2041            movea.l d1,a0      
+    5  0000a 323c            move.w #SS_Opt,d1 
+    6  0000e 4e40 L0000e     os9    I$GetStt   
+    7  00012 6000            bra.w  _sysret    
+    8  00016 4e55 _gs_rdy:   link.w a5,#0      
+    9  0001a 48e7            movem.l a0/d1-d2,-(sp) 
+   10  0001e 323c            move.w #SS_Ready,d1 
+   11  00022 4e40            os9    I$GetStt   
+   12  00026 6500            bcs.w  _os9err    
+   13  0002a 2001            move.l d1,d0      
+   14  0002c 6000            bra.w  _sysret    
+   15  00030 4e55 _gs_eof:   link.w a5,#0      
+   16  00034 48e7            movem.l a0/d1-d2,-(sp) 
+   17  00038 323c            move.w #SS_EOF,d1 
+   18  0003c 4e40            os9    I$GetStt   
+   19  00040 6400            bcc.w  _sysret0   
+   20  00044 0c41            cmpi.w #E$EOF,d1  
+   21  00048 6600            bne.w  _os9err    
+   22  0004c 7001            moveq  #1,d0      
+   23  0004e 6000            bra.w  _sysret    
+   24  00052 4e55 _gs_gfd:   link.w a5,#0      
+   25  00056 48e7            movem.l a0/d1-d2,-(sp) 
+   26  0005a 2041            movea.l d1,a0      
+   27  0005c 323c            move.w #SS_FD,d1  
+   28  00060 242d            move.l 8(a5),d2   
+   29  00064 60a8            bra.s  L0000e     
+   30  00066 4e55 _gs_devn:  link.w a5,#0      
+   31  0006a 48e7            movem.l a0/d1-d2,-(sp) 
+   32  0006e 2041            movea.l d1,a0      
+   33  00070 323c            move.w #SS_DevNm,d1 
+   34  00074 6098            bra.s  L0000e     
+   35  00076 4e55 _gs_size:  link.w a5,#0      
+   36  0007a 48e7            movem.l a0/d1-d2,-(sp) 
+   37  0007e 323c            move.w #SS_Size,d1 
+   38  00082 4e40 L00082     os9    I$GetStt   
+   39  00086 6500            bcs.w  _os9err    
+   40  0008a 2002            move.l d2,d0      
+   41  0008c 6000            bra.w  _sysret    
+   42  00090 4e55 _gs_pos:   link.w a5,#0      
+   43  00094 48e7            movem.l a0/d1-d2,-(sp) 
+   44  00098 323c            move.w #SS_Pos,d1 
+   45  0009c 60e4            bra.s  L00082     
+   46  0009e 4e55 _ss_opt:   link.w a5,#0      
+   47  000a2 48e7            movem.l a0/d1-d2,-(sp) 
+   48  000a6 2041            movea.l d1,a0      
+   49  000a8 323c            move.w #SS_Opt,d1 
+   50  000ac 4e40 L000ac     os9    I$SetStt   
+   51  000b0 6000            bra.w  _sysret    
+   52  000b4 4e55 _ss_rest:  link.w a5,#0      
+   53  000b8 48e7            movem.l a0/d1-d2,-(sp) 
+   54  000bc 323c            move.w #SS_Reset,d1 
+   55  000c0 60ea            bra.s  L000ac     
+   56  000c2 4e55 _ss_size:  link.w a5,#0      
+   57  000c6 48e7            movem.l a0/d1-d2,-(sp) 
+   58  000ca 2401            move.l d1,d2      
+   59  000cc 323c            move.w #SS_Size,d1 
+   60  000d0 60da            bra.s  L000ac     
+   61  000d2 4e55 _ss_pfd:   link.w a5,#0      
+   62  000d6 48e7            movem.l a0/d1-d2,-(sp) 
+   63  000da 2041            movea.l d1,a0      
+   64  000dc 323c            move.w #SS_FD,d1  
+   65  000e0 60ca            bra.s  L000ac     
+   66  000e2 4e55 _ss_tiks:  link.w a5,#0      
+   67  000e6 48e7            movem.l a0/d1-d2,-(sp) 
+   68  000ea 2401            move.l d1,d2      
+   69  000ec 323c            move.w #SS_Ticks,d1 
+   70  000f0 60ba            bra.s  L000ac     
+   71  000f2 4e55 _ss_lock:  link.w a5,#0      
+   72  000f6 48e7            movem.l a0/d1-d2,-(sp) 
+   73  000fa 2401            move.l d1,d2      
+   74  000fc 323c            move.w #SS_Lock,d1 
+   75  00100 60aa            bra.s  L000ac     
+   76  00102 4e55 _ss_ssig:  link.w a5,#0      
+   77  00106 48e7            movem.l a0/d1-d2,-(sp) 
+   78  0010a 2401            move.l d1,d2      
+   79  0010c 323c            move.w #SS_SSig,d1 
+   80  00110 609a L00110     bra.s  L000ac     
+   81  00112 4e55 _ss_rel:   link.w a5,#0      
+   82  00116 48e7            movem.l a0/d1-d2,-(sp) 
+   83  0011a 323c            move.w #SS_Relea,d1 
+   84  0011e 60f0            bra.s  L00110     
+   85  00120 4e55 _ss_wtrk:  link.w a5,#0      
+   86  00124 48e7            movem.l a0/d1-d2,-(sp) 
+   87  00128 48e7            movem.l a1/d3-d4,-(sp) 
+   88  0012c 2401            move.l d1,d2      
+   89  0012e 7200            moveq  SS_WTrk,d1 
+   90  00130 4ced            movem.l 8(a5),a0-a1/d3-d4 
+   91  00136 4e40            os9    I$SetStt   
+   92  0013a 4cdf            movem.l (sp)+,a1/d3-d4 
+   93  0013e 6000            bra.w  _sysret    
+   94  00142 4e55 _ss_attr:  link.w a5,#0      
+   95  00146 48e7            movem.l a0/d1-d2,-(sp) 
+   96  0014a 2401            move.l d1,d2      
+   97  0014c 323c            move.w #SS_Attr,d1 
+   98  00150 60be            bra.s  L00110     
+   99  00152 4e55 _ss_enrts: link.w a5,#0      
+  100  00156 48e7            movem.l a0/d1-d2,-(sp) 
+  101  0015a 323c            move.w #SS_EnRTS,d1 
+  102  0015e 60b0            bra.s  L00110     
+  103  00160 4e55 _ss_dsrts: link.w a5,#0      
+  104  00164 48e7            movem.l a0/d1-d2,-(sp) 
+  105  00168 323c            move.w #SS_DsRTS,d1 
+  106  0016c 60a2            bra.s  L00110     
+  107  0016e 4e55 _ss_dcon:  link.w a5,#0      
+  108  00172 48e7            movem.l a0/d1-d2,-(sp) 
+  109  00176 3401            move.w d1,d2      
+  110  00178 323c            move.w #SS_DCOn,d1 
+  111  0017c 6092            bra.s  L00110     
+  112  0017e 4e55 _ss_dcoff: link.w a5,#0      
+  113  00182 48e7            movem.l a0/d1-d2,-(sp) 
+  114  00186 3401            move.w d1,d2      
+  115  00188 323c            move.w #SS_DCOff,d1 
+  116  0018c 6082            bra.s  L00110     
   117
+  118  0018e 0000            ends              
+  118

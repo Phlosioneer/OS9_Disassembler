@@ -1,4 +1,5 @@
- psect fread_c,$0,$0,0,0,fread
+ psect fread_c,0,0,0,0,fread
+
 fread: link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d6,-(sp)
  movea.l d0,a2

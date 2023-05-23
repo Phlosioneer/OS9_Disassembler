@@ -1,4 +1,5 @@
- psect asctime_c,$0,$0,0,0,asctime
+ psect asctime_c,0,0,0,0,asctime
+
 
 * D
  vsect 

@@ -1,4 +1,5 @@
- psect memory_c,$0,$0,0,0,L00000
+ psect memory_c,0,0,0,0,L00000
+
 
 * D
  vsect 

@@ -1,4 +1,5 @@
- psect initarg_a,$0,$0,0,0,$0200
+ psect initarg_a,0,0,0,0,512
+
 _initarg: movea.l (sp)+,a5
 L00002 subq.l #1,d5
  bcs.s L00068

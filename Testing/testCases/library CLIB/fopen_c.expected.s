@@ -1,4 +1,5 @@
- psect fopen_c,$0,$0,0,0,L00000
+ psect fopen_c,0,0,0,0,L00000
+
 L00000 link.w a5,#0
 L00002 equ *-2
  movem.l a0/a2/d0,-(sp)

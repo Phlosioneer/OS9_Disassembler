@@ -1,24 +1,25 @@
-    0  00000 0000            psect  frexp_c,$0,$0,0,0,frexp 
-    1  00000 4e55 frexp:     link.w a5,#0      
-    2  00004 48e7            movem.l a2/d0-d1,-(sp) 
-    3  00008 246f            movea.l 20(sp),a2  
-    4  0000c 4a97            tst.l  (sp)       
-    5  0000e 6604            bne.s  L00014     
-    6  00010 4292            clr.l  (a2)       
-    7  00012 601c            bra.s  L00030     
-    8  00014 3017 L00014     move.w (sp),d0    
-    9  00016 e848            lsr.w  #4,d0      
-   10  00018 0240            andi.w #$07ff,d0  
-   11  0001c 7200            moveq  #0,d1      
-   12  0001e 3200            move.w d0,d1      
-   13  00020 0481            subi.l #1022,d1   
-   14  00026 2481            move.l d1,(a2)    
-   15  00028 0257            andi.w #$800f,(sp) 
-   16  0002c 0057            ori.w  #$3fe0,(sp) 
-   17  00030 4cd7 L00030     movem.l (sp),d0-d1 
-   18  00034 4ced            movem.l -4(a5),a2  
-   19  0003a 4e5d            unlk   a5         
-   20  0003c 4e75            rts               
-   21
-   22  0003e 0000            ends              
+    0  00000 0000            psect  frexp_c,0,0,0,0,frexp 
+    1
+    2  00000 4e55 frexp:     link.w a5,#0      
+    3  00004 48e7            movem.l a2/d0-d1,-(sp) 
+    4  00008 246f            movea.l 20(sp),a2  
+    5  0000c 4a97            tst.l  (sp)       
+    6  0000e 6604            bne.s  L00014     
+    7  00010 4292            clr.l  (a2)       
+    8  00012 601c            bra.s  L00030     
+    9  00014 3017 L00014     move.w (sp),d0    
+   10  00016 e848            lsr.w  #4,d0      
+   11  00018 0240            andi.w #$07ff,d0  
+   12  0001c 7200            moveq  #0,d1      
+   13  0001e 3200            move.w d0,d1      
+   14  00020 0481            subi.l #1022,d1   
+   15  00026 2481            move.l d1,(a2)    
+   16  00028 0257            andi.w #$800f,(sp) 
+   17  0002c 0057            ori.w  #$3fe0,(sp) 
+   18  00030 4cd7 L00030     movem.l (sp),d0-d1 
+   19  00034 4ced            movem.l -4(a5),a2  
+   20  0003a 4e5d            unlk   a5         
+   21  0003c 4e75            rts               
    22
+   23  0003e 0000            ends              
+   23

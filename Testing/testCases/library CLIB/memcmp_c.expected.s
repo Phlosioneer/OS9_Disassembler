@@ -1,4 +1,5 @@
- psect memcmp_c,$0,$0,0,0,memcmp
+ psect memcmp_c,0,0,0,0,memcmp
+
 memcmp: link.w a5,#0
  movem.l a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2

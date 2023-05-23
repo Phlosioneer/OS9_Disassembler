@@ -1,4 +1,5 @@
- psect cmul_a,$0,$0,1,0,_T$UMul
+ psect cmul_a,0,0,1,0,_T$UMul
+
 _T$UMul: movem.l d2-d4,-(sp)
  move.l d0,d2
  move.l d0,d3

@@ -1,4 +1,5 @@
- psect atoi_c,$0,$0,0,0,atoi
+ psect atoi_c,0,0,0,0,atoi
+
 atoi: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l d0,a2

@@ -1,4 +1,5 @@
- psect fwrite_c,$0,$0,0,0,fwrite
+ psect fwrite_c,0,0,0,0,fwrite
+
 fwrite: link.w a5,#0
  movem.l a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2

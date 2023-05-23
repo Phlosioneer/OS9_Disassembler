@@ -1,4 +1,5 @@
- psect memset_a,$0,$0,0,0,memset
+ psect memset_a,0,0,0,0,memset
+
 memset: link.w a5,#0
  movem.l a0/d0/d2,-(sp)
  movea.l d0,a0

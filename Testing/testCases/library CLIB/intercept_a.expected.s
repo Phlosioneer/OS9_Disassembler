@@ -1,4 +1,5 @@
- psect intercept_a,$0,$0,0,0,intercept
+ psect intercept_a,0,0,0,0,intercept
+
 
 * D
  vsect 

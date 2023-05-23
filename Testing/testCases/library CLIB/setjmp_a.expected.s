@@ -1,4 +1,5 @@
- psect setjmp_a,$0,$0,1,0,setjmp
+ psect setjmp_a,0,0,1,0,setjmp
+
 setjmp: link.w a5,#0
  movea.l d0,a0
  move.l 4(sp),(a0)

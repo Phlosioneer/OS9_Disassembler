@@ -1,4 +1,5 @@
- psect scanf_c,$0,$0,0,0,scanf
+ psect scanf_c,0,0,0,0,scanf
+
 
 * D
  vsect 
@@ -232,8 +233,8 @@ L00284 equ *-2
  dc.w $ff60
  ori.l #$00b0ff9e,-80(a0,d0.w)
  ori.l #$00b000b0,-80(a0,d0.w)
- dc.w $b0
- dc.w $b0
+ dc.w $00b0
+ dc.w $00b0
  dc.w $ffa6
  dc.w $ff72
  dc.w $ff72
@@ -241,10 +242,10 @@ L00284 equ *-2
  ori.l #$ff2e00b0,-80(a0,d0.w)
  ori.l #$fef800b0,-80(a0,d0.w)
  dc.w $ff72
- dc.w $b0
+ dc.w $00b0
  ori.l #$00b0ffa6,-80(a0,d0.w)
- dc.w $b0
- dc.w $b0
+ dc.w $00b0
+ dc.w $00b0
  ori.l #$ff724aaf,8(a0,d0.w)
 L002f0 equ *-4
  beq.s L002fc

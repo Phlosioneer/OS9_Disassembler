@@ -1,4 +1,5 @@
- psect ldexp_c,$0,$0,0,0,ldexp
+ psect ldexp_c,0,0,0,0,ldexp
+
 ldexp: link.w a5,#0
  movem.l d0-d1/d4,-(sp)
  move.l 20(sp),d4

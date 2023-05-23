@@ -1,45 +1,46 @@
-    0  00000 0000            psect  alarm_a,$0,$0,0,0,alm_delete 
-    1  00000 4e55 alm_delete: link.w a5,#0      
-    2  00004 2f01            move.l d1,-(sp)   
-    3  00006 7200            moveq  A$Delete,d1 
-    4  00008 4e40            os9    F$Alarm    
-    5  0000c 6508            bcs.s  L00016     
-    6  0000e 7000            moveq  #0,d0      
-    7  00010 221f L00010     move.l (sp)+,d1   
-    8  00012 4e5d            unlk   a5         
-    9  00014 4e75            rts               
-   10  00016 2d41 L00016     move.l d1,errno(a6) 
-   11  0001a 70ff            moveq  #255,d0    
-   12  0001c 60f2            bra.s  L00010     
-   13  0001e 4e55 alm_set:   link.w a5,#0      
-   14  00022 48e7            movem.l d1-d4,-(sp) 
-   15  00026 2601            move.l d1,d3      
-   16  00028 7200            moveq  A$Set,d1   
-   17  0002a 3400 L0002a     move.w d0,d2      
-   18  0002c 7000            moveq  #0,d0      
-   19  0002e 4e40            os9    F$Alarm    
-   20  00032 6406            bcc.s  L0003a     
-   21  00034 2d41            move.l d1,errno(a6) 
-   22  00038 70ff            moveq  #255,d0    
-   23  0003a 4cdf L0003a     movem.l (sp)+,d1-d4 
-   24  0003e 4e5d            unlk   a5         
-   25  00040 4e75            rts               
-   26  00042 4e55 alm_cycle: link.w a5,#0      
-   27  00046 48e7            movem.l d1-d4,-(sp) 
-   28  0004a 2601            move.l d1,d3      
-   29  0004c 7200            moveq  A$Cycle,d1 
-   30  0004e 60da            bra.s  L0002a     
-   31  00050 4e55 alm_atdate: link.w a5,#0      
-   32  00054 48e7            movem.l d1-d4,-(sp) 
-   33  00058 2601            move.l d1,d3      
-   34  0005a 323c            move.w #A$AtDate,d1 
-   35  0005e 282f L0005e     move.l 24(sp),d4  
-   36  00062 60c6            bra.s  L0002a     
-   37  00064 4e55 alm_atjul: link.w a5,#0      
-   38  00068 48e7            movem.l d1-d4,-(sp) 
-   39  0006c 2601            move.l d1,d3      
-   40  0006e 323c            move.w #A$AtJul,d1 
-   41  00072 60ea            bra.s  L0005e     
-   42
-   43  00074 0000            ends              
+    0  00000 0000            psect  alarm_a,0,0,0,0,alm_delete 
+    1
+    2  00000 4e55 alm_delete: link.w a5,#0      
+    3  00004 2f01            move.l d1,-(sp)   
+    4  00006 7200            moveq  A$Delete,d1 
+    5  00008 4e40            os9    F$Alarm    
+    6  0000c 6508            bcs.s  L00016     
+    7  0000e 7000            moveq  #0,d0      
+    8  00010 221f L00010     move.l (sp)+,d1   
+    9  00012 4e5d            unlk   a5         
+   10  00014 4e75            rts               
+   11  00016 2d41 L00016     move.l d1,errno(a6) 
+   12  0001a 70ff            moveq  #255,d0    
+   13  0001c 60f2            bra.s  L00010     
+   14  0001e 4e55 alm_set:   link.w a5,#0      
+   15  00022 48e7            movem.l d1-d4,-(sp) 
+   16  00026 2601            move.l d1,d3      
+   17  00028 7200            moveq  A$Set,d1   
+   18  0002a 3400 L0002a     move.w d0,d2      
+   19  0002c 7000            moveq  #0,d0      
+   20  0002e 4e40            os9    F$Alarm    
+   21  00032 6406            bcc.s  L0003a     
+   22  00034 2d41            move.l d1,errno(a6) 
+   23  00038 70ff            moveq  #255,d0    
+   24  0003a 4cdf L0003a     movem.l (sp)+,d1-d4 
+   25  0003e 4e5d            unlk   a5         
+   26  00040 4e75            rts               
+   27  00042 4e55 alm_cycle: link.w a5,#0      
+   28  00046 48e7            movem.l d1-d4,-(sp) 
+   29  0004a 2601            move.l d1,d3      
+   30  0004c 7200            moveq  A$Cycle,d1 
+   31  0004e 60da            bra.s  L0002a     
+   32  00050 4e55 alm_atdate: link.w a5,#0      
+   33  00054 48e7            movem.l d1-d4,-(sp) 
+   34  00058 2601            move.l d1,d3      
+   35  0005a 323c            move.w #A$AtDate,d1 
+   36  0005e 282f L0005e     move.l 24(sp),d4  
+   37  00062 60c6            bra.s  L0002a     
+   38  00064 4e55 alm_atjul: link.w a5,#0      
+   39  00068 48e7            movem.l d1-d4,-(sp) 
+   40  0006c 2601            move.l d1,d3      
+   41  0006e 323c            move.w #A$AtJul,d1 
+   42  00072 60ea            bra.s  L0005e     
    43
+   44  00074 0000            ends              
+   44

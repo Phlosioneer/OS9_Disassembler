@@ -1,4 +1,5 @@
- psect events_a,$0,$0,0,0,_ev_creat
+ psect events_a,0,0,0,0,_ev_creat
+
 _ev_creat: link.w a5,#0
  movem.l a0/d2-d3,-(sp)
  move.l d1,d2

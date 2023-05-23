@@ -1,14 +1,15 @@
-    0  00000 0000            psect  cfinish_a,$0,$0,0,0,exit 
-    1  00000 4e55 exit:      link.w a5,#0      
-    2  00004 2200            move.l d0,d1      
-    3  00006 6100            bsr.w  _dumprof   
-    4  0000a 6100            bsr.w  _tidyup    
-    5  0000e 6008            bra.s  L00018     
-    6  00010 4e55 abort:     link.w a5,#0      
-    7  00014 4afc            illegal            
-    8  00016 2200 _exit:     move.l d0,d1      
-    9  00018 4e40 L00018     os9    F$Exit     
-   10  0001c dead            add.l  -8531(a5),d7 
-   11
-   12  00020 0000            ends              
+    0  00000 0000            psect  cfinish_a,0,0,0,0,exit 
+    1
+    2  00000 4e55 exit:      link.w a5,#0      
+    3  00004 2200            move.l d0,d1      
+    4  00006 6100            bsr.w  _dumprof   
+    5  0000a 6100            bsr.w  _tidyup    
+    6  0000e 6008            bra.s  L00018     
+    7  00010 4e55 abort:     link.w a5,#0      
+    8  00014 4afc            illegal            
+    9  00016 2200 _exit:     move.l d0,d1      
+   10  00018 4e40 L00018     os9    F$Exit     
+   11  0001c dead            add.l  -8531(a5),d7 
    12
+   13  00020 0000            ends              
+   13

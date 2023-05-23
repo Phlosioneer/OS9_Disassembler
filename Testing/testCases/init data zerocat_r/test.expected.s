@@ -1,4 +1,5 @@
- psect zeroCat_c,$0,$0,0,0,L00000
+ psect zeroCat_c,0,0,0,0,L00000
+
 
 * _
  vsect 

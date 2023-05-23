@@ -1,4 +1,5 @@
- psect strtod_c,$0,$0,0,0,strtod
+ psect strtod_c,0,0,0,0,strtod
+
 strtod: link.w a5,#0
  movem.l a0/a2/d0-d1/d4-d5,-(sp)
  movea.l d1,a2

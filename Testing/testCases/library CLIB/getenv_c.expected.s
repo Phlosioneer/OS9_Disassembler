@@ -1,4 +1,5 @@
- psect getenv_c,$0,$0,0,0,L00000
+ psect getenv_c,0,0,0,0,L00000
+
 L00000 link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2

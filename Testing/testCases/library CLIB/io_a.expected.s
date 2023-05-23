@@ -1,4 +1,5 @@
- psect io_a,$0,$0,0,0,read
+ psect io_a,0,0,0,0,read
+
 read: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d1,a0

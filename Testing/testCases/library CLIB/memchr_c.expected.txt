@@ -1,28 +1,29 @@
-    0  00000 0000            psect  memchr_c,$0,$0,0,0,memchr 
-    1  00000 4e55 memchr:    link.w a5,#0      
-    2  00004 48e7            movem.l a2/d0-d1/d4-d6,-(sp) 
-    3  00008 2440            movea.l d0,a2      
-    4  0000a 2801            move.l d1,d4      
-    5  0000c 2a2f            move.l 32(sp),d5  
-    6  00010 7000            moveq  #0,d0      
-    7  00012 1004            move.b d4,d0      
-    8  00014 2c00            move.l d0,d6      
-    9  00016 600e            bra.s  L00026     
-   10  00018 7000 L00018     moveq  #0,d0      
-   11  0001a 1012            move.b (a2),d0    
-   12  0001c b086            cmp.l  d6,d0      
-   13  0001e 6604            bne.s  L00024     
-   14  00020 200a            move.l a2,d0      
-   15  00022 600c            bra.s  L00030     
-   16  00024 528a L00024     addq.l #1,a2      
-   17  00026 2005 L00026     move.l d5,d0      
-   18  00028 5385            subq.l #1,d5      
-   19  0002a 4a80            tst.l  d0         
-   20  0002c 66ea            bne.s  L00018     
-   21  0002e 7000            moveq  #0,d0      
-   22  00030 4ced L00030     movem.l -16(a5),a2/d4-d6 
-   23  00036 4e5d            unlk   a5         
-   24  00038 4e75            rts               
-   25
-   26  0003a 0000            ends              
+    0  00000 0000            psect  memchr_c,0,0,0,0,memchr 
+    1
+    2  00000 4e55 memchr:    link.w a5,#0      
+    3  00004 48e7            movem.l a2/d0-d1/d4-d6,-(sp) 
+    4  00008 2440            movea.l d0,a2      
+    5  0000a 2801            move.l d1,d4      
+    6  0000c 2a2f            move.l 32(sp),d5  
+    7  00010 7000            moveq  #0,d0      
+    8  00012 1004            move.b d4,d0      
+    9  00014 2c00            move.l d0,d6      
+   10  00016 600e            bra.s  L00026     
+   11  00018 7000 L00018     moveq  #0,d0      
+   12  0001a 1012            move.b (a2),d0    
+   13  0001c b086            cmp.l  d6,d0      
+   14  0001e 6604            bne.s  L00024     
+   15  00020 200a            move.l a2,d0      
+   16  00022 600c            bra.s  L00030     
+   17  00024 528a L00024     addq.l #1,a2      
+   18  00026 2005 L00026     move.l d5,d0      
+   19  00028 5385            subq.l #1,d5      
+   20  0002a 4a80            tst.l  d0         
+   21  0002c 66ea            bne.s  L00018     
+   22  0002e 7000            moveq  #0,d0      
+   23  00030 4ced L00030     movem.l -16(a5),a2/d4-d6 
+   24  00036 4e5d            unlk   a5         
+   25  00038 4e75            rts               
    26
+   27  0003a 0000            ends              
+   27

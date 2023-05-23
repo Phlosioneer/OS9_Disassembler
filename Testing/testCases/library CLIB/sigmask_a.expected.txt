@@ -1,17 +1,18 @@
-    0  00000 0000            psect  sigmask_a,$0,$0,0,0,sigmask 
-    1  00000 4e55 sigmask:   link.w a5,#0      
-    2  00004 2f01            move.l d1,-(sp)   
-    3  00006 2200            move.l d0,d1      
-    4  00008 7000            moveq  #0,d0      
-    5  0000a 4e40            os9    F$SigMask  
-    6  0000e 6508            bcs.s  L00018     
-    7  00010 7000            moveq  #0,d0      
-    8  00012 221f L00012     move.l (sp)+,d1   
-    9  00014 4e5d            unlk   a5         
-   10  00016 4e75            rts               
-   11  00018 2d41 L00018     move.l d1,errno(a6) 
-   12  0001c 70ff            moveq  #255,d0    
-   13  0001e 60f2            bra.s  L00012     
-   14
-   15  00020 0000            ends              
+    0  00000 0000            psect  sigmask_a,0,0,0,0,sigmask 
+    1
+    2  00000 4e55 sigmask:   link.w a5,#0      
+    3  00004 2f01            move.l d1,-(sp)   
+    4  00006 2200            move.l d0,d1      
+    5  00008 7000            moveq  #0,d0      
+    6  0000a 4e40            os9    F$SigMask  
+    7  0000e 6508            bcs.s  L00018     
+    8  00010 7000            moveq  #0,d0      
+    9  00012 221f L00012     move.l (sp)+,d1   
+   10  00014 4e5d            unlk   a5         
+   11  00016 4e75            rts               
+   12  00018 2d41 L00018     move.l d1,errno(a6) 
+   13  0001c 70ff            moveq  #255,d0    
+   14  0001e 60f2            bra.s  L00012     
    15
+   16  00020 0000            ends              
+   16

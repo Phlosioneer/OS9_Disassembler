@@ -1,4 +1,5 @@
- psect change_a,$0,$0,0,0,chmod
+ psect change_a,0,0,0,0,chmod
+
 chmod: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d1,d2

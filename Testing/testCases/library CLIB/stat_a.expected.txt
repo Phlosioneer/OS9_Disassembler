@@ -1,46 +1,47 @@
-    0  00000 0000            psect  stat_a,$0,$0,0,0,getstat 
-    1  00000 4e55 getstat:   link.w a5,#0      
-    2  00004 48e7            movem.l a0/d1-d2,-(sp) 
-    3  00008 c141            exg    d0,d1      
-    4  0000a 4a81            tst.l  d1         
-    5  0000c 6742            beq.s  L00050     
-    6  0000e 0c01            cmpi.b #1,d1      
-    7  00012 672e            beq.s  L00042     
-    8  00014 0c01            cmpi.b #6,d1      
-    9  00018 673a            beq.s  L00054     
-   10  0001a 0c01            cmpi.b #2,d1      
-   11  0001e 6710            beq.s  L00030     
-   12  00020 0c01            cmpi.b #5,d1      
-   13  00024 670a            beq.s  L00030     
-   14  00026 7200 L00026     moveq  E$UnkSvc,d1 
-   15  00028 003c            ori    #1,ccr     
-   16  0002c 6000            bra.w  _os9err    
-   17  00030 4e40 L00030     os9    I$GetStt   
-   18  00034 6500            bcs.w  _os9err    
-   19  00038 206d            movea.l 8(a5),a0   
-   20  0003c 2082            move.l d2,(a0)    
-   21  0003e 6000            bra.w  _sysret0   
-   22  00042 4e40 L00042     os9    I$GetStt   
-   23  00046 6500            bcs.w  _os9err    
-   24  0004a 2001            move.l d1,d0      
-   25  0004c 6000            bra.w  _sysret    
-   26  00050 206d L00050     movea.l 8(a5),a0   
-   27  00054 4e40 L00054     os9    I$GetStt   
-   28  00058 6000            bra.w  _sysret    
-   29  0005c 4e55 setstat:   link.w a5,#0      
-   30  00060 48e7            movem.l a0/d1-d2,-(sp) 
-   31  00064 c141            exg    d0,d1      
-   32  00066 4a81            tst.l  d1         
-   33  00068 6608            bne.s  L00072     
-   34  0006a 206d            movea.l 8(a5),a0   
-   35  0006e 7200            moveq  SS_Opt,d1  
-   36  00070 600c            bra.s  L0007e     
-   37  00072 0c01 L00072     cmpi.b #2,d1      
-   38  00076 66ae            bne.s  L00026     
-   39  00078 242d            move.l 8(a5),d2   
-   40  0007c 7200            moveq  SS_Size,d1 
-   41  0007e 4e40 L0007e     os9    I$SetStt   
-   42  00082 6000            bra.w  _sysret    
-   43
-   44  00086 0000            ends              
+    0  00000 0000            psect  stat_a,0,0,0,0,getstat 
+    1
+    2  00000 4e55 getstat:   link.w a5,#0      
+    3  00004 48e7            movem.l a0/d1-d2,-(sp) 
+    4  00008 c141            exg    d0,d1      
+    5  0000a 4a81            tst.l  d1         
+    6  0000c 6742            beq.s  L00050     
+    7  0000e 0c01            cmpi.b #1,d1      
+    8  00012 672e            beq.s  L00042     
+    9  00014 0c01            cmpi.b #6,d1      
+   10  00018 673a            beq.s  L00054     
+   11  0001a 0c01            cmpi.b #2,d1      
+   12  0001e 6710            beq.s  L00030     
+   13  00020 0c01            cmpi.b #5,d1      
+   14  00024 670a            beq.s  L00030     
+   15  00026 7200 L00026     moveq  E$UnkSvc,d1 
+   16  00028 003c            ori    #1,ccr     
+   17  0002c 6000            bra.w  _os9err    
+   18  00030 4e40 L00030     os9    I$GetStt   
+   19  00034 6500            bcs.w  _os9err    
+   20  00038 206d            movea.l 8(a5),a0   
+   21  0003c 2082            move.l d2,(a0)    
+   22  0003e 6000            bra.w  _sysret0   
+   23  00042 4e40 L00042     os9    I$GetStt   
+   24  00046 6500            bcs.w  _os9err    
+   25  0004a 2001            move.l d1,d0      
+   26  0004c 6000            bra.w  _sysret    
+   27  00050 206d L00050     movea.l 8(a5),a0   
+   28  00054 4e40 L00054     os9    I$GetStt   
+   29  00058 6000            bra.w  _sysret    
+   30  0005c 4e55 setstat:   link.w a5,#0      
+   31  00060 48e7            movem.l a0/d1-d2,-(sp) 
+   32  00064 c141            exg    d0,d1      
+   33  00066 4a81            tst.l  d1         
+   34  00068 6608            bne.s  L00072     
+   35  0006a 206d            movea.l 8(a5),a0   
+   36  0006e 7200            moveq  SS_Opt,d1  
+   37  00070 600c            bra.s  L0007e     
+   38  00072 0c01 L00072     cmpi.b #2,d1      
+   39  00076 66ae            bne.s  L00026     
+   40  00078 242d            move.l 8(a5),d2   
+   41  0007c 7200            moveq  SS_Size,d1 
+   42  0007e 4e40 L0007e     os9    I$SetStt   
+   43  00082 6000            bra.w  _sysret    
    44
+   45  00086 0000            ends              
+   45

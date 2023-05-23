@@ -1,23 +1,24 @@
-    0  00000 0000            psect  clock_c,$0,$0,0,0,clock 
-    1  00000 4e55 clock:     link.w a5,#0      
-    2  00004 48e7            movem.l d0-d1,-(sp) 
-    3  00008 4fef            lea    -2048(sp),sp 
-    4  0000c 4857            pea    (sp)       
-    5  0000e 223c            move.l #2048,d1   
-    6  00014 6100            bsr.w  getpid     
-    7  00018 6100            bsr.w  _get_process_desc 
-    8  0001c 588f            addq.l #4,sp      
-    9  0001e 72ff            moveq  #255,d1    
-   10  00020 b280            cmp.l  d0,d1      
-   11  00022 6604            bne.s  L00028     
-   12  00024 70ff            moveq  #255,d0    
-   13  00026 6008            bra.s  L00030     
-   14  00028 202f L00028     move.l 692(sp),d0 
-   15  0002c d0af            add.l  696(sp),d0 
-   16  00030 4fef L00030     lea    2048(sp),sp 
-   17  00034 4ced            movem.l -4(a5),d1  
-   18  0003a 4e5d            unlk   a5         
-   19  0003c 4e75            rts               
-   20
-   21  0003e 0000            ends              
+    0  00000 0000            psect  clock_c,0,0,0,0,clock 
+    1
+    2  00000 4e55 clock:     link.w a5,#0      
+    3  00004 48e7            movem.l d0-d1,-(sp) 
+    4  00008 4fef            lea    -2048(sp),sp 
+    5  0000c 4857            pea    (sp)       
+    6  0000e 223c            move.l #2048,d1   
+    7  00014 6100            bsr.w  getpid     
+    8  00018 6100            bsr.w  _get_process_desc 
+    9  0001c 588f            addq.l #4,sp      
+   10  0001e 72ff            moveq  #255,d1    
+   11  00020 b280            cmp.l  d0,d1      
+   12  00022 6604            bne.s  L00028     
+   13  00024 70ff            moveq  #255,d0    
+   14  00026 6008            bra.s  L00030     
+   15  00028 202f L00028     move.l 692(sp),d0 
+   16  0002c d0af            add.l  696(sp),d0 
+   17  00030 4fef L00030     lea    2048(sp),sp 
+   18  00034 4ced            movem.l -4(a5),d1  
+   19  0003a 4e5d            unlk   a5         
+   20  0003c 4e75            rts               
    21
+   22  0003e 0000            ends              
+   22

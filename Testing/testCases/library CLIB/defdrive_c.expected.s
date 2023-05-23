@@ -1,4 +1,5 @@
- psect defdrive_c,$0,$0,0,0,defdrive
+ psect defdrive_c,0,0,0,0,defdrive
+
 defdrive: link.w a5,#0
  movem.l a0/d0,-(sp)
  lea L00018(pc),a0

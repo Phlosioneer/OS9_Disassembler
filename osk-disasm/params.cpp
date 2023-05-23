@@ -279,6 +279,13 @@ FormattedNumber::FormattedNumber(int32_t number, OperandSize size, AddrSpaceHand
 {
 }
 
+std::string FormattedNumber::str() const
+{
+    std::ostringstream buffer;
+    buffer << *this;
+    return buffer.str();
+}
+
 /*
  * Append a char in the desired printable format onto dst
  */
@@ -444,23 +451,25 @@ std::ostream& operator<<(std::ostream& os, const InstrParam& self)
 
 #pragma region LiteralParam
 
-LiteralParam::LiteralParam(std::string label) : value(label)
+LiteralParam::LiteralParam(std::string label, bool usePrefix) : value(label), usePrefix(usePrefix)
 {
 }
 
-LiteralParam::LiteralParam(FormattedNumber number) : value(number)
+LiteralParam::LiteralParam(FormattedNumber number, bool usePrefix) : value(number), usePrefix(usePrefix)
 {
 }
 
 void LiteralParam::format(std::ostream& stream) const
 {
+    if (usePrefix) stream << '#';
+
     if (value.hasLeft())
     {
         stream << value.left();
     }
     else
     {
-        stream << '#' << value.right();
+        stream << value.right();
     }
 }
 

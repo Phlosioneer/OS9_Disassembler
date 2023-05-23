@@ -1,4 +1,5 @@
- psect misc_a,$0,$0,0,0,pause
+ psect misc_a,0,0,0,0,pause
+
 pause: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  moveq #0,d0

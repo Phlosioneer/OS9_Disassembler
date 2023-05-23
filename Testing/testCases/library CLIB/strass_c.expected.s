@@ -1,4 +1,5 @@
- psect strass_c,$0,$0,0,0,_strass
+ psect strass_c,0,0,0,0,_strass
+
 _strass: movem.l a0-a1,-(sp)
  movea.l d0,a0
  movea.l d1,a1

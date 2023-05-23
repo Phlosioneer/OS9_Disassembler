@@ -1,4 +1,5 @@
- psect fseek_c,$0,$0,0,0,fseek
+ psect fseek_c,0,0,0,0,fseek
+
 fseek: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4-d5,-(sp)
  movea.l d0,a2

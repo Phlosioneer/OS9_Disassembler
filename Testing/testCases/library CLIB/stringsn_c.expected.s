@@ -1,4 +1,5 @@
- psect stringsn_c,$0,$0,0,0,strncpy
+ psect stringsn_c,0,0,0,0,strncpy
+
 strncpy: link.w a5,#0
  movem.l a2-a4/d0-d1/d4,-(sp)
  movea.l d0,a2

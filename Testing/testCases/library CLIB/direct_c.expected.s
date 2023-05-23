@@ -1,4 +1,5 @@
- psect direct_c,$0,$0,0,0,opendir
+ psect direct_c,0,0,0,0,opendir
+
 opendir: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)

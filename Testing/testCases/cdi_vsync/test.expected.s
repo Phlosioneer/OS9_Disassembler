@@ -5,11 +5,11 @@ F$Exit equ $06
 F$TLink equ $21
 I$WritLn equ $8c
 
-Prgrm set $1
-Objct set $1
+Prgrm set $01
+Objct set $01
 ReEnt set $80
 
- psect test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc
+ psect test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,3072,L00052,L001bc
 
 
 * OS9 data area definitions
@@ -279,7 +279,7 @@ L00304 bls.s L0036a
  dc.w $635f
  moveq #114,d2
  bsr.s L00382
- dc.w $0
+ dc.w $0000
  link.w a5,#0
  movem.l d0,-(sp)
  move.w #65,D0002a(a6)

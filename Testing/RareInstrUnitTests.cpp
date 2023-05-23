@@ -63,7 +63,8 @@ namespace UnitTests
 			}
 			else
 			{
-				params = instr.params;
+				//params = instr.params;
+				throw std::runtime_error("params field is obsolete");
 			}
 			Assert::AreEqual(expectedParams, params.c_str(), subtestName);
 		}

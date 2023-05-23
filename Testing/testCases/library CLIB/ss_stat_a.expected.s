@@ -1,4 +1,5 @@
- psect ss_stat_a,$0,$0,0,0,_gs_opt
+ psect ss_stat_a,0,0,0,0,_gs_opt
+
 _gs_opt: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d1,a0

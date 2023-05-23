@@ -1,4 +1,5 @@
- psect functions,$0,$0,0,0,function_table
+ psect functions,0,0,0,0,function_table
+
 function_table: dc.w function_table,function_table
  dc.w function_table,$0180,$0228
  dc.w $0306,function_table,function_table

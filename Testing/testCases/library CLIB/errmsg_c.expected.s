@@ -1,4 +1,5 @@
- psect errmsg_c,$0,$0,0,0,_errmsg
+ psect errmsg_c,0,0,0,0,_errmsg
+
 
 * _
  vsect 
@@ -43,7 +44,7 @@ _prgname: move.l a0,-(sp)
  rts 
 L0006c dc.w $2573
  move.w -(a0),d5
- dc.w $0
+ dc.w $0000
 
  ends 
 

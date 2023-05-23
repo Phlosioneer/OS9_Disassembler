@@ -1,4 +1,5 @@
- psect alarm_a,$0,$0,0,0,alm_delete
+ psect alarm_a,0,0,0,0,alm_delete
+
 alm_delete: link.w a5,#0
  move.l d1,-(sp)
  moveq A$Delete,d1

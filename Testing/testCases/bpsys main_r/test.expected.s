@@ -1,4 +1,5 @@
- psect cdi_bpsys,$2,$1,0,0,$0050
+ psect cdi_bpsys,(Sbrtn<<8)|Objct,(SupStat+ReEnt<<8)|0,0,0,80
+
 credits: dc.w $4d2e
  dc.w $4172
  dc.w $6d65
@@ -35,7 +36,7 @@ credits: dc.w $4d2e
  ble.s L000c0
  moveq #101,d2
 L0004e moveq #0,d1
- dc.w $8
+ dc.w $0008
  ori.b #$62,104(a2,d0.w)
 init: lea state(pc),a3
 L0005a equ *-2

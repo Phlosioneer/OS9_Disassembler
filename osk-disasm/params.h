@@ -204,6 +204,8 @@ class FormattedNumber
     FormattedNumber(int32_t number, OperandSize size = OperandSize::Long,
                     AddrSpaceHandle labelSpace = &LITERAL_DEC_SPACE);
 
+    std::string str() const;
+
     int32_t number;
     OperandSize size;
     AddrSpaceHandle labelSpace;
@@ -234,13 +236,14 @@ class InstrParam
 class LiteralParam : public InstrParam
 {
   public:
-    LiteralParam(std::string label);
-    LiteralParam(FormattedNumber number);
+    LiteralParam(std::string label, bool usePrefix = false);
+    LiteralParam(FormattedNumber number, bool usePrefix = true);
     virtual ~LiteralParam() = default;
 
     virtual void format(std::ostream& stream) const override;
 
     const LabelOrNumber value;
+    const bool usePrefix;
 };
 
 class RegParam : public InstrParam

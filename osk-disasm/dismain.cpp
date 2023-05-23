@@ -424,12 +424,12 @@ int dopass(int Pass, struct options* opt)
 
         if (opt->IsROF)
         {
-            ROFPsect(opt);
+            PrintPsect(opt, false);
             ROFDataPrint(opt);
         }
         else
         {
-            PrintPsect(opt);
+            PrintPsect(opt, true);
             OS9DataPrint(opt);
         }
     }
@@ -509,10 +509,8 @@ int dopass(int Pass, struct options* opt)
             if (Pass == 2)
             {
                 strcpy(Instruction.mnem, "dc.w");
-                std::ostringstream params;
-                params << '$' << PrettyNumber<uint16_t>(Instruction.cmd_wrd & 0xffff).hex();
-                auto result = params.str();
-                strcpy(Instruction.params, result.c_str());
+                Instruction.setSource(
+                    LiteralParam(FormattedNumber(Instruction.cmd_wrd & 0xFFFF, OperandSize::Word, &LITERAL_HEX_SPACE), false));
                 PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
                 parseState.CmdEnt = parseState.PCPos;
             }
@@ -635,7 +633,6 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
     /* This may be temporary, and we may set PBytSiz
      * to the appropriate value */
     strcpy(Ci.mnem, "dc");
-    Ci.params[0] = '\0';
     Ci.lblname = "";
     Ci.comment = NULL;
     Ci.cmd_wrd = 0;
@@ -661,6 +658,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
         throw std::runtime_error("Unexpected byte size");
     }
 
+    std::string paramsBuffer;
     while (state->PCPos <= db->range.end)
     {
         /* Init dest buffer to null string for LblCalc concatenation */
@@ -708,25 +706,28 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 
             ++cCount;
 
-            if (strlen(Ci.params))
+            if (!paramsBuffer.empty())
             {
-                strcat(Ci.params, ",");
+                paramsBuffer += ",";
             }
 
-            strcat(Ci.params, tmps);
+            paramsBuffer += tmps;
 
             // If length of operand string is max, print a line
             // Baked-in assumption that this function is only called within CODE_SPACE.
-            if ((strlen(Ci.params) > 22) || findlbl(&CODE_SPACE, state->PCPos))
+            if ((paramsBuffer.size() > 22) || findlbl(&CODE_SPACE, state->PCPos))
             {
+                Ci.setSource(LiteralParam(paramsBuffer));
+
                 PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->PCPos, state->opt);
 
                 printXtraBytes(xtrabytes.str());
                 xtrabytes = {};
 
-                Ci.params[0] = '\0';
+                Ci.source = nullptr;
                 Ci.cmd_wrd = 0;
                 Ci.lblname.clear();
+                paramsBuffer.clear();
                 state->CmdEnt = state->PCPos;
                 cCount = 0;
             }
@@ -737,8 +738,10 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 
     /* Loop finished.. print any unprinted data */
 
-    if ((state->Pass == 2) && strlen(Ci.params))
+    if ((state->Pass == 2) && !paramsBuffer.empty())
     {
+        Ci.setSource(LiteralParam(paramsBuffer));
+
         // Baked-in assumption that this function is only called within CODE_SPACE.
         PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->PCPos, state->opt);
 

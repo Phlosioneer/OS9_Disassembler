@@ -1,6 +1,7 @@
-    0  00000 0000            psect  _utdummy,$0,$0,0,0,_utinit 
-    1  00000 003c _utinit:   ori    #1,ccr     
-    2  00004 4e75            rts               
-    3
-    4  00006 0000            ends              
+    0  00000 0000            psect  _utdummy,0,0,0,0,_utinit 
+    1
+    2  00000 003c _utinit:   ori    #1,ccr     
+    3  00004 4e75            rts               
     4
+    5  00006 0000            ends              
+    5

@@ -1,4 +1,5 @@
- psect time_a,$0,$0,0,0,setime
+ psect time_a,0,0,0,0,setime
+
 setime: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0

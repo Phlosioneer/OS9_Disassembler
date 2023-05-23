@@ -1,32 +1,33 @@
-    0  00000 0000            psect  case_c,$0,$0,0,0,toupper 
-    1  00000 4e55 toupper:   link.w a5,#0      
-    2  00004 48e7            movem.l a0/d0-d1,-(sp) 
-    3  00008 2017            move.l (sp),d0    
-    4  0000a 41ee            lea    _chcodes(a6),a0 
-    5  0000e 1230            move.b (a0,d0.l),d1 
-    6  00012 4881            ext.w  d1         
-    7  00014 0801            btst.l #2,d1      
-    8  00018 6708            beq.s  L00022     
-    9  0001a 0280            andi.l #$000000df,d0 
-   10  00020 6002            bra.s  L00024     
-   11  00022 2017 L00022     move.l (sp),d0    
-   12  00024 4ced L00024     movem.l -8(a5),a0/d1 
-   13  0002a 4e5d            unlk   a5         
-   14  0002c 4e75            rts               
-   15  0002e 4e55 tolower:   link.w a5,#0      
-   16  00032 48e7            movem.l a0/d0-d1,-(sp) 
-   17  00036 2017            move.l (sp),d0    
-   18  00038 41ee            lea    _chcodes(a6),a0 
-   19  0003c 1230            move.b (a0,d0.l),d1 
-   20  00040 4881            ext.w  d1         
-   21  00042 0801            btst.l #1,d1      
-   22  00046 6706            beq.s  L0004e     
-   23  00048 08c0            bset.l #5,d0      
-   24  0004c 6002            bra.s  L00050     
-   25  0004e 2017 L0004e     move.l (sp),d0    
-   26  00050 4ced L00050     movem.l -8(a5),a0/d1 
-   27  00056 4e5d            unlk   a5         
-   28  00058 4e75            rts               
-   29
-   30  0005a 0000            ends              
+    0  00000 0000            psect  case_c,0,0,0,0,toupper 
+    1
+    2  00000 4e55 toupper:   link.w a5,#0      
+    3  00004 48e7            movem.l a0/d0-d1,-(sp) 
+    4  00008 2017            move.l (sp),d0    
+    5  0000a 41ee            lea    _chcodes(a6),a0 
+    6  0000e 1230            move.b (a0,d0.l),d1 
+    7  00012 4881            ext.w  d1         
+    8  00014 0801            btst.l #2,d1      
+    9  00018 6708            beq.s  L00022     
+   10  0001a 0280            andi.l #$000000df,d0 
+   11  00020 6002            bra.s  L00024     
+   12  00022 2017 L00022     move.l (sp),d0    
+   13  00024 4ced L00024     movem.l -8(a5),a0/d1 
+   14  0002a 4e5d            unlk   a5         
+   15  0002c 4e75            rts               
+   16  0002e 4e55 tolower:   link.w a5,#0      
+   17  00032 48e7            movem.l a0/d0-d1,-(sp) 
+   18  00036 2017            move.l (sp),d0    
+   19  00038 41ee            lea    _chcodes(a6),a0 
+   20  0003c 1230            move.b (a0,d0.l),d1 
+   21  00040 4881            ext.w  d1         
+   22  00042 0801            btst.l #1,d1      
+   23  00046 6706            beq.s  L0004e     
+   24  00048 08c0            bset.l #5,d0      
+   25  0004c 6002            bra.s  L00050     
+   26  0004e 2017 L0004e     move.l (sp),d0    
+   27  00050 4ced L00050     movem.l -8(a5),a0/d1 
+   28  00056 4e5d            unlk   a5         
+   29  00058 4e75            rts               
    30
+   31  0005a 0000            ends              
+   31

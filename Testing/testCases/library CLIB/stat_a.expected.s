@@ -1,4 +1,5 @@
- psect stat_a,$0,$0,0,0,getstat
+ psect stat_a,0,0,0,0,getstat
+
 getstat: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  exg d0,d1

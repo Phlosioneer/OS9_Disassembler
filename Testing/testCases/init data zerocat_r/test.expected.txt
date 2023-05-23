@@ -1,49 +1,50 @@
-    0  00000 0000            psect  zeroCat_c,$0,$0,0,0,L00000 
+    0  00000 0000            psect  zeroCat_c,0,0,0,0,L00000 
     1
-    2 * Initialized Data (Class"_")
-    3
-    4  00000 0000            vsect             
-    5  00000 0000 zeroCategory: dc.l   $00000000  
-    6  00004 0000            dc.l   $000a0000  
-    7  00008 0000            dc.l   _defaultEventHandler 
-    8  0000c 0000            dc.l   zeroCategory 
-    9  00010 0000            dc.w   $0100      
-   10  00012 0000            dc.l   _defaultEventHandler 
-   11  00016 0000            dc.l   zeroCategory 
-   12  0001a 0000            dc.w   $0100      
-   13  0001c 0000 _zeroCategoryExtraHandlers: dc.l   _defaultEventHandler 
-   14  00020 0000            dc.l   zeroCategory 
-   15  00024 0000            dc.w   $0100      
-   16  00026 0000            dc.l   _panicEventHandler 
-   17  0002a 0000            dc.w   $0000      
-   18  0002c 0000            dc.w   $0000      
-   19  0002e 0000            dc.w   $0100      
-   20  00030 0000            dc.l   _panicEventHandler 
-   21  00034 0000            dc.w   $0000      
-   22  00036 0000            dc.w   $0000      
-   23  00038 0000            dc.w   $0100      
-   24  0003a 0000            dc.l   _defaultEventHandler 
-   25  0003e 0000            dc.l   zeroCategory 
-   26  00042 0000            dc.w   $0100      
-   27  00044 0000            dc.l   _defaultEventHandler 
-   28  00048 0000            dc.l   zeroCategory 
-   29  0004c 0000            dc.w   $0100      
-   30  0004e 0000            dc.l   _defaultEventHandler 
-   31  00052 0000            dc.l   zeroCategory 
-   32  00056 0000            dc.w   $0100      
-   33  00058 0000            dc.l   _defaultEventHandler 
-   34  0005c 0000            dc.l   zeroCategory 
-   35  00060 0000            dc.w   $0100      
-   36  00062 0000            dc.l   _defaultEventHandler 
-   37  00066 0000            dc.l   zeroCategory 
-   38  0006a 0000            dc.w   $0100      
-   39  0006c 0000            dc.l   _defaultEventHandler 
-   40  00070 0000            dc.l   zeroCategory 
-   41  00074 0000            dc.w   $0100      
-   42
+    2
+    3 * Initialized Data (Class"_")
+    4
+    5  00000 0000            vsect             
+    6  00000 0000 zeroCategory: dc.l   $00000000  
+    7  00004 0000            dc.l   $000a0000  
+    8  00008 0000            dc.l   _defaultEventHandler 
+    9  0000c 0000            dc.l   zeroCategory 
+   10  00010 0000            dc.w   $0100      
+   11  00012 0000            dc.l   _defaultEventHandler 
+   12  00016 0000            dc.l   zeroCategory 
+   13  0001a 0000            dc.w   $0100      
+   14  0001c 0000 _zeroCategoryExtraHandlers: dc.l   _defaultEventHandler 
+   15  00020 0000            dc.l   zeroCategory 
+   16  00024 0000            dc.w   $0100      
+   17  00026 0000            dc.l   _panicEventHandler 
+   18  0002a 0000            dc.w   $0000      
+   19  0002c 0000            dc.w   $0000      
+   20  0002e 0000            dc.w   $0100      
+   21  00030 0000            dc.l   _panicEventHandler 
+   22  00034 0000            dc.w   $0000      
+   23  00036 0000            dc.w   $0000      
+   24  00038 0000            dc.w   $0100      
+   25  0003a 0000            dc.l   _defaultEventHandler 
+   26  0003e 0000            dc.l   zeroCategory 
+   27  00042 0000            dc.w   $0100      
+   28  00044 0000            dc.l   _defaultEventHandler 
+   29  00048 0000            dc.l   zeroCategory 
+   30  0004c 0000            dc.w   $0100      
+   31  0004e 0000            dc.l   _defaultEventHandler 
+   32  00052 0000            dc.l   zeroCategory 
+   33  00056 0000            dc.w   $0100      
+   34  00058 0000            dc.l   _defaultEventHandler 
+   35  0005c 0000            dc.l   zeroCategory 
+   36  00060 0000            dc.w   $0100      
+   37  00062 0000            dc.l   _defaultEventHandler 
+   38  00066 0000            dc.l   zeroCategory 
+   39  0006a 0000            dc.w   $0100      
+   40  0006c 0000            dc.l   _defaultEventHandler 
+   41  00070 0000            dc.l   zeroCategory 
+   42  00074 0000            dc.w   $0100      
    43
-   44  00076 0000            ends              
    44
+   45  00076 0000            ends              
    45
-   46  00000 0000            ends              
    46
+   47  00000 0000            ends              
+   47

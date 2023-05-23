@@ -69,17 +69,6 @@ const char* extern_def_name(struct rof_extrn* handle)
     return handle->nam.c_str();
 }
 
-std::ostringstream rof_header_getPsectParams(struct rof_header* handle)
-{
-    std::ostringstream paramBuffer;
-    paramBuffer << handle->rname;
-    paramBuffer << ",$" << PrettyNumber<uint32_t>(handle->ty_lan >> 8).hex();
-    paramBuffer << ",$" << PrettyNumber<uint32_t>(handle->ty_lan & 0xFF).hex();
-    paramBuffer << ',' << handle->edition;
-    paramBuffer << ',' << handle->stksz;
-    return paramBuffer;
-}
-
 /*
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
  * positioned to the begin of the initialized data list for this particular vsect.
@@ -131,8 +120,10 @@ void getRofHdr(struct options* opt)
         errexit("Illegal ROF Module sync bytes");
     }
 
-    opt->ROFHd->ty_lan = opt->Module->read<uint16_t>();
-    opt->ROFHd->att_rev = opt->Module->read<uint16_t>(); /* Attribute/Revision word */
+    opt->ROFHd->type = opt->Module->read<uint8_t>();
+    opt->ROFHd->lang = opt->Module->read<uint8_t>();
+    opt->ROFHd->attributes = opt->Module->read<uint8_t>();
+    opt->ROFHd->revision = opt->Module->read<uint8_t>();
     opt->ROFHd->valid = opt->Module->read<uint16_t>();   /* Nonzero if valid */
     opt->ROFHd->series = opt->Module->read<uint16_t>();  /* Assembler version used to compile */
     opt->Module->readVec(opt->ROFHd->rdate, 6);
@@ -552,17 +543,17 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
 
             if (ref->Extrn)
             {
-                strcpy(Ci.params, ref->nam.c_str());
+                Ci.setSource(LiteralParam(ref->nam));
             }
             else
             {
-                strcpy(Ci.params, ref->lbl->name().c_str());
+                Ci.setSource(LiteralParam(ref->lbl->name()));
             }
 
             PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->PCPos, state->opt);
             state->CmdEnt = state->PCPos;
             Ci.lblname.clear();
-            Ci.params[0] = '\0';
+            Ci.source = nullptr;
             Ci.mnem[0] = '\0';
         }
         else /* No reference entry for this area */
@@ -618,11 +609,14 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                     }
 
                     state->PCPos += bytSize;
-                    sprintf(Ci.params, fmt, val);
+                    char tmp[250];
+                    tmp[0] = '\0';
+                    sprintf(tmp, fmt, val);
+                    Ci.setSource(LiteralParam(tmp));
                     PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->PCPos, state->opt);
                     state->CmdEnt = state->PCPos;
                     Ci.lblname.clear();
-                    Ci.params[0] = '\0';
+                    Ci.source = nullptr;
                 }
 
                 Ci.mnem[0] = '\0';

@@ -1,4 +1,5 @@
- psect clock_c,$0,$0,0,0,clock
+ psect clock_c,0,0,0,0,clock
+
 clock: link.w a5,#0
  movem.l d0-d1,-(sp)
  lea -2048(sp),sp

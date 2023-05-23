@@ -1,4 +1,5 @@
- psect frexp_c,$0,$0,0,0,frexp
+ psect frexp_c,0,0,0,0,frexp
+
 frexp: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l 20(sp),a2

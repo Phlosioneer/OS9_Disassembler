@@ -1,4 +1,5 @@
- psect mod_a,$0,$0,0,0,modlink
+ psect mod_a,0,0,0,0,modlink
+
 modlink: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0

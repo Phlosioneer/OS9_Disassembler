@@ -1,4 +1,5 @@
- psect process_a,$0,$0,0,0,kill
+ psect process_a,0,0,0,0,kill
+
 kill: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$Send

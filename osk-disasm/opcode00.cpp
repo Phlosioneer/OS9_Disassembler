@@ -42,7 +42,7 @@
 #include "userdef.h"
 
 static const uint8_t MATH_TRAP_LIB = 15;
-static const char const* MATH_TRAP_LIB_NAME = "T$Math";
+static const char *const MATH_TRAP_LIB_NAME = "T$Math";
 
 enum
 {

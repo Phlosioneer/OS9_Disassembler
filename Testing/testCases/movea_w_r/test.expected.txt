@@ -1,6 +1,7 @@
-    0  00000 0000            psect  movea_w,$2,$1,0,0,main 
-    1  00000 3040 main:      movea.w d0,a0      
-    2  00002 3040            movea.w d0,a0      
-    3
-    4  00004 0000            ends              
+    0  00000 0000            psect  movea_w,(Sbrtn<<8)|Objct,(SupStat+ReEnt<<8)|0,0,0,main 
+    1
+    2  00000 3040 main:      movea.w d0,a0      
+    3  00002 3040            movea.w d0,a0      
     4
+    5  00004 0000            ends              
+    5

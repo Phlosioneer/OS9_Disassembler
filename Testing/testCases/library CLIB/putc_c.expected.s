@@ -1,4 +1,5 @@
- psect putc_c,$0,$0,0,0,putc
+ psect putc_c,0,0,0,0,putc
+
 putc: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)

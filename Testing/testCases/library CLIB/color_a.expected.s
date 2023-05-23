@@ -1,4 +1,5 @@
- psect color_a,$0,$0,0,0,srqcmem
+ psect color_a,0,0,0,0,srqcmem
+
 
 * D
  vsect 

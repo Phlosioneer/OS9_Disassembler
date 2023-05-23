@@ -1,4 +1,5 @@
- psect modloadp_c,$0,$0,0,0,modloadp
+ psect modloadp_c,0,0,0,0,modloadp
+
 modloadp: link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d7,-(sp)
  movea.l d0,a2
@@ -84,7 +85,7 @@ L000d6 move.l d5,d0
  rts 
 L000e6 addq.w #8,d1
  addq.w #2,a0
- dc.w $0
+ dc.w $0000
 
  ends 
 

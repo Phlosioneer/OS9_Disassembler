@@ -1,4 +1,5 @@
- psect sigmask_a,$0,$0,0,0,sigmask
+ psect sigmask_a,0,0,0,0,sigmask
+
 sigmask: link.w a5,#0
  move.l d1,-(sp)
  move.l d0,d1

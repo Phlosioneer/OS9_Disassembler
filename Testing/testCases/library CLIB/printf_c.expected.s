@@ -1,4 +1,5 @@
- psect printf_c,$0,$0,0,0,printf
+ psect printf_c,0,0,0,0,printf
+
 
 * D
  vsect 
@@ -966,7 +967,7 @@ L00a5a dc.w $3031
  dc.w $4142
  dc.w $4344
  dc.w $4546
- dc.w $30
+ dc.w $0030
 L00a6b equ *-1
  dc.w $3132
  dc.w $3334

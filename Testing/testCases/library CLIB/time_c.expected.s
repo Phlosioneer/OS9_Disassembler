@@ -1,4 +1,5 @@
- psect time_c,$0,$0,0,0,time
+ psect time_c,0,0,0,0,time
+
 
 * D
  vsect 
@@ -908,7 +909,7 @@ L00980 addq.w #2,(a2)+
 L00983 equ *-5
 L00987 equ *-1
  dc.w $7572
- dc.w $6e
+ dc.w $006e
 L0098b equ *-1
  dc.w $6f00
 

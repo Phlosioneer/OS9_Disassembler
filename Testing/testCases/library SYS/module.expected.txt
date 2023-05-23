@@ -1,4 +1,5 @@
-    0  00000 0000            psect  module,$0,$0,23,0,MD$MPtr 
+    0  00000 0000            psect  module,0,0,23,0,MD$MPtr 
     1
-    2  00000 0000            ends              
     2
+    3  00000 0000            ends              
+    3

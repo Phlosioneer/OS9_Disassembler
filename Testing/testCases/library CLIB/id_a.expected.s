@@ -1,4 +1,5 @@
- psect id_a,$0,$0,0,0,getpid
+ psect id_a,0,0,0,0,getpid
+
 getpid: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  os9 F$ID

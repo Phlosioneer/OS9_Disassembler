@@ -1,4 +1,5 @@
- psect chcodes_c,$0,$0,0,0,L00000
+ psect chcodes_c,0,0,0,0,L00000
+
 
 * _
  vsect 

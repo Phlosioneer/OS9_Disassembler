@@ -1,4 +1,5 @@
- psect fflush_c,$0,$0,0,0,fflush
+ psect fflush_c,0,0,0,0,fflush
+
 fflush: link.w a5,#0
 L00001 equ *-3
  movem.l a2/d0,-(sp)

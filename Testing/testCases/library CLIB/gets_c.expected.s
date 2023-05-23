@@ -1,4 +1,5 @@
- psect gets_c,$0,$0,0,0,gets
+ psect gets_c,0,0,0,0,gets
+
 gets: link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l d0,a2

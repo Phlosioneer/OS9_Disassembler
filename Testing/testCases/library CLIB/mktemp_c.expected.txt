@@ -1,45 +1,46 @@
-    0  00000 0000            psect  mktemp_c,$0,$0,0,0,mktemp 
-    1  00000 4e55 mktemp:    link.w a5,#0      
-    2  00004 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
-    3  00008 2440            movea.l d0,a2      
-    4  0000a 6100            bsr.w  getpid     
-    5  0000e 2a00            move.l d0,d5      
-    6  00010 264a            movea.l a2,a3      
-    7  00012 4a1a L00012     tst.b  (a2)+      
-    8  00014 66fc            bne.s  L00012     
-    9  00016 538a            subq.l #1,a2      
-   10  00018 6018            bra.s  L00032     
-   11  0001a 2005 L0001a     move.l d5,d0      
-   12  0001c 720a            moveq  #10,d1     
-   13  0001e 6100            bsr.w  _T$LMod    
-   14  00022 0600            addi.b #$30,d0    
-   15  00026 1480            move.b d0,(a2)    
-   16  00028 720a            moveq  #10,d1     
-   17  0002a 2005            move.l d5,d0      
-   18  0002c 6100            bsr.w  _T$LDiv    
-   19  00030 2a00            move.l d0,d5      
-   20  00032 0c22 L00032     cmpi.b #88,-(a2)  
-   21  00036 67e2            beq.s  L0001a     
-   22  00038 528a            addq.l #1,a2      
-   23  0003a 7861            moveq  #97,d4     
-   24  0003c 600e            bra.s  L0004c     
-   25  0003e 707a L0003e     moveq  #122,d0    
-   26  00040 b084            cmp.l  d4,d0      
-   27  00042 6604            bne.s  L00048     
-   28  00044 7000            moveq  #0,d0      
-   29  00046 6014            bra.s  L0005c     
-   30  00048 1484 L00048     move.b d4,(a2)    
-   31  0004a 5284            addq.l #1,d4      
-   32  0004c 7200 L0004c     moveq  #0,d1      
-   33  0004e 200b            move.l a3,d0      
-   34  00050 6100            bsr.w  access     
-   35  00054 72ff            moveq  #255,d1    
-   36  00056 b280            cmp.l  d0,d1      
-   37  00058 66e4            bne.s  L0003e     
-   38  0005a 200b            move.l a3,d0      
-   39  0005c 4ced L0005c     movem.l -20(a5),a2-a3/d1/d4-d5 
-   40  00062 4e5d            unlk   a5         
-   41  00064 4e75            rts               
-   42
-   43  00066 0000            ends              
+    0  00000 0000            psect  mktemp_c,0,0,0,0,mktemp 
+    1
+    2  00000 4e55 mktemp:    link.w a5,#0      
+    3  00004 48e7            movem.l a2-a3/d0-d1/d4-d5,-(sp) 
+    4  00008 2440            movea.l d0,a2      
+    5  0000a 6100            bsr.w  getpid     
+    6  0000e 2a00            move.l d0,d5      
+    7  00010 264a            movea.l a2,a3      
+    8  00012 4a1a L00012     tst.b  (a2)+      
+    9  00014 66fc            bne.s  L00012     
+   10  00016 538a            subq.l #1,a2      
+   11  00018 6018            bra.s  L00032     
+   12  0001a 2005 L0001a     move.l d5,d0      
+   13  0001c 720a            moveq  #10,d1     
+   14  0001e 6100            bsr.w  _T$LMod    
+   15  00022 0600            addi.b #$30,d0    
+   16  00026 1480            move.b d0,(a2)    
+   17  00028 720a            moveq  #10,d1     
+   18  0002a 2005            move.l d5,d0      
+   19  0002c 6100            bsr.w  _T$LDiv    
+   20  00030 2a00            move.l d0,d5      
+   21  00032 0c22 L00032     cmpi.b #88,-(a2)  
+   22  00036 67e2            beq.s  L0001a     
+   23  00038 528a            addq.l #1,a2      
+   24  0003a 7861            moveq  #97,d4     
+   25  0003c 600e            bra.s  L0004c     
+   26  0003e 707a L0003e     moveq  #122,d0    
+   27  00040 b084            cmp.l  d4,d0      
+   28  00042 6604            bne.s  L00048     
+   29  00044 7000            moveq  #0,d0      
+   30  00046 6014            bra.s  L0005c     
+   31  00048 1484 L00048     move.b d4,(a2)    
+   32  0004a 5284            addq.l #1,d4      
+   33  0004c 7200 L0004c     moveq  #0,d1      
+   34  0004e 200b            move.l a3,d0      
+   35  00050 6100            bsr.w  access     
+   36  00054 72ff            moveq  #255,d1    
+   37  00056 b280            cmp.l  d0,d1      
+   38  00058 66e4            bne.s  L0003e     
+   39  0005a 200b            move.l a3,d0      
+   40  0005c 4ced L0005c     movem.l -20(a5),a2-a3/d1/d4-d5 
+   41  00062 4e5d            unlk   a5         
+   42  00064 4e75            rts               
    43
+   44  00066 0000            ends              
+   44

@@ -1,4 +1,5 @@
- psect case_c,$0,$0,0,0,toupper
+ psect case_c,0,0,0,0,toupper
+
 toupper: link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  move.l (sp),d0

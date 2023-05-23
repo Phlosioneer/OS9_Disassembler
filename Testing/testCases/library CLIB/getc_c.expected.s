@@ -1,4 +1,5 @@
- psect getc_c,$0,$0,0,0,getc
+ psect getc_c,0,0,0,0,getc
+
 getc: link.w a5,#0
 L00001 equ *-3
  movem.l a0/a2/d0,-(sp)

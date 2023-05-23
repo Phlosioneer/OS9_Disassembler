@@ -1,4 +1,5 @@
- psect atou_c,$0,$0,0,0,_atou
+ psect atou_c,0,0,0,0,_atou
+
 _atou: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l d0,a2

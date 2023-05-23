@@ -76,10 +76,12 @@ enum
 struct rof_header
 {
     uint32_t sync = 0;
-    uint16_t ty_lan = 0, /* Type/Language */
-        att_rev = 0,     /* Attribute/Revision word */
-        valid = 0,       /* Nonzero if valid */
-        series = 0;      /* Assembler version used to compile */
+    uint8_t type = 0;
+    uint8_t lang = 0;
+    uint8_t attributes = 0;
+    uint8_t revision = 0;
+    uint16_t valid = 0, /* Nonzero if valid */
+        series = 0;     /* Assembler version used to compile */
     std::vector<uint8_t> rdate{};
     uint16_t edition = 0;
     uint32_t statstorage = 0, /* Size of static variable storage */
@@ -131,6 +133,5 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, uint32_t curloc, int ival, int Pass);
 const char* extern_def_name(struct rof_extrn* handle);
-std::ostringstream rof_header_getPsectParams(struct rof_header* handle);
 
 #endif // ROF_H

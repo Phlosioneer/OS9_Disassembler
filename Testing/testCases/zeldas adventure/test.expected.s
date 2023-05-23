@@ -54,11 +54,11 @@ I$GetStt equ $8d
 I$SetStt equ $8e
 I$Close equ $8f
 
-Prgrm set $1
-Objct set $1
+Prgrm set $01
+Objct set $01
 ReEnt set $80
 
- psect cdi_zelda.os9module_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc
+ psect cdi_zelda.os9module_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,3072,L00052,L001bc
 
 
 * OS9 data area definitions
@@ -2131,8 +2131,8 @@ L003ba equ *-2
  dc.w $ffa2
  dc.w $ffba
  dc.w $ffd2
- dc.w $e
- dc.w $e
+ dc.w $000e
+ dc.w $000e
 L003ca movem.l -16(a5),a0/d4-d6
  unlk a5
  rts 
@@ -2397,7 +2397,7 @@ L0073a move.l d4,d0
  move.w L0074c(pc,d0.w),d0
  jmp L0074c(pc,d0.w)
 L0074c equ *-2
- dc.w $3a
+ dc.w $003a
  dc.w $fcb8
  dc.w $fccc
  dc.w $fce2
@@ -3155,7 +3155,7 @@ L01134 movem.l -4(a5),a0
 L0113e dc.w $6865
  bge.s L011ae
  dc.w $6f0d
- dc.w $0
+ dc.w $0000
 L01146 link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  movea.l D00028(a6),a0
@@ -4700,14 +4700,14 @@ L02570 link.w a5,#0
  dc.w $6837
  ori.w #$3332,-(sp)
  ori.w #$3800,31285(a4)
- dc.w $73
+ dc.w $0073
  move.w d0,-(a2)
  moveq #50,d1
  move.w d0,-(a4)
  bsr.s L02642
  move.w 103(sp,d0.w),-(a0)
  dc.w $6c31
- dc.w $7a
+ dc.w $007a
 L025e7 equ *-1
  bcs.s L02656
  dc.w $6461
@@ -4722,11 +4722,11 @@ L025fa moveq #114,d2
  ori.w #$7963,-(a3)
 L025ff equ *-3
  dc.w $6c65
- dc.w $76
+ dc.w $0076
 L02605 equ *-1
  dc.w $6f69
  dc.w $6365
- dc.w $70
+ dc.w $0070
 L0260b equ *-1
 L0260c dc.w $6c61
  dc.w $793b
@@ -4738,7 +4738,7 @@ L02619 equ *-5
 L0261a equ *-4
 L0261e dc.w $6f6d
  bsr.s L02692
- dc.w $2a
+ dc.w $002a
 L02623 equ *-1
  move.l 10794(a2),d5
 L02628 move.l 10794(a2),d5
@@ -4757,7 +4757,7 @@ L02642 bcs.s L026b6
  bge.s L026b8
  move.l -(a5),d0
  dc.w $730d
- dc.w $2a
+ dc.w $002a
 L02651 equ *-1
  move.l 10794(a2),d5
 L02656 move.l 10794(a2),d5
@@ -8909,14 +8909,14 @@ L05966 link.w a5,#0
  dc.w $7337
  move.w 103(a1,d0.w),d0
  dc.w $6c31
- dc.w $7a
+ dc.w $007a
 L059d9 equ *-1
  dc.w $6400
 L059dc moveq #115,d5
  moveq #95,d0
  dc.w $6361
 L059e2 dc.w $7374
- dc.w $7a
+ dc.w $007a
 L059e5 equ *-1
  dc.w $7370
  subq.w #7,-(a4)
@@ -8927,7 +8927,7 @@ L059ee moveq #115,d5
  beq.s L05a66
  dc.w $6f75
  moveq #115,d0
- dc.w $0
+ dc.w $0000
 L059fa link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d5,-(sp)
  movea.l d0,a2
@@ -10460,7 +10460,7 @@ L06d53 equ *-3
  dc.w $6d65
  ori.w #$6e74,-(a5)
 L06d59 equ *-3
- dc.w $0
+ dc.w $0000
 L06d5e link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4-d6,-(sp)
  movea.l D00028(a6),a0
@@ -12896,13 +12896,13 @@ L08cc1 equ *-3
  subq.w #7,115(a1)
 L08cc7 equ *-1
  moveq #114,d2
- dc.w $7a
+ dc.w $007a
 L08ccb equ *-1
  bvs.s L08d3c
  bvs.s L08d44
  ori.w #$6567,24940(a4)
 L08cd1 equ *-5
- dc.w $0
+ dc.w $0000
 L08cd8 link.w a5,#0
  movem.l a0/d0,-(sp)
  movea.l D00028(a6),a0
@@ -13704,13 +13704,13 @@ L098b6 moveq #101,d5
  dc.w $6d61
  moveq #114,d0
  dc.w $6573
- dc.w $7a
+ dc.w $007a
 L098c3 equ *-1
  bcs.s L09932
  dc.w $6461
  dc.w $2e72
  moveq #102,d2
- dc.w $7a
+ dc.w $007a
 L098cd equ *-1
  bcs.s L0993c
  dc.w $6461
@@ -13738,7 +13738,7 @@ L098fa equ *-2
  bcs.s L09970
  dc.w $2e72
  moveq #102,d2
- dc.w $75
+ dc.w $0075
 L09903 equ *-1
 L09904 bgt.s L0996a
  bcs.s L0997a
@@ -13747,7 +13747,7 @@ L09904 bgt.s L0996a
  ori.w #$656c,(a2)+
 L0990d equ *-3
  dc.w $6461
- dc.w $2f
+ dc.w $002f
 L09913 equ *-1
 L09914 bgt.s L0998c
  moveq #47,d1
@@ -13759,7 +13759,7 @@ L0991e bgt.s L09996
  ori.w #$7274,-(a4)
 L09923 equ *-3
 L09924 equ *-2
- dc.w $0
+ dc.w $0000
 L09928 link.w a5,#0
  movem.l a0/a2-a3/d0-d1/d4,-(sp)
  movea.l D0002c(a6),a0
@@ -17206,14 +17206,14 @@ L0c55e lsl.l #3,d0
  rts 
 L0c66c moveq #105,d0
  dc.w $6d61
- dc.w $70
+ dc.w $0070
 L0c671 equ *-1
  dc.w $696d
  dc.w $615f
  dc.w $6900
 L0c678 moveq #109,d1
  bsr.s L0c6ec
- dc.w $0
+ dc.w $0000
 L0c67e link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  subq.l #4,sp
@@ -19919,7 +19919,7 @@ L0eb94 moveq #105,d5
 L0eb98 subq.w #7,122(a1)
 L0eb9b equ *-1
  dc.w $6933
- dc.w $7a
+ dc.w $007a
 L0eb9f equ *-1
  dc.w $6931
  ori.w #$6173,-(a3)
@@ -25116,36 +25116,36 @@ L12cd6 movea.l 12(a2),a0
  dc.w $6733
  move.w d0,d1
  bge.s L12d26
- dc.w $7a
+ dc.w $007a
  move.w d0,-(a2)
  dc.w $7335
  ori.w #$3239,97(a1,d0.w)
  dc.w $6231
  move.w d0,-(a3)
  dc.w $6237
- dc.w $73
+ dc.w $0073
 L12d01 equ *-1
  moveq #95,d0
  dc.w $6465
  dc.w $7363
- dc.w $73
+ dc.w $0073
 L12d09 equ *-1
  moveq #95,d0
  dc.w $6465
  dc.w $7363
- dc.w $73
+ dc.w $0073
 L12d11 equ *-1
  moveq #95,d0
  beq.s L12d88
  dc.w $6f75
  moveq #115,d0
- dc.w $73
+ dc.w $0073
 L12d1b equ *-1
  moveq #95,d0
  moveq #101,d3
  bls.s L12d96
  ble.s L12d96
- dc.w $73
+ dc.w $0073
 L12d25 equ *-1
 L12d26 moveq #95,d0
  moveq #97,d2
@@ -26858,7 +26858,7 @@ L14230 dc.w $6c69
  subq.w #7,-(a5)
  moveq #101,d3
  bgt.s L142ae
- dc.w $0
+ dc.w $0000
 L1423c link.w a5,#0
  movem.l a2-a4/d0-d1,-(sp)
  movea.l d0,a2
@@ -27395,7 +27395,7 @@ L14868 equ *-2
  dc.w $7300
 L14872 bls.s L148e0
  dc.w $7574
- dc.w $0
+ dc.w $0000
 L14878 link.w a5,#0
  movem.l a0-a1/d0-d1,-(sp)
  lea -24(sp),sp
@@ -32611,7 +32611,7 @@ L18898 move.l d5,d0
  rts 
 L188a8 move.l _0ee76(a6),d5
  moveq #105,d1
- dc.w $2f
+ dc.w $002f
 L188af equ *-1
  bgt.s L18928
  moveq #0,d1
@@ -33602,7 +33602,7 @@ L19430 equ *-2
  dc.w $635f
  moveq #114,d2
  bsr.s L194ae
- dc.w $0
+ dc.w $0000
 L19440 link.w a5,#0
  movem.l a0/a2-a4/d0-d1/d4-d6,-(sp)
  movea.l d0,a2
@@ -33936,7 +33936,7 @@ L197e2 dc.w $6c69
  subq.w #7,-(a5)
  moveq #101,d3
  bgt.s L19860
- dc.w $0
+ dc.w $0000
  move.l a0,-(sp)
  movea.l d0,a0
  bra.s L197fa
@@ -35136,7 +35136,7 @@ L1a608 movem.l -4(a5),a0
  rts 
 L1a612 dc.w $2530
  move.w _0b564(a6),-(a2)
- dc.w $0
+ dc.w $0000
  link.w a5,#0
  movem.l a0/a2-a4/d0-d1,-(sp)
  movea.l d0,a2
@@ -35890,7 +35890,7 @@ L1ae4e addq.l #8,sp
 L1ae5a dc.w $3532
  move.w d0,-(a2)
 L1ae5e addq.w #2,(a6)
- dc.w $36
+ dc.w $0036
 L1ae61 equ *-1
  move.w (a5,d0.w),d1
 L1ae66 link.w a5,#0
@@ -36149,7 +36149,7 @@ L1b10c cmpi.b #13,(a2)
  rts 
  move.l _0f672(a6),12131(sp)
  dc.w $7364
- dc.w $0
+ dc.w $0000
 L1b12a movem.l a0/d1-d2,-(sp)
  move.l d1,d2
  movea.l 16(sp),a0
@@ -36971,7 +36971,7 @@ L1ba4a move.l d5,d0
  rts 
 L1ba5a addq.w #8,d1
  addq.w #2,a0
- dc.w $0
+ dc.w $0000
 L1ba60 link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2

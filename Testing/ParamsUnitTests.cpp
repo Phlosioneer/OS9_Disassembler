@@ -43,7 +43,7 @@ namespace UnitTests
 			Assert::AreEqual(std::string("-(sp)"), RegParam(Register::SP, RegParamMode::PreDecrement).toStr());
 			Assert::AreEqual(std::string("(sp)+"), RegParam(Register::SP, RegParamMode::PostIncrement).toStr());
 
-			auto test = [] { RegParam(Register::D1, RegParamMode::PostIncrement); };
+			auto test = [] { RegParam t(Register::D1, RegParamMode::PostIncrement); };
 			Assert::ExpectException<std::exception>(+test);
 		}
 

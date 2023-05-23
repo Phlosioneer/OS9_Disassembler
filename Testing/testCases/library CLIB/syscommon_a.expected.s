@@ -1,4 +1,5 @@
- psect syscommon_a,$0,$0,0,0,_sysret
+ psect syscommon_a,0,0,0,0,_sysret
+
 _sysret: bcc.s L0000e
 _os9err: move.l d1,errno(a6)
  moveq #255,d0

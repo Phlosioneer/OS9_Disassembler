@@ -1,4 +1,5 @@
- psect mem_a,$0,$0,0,0,ebrk
+ psect mem_a,0,0,0,0,ebrk
+
 
 * D
  vsect 

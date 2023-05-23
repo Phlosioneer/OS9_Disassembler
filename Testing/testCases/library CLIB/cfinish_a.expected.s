@@ -1,4 +1,5 @@
- psect cfinish_a,$0,$0,0,0,exit
+ psect cfinish_a,0,0,0,0,exit
+
 exit: link.w a5,#0
  move.l d0,d1
  bsr.w _dumprof

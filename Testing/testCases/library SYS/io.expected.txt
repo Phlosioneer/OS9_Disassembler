@@ -1,4 +1,5 @@
-    0  00000 0000            psect  io,$0,$0,16,0,upclock 
+    0  00000 0000            psect  io,0,0,16,0,upclock 
     1
-    2  00000 0000            ends              
     2
+    3  00000 0000            ends              
+    3

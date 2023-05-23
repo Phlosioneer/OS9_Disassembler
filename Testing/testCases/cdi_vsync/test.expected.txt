@@ -5,11 +5,11 @@
     4  00021 0021 F$TLink    equ    $21        
     5  0008c 008c I$WritLn   equ    $8c        
     6
-    7  00000 0001 Prgrm      set    $1         
-    8  00000 0001 Objct      set    $1         
+    7  00000 0001 Prgrm      set    $01        
+    8  00000 0001 Objct      set    $01        
     9  00000 0080 ReEnt      set    $80        
    10
-   11  00000 0080            psect  test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,0,L00052,L001bc 
+   11  00000 0000            psect  test.os9_a,(Prgrm<<8)|Objct,(ReEnt<<8)|1,7,3072,L00052,L001bc 
    12
    13
    14                       * OS9 data area definitions
@@ -279,7 +279,7 @@
   278  0030c 635f            dc.w   $635f      
   279  0030e 7472            moveq  #114,d2    
   280  00310 6170            bsr.s  L00382     
-  281  00312 0000            dc.w   $0         
+  281  00312 0000            dc.w   $0000      
   282  00314 4e55            link.w a5,#0      
   283  00318 48e7            movem.l d0,-(sp)   
   284  0031c 3d7c            move.w #65,D0002a(a6) 
