@@ -185,12 +185,12 @@ extern const OPSTRUCTURE instr04[] = {
     {"swap", 2, 4, 21, "0100100001000xxx", 3, 3, MC68000, InstrId::SWAP, swap},
     {"pea", 5, 5, 21, "0100100001xxxxxx", 7, 7, MC68000, InstrId::PEA, one_ea},
     /* MOVEM Registers to EA */
-    {"movem.", 4, 20, 6, "010010001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_FROM_REGS, movem_cmd},
+    {"movem.", 4, 20, 6, "010010001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_FROM_REGS, cmd_movem},
     {"illegal", 6, 21, 21, "0100101011111100", 0, 0, MC68000, InstrId::ILLEGAL, cmd_no_params},
     {"tas.", 1, 0, 21, "0100101011xxxxxx", 8, 8, MC68000, InstrId::TAS, one_ea_sized},
     {"tst.", 0, 1, 21, "01001010xxxxxxxx", 7, 6, MC68000, InstrId::TST, one_ea_sized},
     /* MOVEM EA to Registers */
-    {"movem.", 4, 7, 20, "010011001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_TO_REGS, movem_cmd},
+    {"movem.", 4, 7, 20, "010011001xxxxxxx", 6, 6, MC68000, InstrId::MOVEM_TO_REGS, cmd_movem},
     {"trap", 6, 8, 21, "010011100100xxxx", 0, 0, MC68000, InstrId::TRAP, trap},
     {"link.w", 2, 3, 8, "0100111001010xxx", 3, 3, MC68000, InstrId::LINK, link_unlk},
     {"unlk", 6, 3, 21, "0100111001011xxx", 0, 0, MC68000, InstrId::UNLK, link_unlk},

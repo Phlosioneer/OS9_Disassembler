@@ -306,4 +306,20 @@ class RegOffsetParam : public InstrParam
     bool _forceZero;
 };
 
+class MultiRegParam : public InstrParam
+{
+  public:
+    MultiRegParam(RegisterSet&& registers);
+    virtual ~MultiRegParam() = default;
+
+    virtual void format(std::ostream& stream) const override;
+    inline const RegisterSet& registers() const
+    {
+        return _regs;
+    }
+
+private:
+    RegisterSet _regs;
+};
+
 #endif // PARAMS_H

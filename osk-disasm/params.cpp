@@ -611,3 +611,17 @@ Register RegOffsetParam::offsetReg() const
 }
 
 #pragma endregion
+
+#pragma region MultiRegParam
+
+MultiRegParam::MultiRegParam(RegisterSet&& registers) : _regs(std::move(registers))
+{
+
+}
+
+void MultiRegParam::format(std::ostream& stream) const
+{
+    stream << _regs;
+}
+
+#pragma endregion

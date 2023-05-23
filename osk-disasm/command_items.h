@@ -40,11 +40,13 @@ struct cmd_items
     void setSource(const RegParam& param);
     void setSource(const AbsoluteAddrParam& param);
     void setSource(const RegOffsetParam& param);
+    void setSource(const MultiRegParam& param);
 
     void setDest(const LiteralParam& param);
     void setDest(const RegParam& param);
     void setDest(const AbsoluteAddrParam& param);
     void setDest(const RegOffsetParam& param);
+    void setDest(const MultiRegParam& param);
 
     std::string renderNewParams() const;
 
@@ -73,7 +75,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 
 int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
-int movem_cmd(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
+int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
 int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
 bool hasnext_w(struct parse_state* state);
 int getnext_w(struct cmd_items* ci, struct parse_state* state);

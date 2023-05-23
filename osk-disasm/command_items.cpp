@@ -81,6 +81,11 @@ void cmd_items::setSource(const RegOffsetParam& param)
     source = std::make_unique<RegOffsetParam>(param);
 }
 
+void cmd_items::setSource(const MultiRegParam& param)
+{
+    source = std::make_unique<MultiRegParam>(param);
+}
+
 void cmd_items::setDest(const LiteralParam& param)
 {
     dest = std::make_unique<LiteralParam>(param);
@@ -99,6 +104,11 @@ void cmd_items::setDest(const AbsoluteAddrParam& param)
 void cmd_items::setDest(const RegOffsetParam& param)
 {
     dest = std::make_unique<RegOffsetParam>(param);
+}
+
+void cmd_items::setDest(const MultiRegParam& param)
+{
+    dest = std::make_unique<MultiRegParam>(param);
 }
 
 std::string cmd_items::renderNewParams() const
@@ -208,7 +218,7 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     return 1;
 }
 
-static std::unique_ptr<RegisterSet> reglist(uint16_t regmask, int mode)
+static RegisterSet reglist(uint16_t regmask, int mode)
 {
     if (mode == 4)
     {
@@ -220,60 +230,50 @@ static std::unique_ptr<RegisterSet> reglist(uint16_t regmask, int mode)
 
     // RegisterSet registers(addressByte, dataByte);
     // stream << registers;
-    return std::make_unique<RegisterSet>(addressByte, dataByte);
+    return RegisterSet(addressByte, dataByte);
 }
 
-int movem_cmd(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
+int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
-    int mode = (ci->cmd_wrd >> 3) & 7;
-    int reg = ci->cmd_wrd & 7;
-    int size = (ci->cmd_wrd & 0x40) ? SIZ_LONG : SIZ_WORD;
-    char ea[50];
-    int dir = (ci->cmd_wrd >> 10) & 1;
-    int regmask;
+    ci->useNewParams = true;
+    uint8_t mode = (ci->cmd_wrd >> 3) & 7;
+    uint8_t reg = ci->cmd_wrd & 7;
+    OperandSize size = (ci->cmd_wrd & 0x40) ? OperandSize::Long : OperandSize::Word;
+    bool regsAreDest = (ci->cmd_wrd >> 10) & 1;
 
-    if (mode < 2) /* Common to both modes */
-    {
-        return 0;
-    }
+    // Can't use direct mode.
+    if (mode == DirectAddrReg || mode == DirectDataReg) return 0;
 
-    if (dir)
+    if (regsAreDest)
     {
-        if (mode == 4) return 0;
-        if ((mode == 7) && (reg == 4)) return 0;
+        if (mode == PreDecrement) return 0;
+        if (mode == Special && reg == ImmediateData) return 0;
     }
     else
     {
-        if (mode == 3) return 0;
-        if ((mode == 7) && (reg > 1)) return 0;
+        if (mode == PostIncrement) return 0;
+        if (!isWritableMode(mode, reg)) return 0;
     }
 
     if (!hasnext_w(state)) return 0;
-    regmask = getnext_w(ci, state);
+    uint16_t regmask = getnext_w(ci, state);
 
-    if (!get_eff_addr(ci, ea, mode, reg, size, state))
+    auto eaParam = get_eff_addr(ci, mode, reg, size, state);
+    if (!eaParam) return 0;
+
+    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    strcpy(ci->mnem, mnem.c_str());
+
+    if (regsAreDest)
     {
-        ungetnext_w(ci, state);
-        return 0;
-    }
-
-    std::ostringstream mneumonic;
-    mneumonic << op->name << SizSufx[size];
-    auto mneumonicResult = mneumonic.str();
-    strcpy(ci->mnem, mneumonicResult.c_str());
-
-    std::ostringstream params;
-    if (dir)
-    {
-        params << ea << ',' << *reglist(regmask, mode);
+        ci->source = std::move(eaParam);
+        ci->setDest(MultiRegParam(reglist(regmask, mode)));
     }
     else
     {
-        params << *reglist(regmask, mode) << ',' << ea;
+        ci->setSource(MultiRegParam(reglist(regmask, mode)));
+        ci->dest = std::move(eaParam);
     }
-    auto paramsResult = params.str();
-    strcpy(ci->params, paramsResult.c_str());
-
     return 1;
 }
 
