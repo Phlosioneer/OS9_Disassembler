@@ -78,8 +78,6 @@ const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 const char realcmd[80] = "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
 static const char* xtraFmt = "             %s\n";
 
-static int InProg;       /* Flag that we're in main program, so that it won't
-                            munge the label name */
 static char ClsHd[100];  /* header string for label equates */
 static char FmtBuf[200]; /* Buffer to store formatted string */
 static int HadWrote;     /* flag that header has been written */
@@ -262,11 +260,12 @@ void PrintPsect(struct options* opt, bool printEquates)
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt, AddrSpaceHandle space)
+static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt,
+                       AddrSpaceHandle space)
 {
     Label* nl;
 
-    if (InProg && ci->lblname.empty() && space)
+    if (space && ci->lblname.empty())
     {
         nl = findlbl(space, CmdEnt);
         if (nl)
@@ -335,19 +334,13 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
 void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                options* opt)
 {
-    auto prevInProg = InProg;
-    if (space && !(*space == CODE_SPACE))
-    {
-        InProg = 0;
-    }
     OutputLine(pfmt, ci, opt, CmdEnt, space);
     PrintCleanup(CmdEnt);
     NonBoundsLbl(space, opt, CmdEnt, PCPos); /*Check for non-boundary labels */
-    InProg = prevInProg;
 }
 
-void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t CmdEnt, uint32_t PCPos,
-                    struct options* opt, AddrSpaceHandle space)
+void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t CmdEnt,
+                    uint32_t PCPos, struct options* opt, AddrSpaceHandle space)
 {
     // This is a hacky way to do this.
 
@@ -401,8 +394,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt,
-                    uint32_t PCPos,
-                    struct options* opt, AddrSpaceHandle space)
+                    uint32_t PCPos, struct options* opt, AddrSpaceHandle space)
 {
     // This is a hacky way to do this.
 
@@ -414,8 +406,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt,
-                    uint32_t PCPos,
-                    struct options* opt, const std::vector<uint16_t>& rawData, AddrSpaceHandle space)
+                    uint32_t PCPos, struct options* opt, const std::vector<uint16_t>& rawData, AddrSpaceHandle space)
 {
     // This is a hacky way to do this.
 
@@ -634,8 +625,6 @@ void GetIRefs(struct options* opt)
 
 static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote, struct options* opt)
 {
-    struct cmd_items Ci;
-
     BlankLine(opt);
 
     if (opt->IsUnformatted)
@@ -658,14 +647,8 @@ static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote
 
     BlankLine(opt);
 
-    strcpy(Ci.mnem, "vsect");
-    if (isRemote)
-    {
-        Ci.setSource(LiteralParam("remote"));
-    }
-    Ci.cmd_wrd = 0;
-    Ci.comment = "";
-    PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, 0, 0, opt);
+    std::string remoteString(isRemote ? "remote" : "");
+    PrintDirective("", "vsect", remoteString, 0, 0, opt, nullptr);
 }
 
 // Attempt to match an ascii string within a data block.
@@ -931,7 +914,6 @@ void ROFDataPrint(struct options* opt)
     // patched.
     const char* idat = "* Initialized Data (Class\"%s\")\n";
 
-    InProg = 0;
     if (opt->ROFHd->statstorage)
     {
         parse_state state;
@@ -999,9 +981,6 @@ void ROFDataPrint(struct options* opt)
         WrtEnds(opt, state.PCPos);
         /*ListInit (dta, ROFHd.idatsz, 'H');*/
     }
-
-    InProg = 1;
-    return;
 }
 
 /* ************
@@ -1014,8 +993,6 @@ void OS9DataPrint(struct options* opt)
     const char* what = "* OS9 data area definitions";
     struct cmd_items Ci;
     size_t filePos = opt->Module->position();
-
-    InProg = 0; /* Stop looking for Inline program labels to substitute */
 
     if (opt->modHeader->memorySize == 0)
     {
@@ -1039,11 +1016,7 @@ void OS9DataPrint(struct options* opt)
             writer_printf(opt->asmFile, "%s\n", what);
         }
         BlankLine(opt);
-
-        strcpy(Ci.mnem, "vsect");
-        Ci.cmd_wrd = 0;
-        Ci.comment = "";
-        PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, 0, opt);
+        PrintDirective("", "vsect", std::string(), 0, 0, opt, nullptr);
     }
 
     // Print uninit data.
@@ -1061,16 +1034,8 @@ void OS9DataPrint(struct options* opt)
     ListInitWithHeader(nullptr, &INIT_DATA_SPACE, &state);
 
     // Print the vsect footer.
-    {
-        strcpy(Ci.mnem, "ends");
-        Ci.source = nullptr;
-        Ci.cmd_wrd = 0;
-        Ci.comment = "";
-        PrintLine(pseudcmd, &Ci, &INIT_DATA_SPACE, state.CmdEnt, state.CmdEnt, opt);
-        BlankLine(opt);
-    }
+    WrtEnds(opt, state.CmdEnt);
 
-    InProg = 1;
     // Restore the stream to its original location
     // fseek(opt->ModFP, filePos, SEEK_SET);
     opt->Module->seekAbsolute(filePos);
@@ -1150,7 +1115,6 @@ void WrtEquates(int stdflg, struct options* opt)
     register int flg; /* local working flg - clone of stdflg */
     Label* me;
 
-    InProg = 0;
     curnt = claspt;
 
     if (!stdflg) /* print ! and ^ only on std cClass pass */
@@ -1238,8 +1202,6 @@ void WrtEquates(int stdflg, struct options* opt)
 
         TellLabels(me, flg, &EQUATE_SPACE, minval, opt);
     }
-
-    InProg = 1;
 }
 
 /* TellLabels(me) - Print out the labels for cClass in "me" array */

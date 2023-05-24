@@ -438,7 +438,7 @@ _00f46 dc.b $00
  dc.b $00
  dc.b $00
 _00f49 dc.b $01
- dc.b $40
+_00f4a dc.b $40
  dc.b $0c
  dc.b $00
  dc.b $00
@@ -1803,6 +1803,7 @@ _01b74 dc.w $4ef9
  dc.w $4ef9
  dc.w $0000
  dc.w $0000
+
  ends 
 
 L00048 bls.s L000ae
