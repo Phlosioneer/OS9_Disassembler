@@ -111,7 +111,7 @@ void cmd_items::setDest(const MultiRegParam& param)
     dest = std::make_unique<MultiRegParam>(param);
 }
 
-std::string cmd_items::renderNewParams() const
+std::string cmd_items::renderParams() const
 {
     std::ostringstream paramBuffer;
     if (source)
@@ -135,7 +135,6 @@ cmd_items& cmd_items::operator=(struct cmd_items&& other)
     comment = other.comment;
     extend = other.extend;
 
-    useNewParams = other.useNewParams;
     source.swap(other.source);
     dest.swap(other.dest);
 
@@ -148,7 +147,6 @@ cmd_items& cmd_items::operator=(struct cmd_items&& other)
  */
 int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t sourceMode = (ci->cmd_wrd >> 3) & 7;
     uint8_t sourceReg = ci->cmd_wrd & 7;
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
@@ -234,7 +232,6 @@ static RegisterSet reglist(uint16_t regmask, int mode)
 
 int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t reg = ci->cmd_wrd & 7;
     OperandSize size = (ci->cmd_wrd & 0x40) ? OperandSize::Long : OperandSize::Word;
@@ -280,7 +277,6 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
 {
     auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
     strcpy(ci->mnem, op->name);
-    ci->useNewParams = true;
 
     if (op->id == InstrId::UNLK)
     {

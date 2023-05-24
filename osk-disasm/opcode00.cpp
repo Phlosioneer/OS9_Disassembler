@@ -42,7 +42,7 @@
 #include "userdef.h"
 
 static const uint8_t MATH_TRAP_LIB = 15;
-static const char *const MATH_TRAP_LIB_NAME = "T$Math";
+static const char* const MATH_TRAP_LIB_NAME = "T$Math";
 
 enum
 {
@@ -59,8 +59,6 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
  */
 int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     if (!hasnext_w(state)) return 0;
     uint16_t ext1 = getnext_w(ci, state);
     auto reg = ((ci->cmd_wrd >> 6) & 1) == 0 ? Register::CCR : Register::SR;
@@ -85,8 +83,6 @@ int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 // bitwise.)
 int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t regCode = (ci->cmd_wrd) & 7;
@@ -119,8 +115,6 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
 int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t regCode = ci->cmd_wrd & 7;
 
@@ -158,7 +152,6 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
 
 int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t sourceRegCode = (ci->cmd_wrd >> 9) & 7;
     uint8_t destMode = (ci->cmd_wrd >> 3) & 7;
     uint8_t destRegCode = ci->cmd_wrd & 7;
@@ -191,8 +184,6 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
  */
 int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     // Move instructions encode size a bit different
     OperandSize size;
     uint8_t sizeBits = (ci->cmd_wrd >> 12) & 3;
@@ -233,8 +224,6 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
 
 int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     /* direction is actually 2 bytes, but this lets REG2EA/EA2REG to work */
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t regCode = ci->cmd_wrd & 7;
@@ -286,8 +275,6 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
 
 int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t regCode = ci->cmd_wrd & 7;
     bool moveFromUSP = ((ci->cmd_wrd >> 3) & 1) != 0;
 
@@ -312,8 +299,6 @@ int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
 int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t addrRegCode = ci->cmd_wrd & 7;
     uint8_t dataRegCode = (ci->cmd_wrd >> 9) & 7;
     RegParam dataParam(Registers::makeDReg(dataRegCode), RegParamMode::Direct);
@@ -340,8 +325,6 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
 
 int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t immParamValue = ci->cmd_wrd & 0xff;
 
     char labelBuffer[200];
@@ -371,8 +354,6 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
  */
 int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t reg = ci->cmd_wrd & 7;
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
@@ -398,8 +379,6 @@ int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
 
 int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t reg = ci->cmd_wrd & 7;
 
@@ -417,8 +396,6 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
 
 int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t regCode = ci->cmd_wrd & 7;
     ci->setSource(RegParam(Registers::makeDReg(regCode), RegParamMode::Direct));
     strcpy(ci->mnem, op->name);
@@ -427,7 +404,6 @@ int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 
 int cmd_no_params(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     strcpy(ci->mnem, op->name);
 
     return 1;
@@ -435,11 +411,9 @@ int cmd_no_params(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_stat
 
 int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t regCode = ci->cmd_wrd & 7;
-    
+
     // Destination must be in memory.
     if (mode == DirectAddrReg || mode == DirectDataReg) return 0;
 
@@ -455,8 +429,6 @@ int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 
 int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t countOrReg = (ci->cmd_wrd >> 9) & 7;
     bool sourceIsReg = (ci->cmd_wrd >> 5) & 1;
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
@@ -483,7 +455,6 @@ int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 
 int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
     int32_t displ = ci->cmd_wrd & 0xff;
     OperandSize size;
@@ -517,8 +488,6 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
 
 int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
     uint32_t immAddress = state->PCPos;
     if (!hasnext_w(state)) return 0;
@@ -598,7 +567,6 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
  */
 int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t ea_mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t ea_reg = ci->cmd_wrd & 7;
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
@@ -658,7 +626,6 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
 int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t sourceMode = (ci->cmd_wrd >> 3) & 7;
     uint8_t sourceRegCode = ci->cmd_wrd & 7;
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
@@ -680,8 +647,6 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
 
 int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t sourceMode = (ci->cmd_wrd >> 3) & 7;
     uint8_t sourceReg = ci->cmd_wrd & 7;
     uint8_t opmode = (ci->cmd_wrd >> 6) & 7;
@@ -709,7 +674,7 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
     auto destReg = opmode > 2 ? Registers::makeAReg(destRegCode) : Registers::makeDReg(destRegCode);
-    
+
     ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
     if (!ci->source) return 0;
 
@@ -721,7 +686,6 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 }
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t reg = ci->cmd_wrd & 7;
     uint8_t size = (ci->cmd_wrd >> 6) & 3;
@@ -750,7 +714,6 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
 int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t vector = ci->cmd_wrd & 0x0f;
     if (!hasnext_w(state)) return 0;
     uint16_t trapNumber = getnext_w(ci, state);
@@ -841,8 +804,6 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 
 int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     if (!hasnext_w(state)) return 0;
     uint8_t imm = getnext_w(ci, state);
     ci->setSource(LiteralParam(FormattedNumber(imm, OperandSize::Word)));
@@ -852,8 +813,6 @@ int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
 int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t reg = ci->cmd_wrd & 7;
     uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
@@ -872,7 +831,6 @@ int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
 int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
     uint8_t sourceRegCode = (ci->cmd_wrd >> 9) & 7;
     uint8_t destRegCode = ci->cmd_wrd & 7;
     Register sourceReg;
@@ -907,8 +865,6 @@ int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
 int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t regCode = ci->cmd_wrd & 7;
     uint8_t opmode = (ci->cmd_wrd >> 6) & 7;
     OperandSize size;
@@ -938,12 +894,10 @@ int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
 int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t srcRegno = ci->cmd_wrd & 7;
     uint8_t dstRegno = (ci->cmd_wrd >> 9) & 7;
     bool isAddressMode = (ci->cmd_wrd >> 3) & 1;
-    
+
     auto maker = isAddressMode ? Registers::makeAReg : Registers::makeDReg;
     auto mode = isAddressMode ? RegParamMode::PreDecrement : RegParamMode::Direct;
 
@@ -960,7 +914,7 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
         auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
         strcpy(ci->mnem, mnem.c_str());
     }
-    
+
     ci->setSource(RegParam(maker(srcRegno), mode));
     ci->setDest(RegParam(maker(dstRegno), mode));
     return 1;
@@ -968,8 +922,6 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 
 int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    ci->useNewParams = true;
-
     uint8_t srcRegno = ci->cmd_wrd & 7;
     uint8_t dstRegno = (ci->cmd_wrd >> 9) & 7;
     uint8_t size = (ci->cmd_wrd >> 6) & 3;

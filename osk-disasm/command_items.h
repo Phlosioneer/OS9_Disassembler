@@ -31,7 +31,6 @@ struct cmd_items
     char* comment = "";
     extWbrief extend{}; // The extended command (if present)
 
-    bool useNewParams = false;
     std::unique_ptr<InstrParam> source{};
     std::unique_ptr<InstrParam> dest{};
 
@@ -47,7 +46,7 @@ struct cmd_items
     void setDest(const RegOffsetParam& param);
     void setDest(const MultiRegParam& param);
 
-    std::string renderNewParams() const;
+    std::string renderParams() const;
 
     // Allow move-assignment
     struct cmd_items& operator=(struct cmd_items&& other);

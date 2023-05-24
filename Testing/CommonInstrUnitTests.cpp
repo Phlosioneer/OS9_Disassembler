@@ -53,16 +53,8 @@ namespace UnitTests
 			struct cmd_items instr;
 			Assert::IsTrue(get_asmcmd(&instr, &state), subtestName);
 			Assert::AreEqual(expectedMneumonic, instr.mnem, subtestName);
-			std::string params;
-			if (instr.useNewParams)
-			{
-				params = instr.renderNewParams();
-			}
-			else
-			{
-				//params = instr.params;
-				throw std::runtime_error("params field is obsolete");
-			}
+			std::string params = instr.renderParams();
+
 			Assert::AreEqual(expectedParams, params.c_str(), subtestName);
 		}
 

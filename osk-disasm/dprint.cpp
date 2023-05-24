@@ -284,7 +284,7 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
     if (opt->asmFile)
     {
         std::ostringstream line;
-        line << ci->lblname << ' ' << ci->mnem << ' ' << ci->renderNewParams();
+        line << ci->lblname << ' ' << ci->mnem << ' ' << ci->renderParams();
 
         // writer_printf(opt->asmFile, "%s %s %s", ci->lblname.c_str(), ci->mnem, ci->params);
 
@@ -438,7 +438,7 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
     if ( ! ci->params)     strcpy(ci->params, "");*/
     if (!ci->comment) ci->comment = "";
 
-    auto params = ci->renderNewParams();
+    auto params = ci->renderParams();
     if (pfmt == pseudcmd)
     {
         if (opt->IsUnformatted)
