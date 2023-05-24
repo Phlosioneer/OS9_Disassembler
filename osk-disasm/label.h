@@ -14,8 +14,8 @@ struct cmd_items;
 class Label
 {
   public:
-    Label(AddrSpaceHandle category, int value, const char* name);
-    Label(AddrSpaceHandle category, int value, const std::string& name);
+    Label(AddrSpaceHandle category, int value);
+    Label(AddrSpaceHandle category, int value, std::string&& name);
 
     inline const std::string& name() const
     {
@@ -70,6 +70,10 @@ class LabelCategory
 
     LabelCategory(AddrSpaceHandle code);
 
+    // Deleted copy constructor to avoid bugs. Plain `auto` defaults to copy instead of
+    // reference!
+    LabelCategory(const LabelCategory& other) = delete;
+
     const AddrSpaceHandle code;
 
     inline iterator begin()
@@ -89,7 +93,8 @@ class LabelCategory
         return _labels.cend();
     }
 
-    std::shared_ptr<Label> add(long value, const char* newName);
+    std::shared_ptr<Label> add(long value);
+    std::shared_ptr<Label> add(long value, std::string&& newName);
     std::shared_ptr<Label> get(long value);
     void printAll();
     std::shared_ptr<Label> getFirst();
@@ -112,14 +117,15 @@ class LabelManager
   public:
     LabelManager();
 
-    std::shared_ptr<LabelCategory> getCategory(AddrSpaceHandle code);
-    std::shared_ptr<Label> addLabel(AddrSpaceHandle code, long value, const char* name);
+    LabelCategory& getCategory(AddrSpaceHandle code);
+    std::shared_ptr<Label> addLabel(AddrSpaceHandle code, long value);
+    std::shared_ptr<Label> addLabel(AddrSpaceHandle code, long value, std::string&& name);
     std::shared_ptr<Label> getLabel(AddrSpaceHandle code, long value);
     void printAll();
     void clear();
 
   private:
-    std::unordered_map<std::string, std::shared_ptr<LabelCategory>> _labelCategories;
+    std::unordered_map<std::string, LabelCategory> _labelCategories;
 };
 
 bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);

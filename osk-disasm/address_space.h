@@ -6,7 +6,7 @@
 class AddressSpace
 {
   public:
-    AddressSpace(const char* name, const char* shortcode, bool allowsAliases = false);
+    AddressSpace(const char* name, const char* shortcode, bool allowsAliases = false, bool isLiteralSpace = false);
     virtual ~AddressSpace() = default;
 
     // Human readable name for the address space. Must be unique.
@@ -21,6 +21,8 @@ class AddressSpace
     // error-code equate is never interchangable with a syscall equate, even if they
     // have the same value!
     const bool allowsAliases;
+
+    const bool isLiteralSpace;
 
     // Uses the unique name constraint as a shortcut.
     bool operator==(const AddressSpace& other) const;

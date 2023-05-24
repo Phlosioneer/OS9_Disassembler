@@ -5,8 +5,8 @@
 
 #include "dprint.h"
 
-AddressSpace::AddressSpace(const char* name, const char* shortcode, bool allowsAliases)
-    : name(name), shortcode(shortcode), allowsAliases(allowsAliases)
+AddressSpace::AddressSpace(const char* name, const char* shortcode, bool allowsAliases, bool isLiteralSpace)
+    : name(name), shortcode(shortcode), allowsAliases(allowsAliases), isLiteralSpace(isLiteralSpace)
 {
 }
 
@@ -32,10 +32,10 @@ const AddressSpace UNINIT_DATA_SPACE("uninitData", "D");
 const AddressSpace INIT_REMOTE_SPACE("initRemote", "H");
 const AddressSpace UNINIT_REMOTE_SPACE("uninitRemote", "G");
 const AddressSpace UNKNOWN_DATA_SPACE("unknownData", "U");
-const AddressSpace LITERAL_SPACE("literal", "@", true);
-const AddressSpace LITERAL_DEC_SPACE("literal:decimal", "&", true);
-const AddressSpace LITERAL_HEX_SPACE("literal:hex", "$", true);
-const AddressSpace LITERAL_ASCII_SPACE("literal:ascii", "^", true);
+const AddressSpace LITERAL_SPACE("literal", "@", true, true);
+const AddressSpace LITERAL_DEC_SPACE("literal:decimal", "&", true, true);
+const AddressSpace LITERAL_HEX_SPACE("literal:hex", "$", true, true);
+const AddressSpace LITERAL_ASCII_SPACE("literal:ascii", "^", true, true);
 const AddressSpace EQUATE_SPACE("equate", "Q", true);
 
 const std::vector<AddrSpaceHandle> allSpaces{&CODE_SPACE,        &INIT_DATA_SPACE,     &UNINIT_DATA_SPACE,

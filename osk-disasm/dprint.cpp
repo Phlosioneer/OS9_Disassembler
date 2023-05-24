@@ -72,7 +72,7 @@ struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
 static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
-static void TellLabels(std::shared_ptr<LabelCategory> me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
+static void TellLabels(LabelCategory& me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
 
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 const char realcmd[80] = "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
@@ -222,7 +222,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     psectParams.push_back(FormattedNumber(stack).str());
 
     int execOffset = opt->modHeader ? opt->modHeader->execOffset : opt->ROFHd->code_begin;
-    auto execOffsetLabel = labelManager.getCategory(&CODE_SPACE)->get(execOffset);
+    auto execOffsetLabel = labelManager.getLabel(&CODE_SPACE, execOffset);
     if (execOffsetLabel)
     {
         psectParams.push_back(execOffsetLabel->name());
@@ -235,7 +235,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     uint32_t exceptOffset = opt->modHeader ? opt->modHeader->exceptionOffset : opt->ROFHd->utrap;
     if (exceptOffset != (uint32_t)-1)
     {
-        auto exceptOffsetLabel = labelManager.getCategory(&CODE_SPACE)->get(exceptOffset);
+        auto exceptOffsetLabel = labelManager.getLabel(&CODE_SPACE, exceptOffset);
         if (exceptOffsetLabel)
         {
             psectParams.push_back(exceptOffsetLabel->name());
@@ -859,11 +859,11 @@ void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state
 {
     if (state->Module->size() == 0) return;
 
-    auto category = labelManager.getCategory(space);
+    LabelCategory& category = labelManager.getCategory(space);
     uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
     std::vector<uint32_t> blockEnds;
-    auto totalSize = category->size() + (refsList ? refsList->size() : 0);
+    auto totalSize = category.size() + (refsList ? refsList->size() : 0);
     blockEnds.reserve(totalSize);
     if (refsList)
     {
@@ -872,9 +872,9 @@ void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state
             blockEnds.push_back(entry.first);
         }
     }
-    for (auto it = category->begin(); it != category->end(); it++)
+    for (auto label : category)
     {
-        blockEnds.push_back((*it)->address());
+        blockEnds.push_back(label->address());
     }
 
     std::sort(blockEnds.begin(), blockEnds.end());
@@ -1047,10 +1047,10 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     // Nothing to print.
     if (maxAddress == 0) return;
 
-    auto category = labelManager.getCategory(space);
+    LabelCategory& category = labelManager.getCategory(space);
 
     // If there are no labels, just print the whole thing as one directive.
-    if (category->size() == 0)
+    if (category.size() == 0)
     {
         PrintDirective("", "ds.b", FormattedNumber(maxAddress), 0, 0, opt, space);
         return;
@@ -1058,14 +1058,14 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
 
     // If the first entry is not 0, print an initial ds.b directive without a
     // corresponding label.
-    if (category->getFirst()->value != 0)
+    if (category.getFirst()->value != 0)
     {
-        auto first = category->getFirst();
+        auto first = category.getFirst();
         PrintDirective("", "ds.b", FormattedNumber(first->value), 0, first->value, opt, space);
     }
 
     // Iterate through all the other labels.
-    for (auto it = category->begin(); it != category->end(); it++)
+    for (auto it = category.cbegin(); it != category.cend(); it++)
     {
         // Don't print labels that are outside the maximum range of the address space.
         // These should have already been printed as equates.
@@ -1078,7 +1078,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
         auto next = it + 1;
 
         uint32_t datasize;
-        if (next != category->end() && (*next)->address() < maxAddress)
+        if (next != category.cend() && (*next)->address() < maxAddress)
         {
             datasize = (*next)->address() - (*it)->address();
         }
@@ -1122,9 +1122,9 @@ void WrtEquates(int stdflg, struct options* opt)
 
     flg = stdflg;
     strcpy(ClsHd, "%5d %21s");
-    auto category = labelManager.getCategory(&EQUATE_SPACE);
+    LabelCategory& category = labelManager.getCategory(&EQUATE_SPACE);
 
-    if (category->size() > 0)
+    if (category.size() > 0)
     {
         /* For OS9, we only want external labels this pass */
 
@@ -1201,9 +1201,9 @@ void WrtEquates(int stdflg, struct options* opt)
 
 /* TellLabels(me) - Print out the labels for cClass in "me" array */
 
-static void TellLabels(std::shared_ptr<LabelCategory> category, int flg, AddrSpaceHandle space, int minval, struct options* opt)
+static void TellLabels(LabelCategory& category, int flg, AddrSpaceHandle space, int minval, struct options* opt)
 {
-    for (const auto me : *category)
+    for (const auto me : category)
     {
         if ((flg < 0) || flg == (int)me->stdName())
         {

@@ -171,7 +171,7 @@ static void getModuleHeader(struct options* opt)
         mod->exceptionOffset = opt->Module->read<uint32_t>();
         if (mod->exceptionOffset)
         {
-            labelManager.addLabel(&CODE_SPACE, mod->exceptionOffset, "");
+            labelManager.addLabel(&CODE_SPACE, mod->exceptionOffset);
         }
 
         if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
@@ -299,30 +299,30 @@ static void RdLblFile(FILE* inpath)
 // and UNINIT_DATA_SPACE.
 static void resoveUnknownDataSpace(struct options* opt)
 {
-    auto unkCategory = labelManager.getCategory(&UNKNOWN_DATA_SPACE);
-    auto initCategory = labelManager.getCategory(&INIT_DATA_SPACE);
-    auto uninitCategory = labelManager.getCategory(&UNINIT_DATA_SPACE);
+    LabelCategory& unkCategory = labelManager.getCategory(&UNKNOWN_DATA_SPACE);
+    LabelCategory& initCategory = labelManager.getCategory(&INIT_DATA_SPACE);
+    LabelCategory& uninitCategory = labelManager.getCategory(&UNINIT_DATA_SPACE);
 
     auto cutoffAddr = opt->modHeader->uninitDataSize;
 
-    for (auto it = unkCategory->begin(); it != unkCategory->end(); it++)
+    for (auto label : unkCategory)
     {
-        auto dest = (*it)->address() < cutoffAddr ? uninitCategory : initCategory;
+        LabelCategory& dest = label->address() < cutoffAddr ? uninitCategory : initCategory;
 
         std::shared_ptr<Label> newLabel;
-        if ((*it)->nameIsDefault())
+        if (label->nameIsDefault())
         {
-            newLabel = dest->add((*it)->value, nullptr);
+            newLabel = dest.add(label->value);
         }
         else
         {
-            newLabel = dest->add((*it)->value, (*it)->name().c_str());
+            newLabel = dest.add(label->value, label->name().c_str());
         }
 
-        if ((*it)->global()) newLabel->setGlobal(true);
-        if ((*it)->stdName()) newLabel->setStdName(true);
+        if (label->global()) newLabel->setGlobal(true);
+        if (label->stdName()) newLabel->setStdName(true);
 
-        unkCategory->addRedirect(newLabel->value, newLabel);
+        unkCategory.addRedirect(newLabel->value, newLabel);
     }
 }
 
@@ -399,12 +399,12 @@ int dopass(int Pass, struct options* opt)
         getHeader(opt);
         if (opt->modHeader)
         {
-            labelManager.addLabel(&CODE_SPACE, opt->modHeader->execOffset, NULL);
+            labelManager.addLabel(&CODE_SPACE, opt->modHeader->execOffset);
         }
         else
         {
             // TODO: The label in a ROF psect is broken in pass 1. This line shouldn't be necessary.
-            labelManager.addLabel(&CODE_SPACE, 0, NULL);
+            labelManager.addLabel(&CODE_SPACE, 0);
         }
 
         GetIRefs(opt);

@@ -29,7 +29,6 @@
 
 #include <ctype.h>
 
-#include "userdef.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
@@ -39,19 +38,23 @@
 #include "main_support.h"
 #include "params.h"
 #include "rof.h"
+#include "userdef.h"
 
 LabelManager labelManager{};
 
 LabelManager::LabelManager(){};
 
-std::shared_ptr<LabelCategory> LabelManager::getCategory(AddrSpaceHandle code)
+LabelCategory& LabelManager::getCategory(AddrSpaceHandle code)
 {
+    if (!code) throw std::runtime_error("Address space cannot be null");
+    if (code->isLiteralSpace) throw std::runtime_error("Cannot make a category for a literal space");
+
     auto pair = _labelCategories.find(code->name);
     if (pair == _labelCategories.end())
     {
-        auto newCategory = std::make_shared<LabelCategory>(code);
-        _labelCategories.insert({code->name, newCategory});
-        return newCategory;
+        auto& newPair = _labelCategories.emplace(code->name, code);
+        if (!newPair.second) throw std::runtime_error("Inserted category that already existed");
+        return newPair.first->second;
     }
     else
     {
@@ -64,7 +67,7 @@ void LabelManager::printAll()
 {
     for (auto it = _labelCategories.begin(); it != _labelCategories.end(); it++)
     {
-        it->second->printAll();
+        it->second.printAll();
     }
 }
 
@@ -73,38 +76,64 @@ void LabelManager::clear()
     _labelCategories.clear();
 }
 
-std::shared_ptr<Label> LabelManager::addLabel(AddrSpaceHandle code, long value, const char* name)
+std::shared_ptr<Label> LabelManager::addLabel(AddrSpaceHandle code, long value)
 {
-    auto category = getCategory(code);
-    return category->add(value, name);
+    if (!code || code->isLiteralSpace) return nullptr;
+
+    return getCategory(code).add(value);
+}
+
+std::shared_ptr<Label> LabelManager::addLabel(AddrSpaceHandle code, long value, std::string&& name)
+{
+    if (!code || code->isLiteralSpace) return nullptr;
+
+    return getCategory(code).add(value, std::move(name));
 }
 
 std::shared_ptr<Label> LabelManager::getLabel(AddrSpaceHandle code, long value)
 {
-    return getCategory(code)->get(value);
+    if (!code || code->isLiteralSpace) return nullptr;
+
+    return getCategory(code).get(value);
 }
 
 LabelCategory::LabelCategory(AddrSpaceHandle code) : code(code), _labels(), _labelRedirects(), _labelsByValue(){};
 
-
-std::shared_ptr<Label> LabelCategory::add(long value, const char* newName)
+std::shared_ptr<Label> LabelCategory::add(long value)
 {
     auto it = _labelsByValue.find(value);
     if (it == _labelsByValue.end())
     {
         /* Add the label */
-        auto label = std::make_shared<Label>(code, value, newName);
-        
-        // Keep the list of labels sorted by value.
-        iterator it;
-        for (it = begin(); it != end() && (*it)->value < value; it++)
-            ;
-        _labels.insert(it, label);
+        auto label = std::make_shared<Label>(code, value);
 
-        _labelsByValue[value] = label;
+        // Keep the list of labels sorted by value.
+        auto sorter = [](const std::shared_ptr<Label>& lab, long value) { return lab->value < value; };
+        iterator it = std::lower_bound(_labels.begin(), _labels.end(), value, sorter);
+        _labels.insert(it, label);
+        _labelsByValue.insert({value, label});
         return label;
     }
-    else if (newName && strlen(newName) > 0)
+
+    return it->second;
+}
+
+std::shared_ptr<Label> LabelCategory::add(long value, std::string&& newName)
+{
+    auto it = _labelsByValue.find(value);
+    if (it == _labelsByValue.end())
+    {
+        /* Add the label */
+        auto label = std::make_shared<Label>(code, value, std::move(newName));
+
+        // Keep the list of labels sorted by value.
+        auto sorter = [](const std::shared_ptr<Label>& lab, long value) { return lab->value < value; };
+        iterator it = std::lower_bound(_labels.begin(), _labels.end(), value, sorter);
+        _labels.insert(it, label);
+        _labelsByValue.insert({value, label});
+        return label;
+    }
+    else // if (it->second->nameIsDefault())
     {
         /* Rename the old label. */
         it->second->setName(newName);
@@ -118,11 +147,12 @@ std::shared_ptr<Label> LabelCategory::get(long value)
     auto redirectIt = _labelRedirects.find(value);
     if (redirectIt != _labelRedirects.end())
     {
-        return _labelRedirects[value];
+        return redirectIt->second;
     }
-    if (_labelsByValue.count(value) != 0)
+    auto byValueIt = _labelsByValue.find(value);
+    if (byValueIt != _labelsByValue.end())
     {
-        return _labelsByValue[value];
+        return byValueIt->second;
     }
     else
     {
@@ -156,20 +186,23 @@ std::shared_ptr<Label> LabelCategory::getFirst()
 
 void LabelCategory::addRedirect(long addr, std::shared_ptr<Label> label)
 {
-    _labelRedirects[addr] = label;
+    _labelRedirects.insert({addr, label});
 }
 
 /* Value is either the address of the label, or the value of the equate. */
-Label::Label(AddrSpaceHandle category, int value, const char* name)
-    : value(value), category(category), _stdName(false), _global(false),
-      _nameIsDefault(name == nullptr || strlen(name) == 0),
-      _name(name == nullptr || strlen(name) == 0 ? category->makeDefaultName(value) : std::string(name))
+Label::Label(AddrSpaceHandle category, int value)
+    : value(value), category(category), _stdName(false), _global(false), _nameIsDefault(true),
+      _name(category->makeDefaultName(value))
 {
 }
-Label::Label(AddrSpaceHandle category, int value, const std::string& name)
-    : value(value), category(category), _stdName(false), _global(false), _nameIsDefault(name.empty()),
-      _name(name.empty() ? category->makeDefaultName(value) : name)
+
+Label::Label(AddrSpaceHandle category, int value, std::string&& name)
+    : value(value), category(category), _stdName(false), _global(false), _nameIsDefault(false), _name(std::move(name))
 {
+    if (_name.empty())
+    {
+        throw std::runtime_error("Empty name should use nameless constructor");
+    }
 }
 
 void Label::setName(const char* name)
@@ -237,7 +270,7 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
 {
 
     auto adjusted = adr;
-    AddrSpaceHandle mainclass;   /* Class for this location */
+    AddrSpaceHandle mainclass; /* Class for this location */
 
     if (amod == AM_REL)
     {
@@ -281,13 +314,12 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
 
     if (Pass == 1)
     {
-        labelManager.addLabel(mainclass, adjusted, NULL);
+        labelManager.addLabel(mainclass, adjusted);
     }
     else
     { /*Pass2 */
         auto mylabel = labelManager.getLabel(mainclass, adjusted);
-        if (!mainclass || *mainclass == LITERAL_SPACE || *mainclass == LITERAL_HEX_SPACE ||
-            *mainclass == LITERAL_DEC_SPACE || *mainclass == LITERAL_ASCII_SPACE)
+        if (!mainclass || mainclass->isLiteralSpace)
         {
             return false;
         }
