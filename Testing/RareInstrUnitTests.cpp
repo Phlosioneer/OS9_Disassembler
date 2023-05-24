@@ -130,7 +130,7 @@ namespace UnitTests
 			subtestName = L"MOVE from CCR to label";
 			pushWord(MOVE_FROM_CCR | EA_MODE(Displacement) | 6);
 			pushWord(63);
-			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 63 + 0x8000, "hello");
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 63 + 0x8000, "hello");
 			runTest("move", "ccr,hello(a6)");
 
 			// TODO: Test moving ROF-external constant into CCR/SR
@@ -163,7 +163,7 @@ namespace UnitTests
 			runTest("asl", "(a3)");
 
 			subtestName = L"ASR";
-			addlbl(&UNKNOWN_DATA_SPACE, 80 + 0x8000, "hello");
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 80 + 0x8000, "hello");
 			pushWord(A_SHIFT | EA_MODE(5) | 6);
 			pushWord(80);
 			runTest("asr", "hello(a6)");
@@ -262,9 +262,9 @@ namespace UnitTests
 			subtestName = L"CMP Word";
 			pushWord(CMP | DATA_REG(0) | OPMODE(CMP_WORD) | EA_MODE(Displacement) | 6);
 			pushWord(88);
-			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
 			runTest("cmp.w", "hello(a6),d0");
-			labelManager->clear();
+			labelManager.clear();
 
 			subtestName = L"CMP Long";
 			pushWord(CMP | DATA_REG(1) | OPMODE(CMP_LONG) | EA_MODE(DirectAddrReg) | 2);
@@ -303,9 +303,9 @@ namespace UnitTests
 			subtestName = L"Labelled data";
 			pushWord(SCC | CONDITION(Condition::T) | EA_MODE(Displacement) | 6);
 			pushWord(88);
-			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
 			runTest("st", "hello(a6)");
-			labelManager->clear();
+			labelManager.clear();
 
 			subtestName = L"Constant fail";
 			pushWord(SCC | CONDITION(Condition::GT) | EA_MODE(Special) | ImmediateData);
@@ -366,11 +366,11 @@ namespace UnitTests
 			runTest("movep.l", "d5,3105(a2)");
 
 			subtestName = L"Displacement labels";
-			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 90 + 0x8000, "hello");
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 90 + 0x8000, "hello");
 			pushWord(MOVEP | DATA_REG(1) | OPMODE(LONG_MEM_TO_REG) | 6);
 			pushWord(90);
 			runTest("movep.l", "hello(a6),d1");
-			labelManager->clear();
+			labelManager.clear();
 
 			subtestName = L"MOVEP Invalid OPMODE=3";
 			pushWord(MOVEP | OPMODE(0b011));

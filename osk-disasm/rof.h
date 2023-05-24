@@ -109,7 +109,7 @@ struct rof_extrn
 
     int hasName = 0;
     std::string nam{};
-    Label* lbl = nullptr;
+    std::shared_ptr<Label> lbl{};
     /*  void *EName;*/                  /* External name                    */
     AddrSpaceHandle dstSpace = nullptr; /* Class for referenced item NUll if extern */
     uint16_t Type = 0;                  /* Type Flag                        */

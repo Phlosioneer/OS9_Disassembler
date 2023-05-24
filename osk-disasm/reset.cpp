@@ -14,8 +14,7 @@
 // Reset all global state. Used between tests.
 void reset()
 {
-    delete labelManager;
-    labelManager = new LabelManager();
+    labelManager.clear();
 
     // cmdfile.c
     allRegions.clear();

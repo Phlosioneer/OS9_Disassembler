@@ -297,7 +297,7 @@ static void singleCharData(std::ostream& dest, char ch)
     }
     else
     {
-        Label* pp = labelManager->getLabel(&LITERAL_ASCII_SPACE, ch);
+        auto pp = labelManager.getLabel(&LITERAL_ASCII_SPACE, ch);
         if (pp)
         {
             dest << pp->name();

@@ -34,7 +34,7 @@ namespace UnitTests
 			standardOutput = std::make_unique<StringWriter>();
 			opt = std::make_unique<options>();
 			opt->asmFile = moduleOutput->handle();
-			labelManager->clear();
+			labelManager.clear();
 
 			stdout_writer = standardOutput->handle();
 		}
@@ -52,7 +52,7 @@ namespace UnitTests
 			opt->modHeader->execOffset = 30;
 			opt->modHeader->stackSize = 666;
 			opt->modHeader->exceptionOffset = -1;
-			labelManager->addLabel(&CODE_SPACE, 30, "entry");
+			labelManager.addLabel(&CODE_SPACE, 30, "entry");
 
 			PrintPsect(opt.get(), true);
 

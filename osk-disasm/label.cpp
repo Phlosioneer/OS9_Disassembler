@@ -40,72 +40,18 @@
 #include "params.h"
 #include "rof.h"
 
-LabelManager* labelManager = new LabelManager();
-
-Label* label_getNext(Label* handle)
-{
-    return labelManager->getCategory(handle->category)->getNextAfter(handle);
-}
-
-Label* labelclass_getFirst(LabelCategory* handle)
-{
-    return handle->getFirst();
-}
-
-/*
- * Add a label to the list
- *        Does nothing for class '^', '@', '$', or '&'
- *        if the label exists, and a different name is provided, renames the label
- * Passed : (1) char label class
- *          (2) int the address for the label
- *          (3) char * - the name for the label
- *              If NULL or empty string, the hex address of the label prepended with
- *              the class letter is used.
- */
-Label* addlbl(AddrSpaceHandle lblclass, int value, const char* newName)
-{
-    if (!lblclass || *lblclass == LITERAL_SPACE || *lblclass == LITERAL_HEX_SPACE || *lblclass == LITERAL_DEC_SPACE ||
-        *lblclass == LITERAL_ASCII_SPACE)
-    {
-        return nullptr;
-    }
-
-    // If the category doesn't exist already, create it.
-    return labelManager->addLabel(lblclass, value, newName);
-}
-
-/*
- * Finds the label with the exact value 'lblval'
- * Passed:  (1) - The character class for the label
- *          (2) - The value for the address
- * Returns: The label def if it exists, NULL if not found
- *
- */
-Label* findlbl(AddrSpaceHandle lblclass, int lblval)
-{
-    if (*lblclass == LITERAL_SPACE) return NULL;
-
-    return labelManager->getLabel(lblclass, lblval);
-}
+LabelManager labelManager{};
 
 LabelManager::LabelManager(){};
 
-LabelManager::~LabelManager()
-{
-    for (auto pair : _labelCategories)
-    {
-        delete pair.second;
-        pair.second = nullptr;
-    }
-}
-
-LabelCategory* LabelManager::getCategory(AddrSpaceHandle code)
+std::shared_ptr<LabelCategory> LabelManager::getCategory(AddrSpaceHandle code)
 {
     auto pair = _labelCategories.find(code->name);
     if (pair == _labelCategories.end())
     {
-        auto result = _labelCategories.insert(std::make_pair(code->name, new LabelCategory(code)));
-        return result.first->second;
+        auto newCategory = std::make_shared<LabelCategory>(code);
+        _labelCategories.insert({code->name, newCategory});
+        return newCategory;
     }
     else
     {
@@ -124,63 +70,50 @@ void LabelManager::printAll()
 
 void LabelManager::clear()
 {
-    for (auto pair : _labelCategories)
-    {
-        delete pair.second;
-        pair.second = nullptr;
-    }
     _labelCategories.clear();
 }
 
-Label* LabelManager::addLabel(AddrSpaceHandle code, long value, const char* name)
+std::shared_ptr<Label> LabelManager::addLabel(AddrSpaceHandle code, long value, const char* name)
 {
-    return getCategory(code)->add(value, name);
+    auto category = getCategory(code);
+    return category->add(value, name);
 }
 
-Label* LabelManager::getLabel(AddrSpaceHandle code, long value)
+std::shared_ptr<Label> LabelManager::getLabel(AddrSpaceHandle code, long value)
 {
     return getCategory(code)->get(value);
 }
 
 LabelCategory::LabelCategory(AddrSpaceHandle code) : code(code), _labels(), _labelRedirects(), _labelsByValue(){};
 
-LabelCategory::~LabelCategory()
-{
-    for (auto& label : _labels)
-    {
-        delete label;
-        label = nullptr;
-    }
-}
 
-Label* LabelCategory::add(long value, const char* newName)
+std::shared_ptr<Label> LabelCategory::add(long value, const char* newName)
 {
-    Label* label = _labelsByValue[value];
-    if (label == nullptr)
+    auto it = _labelsByValue.find(value);
+    if (it == _labelsByValue.end())
     {
         /* Add the label */
-        label = new Label(code, value, newName);
-        if (label)
-        {
-            // Keep the list of labels sorted by value.
-            iterator it;
-            for (it = begin(); it != end() && (*it)->value < value; it++)
-                ;
-            _labels.insert(it, label);
+        auto label = std::make_shared<Label>(code, value, newName);
+        
+        // Keep the list of labels sorted by value.
+        iterator it;
+        for (it = begin(); it != end() && (*it)->value < value; it++)
+            ;
+        _labels.insert(it, label);
 
-            _labelsByValue[value] = label;
-        }
+        _labelsByValue[value] = label;
+        return label;
     }
     else if (newName && strlen(newName) > 0)
     {
         /* Rename the old label. */
-        label->setName(newName);
+        it->second->setName(newName);
     }
 
-    return label;
+    return it->second;
 }
 
-Label* LabelCategory::get(long value)
+std::shared_ptr<Label> LabelCategory::get(long value)
 {
     auto redirectIt = _labelRedirects.find(value);
     if (redirectIt != _labelRedirects.end())
@@ -209,22 +142,7 @@ void LabelCategory::printAll()
     }
 }
 
-Label* LabelCategory::getNextAfter(Label* label)
-{
-    iterator it;
-    for (it = begin(); *it != label; it++)
-        ;
-    if (it == end() || it + 1 == end())
-    {
-        return nullptr;
-    }
-    else
-    {
-        return *(it + 1);
-    }
-}
-
-Label* LabelCategory::getFirst()
+std::shared_ptr<Label> LabelCategory::getFirst()
 {
     if (_labels.empty())
     {
@@ -236,7 +154,7 @@ Label* LabelCategory::getFirst()
     }
 }
 
-void LabelCategory::addRedirect(long addr, Label* label)
+void LabelCategory::addRedirect(long addr, std::shared_ptr<Label> label)
 {
     _labelRedirects[addr] = label;
 }
@@ -321,8 +239,6 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
     auto adjusted = adr;
     AddrSpaceHandle mainclass;   /* Class for this location */
 
-    Label* mylabel = 0;
-
     if (amod == AM_REL)
     {
         adjusted += curloc;
@@ -365,11 +281,11 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
 
     if (Pass == 1)
     {
-        addlbl(mainclass, adjusted, NULL);
+        labelManager.addLabel(mainclass, adjusted, NULL);
     }
     else
     { /*Pass2 */
-        mylabel = findlbl(mainclass, adjusted);
+        auto mylabel = labelManager.getLabel(mainclass, adjusted);
         if (!mainclass || *mainclass == LITERAL_SPACE || *mainclass == LITERAL_HEX_SPACE ||
             *mainclass == LITERAL_DEC_SPACE || *mainclass == LITERAL_ASCII_SPACE)
         {

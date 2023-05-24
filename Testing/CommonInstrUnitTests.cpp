@@ -238,9 +238,9 @@ namespace UnitTests
 			pushWord(ORI | SIZE(1) | EA_MODE(5) | 6);
 			pushWord(0x31);
 			pushWord(88);
-			labelManager->addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 88 + 0x8000, "hello");
 			runTest("ori.w", "#$0031,hello(a6)");
-			labelManager->clear();
+			labelManager.clear();
 
 			// TODO: ANDI external-ref constant
 		}

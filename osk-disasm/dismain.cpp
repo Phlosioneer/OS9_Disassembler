@@ -95,7 +95,7 @@ static void get_drvr_jmps(int mty, BigEndianStream* Module)
 
         if (jmpdst)
         {
-            addlbl('L', jmpdst, *pt);
+            labelManager.addLabel('L', jmpdst, *pt);
             sprintf(boundstr, "L W L %x-%lx", jmpbegin, ftell(ModFP) - 1);
         }
         else
@@ -171,7 +171,7 @@ static void getModuleHeader(struct options* opt)
         mod->exceptionOffset = opt->Module->read<uint32_t>();
         if (mod->exceptionOffset)
         {
-            addlbl(&CODE_SPACE, mod->exceptionOffset, "");
+            labelManager.addLabel(&CODE_SPACE, mod->exceptionOffset, "");
         }
 
         if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
@@ -247,7 +247,6 @@ static void RdLblFile(FILE* inpath)
 {
     char labelname[30], category[30], eq[10], strval[15], *lbegin;
     int address;
-    Label* nl;
 
     while (!feof(inpath))
     {
@@ -284,12 +283,12 @@ static void RdLblFile(FILE* inpath)
                     address = atoi(strval);
                 }
 
-                nl = findlbl(realCategory, address);
+                auto label = labelManager.getLabel(realCategory, address);
 
-                if (nl)
+                if (label)
                 {
-                    nl->setName(labelname);
-                    nl->setStdName(true);
+                    label->setName(labelname);
+                    label->setStdName(true);
                 }
             }
         }
@@ -300,9 +299,9 @@ static void RdLblFile(FILE* inpath)
 // and UNINIT_DATA_SPACE.
 static void resoveUnknownDataSpace(struct options* opt)
 {
-    auto unkCategory = labelManager->getCategory(&UNKNOWN_DATA_SPACE);
-    auto initCategory = labelManager->getCategory(&INIT_DATA_SPACE);
-    auto uninitCategory = labelManager->getCategory(&UNINIT_DATA_SPACE);
+    auto unkCategory = labelManager.getCategory(&UNKNOWN_DATA_SPACE);
+    auto initCategory = labelManager.getCategory(&INIT_DATA_SPACE);
+    auto uninitCategory = labelManager.getCategory(&UNINIT_DATA_SPACE);
 
     auto cutoffAddr = opt->modHeader->uninitDataSize;
 
@@ -310,7 +309,7 @@ static void resoveUnknownDataSpace(struct options* opt)
     {
         auto dest = (*it)->address() < cutoffAddr ? uninitCategory : initCategory;
 
-        Label* newLabel = nullptr;
+        std::shared_ptr<Label> newLabel;
         if ((*it)->nameIsDefault())
         {
             newLabel = dest->add((*it)->value, nullptr);
@@ -400,12 +399,12 @@ int dopass(int Pass, struct options* opt)
         getHeader(opt);
         if (opt->modHeader)
         {
-            addlbl(&CODE_SPACE, opt->modHeader->execOffset, NULL);
+            labelManager.addLabel(&CODE_SPACE, opt->modHeader->execOffset, NULL);
         }
         else
         {
             // TODO: The label in a ROF psect is broken in pass 1. This line shouldn't be necessary.
-            addlbl(&CODE_SPACE, 0, NULL);
+            labelManager.addLabel(&CODE_SPACE, 0, NULL);
         }
 
         GetIRefs(opt);
@@ -713,7 +712,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 
             // If length of operand string is max, print a line
             // Baked-in assumption that this function is only called within CODE_SPACE.
-            if ((paramsBuffer.size() > 22) || findlbl(&CODE_SPACE, state->PCPos))
+            if ((paramsBuffer.size() > 22) || labelManager.getLabel(&CODE_SPACE, state->PCPos))
             {
                 Ci.setSource(LiteralParam(paramsBuffer));
 

@@ -95,7 +95,7 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
                 refVal = Module->read<uint32_t>();
             }
             it.second.hasName = FALSE;
-            it.second.lbl = addlbl(it.second.dstSpace, refVal, "");
+            it.second.lbl = labelManager.addLabel(it.second.dstSpace, refVal, "");
         }
     }
 }
@@ -163,7 +163,7 @@ void getRofHdr(struct options* opt)
         typ = opt->Module->read<uint16_t>();
         adrs = opt->Module->read<uint32_t>();
 
-        Label* me = addlbl(rof_class(typ, REFGLBL), adrs, name.c_str());
+        auto me = labelManager.addLabel(rof_class(typ, REFGLBL), adrs, name.c_str());
         if (me)
         {
             me->setGlobal(true);
@@ -424,7 +424,7 @@ static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream
                         throw std::runtime_error("Unexpected size");
                     }
                     new_ref.hasName = FALSE;
-                    new_ref.lbl = addlbl(new_ref.dstSpace, dstVal, "");
+                    new_ref.lbl = labelManager.addLabel(new_ref.dstSpace, dstVal, "");
                 }
                 else
                 {
@@ -497,7 +497,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
 {
     /* Insert Label if applicable */
 
-    auto category = labelManager->getCategory(space);
+    auto category = labelManager.getCategory(space);
     auto label = category->get(state->CmdEnt);
     std::string labelName;
     if (label)

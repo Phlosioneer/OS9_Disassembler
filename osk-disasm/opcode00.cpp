@@ -803,7 +803,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
         auto syscall = SysNames[trapNumber];
         if (strlen(syscall) != 0)
         {
-            addlbl(&EQUATE_SPACE, trapNumber, syscall);
+            labelManager.addLabel(&EQUATE_SPACE, trapNumber, syscall);
             ci->setDest(LiteralParam(syscall));
         }
     }
@@ -815,11 +815,11 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
             // Successful match. Ensure the vector has the T$Math name.
             if (!vectorHasName)
             {
-                addlbl(&EQUATE_SPACE, MATH_TRAP_LIB, MATH_TRAP_LIB_NAME);
+                labelManager.addLabel(&EQUATE_SPACE, MATH_TRAP_LIB, MATH_TRAP_LIB_NAME);
                 ci->setSource(LiteralParam(MATH_TRAP_LIB_NAME));
             }
 
-            addlbl(&EQUATE_SPACE, trapNumber, functionName);
+            labelManager.addLabel(&EQUATE_SPACE, trapNumber, functionName);
             ci->setDest(LiteralParam(functionName));
         }
     }

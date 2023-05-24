@@ -65,10 +65,10 @@ class Label
 class LabelCategory
 {
   public:
-    typedef typename std::vector<Label*>::iterator iterator;
+    typedef typename std::vector<std::shared_ptr<Label>>::iterator iterator;
+    typedef typename std::vector<std::shared_ptr<Label>>::const_iterator const_iterator;
 
     LabelCategory(AddrSpaceHandle code);
-    ~LabelCategory();
 
     const AddrSpaceHandle code;
 
@@ -80,12 +80,20 @@ class LabelCategory
     {
         return _labels.end();
     }
-    Label* add(long value, const char* newName);
-    Label* get(long value);
+    inline const_iterator cbegin() const
+    {
+        return _labels.cbegin();
+    }
+    inline const_iterator cend() const
+    {
+        return _labels.cend();
+    }
+
+    std::shared_ptr<Label> add(long value, const char* newName);
+    std::shared_ptr<Label> get(long value);
     void printAll();
-    Label* getNextAfter(Label* label);
-    Label* getFirst();
-    void addRedirect(long addr, Label* label);
+    std::shared_ptr<Label> getFirst();
+    void addRedirect(long addr, std::shared_ptr<Label> label);
 
     inline size_t size() const
     {
@@ -94,45 +102,30 @@ class LabelCategory
 
   private:
     // This list is always sorted by address / value.
-    std::vector<Label*> _labels;
-    std::unordered_map<long, Label*> _labelsByValue;
-    std::unordered_map<long, Label*> _labelRedirects;
-
-    // Because of _handle, need to ensure it is always allocated/freed correctly.
-    LabelCategory(LabelCategory const&) = delete;
-    LabelCategory& operator=(LabelCategory const&) = delete;
-    LabelCategory& operator=(LabelCategory&&) = delete;
+    std::vector<std::shared_ptr<Label>> _labels;
+    std::unordered_map<long, std::shared_ptr<Label>> _labelsByValue;
+    std::unordered_map<long, std::shared_ptr<Label>> _labelRedirects;
 };
 
 class LabelManager
 {
   public:
     LabelManager();
-    ~LabelManager();
 
-    LabelCategory* getCategory(AddrSpaceHandle code);
-    Label* addLabel(AddrSpaceHandle code, long value, const char* name);
-    Label* getLabel(AddrSpaceHandle code, long value);
+    std::shared_ptr<LabelCategory> getCategory(AddrSpaceHandle code);
+    std::shared_ptr<Label> addLabel(AddrSpaceHandle code, long value, const char* name);
+    std::shared_ptr<Label> getLabel(AddrSpaceHandle code, long value);
     void printAll();
     void clear();
 
   private:
-    std::unordered_map<std::string, LabelCategory*> _labelCategories;
-
-    LabelManager(LabelManager const&) = delete;
-    LabelManager& operator=(LabelManager const&) = delete;
-    LabelManager& operator=(LabelManager&&) = delete;
+    std::unordered_map<std::string, std::shared_ptr<LabelCategory>> _labelCategories;
 };
 
-Label* label_getNext(Label* handle);
-Label* labelclass_getFirst(LabelCategory* handle);
-
-Label* findlbl(AddrSpaceHandle lblclass, int lblval);
-Label* addlbl(AddrSpaceHandle lblclass, int val, const char* newname);
 bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);
 void PrintNumber(char* dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 
-extern LabelManager* labelManager;
+extern LabelManager labelManager;
 
 #endif // LABEL_H

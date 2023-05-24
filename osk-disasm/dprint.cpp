@@ -72,7 +72,7 @@ struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
 static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
-static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
+static void TellLabels(std::shared_ptr<LabelCategory> me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
 
 const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
 const char realcmd[80] = "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
@@ -222,7 +222,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     psectParams.push_back(FormattedNumber(stack).str());
 
     int execOffset = opt->modHeader ? opt->modHeader->execOffset : opt->ROFHd->code_begin;
-    auto execOffsetLabel = labelManager->getCategory(&CODE_SPACE)->get(execOffset);
+    auto execOffsetLabel = labelManager.getCategory(&CODE_SPACE)->get(execOffset);
     if (execOffsetLabel)
     {
         psectParams.push_back(execOffsetLabel->name());
@@ -235,7 +235,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     uint32_t exceptOffset = opt->modHeader ? opt->modHeader->exceptionOffset : opt->ROFHd->utrap;
     if (exceptOffset != (uint32_t)-1)
     {
-        auto exceptOffsetLabel = labelManager->getCategory(&CODE_SPACE)->get(exceptOffset);
+        auto exceptOffsetLabel = labelManager.getCategory(&CODE_SPACE)->get(exceptOffset);
         if (exceptOffsetLabel)
         {
             psectParams.push_back(exceptOffsetLabel->name());
@@ -263,11 +263,9 @@ void PrintPsect(struct options* opt, bool printEquates)
 static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt,
                        AddrSpaceHandle space)
 {
-    Label* nl;
-
     if (space && ci->lblname.empty())
     {
-        nl = findlbl(space, CmdEnt);
+        auto nl = labelManager.getLabel(space, CmdEnt);
         if (nl)
         {
             if (opt->IsROF && nl->global())
@@ -496,7 +494,7 @@ void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, 
     {
         for (auto x = startPC + 1; x < endPC; x++)
         {
-            auto label = findlbl(space, x);
+            auto label = labelManager.getLabel(space, x);
             if (label)
             {
                 std::string name;
@@ -861,7 +859,7 @@ void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state
 {
     if (state->Module->size() == 0) return;
 
-    auto category = labelManager->getCategory(space);
+    auto category = labelManager.getCategory(space);
     uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
     std::vector<uint32_t> blockEnds;
@@ -1049,7 +1047,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     // Nothing to print.
     if (maxAddress == 0) return;
 
-    auto category = labelManager->getCategory(space);
+    auto category = labelManager.getCategory(space);
 
     // If there are no labels, just print the whole thing as one directive.
     if (category->size() == 0)
@@ -1113,8 +1111,6 @@ void WrtEquates(int stdflg, struct options* opt)
          *aschd = "* ASCII control character equates\n";
     static char* genhd[2] = {"* Class %s external label equates\n", "* Class %s standard named label equates\n"};
     register int flg; /* local working flg - clone of stdflg */
-    Label* me;
-
     curnt = claspt;
 
     if (!stdflg) /* print ! and ^ only on std cClass pass */
@@ -1126,10 +1122,9 @@ void WrtEquates(int stdflg, struct options* opt)
 
     flg = stdflg;
     strcpy(ClsHd, "%5d %21s");
-    auto category = labelManager->getCategory(&EQUATE_SPACE);
-    me = category ? category->getFirst() : NULL;
+    auto category = labelManager.getCategory(&EQUATE_SPACE);
 
-    if (me)
+    if (category->size() > 0)
     {
         /* For OS9, we only want external labels this pass */
 
@@ -1200,16 +1195,15 @@ void WrtEquates(int stdflg, struct options* opt)
             */
         }
 
-        TellLabels(me, flg, &EQUATE_SPACE, minval, opt);
+        TellLabels(category, flg, &EQUATE_SPACE, minval, opt);
     }
 }
 
 /* TellLabels(me) - Print out the labels for cClass in "me" array */
 
-static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, struct options* opt)
+static void TellLabels(std::shared_ptr<LabelCategory> category, int flg, AddrSpaceHandle space, int minval, struct options* opt)
 {
-
-    while (me)
+    for (const auto me : *category)
     {
         if ((flg < 0) || flg == (int)me->stdName())
         {
@@ -1254,7 +1248,5 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
                 PrintDirective(labelName, "equ", formatted, me->value, me->value, opt, nullptr);
             }
         }
-
-        me = label_getNext(me);
     }
 }
