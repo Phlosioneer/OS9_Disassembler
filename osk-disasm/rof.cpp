@@ -495,21 +495,20 @@ int rof_datasize(char cclass, struct options* opt)
  */
 void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state)
 {
-    struct cmd_items Ci;
-
     /* Insert Label if applicable */
 
     auto category = labelManager->getCategory(space);
     auto label = category->get(state->CmdEnt);
+    std::string labelName;
     if (label)
     {
         if (label->global())
         {
-            Ci.lblname = label->nameWithColon();
+            labelName = label->nameWithColon();
         }
         else
         {
-            Ci.lblname = label->name();
+            labelName = label->name();
         }
     }
 
@@ -521,105 +520,94 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
         rof_extrn* ref = refsList ? find_extrn(*refsList, state->CmdEnt) : nullptr;
         if (ref)
         {
-            strcpy(Ci.mnem, "dc.");
-
             OperandSize size;
+            std::vector<uint16_t> rawData;
             switch (REFSIZ(ref->Type))
             {
             case 1: /* SIZ_BYTE */
                 size = OperandSize::Byte;
+                rawData.push_back(state->Module->read<uint8_t>());
                 break;
             case 2: /* SIZ_WORD */
                 size = OperandSize::Word;
+                state->Module->readVec(rawData, 1);
                 break;
             default: /* SIZ_LONG */
                 size = OperandSize::Long;
+                state->Module->readVec(rawData, 2);
             }
             state->PCPos += getOperandSizeInBytes(size);
-            state->Module->seekRelative(getOperandSizeInBytes(size));
+
             std::string mnem("dc");
             mnem += getOperandSizeSuffix(size);
-            strcpy(Ci.mnem, mnem.c_str());
 
+            std::string name;
             if (ref->Extrn)
             {
-                Ci.setSource(LiteralParam(ref->nam));
+                name = ref->nam;
             }
             else
             {
-                Ci.setSource(LiteralParam(ref->lbl->name()));
+                name = ref->lbl->name();
             }
-
-            PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->PCPos, state->opt);
+            
+            PrintDirective(labelName, mnem.c_str(), name, state->CmdEnt, state->PCPos, state->opt, rawData, space);
+            labelName.clear();
             state->CmdEnt = state->PCPos;
-            Ci.lblname.clear();
-            Ci.source = nullptr;
-            Ci.mnem[0] = '\0';
         }
         else /* No reference entry for this area */
         {
-            size_t bytCount = 0;
-            int bytSize;
-            if (DoAsciiBlock(&Ci, blkEnd - state->CmdEnt, space, state) != 0)
+            if (DoAsciiBlock(labelName, blkEnd - state->CmdEnt, space, state) != 0)
             {
+                // Only apply the label for the first line.
+                labelName.clear();
                 continue;
             }
             else
             {
-                register char* fmt;
-
+                OperandSize size;
                 switch ((blkEnd - state->PCPos) % 4)
                 {
                 case 0:
-                    bytSize = 4;
-                    bytCount = (blkEnd - state->PCPos) >> 2;
-                    strcpy(Ci.mnem, "dc.l");
-                    fmt = "$%08x";
+                    size = OperandSize::Long;
                     break;
                 case 2:
-                    bytSize = 2;
-                    strcpy(Ci.mnem, "dc.w");
-                    bytCount = (blkEnd - state->PCPos) >> 1;
-                    fmt = "$%04x";
+                    size = OperandSize::Word;
                     break;
                 default:
-                    bytSize = 1;
-                    strcpy(Ci.mnem, "dc.b");
-                    bytCount = blkEnd - state->PCPos;
-                    fmt = "$%02x";
+                    size = OperandSize::Byte;
                 }
 
-                while (bytCount--)
+                const auto directive = std::string("dc") + getOperandSizeSuffix(size);
+                const auto dataCount = (blkEnd - state->PCPos) / getOperandSizeInBytes(size);
+
+                for (size_t i = 0; i < dataCount; i++)
                 {
                     int val = 0;
 
-                    switch (bytSize)
+                    switch (size)
                     {
-                    case 1:
+                    case OperandSize::Byte:
                         val = state->Module->read<uint8_t>();
                         break;
-                    case 2:
+                    case OperandSize::Word:
                         val = state->Module->read<uint16_t>();
                         break;
-                    case 4:
+                    case OperandSize::Long:
                         val = state->Module->read<uint32_t>();
                         break;
                     default:
-                        throw std::runtime_error("Unexpected byte size");
+                        throw std::runtime_error("Unexpected size");
                     }
-
-                    state->PCPos += bytSize;
-                    char tmp[250];
-                    tmp[0] = '\0';
-                    sprintf(tmp, fmt, val);
-                    Ci.setSource(LiteralParam(tmp));
-                    PrintLine(pseudcmd, &Ci, space, state->CmdEnt, state->PCPos, state->opt);
+                    state->PCPos += getOperandSizeInBytes(size);
+                    auto formatted = FormattedNumber(val, size, &LITERAL_HEX_SPACE);
+                    PrintDirective(labelName, directive.c_str(), formatted,
+                                   state->CmdEnt, state->PCPos,
+                                   state->opt, space);
+                    // Only apply the label for the first line.
+                    labelName.clear();
                     state->CmdEnt = state->PCPos;
-                    Ci.lblname.clear();
-                    Ci.source = nullptr;
                 }
-
-                Ci.mnem[0] = '\0';
             }
         }
     }

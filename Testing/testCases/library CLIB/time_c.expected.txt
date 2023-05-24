@@ -20,900 +20,900 @@
    19
    20
    21  00000 0000            ends              
-   21
    22
-   23 * Initialized Data (Class"_")
-   24
-   25  00000 0000            vsect             
-   26  00000 0000 _00000     dc.l   $0000001f  
-   27  00004 0000 _00004     dc.l   $0000001c  
-   28  00008 0000            dc.l   $0000001f  
-   29  0000c 0000            dc.l   $0000001e  
-   30  00010 0000            dc.l   $0000001f  
-   31  00014 0000            dc.l   $0000001e  
-   32  00018 0000            dc.l   $0000001f  
-   33  0001c 0000            dc.l   $0000001f  
-   34  00020 0000            dc.l   $0000001e  
-   35  00024 0000            dc.l   $0000001f  
-   36  00028 0000            dc.l   $0000001e  
-   37  0002c 0000            dc.l   $0000001f  
-   38  00030 0000            dc.l   $000003e7  
-   39  00034 0000 _00034     dc.l   L00944     
-   40  00038 0000            dc.l   $000001e0  
-   41  0003c 0000            dc.l   L00744     
-   42  00040 0000            dc.l   L00948     
-   43  00044 0000            dc.l   $000001e0  
-   44  00048 0000            dc.l   L00744     
-   45  0004c 0000            dc.l   L0094c     
-   46  00050 0000            dc.l   $000001a4  
-   47  00054 0000            dc.l   L00744     
-   48  00058 0000            dc.l   L00950     
-   49  0005c 0000            dc.l   $000001a4  
-   50  00060 0000            dc.l   L00744     
-   51  00064 0000 _00064     dc.l   L00954     
-   52  00068 0000            dc.l   $00000168  
-   53  0006c 0000            dc.l   L00744     
-   54  00070 0000            dc.l   L00958     
-   55  00074 0000            dc.l   $00000168  
-   56  00078 0000            dc.l   L00744     
-   57  0007c 0000            dc.l   L0095c     
-   58  00080 0000            dc.l   $0000012c  
-   59  00084 0000            dc.l   L00744     
-   60  00088 0000            dc.l   L00960     
-   61  0008c 0000            dc.l   $0000012c  
-   62  00090 0000            dc.l   L00744     
-   63  00094 0000            dc.l   L00964     
-   64  00098 0000            dc.l   $000001e0  
-   65  0009c 0000            dc.l   L00744     
-   66  000a0 0000            dc.l   L00968     
-   67  000a4 0000            dc.l   $00000258  
-   68  000a8 0000            dc.l   L00724     
-   69  000ac 0000            dc.l   L0096c     
-   70  000b0 0000            dc.l   $00000000  
-   71  000b4 0000            dc.l   L00848     
-   72  000b8 0000            dc.l   L00970     
-   73  000bc 0000            dc.l   $ffffffc4  
-   74  000c0 0000            dc.l   L00848     
-   75  000c4 0000            dc.l   L00974     
-   76  000c8 0000            dc.l   $ffffff88  
-   77  000cc 0000            dc.l   L00848     
-   78  000d0 0000            dc.l   L00978     
-   79  000d4 0000            dc.l   $00000000  
-   80  000d8 0000            dc.l   L00724     
-   81  000dc 0000            dc.l   L0097c     
-   82  000e0 0000            dc.l   $00000000  
-   83  000e4 0000            dc.l   L00724     
-   84  000e8 0000            dc.l   $00000000  
-   85  000ec 0000            dc.l   $00000000  
-   86  000f0 0000            dc.l   $00000000  
-   87  000f4 0000 _000f4     dc.l   _00064     
-   88  000f8 0000 _000f8     dc.l   $00000000  
-   89  000fc 0000            dc.l   $00000001  
-   90  00100 0000            dc.l   $00000001  
-   91  00104 0000            dc.l   $00000000  
-   92
+   23
+   24 * Initialized Data (Class"_")
+   25
+   26  00000 0000            vsect             
+   27  00000 0000 _00000     dc.l   $0000001f  
+   28  00004 0000 _00004     dc.l   $0000001c  
+   29  00008 0000            dc.l   $0000001f  
+   30  0000c 0000            dc.l   $0000001e  
+   31  00010 0000            dc.l   $0000001f  
+   32  00014 0000            dc.l   $0000001e  
+   33  00018 0000            dc.l   $0000001f  
+   34  0001c 0000            dc.l   $0000001f  
+   35  00020 0000            dc.l   $0000001e  
+   36  00024 0000            dc.l   $0000001f  
+   37  00028 0000            dc.l   $0000001e  
+   38  0002c 0000            dc.l   $0000001f  
+   39  00030 0000            dc.l   $000003e7  
+   40  00034 0000 _00034     dc.l   L00944     
+   41  00038 0000            dc.l   $000001e0  
+   42  0003c 0000            dc.l   L00744     
+   43  00040 0000            dc.l   L00948     
+   44  00044 0000            dc.l   $000001e0  
+   45  00048 0000            dc.l   L00744     
+   46  0004c 0000            dc.l   L0094c     
+   47  00050 0000            dc.l   $000001a4  
+   48  00054 0000            dc.l   L00744     
+   49  00058 0000            dc.l   L00950     
+   50  0005c 0000            dc.l   $000001a4  
+   51  00060 0000            dc.l   L00744     
+   52  00064 0000 _00064     dc.l   L00954     
+   53  00068 0000            dc.l   $00000168  
+   54  0006c 0000            dc.l   L00744     
+   55  00070 0000            dc.l   L00958     
+   56  00074 0000            dc.l   $00000168  
+   57  00078 0000            dc.l   L00744     
+   58  0007c 0000            dc.l   L0095c     
+   59  00080 0000            dc.l   $0000012c  
+   60  00084 0000            dc.l   L00744     
+   61  00088 0000            dc.l   L00960     
+   62  0008c 0000            dc.l   $0000012c  
+   63  00090 0000            dc.l   L00744     
+   64  00094 0000            dc.l   L00964     
+   65  00098 0000            dc.l   $000001e0  
+   66  0009c 0000            dc.l   L00744     
+   67  000a0 0000            dc.l   L00968     
+   68  000a4 0000            dc.l   $00000258  
+   69  000a8 0000            dc.l   L00724     
+   70  000ac 0000            dc.l   L0096c     
+   71  000b0 0000            dc.l   $00000000  
+   72  000b4 0000            dc.l   L00848     
+   73  000b8 0000            dc.l   L00970     
+   74  000bc ffff            dc.l   $ffffffc4  
+   75  000c0 0000            dc.l   L00848     
+   76  000c4 0000            dc.l   L00974     
+   77  000c8 ffff            dc.l   $ffffff88  
+   78  000cc 0000            dc.l   L00848     
+   79  000d0 0000            dc.l   L00978     
+   80  000d4 0000            dc.l   $00000000  
+   81  000d8 0000            dc.l   L00724     
+   82  000dc 0000            dc.l   L0097c     
+   83  000e0 0000            dc.l   $00000000  
+   84  000e4 0000            dc.l   L00724     
+   85  000e8 0000            dc.l   $00000000  
+   86  000ec 0000            dc.l   $00000000  
+   87  000f0 0000            dc.l   $00000000  
+   88  000f4 0000 _000f4     dc.l   _00064     
+   89  000f8 0000 _000f8     dc.l   $00000000  
+   90  000fc 0000            dc.l   $00000001  
+   91  00100 0000            dc.l   $00000001  
+   92  00104 0000            dc.l   $00000000  
    93
-   94  00108 0000            ends              
    94
-   95  00000 4e55 time:      link.w a5,#0      
-   96  00004 48e7            movem.l a0-a1/d0-d1,-(sp) 
-   97  00008 4fef            lea    -26(sp),sp 
-   98  0000c 486f            pea    8(sp)      
-   99  00010 486f            pea    16(sp)     
-  100  00014 486f            pea    22(sp)     
-  101  00018 41ef            lea    30(sp),a0  
-  102  0001c 2208            move.l a0,d1      
-  103  0001e 7000            moveq  #0,d0      
-  104  00020 6100            bsr.w  _sysdate   
-  105  00024 4fef            lea    12(sp),sp  
-  106  00028 72ff            moveq  #255,d1    
-  107  0002a b280            cmp.l  d0,d1      
-  108  0002c 671e            beq.s  L0004c     
-  109  0002e 2f6f            move.l 18(sp),4(sp) 
-  110  00034 2eaf            move.l 14(sp),(sp) 
-  111  00038 41d7            lea    (sp),a0    
-  112  0003a 2208            move.l a0,d1      
-  113  0003c 41ef            lea    4(sp),a0   
-  114  00040 2008            move.l a0,d0      
-  115  00042 6100            bsr.w  _julian    
-  116  00046 72ff            moveq  #255,d1    
-  117  00048 b280            cmp.l  d0,d1      
-  118  0004a 6606            bne.s  L00052     
-  119  0004c 70ff L0004c     moveq  #255,d0    
-  120  0004e 6000            bra.w  L000da     
-  121  00052 4aae L00052     tst.l  D00000(a6) 
-  122  00056 6608            bne.s  L00060     
-  123  00058 6100            bsr.w  L00568     
-  124  0005c 2d40            move.l d0,D00000(a6) 
-  125  00060 206e L00060     movea.l D00000(a6),a0 
-  126  00064 2028            move.l 4(a0),d0   
-  127  00068 723c            moveq  #60,d1     
-  128  0006a 6100            bsr.w  _T$UMul    
-  129  0006e d1af            add.l  d0,4(sp)   
-  130  00072 326f            movea.w 18(sp),a1  
-  131  00076 2f09            move.l a1,-(sp)   
-  132  00078 326f            movea.w 16(sp),a1  
-  133  0007c 2f09            move.l a1,-(sp)   
-  134  0007e 7000            moveq  #0,d0      
-  135  00080 102f            move.b 25(sp),d0  
-  136  00084 2f00            move.l d0,-(sp)   
-  137  00086 7000            moveq  #0,d0      
-  138  00088 102f            move.b 28(sp),d0  
-  139  0008c 5340            subq.w #1,d0      
-  140  0008e 48c0            ext.l  d0         
-  141  00090 2200            move.l d0,d1      
-  142  00092 326f            movea.w 26(sp),a1  
-  143  00096 2009            move.l a1,d0      
-  144  00098 2268            movea.l 8(a0),a1   
-  145  0009c 4e91            jsr    (a1)       
-  146  0009e 4fef            lea    12(sp),sp  
-  147  000a2 4a80            tst.l  d0         
-  148  000a4 6708            beq.s  L000ae     
-  149  000a6 04af            subi.l #3600,4(sp) 
-  150  000ae 203c L000ae     move.l #-2440587,d0 
-  151  000b4 d097            add.l  (sp),d0    
-  152  000b6 223c            move.l #86400,d1  
-  153  000bc 6100            bsr.w  _T$UMul    
-  154  000c0 d0af            add.l  4(sp),d0   
-  155  000c4 2f40            move.l d0,22(sp)  
-  156  000c8 4aaf            tst.l  26(sp)     
-  157  000cc 6708            beq.s  L000d6     
-  158  000ce 206f            movea.l 26(sp),a0  
-  159  000d2 20af            move.l 22(sp),(a0) 
-  160  000d6 202f L000d6     move.l 22(sp),d0  
-  161  000da 4fef L000da     lea    26(sp),sp  
-  162  000de 4ced            movem.l -12(a5),a0-a1/d1 
-  163  000e4 4e5d            unlk   a5         
-  164  000e6 4e75            rts               
-  165  000e8 4e55 mktime:    link.w a5,#0      
-  166  000ec 48e7            movem.l a0-a2/d0-d2/d4,-(sp) 
-  167  000f0 2440            movea.l d0,a2      
-  168  000f2 518f            subq.l #8,sp      
-  169  000f4 200a            move.l a2,d0      
-  170  000f6 6100            bsr.w  L001fa     
-  171  000fa 7003            moveq  #3,d0      
-  172  000fc b0aa            cmp.l  20(a2),d0  
-  173  00100 6e64            bgt.s  L00166     
-  174  00102 0caa            cmpi.l #137,20(a2) 
-  175  0010a 6e5a            bgt.s  L00166     
-  176  0010c 2f2a            move.l 12(a2),-(sp) 
-  177  00110 222a            move.l 16(a2),d1  
-  178  00114 202a            move.l 20(a2),d0  
-  179  00118 6100            bsr.w  L00368     
-  180  0011c 588f            addq.l #4,sp      
-  181  0011e 2540            move.l d0,28(a2)  
-  182  00122 202a            move.l 8(a2),d0   
-  183  00126 7210            moveq  #16,d1     
-  184  00128 e3a8            lsl.l  d1,d0      
-  185  0012a 242a            move.l 4(a2),d2   
-  186  0012e e18a            lsl.l  #8,d2      
-  187  00130 8082            or.l   d2,d0      
-  188  00132 8092            or.l   (a2),d0    
-  189  00134 2f40            move.l d0,4(sp)   
-  190  00138 203c            move.l #1900,d0   
-  191  0013e d0aa            add.l  20(a2),d0  
-  192  00142 e3a8            lsl.l  d1,d0      
-  193  00144 242a            move.l 16(a2),d2  
-  194  00148 5282            addq.l #1,d2      
-  195  0014a e18a            lsl.l  #8,d2      
-  196  0014c 8082            or.l   d2,d0      
-  197  0014e 80aa            or.l   12(a2),d0  
-  198  00152 2e80            move.l d0,(sp)    
-  199  00154 41d7            lea    (sp),a0    
-  200  00156 2208            move.l a0,d1      
-  201  00158 41ef            lea    4(sp),a0   
-  202  0015c 2008            move.l a0,d0      
-  203  0015e 6100            bsr.w  _julian    
-  204  00162 4a80            tst.l  d0         
-  205  00164 6c06            bge.s  L0016c     
-  206  00166 70ff L00166     moveq  #255,d0    
-  207  00168 6000            bra.w  L001ee     
-  208  0016c 2017 L0016c     move.l (sp),d0    
-  209  0016e 5480            addq.l #2,d0      
-  210  00170 7207            moveq  #7,d1      
-  211  00172 6100            bsr.w  _T$LMod    
-  212  00176 2540            move.l d0,24(a2)  
-  213  0017a 4aae            tst.l  D00000(a6) 
-  214  0017e 6608            bne.s  L00188     
-  215  00180 6100            bsr.w  L00568     
-  216  00184 2d40            move.l d0,D00000(a6) 
-  217  00188 206e L00188     movea.l D00000(a6),a0 
-  218  0018c 2028            move.l 4(a0),d0   
-  219  00190 723c            moveq  #60,d1     
-  220  00192 6100            bsr.w  _T$UMul    
-  221  00196 d1af            add.l  d0,4(sp)   
-  222  0019a 2f2a            move.l 8(a2),-(sp) 
-  223  0019e 2f2a            move.l 24(a2),-(sp) 
-  224  001a2 2f2a            move.l 12(a2),-(sp) 
-  225  001a6 222a            move.l 16(a2),d1  
-  226  001aa 203c            move.l #1900,d0   
-  227  001b0 d0aa            add.l  20(a2),d0  
-  228  001b4 2268            movea.l 8(a0),a1   
-  229  001b8 4e91            jsr    (a1)       
-  230  001ba 4fef            lea    12(sp),sp  
-  231  001be 4a80            tst.l  d0         
-  232  001c0 6712            beq.s  L001d4     
-  233  001c2 04af            subi.l #3600,4(sp) 
-  234  001ca 257c            move.l #1,32(a2)  
-  235  001d2 6004            bra.s  L001d8     
-  236  001d4 42aa L001d4     clr.l  32(a2)     
-  237  001d8 203c L001d8     move.l #-2440587,d0 
-  238  001de d097            add.l  (sp),d0    
-  239  001e0 223c            move.l #86400,d1  
-  240  001e6 6100            bsr.w  _T$UMul    
-  241  001ea d0af            add.l  4(sp),d0   
-  242  001ee 508f L001ee     addq.l #8,sp      
-  243  001f0 4ced            movem.l -24(a5),a0-a2/d1-d2/d4 
-  244  001f6 4e5d            unlk   a5         
-  245  001f8 4e75            rts               
-  246  001fa 4e55 L001fa     link.w a5,#0      
-  247  001fe 48e7            movem.l a0/a2/d0-d1/d4-d6,-(sp) 
-  248  00202 2440            movea.l d0,a2      
-  249  00204 723c            moveq  #60,d1     
-  250  00206 200a            move.l a2,d0      
-  251  00208 6100            bsr.w  L0032a     
-  252  0020c d1aa            add.l  d0,4(a2)   
-  253  00210 723c            moveq  #60,d1     
-  254  00212 200a            move.l a2,d0      
-  255  00214 5880            addq.l #4,d0      
-  256  00216 6100            bsr.w  L0032a     
-  257  0021a d1aa            add.l  d0,8(a2)   
-  258  0021e 7218            moveq  #24,d1     
-  259  00220 200a            move.l a2,d0      
-  260  00222 5080            addq.l #8,d0      
-  261  00224 6100            bsr.w  L0032a     
-  262  00228 2a00            move.l d0,d5      
-  263  0022a d1aa            add.l  d0,28(a2)  
-  264  0022e dbaa            add.l  d5,12(a2)  
-  265  00232 4a85            tst.l  d5         
-  266  00234 6c10            bge.s  L00246     
-  267  00236 2005            move.l d5,d0      
-  268  00238 4480            neg.l  d0         
-  269  0023a 7207            moveq  #7,d1      
-  270  0023c 6100            bsr.w  _T$LMod    
-  271  00240 7207            moveq  #7,d1      
-  272  00242 9280            sub.l  d0,d1      
-  273  00244 2a01            move.l d1,d5      
-  274  00246 202a L00246     move.l 24(a2),d0  
-  275  0024a d085            add.l  d5,d0      
-  276  0024c 7207            moveq  #7,d1      
-  277  0024e 6100            bsr.w  _T$LMod    
-  278  00252 2540            move.l d0,24(a2)  
-  279  00256 720c            moveq  #12,d1     
-  280  00258 7010            moveq  #16,d0     
-  281  0025a d08a            add.l  a2,d0      
-  282  0025c 6100            bsr.w  L0032a     
-  283  00260 d1aa            add.l  d0,20(a2)  
-  284  00264 7c00            moveq  #0,d6      
-  285  00266 7003            moveq  #3,d0      
-  286  00268 c0aa            and.l  20(a2),d0  
-  287  0026c 663e            bne.s  L002ac     
-  288  0026e 701d            moveq  #29,d0     
-  289  00270 6036            bra.s  L002a8     
-  290  00272 202a L00272     move.l 16(a2),d0  
-  291  00276 e588            lsl.l  #2,d0      
-  292  00278 41ee            lea    _00000(a6),a0 
-  293  0027c 2030            move.l (a0,d0.l),d0 
-  294  00280 91aa            sub.l  d0,12(a2)  
-  295  00284 52aa            addq.l #1,16(a2)  
-  296  00288 700b            moveq  #11,d0     
-  297  0028a b0aa            cmp.l  16(a2),d0  
-  298  0028e 6c1c            bge.s  L002ac     
-  299  00290 7c01            moveq  #1,d6      
-  300  00292 42aa            clr.l  16(a2)     
-  301  00296 52aa            addq.l #1,20(a2)  
-  302  0029a 7003            moveq  #3,d0      
-  303  0029c c0aa            and.l  20(a2),d0  
-  304  002a0 6604            bne.s  L002a6     
-  305  002a2 701d            moveq  #29,d0     
-  306  002a4 6002            bra.s  L002a8     
-  307  002a6 701c L002a6     moveq  #28,d0     
-  308  002a8 2d40 L002a8     move.l d0,_00004(a6) 
-  309  002ac 202a L002ac     move.l 16(a2),d0  
-  310  002b0 e588            lsl.l  #2,d0      
-  311  002b2 41ee            lea    _00000(a6),a0 
-  312  002b6 222a            move.l 12(a2),d1  
-  313  002ba b2b0            cmp.l  (a0,d0.l),d1 
-  314  002be 6eb2            bgt.s  L00272     
-  315  002c0 6038            bra.s  L002fa     
-  316  002c2 53aa L002c2     subq.l #1,16(a2)  
-  317  002c6 6c20            bge.s  L002e8     
-  318  002c8 7c01            moveq  #1,d6      
-  319  002ca 257c            move.l #11,16(a2) 
-  320  002d2 53aa            subq.l #1,20(a2)  
-  321  002d6 7003            moveq  #3,d0      
-  322  002d8 c0aa            and.l  20(a2),d0  
-  323  002dc 6604            bne.s  L002e2     
-  324  002de 701d            moveq  #29,d0     
-  325  002e0 6002            bra.s  L002e4     
-  326  002e2 701c L002e2     moveq  #28,d0     
-  327  002e4 2d40 L002e4     move.l d0,_00004(a6) 
-  328  002e8 202a L002e8     move.l 16(a2),d0  
-  329  002ec e588            lsl.l  #2,d0      
-  330  002ee 41ee            lea    _00000(a6),a0 
-  331  002f2 2030            move.l (a0,d0.l),d0 
-  332  002f6 d1aa            add.l  d0,12(a2)  
-  333  002fa 7001 L002fa     moveq  #1,d0      
-  334  002fc b0aa            cmp.l  12(a2),d0  
-  335  00300 6ec0            bgt.s  L002c2     
-  336  00302 4a86            tst.l  d6         
-  337  00304 6714            beq.s  L0031a     
-  338  00306 2f2a            move.l 12(a2),-(sp) 
-  339  0030a 222a            move.l 16(a2),d1  
-  340  0030e 202a            move.l 20(a2),d0  
-  341  00312 6154            bsr.s  L00368     
-  342  00314 588f            addq.l #4,sp      
-  343  00316 2540            move.l d0,28(a2)  
-  344  0031a 701c L0031a     moveq  #28,d0     
-  345  0031c 2d40            move.l d0,_00004(a6) 
-  346  00320 4ced            movem.l -24(a5),a0/a2/d1/d4-d6 
-  347  00326 4e5d            unlk   a5         
-  348  00328 4e75            rts               
-  349  0032a 4e55 L0032a     link.w a5,#0      
-  350  0032e 48e7            movem.l a0/d0-d1/d4,-(sp) 
-  351  00332 7800            moveq  #0,d4      
-  352  00334 600a            bra.s  L00340     
-  353  00336 5284 L00336     addq.l #1,d4      
-  354  00338 202f            move.l 4(sp),d0   
-  355  0033c 2057            movea.l (sp),a0    
-  356  0033e 9190            sub.l  d0,(a0)    
-  357  00340 2057 L00340     movea.l (sp),a0    
-  358  00342 202f            move.l 4(sp),d0   
-  359  00346 b090            cmp.l  (a0),d0    
-  360  00348 6fec            ble.s  L00336     
-  361  0034a 600a            bra.s  L00356     
-  362  0034c 5384 L0034c     subq.l #1,d4      
-  363  0034e 202f            move.l 4(sp),d0   
-  364  00352 2057            movea.l (sp),a0    
-  365  00354 d190            add.l  d0,(a0)    
-  366  00356 2057 L00356     movea.l (sp),a0    
-  367  00358 4a90            tst.l  (a0)       
-  368  0035a 6df0            blt.s  L0034c     
-  369  0035c 2004            move.l d4,d0      
-  370  0035e 4ced            movem.l -8(a5),a0/d4 
-  371  00364 4e5d            unlk   a5         
-  372  00366 4e75            rts               
-  373  00368 4e55 L00368     link.w a5,#0      
-  374  0036c 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
-  375  00370 2800            move.l d0,d4      
-  376  00372 2a01            move.l d1,d5      
-  377  00374 2c2f            move.l 36(sp),d6  
-  378  00378 7003            moveq  #3,d0      
-  379  0037a c084            and.l  d4,d0      
-  380  0037c 6606            bne.s  L00384     
-  381  0037e 701d            moveq  #29,d0     
-  382  00380 2d40            move.l d0,_00004(a6) 
-  383  00384 2006 L00384     move.l d6,d0      
-  384  00386 5380            subq.l #1,d0      
-  385  00388 2e00            move.l d0,d7      
-  386  0038a 600c            bra.s  L00398     
-  387  0038c 2005 L0038c     move.l d5,d0      
-  388  0038e e588            lsl.l  #2,d0      
-  389  00390 41ee            lea    _00000(a6),a0 
-  390  00394 deb0            add.l  (a0,d0.l),d7 
-  391  00398 5385 L00398     subq.l #1,d5      
-  392  0039a 6ef0            bgt.s  L0038c     
-  393  0039c 701c            moveq  #28,d0     
-  394  0039e 2d40            move.l d0,_00004(a6) 
-  395  003a2 2007            move.l d7,d0      
-  396  003a4 4ced            movem.l -20(a5),a0/d4-d7 
-  397  003aa 4e5d            unlk   a5         
-  398  003ac 4e75            rts               
-  399  003ae 4e55 localtime: link.w a5,#0      
-  400  003b2 48e7            movem.l a0/a2/d0-d1,-(sp) 
-  401  003b6 4a97            tst.l  (sp)       
-  402  003b8 6604            bne.s  L003be     
-  403  003ba 7000            moveq  #0,d0      
-  404  003bc 6066            bra.s  L00424     
-  405  003be 2017 L003be     move.l (sp),d0    
-  406  003c0 616c            bsr.s  gmtime     
-  407  003c2 2440            movea.l d0,a2      
-  408  003c4 4aae            tst.l  D00000(a6) 
-  409  003c8 6608            bne.s  L003d2     
-  410  003ca 6100            bsr.w  L00568     
-  411  003ce 2d40            move.l d0,D00000(a6) 
-  412  003d2 206e L003d2     movea.l D00000(a6),a0 
-  413  003d6 2028            move.l 4(a0),d0   
-  414  003da 91aa            sub.l  d0,4(a2)   
-  415  003de 200a            move.l a2,d0      
-  416  003e0 6100            bsr.w  L001fa     
-  417  003e4 2f2a            move.l 8(a2),-(sp) 
-  418  003e8 2f2a            move.l 24(a2),-(sp) 
-  419  003ec 2f2a            move.l 12(a2),-(sp) 
-  420  003f0 222a            move.l 16(a2),d1  
-  421  003f4 203c            move.l #1900,d0   
-  422  003fa d0aa            add.l  20(a2),d0  
-  423  003fe 206e            movea.l D00000(a6),a0 
-  424  00402 2068            movea.l 8(a0),a0   
-  425  00406 4e90            jsr    (a0)       
-  426  00408 4fef            lea    12(sp),sp  
-  427  0040c 4a80            tst.l  d0         
-  428  0040e 6712            beq.s  L00422     
-  429  00410 52aa            addq.l #1,8(a2)   
-  430  00414 200a            move.l a2,d0      
-  431  00416 6100            bsr.w  L001fa     
-  432  0041a 257c            move.l #1,32(a2)  
-  433  00422 200a L00422     move.l a2,d0      
-  434  00424 4ced L00424     movem.l -12(a5),a0/a2/d1 
-  435  0042a 4e5d            unlk   a5         
-  436  0042c 4e75            rts               
-  437  0042e 4e55 gmtime:    link.w a5,#0      
-  438  00432 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
-  439  00436 598f            subq.l #4,sp      
-  440  00438 4aaf            tst.l  4(sp)      
-  441  0043c 6606            bne.s  L00444     
-  442  0043e 7000            moveq  #0,d0      
-  443  00440 6000            bra.w  L0055c     
-  444  00444 206f L00444     movea.l 4(sp),a0   
-  445  00448 2810            move.l (a0),d4    
-  446  0044a 2004            move.l d4,d0      
-  447  0044c 223c            move.l #86400,d1  
-  448  00452 6100            bsr.w  _T$LDiv    
-  449  00456 0680            addi.l #$00253d8b,d0 
-  450  0045c 2e80            move.l d0,(sp)    
-  451  0045e 2017            move.l (sp),d0    
-  452  00460 5480            addq.l #2,d0      
-  453  00462 7207            moveq  #7,d1      
-  454  00464 6100            bsr.w  _T$LMod    
-  455  00468 2d40            move.l d0,D0001c(a6) 
-  456  0046c 2a3c            move.l #1970,d5   
-  457  00472 6004            bra.s  L00478     
-  458  00474 9886 L00474     sub.l  d6,d4      
-  459  00476 5285            addq.l #1,d5      
-  460  00478 7003 L00478     moveq  #3,d0      
-  461  0047a c085            and.l  d5,d0      
-  462  0047c 6608            bne.s  L00486     
-  463  0047e 203c            move.l #31622400,d0 
-  464  00484 6006            bra.s  L0048c     
-  465  00486 203c L00486     move.l #31536000,d0 
-  466  0048c 2c00 L0048c     move.l d0,d6      
-  467  0048e b084            cmp.l  d4,d0      
-  468  00490 6fe2            ble.s  L00474     
-  469  00492 6018            bra.s  L004ac     
-  470  00494 5385 L00494     subq.l #1,d5      
-  471  00496 7003            moveq  #3,d0      
-  472  00498 c085            and.l  d5,d0      
-  473  0049a 6608            bne.s  L004a4     
-  474  0049c 203c            move.l #31622400,d0 
-  475  004a2 6006            bra.s  L004aa     
-  476  004a4 203c L004a4     move.l #31536000,d0 
-  477  004aa d880 L004aa     add.l  d0,d4      
-  478  004ac 4a84 L004ac     tst.l  d4         
-  479  004ae 6de4            blt.s  L00494     
-  480  004b0 203c            move.l #-1900,d0  
-  481  004b6 d085            add.l  d5,d0      
-  482  004b8 2d40            move.l d0,D00018(a6) 
-  483  004bc 2004            move.l d4,d0      
-  484  004be 223c            move.l #86400,d1  
-  485  004c4 6100            bsr.w  _T$LDiv    
-  486  004c8 2d40            move.l d0,D00020(a6) 
-  487  004cc 223c            move.l #86400,d1  
-  488  004d2 2004            move.l d4,d0      
-  489  004d4 6100            bsr.w  _T$LMod    
-  490  004d8 2800            move.l d0,d4      
-  491  004da 2004            move.l d4,d0      
-  492  004dc 223c            move.l #3600,d1   
-  493  004e2 6100            bsr.w  _T$LDiv    
-  494  004e6 2d40            move.l d0,D0000c(a6) 
-  495  004ea 223c            move.l #3600,d1   
-  496  004f0 2004            move.l d4,d0      
-  497  004f2 6100            bsr.w  _T$LMod    
-  498  004f6 2800            move.l d0,d4      
-  499  004f8 2004            move.l d4,d0      
-  500  004fa 723c            moveq  #60,d1     
-  501  004fc 6100            bsr.w  _T$LDiv    
-  502  00500 2d40            move.l d0,D00008(a6) 
-  503  00504 2004            move.l d4,d0      
-  504  00506 723c            moveq  #60,d1     
-  505  00508 6100            bsr.w  _T$LMod    
-  506  0050c 2d40            move.l d0,D00004(a6) 
-  507  00510 42ae            clr.l  D00024(a6) 
-  508  00514 7003            moveq  #3,d0      
-  509  00516 c085            and.l  d5,d0      
-  510  00518 6606            bne.s  L00520     
-  511  0051a 701d            moveq  #29,d0     
-  512  0051c 2d40            move.l d0,_00004(a6) 
-  513  00520 282e L00520     move.l D00020(a6),d4 
-  514  00524 7e00            moveq  #0,d7      
-  515  00526 600e            bra.s  L00536     
-  516  00528 2007 L00528     move.l d7,d0      
-  517  0052a e588            lsl.l  #2,d0      
-  518  0052c 41ee            lea    _00000(a6),a0 
-  519  00530 98b0            sub.l  (a0,d0.l),d4 
-  520  00534 5287            addq.l #1,d7      
-  521  00536 2007 L00536     move.l d7,d0      
-  522  00538 e588            lsl.l  #2,d0      
-  523  0053a 41ee            lea    _00000(a6),a0 
-  524  0053e b8b0            cmp.l  (a0,d0.l),d4 
-  525  00542 6ce4            bge.s  L00528     
-  526  00544 2d47            move.l d7,D00014(a6) 
-  527  00548 2004            move.l d4,d0      
-  528  0054a 5280            addq.l #1,d0      
-  529  0054c 2d40            move.l d0,D00010(a6) 
-  530  00550 701c            moveq  #28,d0     
-  531  00552 2d40            move.l d0,_00004(a6) 
-  532  00556 41ee            lea    D00004(a6),a0 
-  533  0055a 2008            move.l a0,d0      
-  534  0055c 588f L0055c     addq.l #4,sp      
-  535  0055e 4ced            movem.l -24(a5),a0/d1/d4-d7 
-  536  00564 4e5d            unlk   a5         
-  537  00566 4e75            rts               
-  538  00568 4e55 L00568     link.w a5,#0      
-  539  0056c 48e7            movem.l a0-a1/d0-d1,-(sp) 
-  540  00570 4fef            lea    -28(sp),sp 
-  541  00574 41fa            lea    L00980(pc),a0 
-  542  00578 2008            move.l a0,d0      
-  543  0057a 6100            bsr.w  getenv     
-  544  0057e 2f40            move.l d0,24(sp)  
-  545  00582 4aaf            tst.l  24(sp)     
-  546  00586 6700            beq.w  L006e6     
-  547  0058a 41ef            lea    4(sp),a0   
-  548  0058e 2f48            move.l a0,20(sp)  
-  549  00592 6012            bra.s  L005a6     
-  550  00594 206f L00594     movea.l 24(sp),a0  
-  551  00598 52af            addq.l #1,24(sp)  
-  552  0059c 226f            movea.l 20(sp),a1  
-  553  005a0 52af            addq.l #1,20(sp)  
-  554  005a4 1290            move.b (a0),(a1)  
-  555  005a6 206f L005a6     movea.l 24(sp),a0  
-  556  005aa 1010            move.b (a0),d0    
-  557  005ac 4880            ext.w  d0         
-  558  005ae 0c40            cmpi.w #45,d0     
-  559  005b2 6714            beq.s  L005c8     
-  560  005b4 620c            bhi.s  L005c2     
-  561  005b6 0c00            cmpi.b #43,d0     
-  562  005ba 670c            beq.s  L005c8     
-  563  005bc 62d6            bhi.s  L00594     
-  564  005be 4a00            tst.b  d0         
-  565  005c0 6004            bra.s  L005c6     
-  566  005c2 0c40 L005c2     cmpi.w #58,d0     
-  567  005c6 66cc L005c6     bne.s  L00594     
-  568  005c8 206f L005c8     movea.l 20(sp),a0  
-  569  005cc 4210            clr.b  (a0)       
-  570  005ce 41ee            lea    _00034(a6),a0 
-  571  005d2 2e88            move.l a0,(sp)    
-  572  005d4 6018            bra.s  L005ee     
-  573  005d6 2057 L005d6     movea.l (sp),a0    
-  574  005d8 2210            move.l (a0),d1    
-  575  005da 41ef            lea    4(sp),a0   
-  576  005de 2008            move.l a0,d0      
-  577  005e0 6100            bsr.w  strcmp     
-  578  005e4 4a80            tst.l  d0         
-  579  005e6 670c            beq.s  L005f4     
-  580  005e8 0697            addi.l #$0000000c,(sp) 
-  581  005ee 2057 L005ee     movea.l (sp),a0    
-  582  005f0 4a90            tst.l  (a0)       
-  583  005f2 66e2            bne.s  L005d6     
-  584  005f4 2057 L005f4     movea.l (sp),a0    
-  585  005f6 4a90            tst.l  (a0)       
-  586  005f8 6700            beq.w  L006e6     
-  587  005fc 42af            clr.l  12(sp)     
-  588  00600 42af            clr.l  16(sp)     
-  589  00604 605a            bra.s  L00660     
-  590  00606 2017 L00606     move.l (sp),d0    
-  591  00608 6000            bra.w  L00716     
-  592  0060c 7001 L0060c     moveq  #1,d0      
-  593  0060e 2f40            move.l d0,12(sp)  
-  594  00612 601e            bra.s  L00632     
-  595  00614 202f L00614     move.l 16(sp),d0  
-  596  00618 720a            moveq  #10,d1     
-  597  0061a 6100            bsr.w  _T$UMul    
-  598  0061e 206f            movea.l 24(sp),a0  
-  599  00622 1210            move.b (a0),d1    
-  600  00624 4881            ext.w  d1         
-  601  00626 0441            subi.w #48,d1     
-  602  0062a 48c1            ext.l  d1         
-  603  0062c d081            add.l  d1,d0      
-  604  0062e 2f40            move.l d0,16(sp)  
-  605  00632 52af L00632     addq.l #1,24(sp)  
-  606  00636 206f            movea.l 24(sp),a0  
-  607  0063a 0c10            cmpi.b #48,(a0)   
-  608  0063e 6d0a            blt.s  L0064a     
-  609  00640 206f            movea.l 24(sp),a0  
-  610  00644 0c10            cmpi.b #57,(a0)   
-  611  00648 6fca            ble.s  L00614     
-  612  0064a 4aaf L0064a     tst.l  12(sp)     
-  613  0064e 6600            bne.w  L006ec     
-  614  00652 202f            move.l 16(sp),d0  
-  615  00656 4480            neg.l  d0         
-  616  00658 2f40            move.l d0,16(sp)  
-  617  0065c 6000            bra.w  L006ec     
-  618  00660 206f L00660     movea.l 24(sp),a0  
-  619  00664 1010            move.b (a0),d0    
-  620  00666 4880            ext.w  d0         
-  621  00668 0c40            cmpi.w #255,d0    
-  622  0066c 6200            bhi.w  L006ec     
-  623  00670 4a00            tst.b  d0         
-  624  00672 6792            beq.s  L00606     
-  625  00674 0c00            cmpi.b #43,d0     
-  626  00678 67b8            beq.s  L00632     
-  627  0067a 0c00            cmpi.b #45,d0     
-  628  0067e 678c            beq.s  L0060c     
-  629  00680 606a            bra.s  L006ec     
-  630  00682 2057 L00682     movea.l (sp),a0    
-  631  00684 2d68            move.l 8(a0),D00030(a6) 
-  632  0068a 6000            bra.w  L00702     
-  633  0068e 52af L0068e     addq.l #1,24(sp)  
-  634  00692 41fa            lea    L00983(pc),a0 
-  635  00696 2208            move.l a0,d1      
-  636  00698 202f            move.l 24(sp),d0  
-  637  0069c 6100            bsr.w  strcmp     
-  638  006a0 4a80            tst.l  d0         
-  639  006a2 660a            bne.s  L006ae     
-  640  006a4 41fa            lea    L00744(pc),a0 
-  641  006a8 2d48            move.l a0,D00030(a6) 
-  642  006ac 6054            bra.s  L00702     
-  643  006ae 41fa L006ae     lea    L00987(pc),a0 
-  644  006b2 2208            move.l a0,d1      
-  645  006b4 202f            move.l 24(sp),d0  
-  646  006b8 6100            bsr.w  strcmp     
-  647  006bc 4a80            tst.l  d0         
-  648  006be 660a            bne.s  L006ca     
-  649  006c0 41fa            lea    L00848(pc),a0 
-  650  006c4 2d48            move.l a0,D00030(a6) 
-  651  006c8 6038            bra.s  L00702     
-  652  006ca 41fa L006ca     lea    L0098b(pc),a0 
-  653  006ce 2208            move.l a0,d1      
-  654  006d0 202f            move.l 24(sp),d0  
-  655  006d4 6100            bsr.w  strcmp     
-  656  006d8 4a80            tst.l  d0         
-  657  006da 660a            bne.s  L006e6     
-  658  006dc 41fa            lea    L00724(pc),a0 
-  659  006e0 2d48            move.l a0,D00030(a6) 
-  660  006e4 601c            bra.s  L00702     
-  661  006e6 202e L006e6     move.l _000f4(a6),d0 
-  662  006ea 602a            bra.s  L00716     
-  663  006ec 206f L006ec     movea.l 24(sp),a0  
-  664  006f0 1010            move.b (a0),d0    
-  665  006f2 4880            ext.w  d0         
-  666  006f4 4a40            tst.w  d0         
-  667  006f6 6700            beq.w  L00682     
-  668  006fa 0c40            cmpi.w #58,d0     
-  669  006fe 678e            beq.s  L0068e     
-  670  00700 60e4            bra.s  L006e6     
-  671  00702 2057 L00702     movea.l (sp),a0    
-  672  00704 2028            move.l 4(a0),d0   
-  673  00708 d0af            add.l  16(sp),d0  
-  674  0070c 2d40            move.l d0,D0002c(a6) 
-  675  00710 41ee            lea    D00028(a6),a0 
-  676  00714 2008            move.l a0,d0      
-  677  00716 4fef L00716     lea    28(sp),sp  
-  678  0071a 4ced            movem.l -12(a5),a0-a1/d1 
-  679  00720 4e5d            unlk   a5         
-  680  00722 4e75            rts               
-  681  00724 4e55 L00724     link.w a5,#0      
-  682  00728 48e7            movem.l d0-d1/d4-d7,-(sp) 
-  683  0072c 2800            move.l d0,d4      
-  684  0072e 2a01            move.l d1,d5      
-  685  00730 2c2f            move.l 32(sp),d6  
-  686  00734 2e2f            move.l 36(sp),d7  
-  687  00738 7000            moveq  #0,d0      
-  688  0073a 4ced            movem.l -16(a5),d4-d7 
-  689  00740 4e5d            unlk   a5         
-  690  00742 4e75            rts               
-  691  00744 4e55 L00744     link.w a5,#0      
-  692  00748 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
-  693  0074c 2800            move.l d0,d4      
-  694  0074e 2a01            move.l d1,d5      
-  695  00750 2c2f            move.l 36(sp),d6  
-  696  00754 2e2f            move.l 40(sp),d7  
-  697  00758 4fef            lea    -20(sp),sp 
-  698  0075c 0c84            cmpi.l #1967,d4   
-  699  00762 6d00            blt.w  L00834     
-  700  00766 0c84            cmpi.l #1974,d4   
-  701  0076c 6708            beq.s  L00776     
-  702  0076e 0c84            cmpi.l #1975,d4   
-  703  00774 662a            bne.s  L007a0     
-  704  00776 203c L00776     move.l #-1974,d0  
-  705  0077c d084            add.l  d4,d0      
-  706  0077e e788            lsl.l  #3,d0      
-  707  00780 41ee            lea    _000f8(a6),a0 
-  708  00784 2f70            move.l 4(a0,d0.l),12(sp) 
-  709  0078a 203c            move.l #-1974,d0  
-  710  00790 d084            add.l  d4,d0      
-  711  00792 e788            lsl.l  #3,d0      
-  712  00794 41ee            lea    _000f8(a6),a0 
-  713  00798 2f70            move.l (a0,d0.l),16(sp) 
-  714  0079e 601a            bra.s  L007ba     
-  715  007a0 0c84 L007a0     cmpi.l #1987,d4   
-  716  007a6 6c06            bge.s  L007ae     
-  717  007a8 42af            clr.l  12(sp)     
-  718  007ac 6006            bra.s  L007b4     
-  719  007ae 7001 L007ae     moveq  #1,d0      
-  720  007b0 2f40            move.l d0,12(sp)  
-  721  007b4 7003 L007b4     moveq  #3,d0      
-  722  007b6 2f40            move.l d0,16(sp)  
-  723  007ba 42af L007ba     clr.l  4(sp)      
-  724  007be 7009            moveq  #9,d0      
-  725  007c0 2f40            move.l d0,8(sp)   
-  726  007c4 baaf            cmp.l  16(sp),d5  
-  727  007c8 6d00            blt.w  L00834     
-  728  007cc baaf            cmp.l  8(sp),d5   
-  729  007d0 6e62            bgt.s  L00834     
-  730  007d2 baaf            cmp.l  16(sp),d5  
-  731  007d6 662c            bne.s  L00804     
-  732  007d8 2f07            move.l d7,-(sp)   
-  733  007da 2f06            move.l d6,-(sp)   
-  734  007dc 2f04            move.l d4,-(sp)   
-  735  007de 222f            move.l 28(sp),d1  
-  736  007e2 202f            move.l 24(sp),d0  
-  737  007e6 6100            bsr.w  L008d2     
-  738  007ea 4fef            lea    12(sp),sp  
-  739  007ee 2e80            move.l d0,(sp)    
-  740  007f0 bc97            cmp.l  (sp),d6    
-  741  007f2 660a            bne.s  L007fe     
-  742  007f4 7002            moveq  #2,d0      
-  743  007f6 b0af            cmp.l  64(sp),d0  
-  744  007fa 6e38            bgt.s  L00834     
-  745  007fc 603a            bra.s  L00838     
-  746  007fe bc97 L007fe     cmp.l  (sp),d6    
-  747  00800 6f32            ble.s  L00834     
-  748  00802 6034            bra.s  L00838     
-  749  00804 baaf L00804     cmp.l  8(sp),d5   
-  750  00808 662e            bne.s  L00838     
-  751  0080a 2f07            move.l d7,-(sp)   
-  752  0080c 2f06            move.l d6,-(sp)   
-  753  0080e 2f04            move.l d4,-(sp)   
-  754  00810 222f            move.l 20(sp),d1  
-  755  00814 202f            move.l 16(sp),d0  
-  756  00818 6100            bsr.w  L008d2     
-  757  0081c 4fef            lea    12(sp),sp  
-  758  00820 2e80            move.l d0,(sp)    
-  759  00822 bc97            cmp.l  (sp),d6    
-  760  00824 660a            bne.s  L00830     
-  761  00826 7002            moveq  #2,d0      
-  762  00828 b0af            cmp.l  64(sp),d0  
-  763  0082c 6f06            ble.s  L00834     
-  764  0082e 6008            bra.s  L00838     
-  765  00830 bc97 L00830     cmp.l  (sp),d6    
-  766  00832 6d04            blt.s  L00838     
-  767  00834 7000 L00834     moveq  #0,d0      
-  768  00836 6002            bra.s  L0083a     
-  769  00838 7001 L00838     moveq  #1,d0      
-  770  0083a 4fef L0083a     lea    20(sp),sp  
-  771  0083e 4ced            movem.l -20(a5),a0/d4-d7 
-  772  00844 4e5d            unlk   a5         
-  773  00846 4e75            rts               
-  774  00848 4e55 L00848     link.w a5,#0      
-  775  0084c 48e7            movem.l d0-d1/d4-d7,-(sp) 
-  776  00850 2800            move.l d0,d4      
-  777  00852 2a01            move.l d1,d5      
-  778  00854 2c2f            move.l 32(sp),d6  
-  779  00858 2e2f            move.l 36(sp),d7  
-  780  0085c 598f            subq.l #4,sp      
-  781  0085e 7002            moveq  #2,d0      
-  782  00860 b085            cmp.l  d5,d0      
-  783  00862 6e5c            bgt.s  L008c0     
-  784  00864 7008            moveq  #8,d0      
-  785  00866 b085            cmp.l  d5,d0      
-  786  00868 6d56            blt.s  L008c0     
-  787  0086a 7002            moveq  #2,d0      
-  788  0086c b085            cmp.l  d5,d0      
-  789  0086e 6626            bne.s  L00896     
-  790  00870 2f07            move.l d7,-(sp)   
-  791  00872 2f06            move.l d6,-(sp)   
-  792  00874 2f04            move.l d4,-(sp)   
-  793  00876 7202            moveq  #2,d1      
-  794  00878 7000            moveq  #0,d0      
-  795  0087a 6156            bsr.s  L008d2     
-  796  0087c 4fef            lea    12(sp),sp  
-  797  00880 2e80            move.l d0,(sp)    
-  798  00882 bc97            cmp.l  (sp),d6    
-  799  00884 660a            bne.s  L00890     
-  800  00886 7002            moveq  #2,d0      
-  801  00888 b0af            cmp.l  44(sp),d0  
-  802  0088c 6e32            bgt.s  L008c0     
-  803  0088e 6034            bra.s  L008c4     
-  804  00890 bc97 L00890     cmp.l  (sp),d6    
-  805  00892 6f2c            ble.s  L008c0     
-  806  00894 602e            bra.s  L008c4     
-  807  00896 7008 L00896     moveq  #8,d0      
-  808  00898 b085            cmp.l  d5,d0      
-  809  0089a 6628            bne.s  L008c4     
-  810  0089c 2f07            move.l d7,-(sp)   
-  811  0089e 2f06            move.l d6,-(sp)   
-  812  008a0 2f04            move.l d4,-(sp)   
-  813  008a2 7208            moveq  #8,d1      
-  814  008a4 7000            moveq  #0,d0      
-  815  008a6 612a            bsr.s  L008d2     
-  816  008a8 4fef            lea    12(sp),sp  
-  817  008ac 2e80            move.l d0,(sp)    
-  818  008ae bc97            cmp.l  (sp),d6    
-  819  008b0 660a            bne.s  L008bc     
-  820  008b2 7002            moveq  #2,d0      
-  821  008b4 b0af            cmp.l  44(sp),d0  
-  822  008b8 6f06            ble.s  L008c0     
-  823  008ba 6008            bra.s  L008c4     
-  824  008bc bc97 L008bc     cmp.l  (sp),d6    
-  825  008be 6d04            blt.s  L008c4     
-  826  008c0 7000 L008c0     moveq  #0,d0      
-  827  008c2 6002            bra.s  L008c6     
-  828  008c4 7001 L008c4     moveq  #1,d0      
-  829  008c6 588f L008c6     addq.l #4,sp      
-  830  008c8 4ced            movem.l -16(a5),d4-d7 
-  831  008ce 4e5d            unlk   a5         
-  832  008d0 4e75            rts               
-  833  008d2 4e55 L008d2     link.w a5,#0      
-  834  008d6 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
-  835  008da 7003            moveq  #3,d0      
-  836  008dc c0af            and.l  36(sp),d0  
-  837  008e0 6606            bne.s  L008e8     
-  838  008e2 701d            moveq  #29,d0     
-  839  008e4 2d40            move.l d0,_00004(a6) 
-  840  008e8 202f L008e8     move.l 40(sp),d0  
-  841  008ec 90af            sub.l  44(sp),d0  
-  842  008f0 2a00            move.l d0,d5      
-  843  008f2 7001            moveq  #1,d0      
-  844  008f4 b085            cmp.l  d5,d0      
-  845  008f6 6f02            ble.s  L008fa     
-  846  008f8 5e85            addq.l #7,d5      
-  847  008fa 2005 L008fa     move.l d5,d0      
-  848  008fc 5380            subq.l #1,d0      
-  849  008fe 7207            moveq  #7,d1      
-  850  00900 6100            bsr.w  _T$LDiv    
-  851  00904 5280            addq.l #1,d0      
-  852  00906 2c00            move.l d0,d6      
-  853  00908 4a97            tst.l  (sp)       
-  854  0090a 661a            bne.s  L00926     
-  855  0090c 202f            move.l 4(sp),d0   
-  856  00910 e588            lsl.l  #2,d0      
-  857  00912 41ee            lea    _00000(a6),a0 
-  858  00916 2e30            move.l (a0,d0.l),d7 
-  859  0091a 6002            bra.s  L0091e     
-  860  0091c 5e85 L0091c     addq.l #7,d5      
-  861  0091e ba87 L0091e     cmp.l  d7,d5      
-  862  00920 6ffa            ble.s  L0091c     
-  863  00922 5f85            subq.l #7,d5      
-  864  00924 600c            bra.s  L00932     
-  865  00926 2017 L00926     move.l (sp),d0    
-  866  00928 9086            sub.l  d6,d0      
-  867  0092a 7207            moveq  #7,d1      
-  868  0092c 6100            bsr.w  _T$UMul    
-  869  00930 da80            add.l  d0,d5      
-  870  00932 701c L00932     moveq  #28,d0     
-  871  00934 2d40            move.l d0,_00004(a6) 
-  872  00938 2005            move.l d5,d0      
-  873  0093a 4ced            movem.l -20(a5),a0/d4-d7 
-  874  00940 4e5d            unlk   a5         
-  875  00942 4e75            rts               
-  876  00944 5053 L00944     addq.w #8,(a3)    
-  877  00946 5400            addq.b #2,d0      
-  878  00948 5044 L00948     addq.w #8,d4      
-  879  0094a 5400            addq.b #2,d0      
-  880  0094c 4d53 L0094c     dc.w   $4d53      
-  881  0094e 5400            addq.b #2,d0      
-  882  00950 4d44 L00950     dc.w   $4d44      
-  883  00952 5400            addq.b #2,d0      
-  884  00954 4353 L00954     dc.w   $4353      
-  885  00956 5400            addq.b #2,d0      
-  886  00958 4344 L00958     dc.w   $4344      
-  887  0095a 5400            addq.b #2,d0      
-  888  0095c 4553 L0095c     dc.w   $4553      
-  889  0095e 5400            addq.b #2,d0      
-  890  00960 4544 L00960     dc.w   $4544      
-  891  00962 5400            addq.b #2,d0      
-  892  00964 5953 L00964     subq.w #4,(a3)    
-  893  00966 5400            addq.b #2,d0      
-  894  00968 4153 L00968     dc.w   $4153      
-  895  0096a 5400            addq.b #2,d0      
-  896  0096c 5745 L0096c     subq.w #3,d5      
-  897  0096e 5400            addq.b #2,d0      
-  898  00970 4345 L00970     dc.w   $4345      
-  899  00972 5400            addq.b #2,d0      
-  900  00974 4545 L00974     dc.w   $4545      
-  901  00976 5400            addq.b #2,d0      
-  902  00978 474d L00978     dc.w   $474d      
-  903  0097a 5400            addq.b #2,d0      
-  904  0097c 5554 L0097c     subq.w #2,(a4)    
-  905  0097e 4300            dc.w   $4300      
-  906  00980 545a L00980     addq.w #2,(a2)+   
-  907  00982 0075            ori.w  #$7361,101(a5,d0.w) 
-  908  00983 0000 L00983     equ    *-5        
-  909  00987 0000 L00987     equ    *-1        
-  910  00988 7572            dc.w   $7572      
-  911  0098a 006e            dc.w   $006e      
-  912  0098b 0000 L0098b     equ    *-1        
-  913  0098c 6f00            dc.w   $6f00      
-  914
-  915  0098e 0000            ends              
-  915
+   95  00108 0000            ends              
+   96
+   97  00000 4e55 time:      link.w a5,#0      
+   98  00004 48e7            movem.l a0-a1/d0-d1,-(sp) 
+   99  00008 4fef            lea    -26(sp),sp 
+  100  0000c 486f            pea    8(sp)      
+  101  00010 486f            pea    16(sp)     
+  102  00014 486f            pea    22(sp)     
+  103  00018 41ef            lea    30(sp),a0  
+  104  0001c 2208            move.l a0,d1      
+  105  0001e 7000            moveq  #0,d0      
+  106  00020 6100            bsr.w  _sysdate   
+  107  00024 4fef            lea    12(sp),sp  
+  108  00028 72ff            moveq  #255,d1    
+  109  0002a b280            cmp.l  d0,d1      
+  110  0002c 671e            beq.s  L0004c     
+  111  0002e 2f6f            move.l 18(sp),4(sp) 
+  112  00034 2eaf            move.l 14(sp),(sp) 
+  113  00038 41d7            lea    (sp),a0    
+  114  0003a 2208            move.l a0,d1      
+  115  0003c 41ef            lea    4(sp),a0   
+  116  00040 2008            move.l a0,d0      
+  117  00042 6100            bsr.w  _julian    
+  118  00046 72ff            moveq  #255,d1    
+  119  00048 b280            cmp.l  d0,d1      
+  120  0004a 6606            bne.s  L00052     
+  121  0004c 70ff L0004c     moveq  #255,d0    
+  122  0004e 6000            bra.w  L000da     
+  123  00052 4aae L00052     tst.l  D00000(a6) 
+  124  00056 6608            bne.s  L00060     
+  125  00058 6100            bsr.w  L00568     
+  126  0005c 2d40            move.l d0,D00000(a6) 
+  127  00060 206e L00060     movea.l D00000(a6),a0 
+  128  00064 2028            move.l 4(a0),d0   
+  129  00068 723c            moveq  #60,d1     
+  130  0006a 6100            bsr.w  _T$UMul    
+  131  0006e d1af            add.l  d0,4(sp)   
+  132  00072 326f            movea.w 18(sp),a1  
+  133  00076 2f09            move.l a1,-(sp)   
+  134  00078 326f            movea.w 16(sp),a1  
+  135  0007c 2f09            move.l a1,-(sp)   
+  136  0007e 7000            moveq  #0,d0      
+  137  00080 102f            move.b 25(sp),d0  
+  138  00084 2f00            move.l d0,-(sp)   
+  139  00086 7000            moveq  #0,d0      
+  140  00088 102f            move.b 28(sp),d0  
+  141  0008c 5340            subq.w #1,d0      
+  142  0008e 48c0            ext.l  d0         
+  143  00090 2200            move.l d0,d1      
+  144  00092 326f            movea.w 26(sp),a1  
+  145  00096 2009            move.l a1,d0      
+  146  00098 2268            movea.l 8(a0),a1   
+  147  0009c 4e91            jsr    (a1)       
+  148  0009e 4fef            lea    12(sp),sp  
+  149  000a2 4a80            tst.l  d0         
+  150  000a4 6708            beq.s  L000ae     
+  151  000a6 04af            subi.l #3600,4(sp) 
+  152  000ae 203c L000ae     move.l #-2440587,d0 
+  153  000b4 d097            add.l  (sp),d0    
+  154  000b6 223c            move.l #86400,d1  
+  155  000bc 6100            bsr.w  _T$UMul    
+  156  000c0 d0af            add.l  4(sp),d0   
+  157  000c4 2f40            move.l d0,22(sp)  
+  158  000c8 4aaf            tst.l  26(sp)     
+  159  000cc 6708            beq.s  L000d6     
+  160  000ce 206f            movea.l 26(sp),a0  
+  161  000d2 20af            move.l 22(sp),(a0) 
+  162  000d6 202f L000d6     move.l 22(sp),d0  
+  163  000da 4fef L000da     lea    26(sp),sp  
+  164  000de 4ced            movem.l -12(a5),a0-a1/d1 
+  165  000e4 4e5d            unlk   a5         
+  166  000e6 4e75            rts               
+  167  000e8 4e55 mktime:    link.w a5,#0      
+  168  000ec 48e7            movem.l a0-a2/d0-d2/d4,-(sp) 
+  169  000f0 2440            movea.l d0,a2      
+  170  000f2 518f            subq.l #8,sp      
+  171  000f4 200a            move.l a2,d0      
+  172  000f6 6100            bsr.w  L001fa     
+  173  000fa 7003            moveq  #3,d0      
+  174  000fc b0aa            cmp.l  20(a2),d0  
+  175  00100 6e64            bgt.s  L00166     
+  176  00102 0caa            cmpi.l #137,20(a2) 
+  177  0010a 6e5a            bgt.s  L00166     
+  178  0010c 2f2a            move.l 12(a2),-(sp) 
+  179  00110 222a            move.l 16(a2),d1  
+  180  00114 202a            move.l 20(a2),d0  
+  181  00118 6100            bsr.w  L00368     
+  182  0011c 588f            addq.l #4,sp      
+  183  0011e 2540            move.l d0,28(a2)  
+  184  00122 202a            move.l 8(a2),d0   
+  185  00126 7210            moveq  #16,d1     
+  186  00128 e3a8            lsl.l  d1,d0      
+  187  0012a 242a            move.l 4(a2),d2   
+  188  0012e e18a            lsl.l  #8,d2      
+  189  00130 8082            or.l   d2,d0      
+  190  00132 8092            or.l   (a2),d0    
+  191  00134 2f40            move.l d0,4(sp)   
+  192  00138 203c            move.l #1900,d0   
+  193  0013e d0aa            add.l  20(a2),d0  
+  194  00142 e3a8            lsl.l  d1,d0      
+  195  00144 242a            move.l 16(a2),d2  
+  196  00148 5282            addq.l #1,d2      
+  197  0014a e18a            lsl.l  #8,d2      
+  198  0014c 8082            or.l   d2,d0      
+  199  0014e 80aa            or.l   12(a2),d0  
+  200  00152 2e80            move.l d0,(sp)    
+  201  00154 41d7            lea    (sp),a0    
+  202  00156 2208            move.l a0,d1      
+  203  00158 41ef            lea    4(sp),a0   
+  204  0015c 2008            move.l a0,d0      
+  205  0015e 6100            bsr.w  _julian    
+  206  00162 4a80            tst.l  d0         
+  207  00164 6c06            bge.s  L0016c     
+  208  00166 70ff L00166     moveq  #255,d0    
+  209  00168 6000            bra.w  L001ee     
+  210  0016c 2017 L0016c     move.l (sp),d0    
+  211  0016e 5480            addq.l #2,d0      
+  212  00170 7207            moveq  #7,d1      
+  213  00172 6100            bsr.w  _T$LMod    
+  214  00176 2540            move.l d0,24(a2)  
+  215  0017a 4aae            tst.l  D00000(a6) 
+  216  0017e 6608            bne.s  L00188     
+  217  00180 6100            bsr.w  L00568     
+  218  00184 2d40            move.l d0,D00000(a6) 
+  219  00188 206e L00188     movea.l D00000(a6),a0 
+  220  0018c 2028            move.l 4(a0),d0   
+  221  00190 723c            moveq  #60,d1     
+  222  00192 6100            bsr.w  _T$UMul    
+  223  00196 d1af            add.l  d0,4(sp)   
+  224  0019a 2f2a            move.l 8(a2),-(sp) 
+  225  0019e 2f2a            move.l 24(a2),-(sp) 
+  226  001a2 2f2a            move.l 12(a2),-(sp) 
+  227  001a6 222a            move.l 16(a2),d1  
+  228  001aa 203c            move.l #1900,d0   
+  229  001b0 d0aa            add.l  20(a2),d0  
+  230  001b4 2268            movea.l 8(a0),a1   
+  231  001b8 4e91            jsr    (a1)       
+  232  001ba 4fef            lea    12(sp),sp  
+  233  001be 4a80            tst.l  d0         
+  234  001c0 6712            beq.s  L001d4     
+  235  001c2 04af            subi.l #3600,4(sp) 
+  236  001ca 257c            move.l #1,32(a2)  
+  237  001d2 6004            bra.s  L001d8     
+  238  001d4 42aa L001d4     clr.l  32(a2)     
+  239  001d8 203c L001d8     move.l #-2440587,d0 
+  240  001de d097            add.l  (sp),d0    
+  241  001e0 223c            move.l #86400,d1  
+  242  001e6 6100            bsr.w  _T$UMul    
+  243  001ea d0af            add.l  4(sp),d0   
+  244  001ee 508f L001ee     addq.l #8,sp      
+  245  001f0 4ced            movem.l -24(a5),a0-a2/d1-d2/d4 
+  246  001f6 4e5d            unlk   a5         
+  247  001f8 4e75            rts               
+  248  001fa 4e55 L001fa     link.w a5,#0      
+  249  001fe 48e7            movem.l a0/a2/d0-d1/d4-d6,-(sp) 
+  250  00202 2440            movea.l d0,a2      
+  251  00204 723c            moveq  #60,d1     
+  252  00206 200a            move.l a2,d0      
+  253  00208 6100            bsr.w  L0032a     
+  254  0020c d1aa            add.l  d0,4(a2)   
+  255  00210 723c            moveq  #60,d1     
+  256  00212 200a            move.l a2,d0      
+  257  00214 5880            addq.l #4,d0      
+  258  00216 6100            bsr.w  L0032a     
+  259  0021a d1aa            add.l  d0,8(a2)   
+  260  0021e 7218            moveq  #24,d1     
+  261  00220 200a            move.l a2,d0      
+  262  00222 5080            addq.l #8,d0      
+  263  00224 6100            bsr.w  L0032a     
+  264  00228 2a00            move.l d0,d5      
+  265  0022a d1aa            add.l  d0,28(a2)  
+  266  0022e dbaa            add.l  d5,12(a2)  
+  267  00232 4a85            tst.l  d5         
+  268  00234 6c10            bge.s  L00246     
+  269  00236 2005            move.l d5,d0      
+  270  00238 4480            neg.l  d0         
+  271  0023a 7207            moveq  #7,d1      
+  272  0023c 6100            bsr.w  _T$LMod    
+  273  00240 7207            moveq  #7,d1      
+  274  00242 9280            sub.l  d0,d1      
+  275  00244 2a01            move.l d1,d5      
+  276  00246 202a L00246     move.l 24(a2),d0  
+  277  0024a d085            add.l  d5,d0      
+  278  0024c 7207            moveq  #7,d1      
+  279  0024e 6100            bsr.w  _T$LMod    
+  280  00252 2540            move.l d0,24(a2)  
+  281  00256 720c            moveq  #12,d1     
+  282  00258 7010            moveq  #16,d0     
+  283  0025a d08a            add.l  a2,d0      
+  284  0025c 6100            bsr.w  L0032a     
+  285  00260 d1aa            add.l  d0,20(a2)  
+  286  00264 7c00            moveq  #0,d6      
+  287  00266 7003            moveq  #3,d0      
+  288  00268 c0aa            and.l  20(a2),d0  
+  289  0026c 663e            bne.s  L002ac     
+  290  0026e 701d            moveq  #29,d0     
+  291  00270 6036            bra.s  L002a8     
+  292  00272 202a L00272     move.l 16(a2),d0  
+  293  00276 e588            lsl.l  #2,d0      
+  294  00278 41ee            lea    _00000(a6),a0 
+  295  0027c 2030            move.l (a0,d0.l),d0 
+  296  00280 91aa            sub.l  d0,12(a2)  
+  297  00284 52aa            addq.l #1,16(a2)  
+  298  00288 700b            moveq  #11,d0     
+  299  0028a b0aa            cmp.l  16(a2),d0  
+  300  0028e 6c1c            bge.s  L002ac     
+  301  00290 7c01            moveq  #1,d6      
+  302  00292 42aa            clr.l  16(a2)     
+  303  00296 52aa            addq.l #1,20(a2)  
+  304  0029a 7003            moveq  #3,d0      
+  305  0029c c0aa            and.l  20(a2),d0  
+  306  002a0 6604            bne.s  L002a6     
+  307  002a2 701d            moveq  #29,d0     
+  308  002a4 6002            bra.s  L002a8     
+  309  002a6 701c L002a6     moveq  #28,d0     
+  310  002a8 2d40 L002a8     move.l d0,_00004(a6) 
+  311  002ac 202a L002ac     move.l 16(a2),d0  
+  312  002b0 e588            lsl.l  #2,d0      
+  313  002b2 41ee            lea    _00000(a6),a0 
+  314  002b6 222a            move.l 12(a2),d1  
+  315  002ba b2b0            cmp.l  (a0,d0.l),d1 
+  316  002be 6eb2            bgt.s  L00272     
+  317  002c0 6038            bra.s  L002fa     
+  318  002c2 53aa L002c2     subq.l #1,16(a2)  
+  319  002c6 6c20            bge.s  L002e8     
+  320  002c8 7c01            moveq  #1,d6      
+  321  002ca 257c            move.l #11,16(a2) 
+  322  002d2 53aa            subq.l #1,20(a2)  
+  323  002d6 7003            moveq  #3,d0      
+  324  002d8 c0aa            and.l  20(a2),d0  
+  325  002dc 6604            bne.s  L002e2     
+  326  002de 701d            moveq  #29,d0     
+  327  002e0 6002            bra.s  L002e4     
+  328  002e2 701c L002e2     moveq  #28,d0     
+  329  002e4 2d40 L002e4     move.l d0,_00004(a6) 
+  330  002e8 202a L002e8     move.l 16(a2),d0  
+  331  002ec e588            lsl.l  #2,d0      
+  332  002ee 41ee            lea    _00000(a6),a0 
+  333  002f2 2030            move.l (a0,d0.l),d0 
+  334  002f6 d1aa            add.l  d0,12(a2)  
+  335  002fa 7001 L002fa     moveq  #1,d0      
+  336  002fc b0aa            cmp.l  12(a2),d0  
+  337  00300 6ec0            bgt.s  L002c2     
+  338  00302 4a86            tst.l  d6         
+  339  00304 6714            beq.s  L0031a     
+  340  00306 2f2a            move.l 12(a2),-(sp) 
+  341  0030a 222a            move.l 16(a2),d1  
+  342  0030e 202a            move.l 20(a2),d0  
+  343  00312 6154            bsr.s  L00368     
+  344  00314 588f            addq.l #4,sp      
+  345  00316 2540            move.l d0,28(a2)  
+  346  0031a 701c L0031a     moveq  #28,d0     
+  347  0031c 2d40            move.l d0,_00004(a6) 
+  348  00320 4ced            movem.l -24(a5),a0/a2/d1/d4-d6 
+  349  00326 4e5d            unlk   a5         
+  350  00328 4e75            rts               
+  351  0032a 4e55 L0032a     link.w a5,#0      
+  352  0032e 48e7            movem.l a0/d0-d1/d4,-(sp) 
+  353  00332 7800            moveq  #0,d4      
+  354  00334 600a            bra.s  L00340     
+  355  00336 5284 L00336     addq.l #1,d4      
+  356  00338 202f            move.l 4(sp),d0   
+  357  0033c 2057            movea.l (sp),a0    
+  358  0033e 9190            sub.l  d0,(a0)    
+  359  00340 2057 L00340     movea.l (sp),a0    
+  360  00342 202f            move.l 4(sp),d0   
+  361  00346 b090            cmp.l  (a0),d0    
+  362  00348 6fec            ble.s  L00336     
+  363  0034a 600a            bra.s  L00356     
+  364  0034c 5384 L0034c     subq.l #1,d4      
+  365  0034e 202f            move.l 4(sp),d0   
+  366  00352 2057            movea.l (sp),a0    
+  367  00354 d190            add.l  d0,(a0)    
+  368  00356 2057 L00356     movea.l (sp),a0    
+  369  00358 4a90            tst.l  (a0)       
+  370  0035a 6df0            blt.s  L0034c     
+  371  0035c 2004            move.l d4,d0      
+  372  0035e 4ced            movem.l -8(a5),a0/d4 
+  373  00364 4e5d            unlk   a5         
+  374  00366 4e75            rts               
+  375  00368 4e55 L00368     link.w a5,#0      
+  376  0036c 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
+  377  00370 2800            move.l d0,d4      
+  378  00372 2a01            move.l d1,d5      
+  379  00374 2c2f            move.l 36(sp),d6  
+  380  00378 7003            moveq  #3,d0      
+  381  0037a c084            and.l  d4,d0      
+  382  0037c 6606            bne.s  L00384     
+  383  0037e 701d            moveq  #29,d0     
+  384  00380 2d40            move.l d0,_00004(a6) 
+  385  00384 2006 L00384     move.l d6,d0      
+  386  00386 5380            subq.l #1,d0      
+  387  00388 2e00            move.l d0,d7      
+  388  0038a 600c            bra.s  L00398     
+  389  0038c 2005 L0038c     move.l d5,d0      
+  390  0038e e588            lsl.l  #2,d0      
+  391  00390 41ee            lea    _00000(a6),a0 
+  392  00394 deb0            add.l  (a0,d0.l),d7 
+  393  00398 5385 L00398     subq.l #1,d5      
+  394  0039a 6ef0            bgt.s  L0038c     
+  395  0039c 701c            moveq  #28,d0     
+  396  0039e 2d40            move.l d0,_00004(a6) 
+  397  003a2 2007            move.l d7,d0      
+  398  003a4 4ced            movem.l -20(a5),a0/d4-d7 
+  399  003aa 4e5d            unlk   a5         
+  400  003ac 4e75            rts               
+  401  003ae 4e55 localtime: link.w a5,#0      
+  402  003b2 48e7            movem.l a0/a2/d0-d1,-(sp) 
+  403  003b6 4a97            tst.l  (sp)       
+  404  003b8 6604            bne.s  L003be     
+  405  003ba 7000            moveq  #0,d0      
+  406  003bc 6066            bra.s  L00424     
+  407  003be 2017 L003be     move.l (sp),d0    
+  408  003c0 616c            bsr.s  gmtime     
+  409  003c2 2440            movea.l d0,a2      
+  410  003c4 4aae            tst.l  D00000(a6) 
+  411  003c8 6608            bne.s  L003d2     
+  412  003ca 6100            bsr.w  L00568     
+  413  003ce 2d40            move.l d0,D00000(a6) 
+  414  003d2 206e L003d2     movea.l D00000(a6),a0 
+  415  003d6 2028            move.l 4(a0),d0   
+  416  003da 91aa            sub.l  d0,4(a2)   
+  417  003de 200a            move.l a2,d0      
+  418  003e0 6100            bsr.w  L001fa     
+  419  003e4 2f2a            move.l 8(a2),-(sp) 
+  420  003e8 2f2a            move.l 24(a2),-(sp) 
+  421  003ec 2f2a            move.l 12(a2),-(sp) 
+  422  003f0 222a            move.l 16(a2),d1  
+  423  003f4 203c            move.l #1900,d0   
+  424  003fa d0aa            add.l  20(a2),d0  
+  425  003fe 206e            movea.l D00000(a6),a0 
+  426  00402 2068            movea.l 8(a0),a0   
+  427  00406 4e90            jsr    (a0)       
+  428  00408 4fef            lea    12(sp),sp  
+  429  0040c 4a80            tst.l  d0         
+  430  0040e 6712            beq.s  L00422     
+  431  00410 52aa            addq.l #1,8(a2)   
+  432  00414 200a            move.l a2,d0      
+  433  00416 6100            bsr.w  L001fa     
+  434  0041a 257c            move.l #1,32(a2)  
+  435  00422 200a L00422     move.l a2,d0      
+  436  00424 4ced L00424     movem.l -12(a5),a0/a2/d1 
+  437  0042a 4e5d            unlk   a5         
+  438  0042c 4e75            rts               
+  439  0042e 4e55 gmtime:    link.w a5,#0      
+  440  00432 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
+  441  00436 598f            subq.l #4,sp      
+  442  00438 4aaf            tst.l  4(sp)      
+  443  0043c 6606            bne.s  L00444     
+  444  0043e 7000            moveq  #0,d0      
+  445  00440 6000            bra.w  L0055c     
+  446  00444 206f L00444     movea.l 4(sp),a0   
+  447  00448 2810            move.l (a0),d4    
+  448  0044a 2004            move.l d4,d0      
+  449  0044c 223c            move.l #86400,d1  
+  450  00452 6100            bsr.w  _T$LDiv    
+  451  00456 0680            addi.l #$00253d8b,d0 
+  452  0045c 2e80            move.l d0,(sp)    
+  453  0045e 2017            move.l (sp),d0    
+  454  00460 5480            addq.l #2,d0      
+  455  00462 7207            moveq  #7,d1      
+  456  00464 6100            bsr.w  _T$LMod    
+  457  00468 2d40            move.l d0,D0001c(a6) 
+  458  0046c 2a3c            move.l #1970,d5   
+  459  00472 6004            bra.s  L00478     
+  460  00474 9886 L00474     sub.l  d6,d4      
+  461  00476 5285            addq.l #1,d5      
+  462  00478 7003 L00478     moveq  #3,d0      
+  463  0047a c085            and.l  d5,d0      
+  464  0047c 6608            bne.s  L00486     
+  465  0047e 203c            move.l #31622400,d0 
+  466  00484 6006            bra.s  L0048c     
+  467  00486 203c L00486     move.l #31536000,d0 
+  468  0048c 2c00 L0048c     move.l d0,d6      
+  469  0048e b084            cmp.l  d4,d0      
+  470  00490 6fe2            ble.s  L00474     
+  471  00492 6018            bra.s  L004ac     
+  472  00494 5385 L00494     subq.l #1,d5      
+  473  00496 7003            moveq  #3,d0      
+  474  00498 c085            and.l  d5,d0      
+  475  0049a 6608            bne.s  L004a4     
+  476  0049c 203c            move.l #31622400,d0 
+  477  004a2 6006            bra.s  L004aa     
+  478  004a4 203c L004a4     move.l #31536000,d0 
+  479  004aa d880 L004aa     add.l  d0,d4      
+  480  004ac 4a84 L004ac     tst.l  d4         
+  481  004ae 6de4            blt.s  L00494     
+  482  004b0 203c            move.l #-1900,d0  
+  483  004b6 d085            add.l  d5,d0      
+  484  004b8 2d40            move.l d0,D00018(a6) 
+  485  004bc 2004            move.l d4,d0      
+  486  004be 223c            move.l #86400,d1  
+  487  004c4 6100            bsr.w  _T$LDiv    
+  488  004c8 2d40            move.l d0,D00020(a6) 
+  489  004cc 223c            move.l #86400,d1  
+  490  004d2 2004            move.l d4,d0      
+  491  004d4 6100            bsr.w  _T$LMod    
+  492  004d8 2800            move.l d0,d4      
+  493  004da 2004            move.l d4,d0      
+  494  004dc 223c            move.l #3600,d1   
+  495  004e2 6100            bsr.w  _T$LDiv    
+  496  004e6 2d40            move.l d0,D0000c(a6) 
+  497  004ea 223c            move.l #3600,d1   
+  498  004f0 2004            move.l d4,d0      
+  499  004f2 6100            bsr.w  _T$LMod    
+  500  004f6 2800            move.l d0,d4      
+  501  004f8 2004            move.l d4,d0      
+  502  004fa 723c            moveq  #60,d1     
+  503  004fc 6100            bsr.w  _T$LDiv    
+  504  00500 2d40            move.l d0,D00008(a6) 
+  505  00504 2004            move.l d4,d0      
+  506  00506 723c            moveq  #60,d1     
+  507  00508 6100            bsr.w  _T$LMod    
+  508  0050c 2d40            move.l d0,D00004(a6) 
+  509  00510 42ae            clr.l  D00024(a6) 
+  510  00514 7003            moveq  #3,d0      
+  511  00516 c085            and.l  d5,d0      
+  512  00518 6606            bne.s  L00520     
+  513  0051a 701d            moveq  #29,d0     
+  514  0051c 2d40            move.l d0,_00004(a6) 
+  515  00520 282e L00520     move.l D00020(a6),d4 
+  516  00524 7e00            moveq  #0,d7      
+  517  00526 600e            bra.s  L00536     
+  518  00528 2007 L00528     move.l d7,d0      
+  519  0052a e588            lsl.l  #2,d0      
+  520  0052c 41ee            lea    _00000(a6),a0 
+  521  00530 98b0            sub.l  (a0,d0.l),d4 
+  522  00534 5287            addq.l #1,d7      
+  523  00536 2007 L00536     move.l d7,d0      
+  524  00538 e588            lsl.l  #2,d0      
+  525  0053a 41ee            lea    _00000(a6),a0 
+  526  0053e b8b0            cmp.l  (a0,d0.l),d4 
+  527  00542 6ce4            bge.s  L00528     
+  528  00544 2d47            move.l d7,D00014(a6) 
+  529  00548 2004            move.l d4,d0      
+  530  0054a 5280            addq.l #1,d0      
+  531  0054c 2d40            move.l d0,D00010(a6) 
+  532  00550 701c            moveq  #28,d0     
+  533  00552 2d40            move.l d0,_00004(a6) 
+  534  00556 41ee            lea    D00004(a6),a0 
+  535  0055a 2008            move.l a0,d0      
+  536  0055c 588f L0055c     addq.l #4,sp      
+  537  0055e 4ced            movem.l -24(a5),a0/d1/d4-d7 
+  538  00564 4e5d            unlk   a5         
+  539  00566 4e75            rts               
+  540  00568 4e55 L00568     link.w a5,#0      
+  541  0056c 48e7            movem.l a0-a1/d0-d1,-(sp) 
+  542  00570 4fef            lea    -28(sp),sp 
+  543  00574 41fa            lea    L00980(pc),a0 
+  544  00578 2008            move.l a0,d0      
+  545  0057a 6100            bsr.w  getenv     
+  546  0057e 2f40            move.l d0,24(sp)  
+  547  00582 4aaf            tst.l  24(sp)     
+  548  00586 6700            beq.w  L006e6     
+  549  0058a 41ef            lea    4(sp),a0   
+  550  0058e 2f48            move.l a0,20(sp)  
+  551  00592 6012            bra.s  L005a6     
+  552  00594 206f L00594     movea.l 24(sp),a0  
+  553  00598 52af            addq.l #1,24(sp)  
+  554  0059c 226f            movea.l 20(sp),a1  
+  555  005a0 52af            addq.l #1,20(sp)  
+  556  005a4 1290            move.b (a0),(a1)  
+  557  005a6 206f L005a6     movea.l 24(sp),a0  
+  558  005aa 1010            move.b (a0),d0    
+  559  005ac 4880            ext.w  d0         
+  560  005ae 0c40            cmpi.w #45,d0     
+  561  005b2 6714            beq.s  L005c8     
+  562  005b4 620c            bhi.s  L005c2     
+  563  005b6 0c00            cmpi.b #43,d0     
+  564  005ba 670c            beq.s  L005c8     
+  565  005bc 62d6            bhi.s  L00594     
+  566  005be 4a00            tst.b  d0         
+  567  005c0 6004            bra.s  L005c6     
+  568  005c2 0c40 L005c2     cmpi.w #58,d0     
+  569  005c6 66cc L005c6     bne.s  L00594     
+  570  005c8 206f L005c8     movea.l 20(sp),a0  
+  571  005cc 4210            clr.b  (a0)       
+  572  005ce 41ee            lea    _00034(a6),a0 
+  573  005d2 2e88            move.l a0,(sp)    
+  574  005d4 6018            bra.s  L005ee     
+  575  005d6 2057 L005d6     movea.l (sp),a0    
+  576  005d8 2210            move.l (a0),d1    
+  577  005da 41ef            lea    4(sp),a0   
+  578  005de 2008            move.l a0,d0      
+  579  005e0 6100            bsr.w  strcmp     
+  580  005e4 4a80            tst.l  d0         
+  581  005e6 670c            beq.s  L005f4     
+  582  005e8 0697            addi.l #$0000000c,(sp) 
+  583  005ee 2057 L005ee     movea.l (sp),a0    
+  584  005f0 4a90            tst.l  (a0)       
+  585  005f2 66e2            bne.s  L005d6     
+  586  005f4 2057 L005f4     movea.l (sp),a0    
+  587  005f6 4a90            tst.l  (a0)       
+  588  005f8 6700            beq.w  L006e6     
+  589  005fc 42af            clr.l  12(sp)     
+  590  00600 42af            clr.l  16(sp)     
+  591  00604 605a            bra.s  L00660     
+  592  00606 2017 L00606     move.l (sp),d0    
+  593  00608 6000            bra.w  L00716     
+  594  0060c 7001 L0060c     moveq  #1,d0      
+  595  0060e 2f40            move.l d0,12(sp)  
+  596  00612 601e            bra.s  L00632     
+  597  00614 202f L00614     move.l 16(sp),d0  
+  598  00618 720a            moveq  #10,d1     
+  599  0061a 6100            bsr.w  _T$UMul    
+  600  0061e 206f            movea.l 24(sp),a0  
+  601  00622 1210            move.b (a0),d1    
+  602  00624 4881            ext.w  d1         
+  603  00626 0441            subi.w #48,d1     
+  604  0062a 48c1            ext.l  d1         
+  605  0062c d081            add.l  d1,d0      
+  606  0062e 2f40            move.l d0,16(sp)  
+  607  00632 52af L00632     addq.l #1,24(sp)  
+  608  00636 206f            movea.l 24(sp),a0  
+  609  0063a 0c10            cmpi.b #48,(a0)   
+  610  0063e 6d0a            blt.s  L0064a     
+  611  00640 206f            movea.l 24(sp),a0  
+  612  00644 0c10            cmpi.b #57,(a0)   
+  613  00648 6fca            ble.s  L00614     
+  614  0064a 4aaf L0064a     tst.l  12(sp)     
+  615  0064e 6600            bne.w  L006ec     
+  616  00652 202f            move.l 16(sp),d0  
+  617  00656 4480            neg.l  d0         
+  618  00658 2f40            move.l d0,16(sp)  
+  619  0065c 6000            bra.w  L006ec     
+  620  00660 206f L00660     movea.l 24(sp),a0  
+  621  00664 1010            move.b (a0),d0    
+  622  00666 4880            ext.w  d0         
+  623  00668 0c40            cmpi.w #255,d0    
+  624  0066c 6200            bhi.w  L006ec     
+  625  00670 4a00            tst.b  d0         
+  626  00672 6792            beq.s  L00606     
+  627  00674 0c00            cmpi.b #43,d0     
+  628  00678 67b8            beq.s  L00632     
+  629  0067a 0c00            cmpi.b #45,d0     
+  630  0067e 678c            beq.s  L0060c     
+  631  00680 606a            bra.s  L006ec     
+  632  00682 2057 L00682     movea.l (sp),a0    
+  633  00684 2d68            move.l 8(a0),D00030(a6) 
+  634  0068a 6000            bra.w  L00702     
+  635  0068e 52af L0068e     addq.l #1,24(sp)  
+  636  00692 41fa            lea    L00983(pc),a0 
+  637  00696 2208            move.l a0,d1      
+  638  00698 202f            move.l 24(sp),d0  
+  639  0069c 6100            bsr.w  strcmp     
+  640  006a0 4a80            tst.l  d0         
+  641  006a2 660a            bne.s  L006ae     
+  642  006a4 41fa            lea    L00744(pc),a0 
+  643  006a8 2d48            move.l a0,D00030(a6) 
+  644  006ac 6054            bra.s  L00702     
+  645  006ae 41fa L006ae     lea    L00987(pc),a0 
+  646  006b2 2208            move.l a0,d1      
+  647  006b4 202f            move.l 24(sp),d0  
+  648  006b8 6100            bsr.w  strcmp     
+  649  006bc 4a80            tst.l  d0         
+  650  006be 660a            bne.s  L006ca     
+  651  006c0 41fa            lea    L00848(pc),a0 
+  652  006c4 2d48            move.l a0,D00030(a6) 
+  653  006c8 6038            bra.s  L00702     
+  654  006ca 41fa L006ca     lea    L0098b(pc),a0 
+  655  006ce 2208            move.l a0,d1      
+  656  006d0 202f            move.l 24(sp),d0  
+  657  006d4 6100            bsr.w  strcmp     
+  658  006d8 4a80            tst.l  d0         
+  659  006da 660a            bne.s  L006e6     
+  660  006dc 41fa            lea    L00724(pc),a0 
+  661  006e0 2d48            move.l a0,D00030(a6) 
+  662  006e4 601c            bra.s  L00702     
+  663  006e6 202e L006e6     move.l _000f4(a6),d0 
+  664  006ea 602a            bra.s  L00716     
+  665  006ec 206f L006ec     movea.l 24(sp),a0  
+  666  006f0 1010            move.b (a0),d0    
+  667  006f2 4880            ext.w  d0         
+  668  006f4 4a40            tst.w  d0         
+  669  006f6 6700            beq.w  L00682     
+  670  006fa 0c40            cmpi.w #58,d0     
+  671  006fe 678e            beq.s  L0068e     
+  672  00700 60e4            bra.s  L006e6     
+  673  00702 2057 L00702     movea.l (sp),a0    
+  674  00704 2028            move.l 4(a0),d0   
+  675  00708 d0af            add.l  16(sp),d0  
+  676  0070c 2d40            move.l d0,D0002c(a6) 
+  677  00710 41ee            lea    D00028(a6),a0 
+  678  00714 2008            move.l a0,d0      
+  679  00716 4fef L00716     lea    28(sp),sp  
+  680  0071a 4ced            movem.l -12(a5),a0-a1/d1 
+  681  00720 4e5d            unlk   a5         
+  682  00722 4e75            rts               
+  683  00724 4e55 L00724     link.w a5,#0      
+  684  00728 48e7            movem.l d0-d1/d4-d7,-(sp) 
+  685  0072c 2800            move.l d0,d4      
+  686  0072e 2a01            move.l d1,d5      
+  687  00730 2c2f            move.l 32(sp),d6  
+  688  00734 2e2f            move.l 36(sp),d7  
+  689  00738 7000            moveq  #0,d0      
+  690  0073a 4ced            movem.l -16(a5),d4-d7 
+  691  00740 4e5d            unlk   a5         
+  692  00742 4e75            rts               
+  693  00744 4e55 L00744     link.w a5,#0      
+  694  00748 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
+  695  0074c 2800            move.l d0,d4      
+  696  0074e 2a01            move.l d1,d5      
+  697  00750 2c2f            move.l 36(sp),d6  
+  698  00754 2e2f            move.l 40(sp),d7  
+  699  00758 4fef            lea    -20(sp),sp 
+  700  0075c 0c84            cmpi.l #1967,d4   
+  701  00762 6d00            blt.w  L00834     
+  702  00766 0c84            cmpi.l #1974,d4   
+  703  0076c 6708            beq.s  L00776     
+  704  0076e 0c84            cmpi.l #1975,d4   
+  705  00774 662a            bne.s  L007a0     
+  706  00776 203c L00776     move.l #-1974,d0  
+  707  0077c d084            add.l  d4,d0      
+  708  0077e e788            lsl.l  #3,d0      
+  709  00780 41ee            lea    _000f8(a6),a0 
+  710  00784 2f70            move.l 4(a0,d0.l),12(sp) 
+  711  0078a 203c            move.l #-1974,d0  
+  712  00790 d084            add.l  d4,d0      
+  713  00792 e788            lsl.l  #3,d0      
+  714  00794 41ee            lea    _000f8(a6),a0 
+  715  00798 2f70            move.l (a0,d0.l),16(sp) 
+  716  0079e 601a            bra.s  L007ba     
+  717  007a0 0c84 L007a0     cmpi.l #1987,d4   
+  718  007a6 6c06            bge.s  L007ae     
+  719  007a8 42af            clr.l  12(sp)     
+  720  007ac 6006            bra.s  L007b4     
+  721  007ae 7001 L007ae     moveq  #1,d0      
+  722  007b0 2f40            move.l d0,12(sp)  
+  723  007b4 7003 L007b4     moveq  #3,d0      
+  724  007b6 2f40            move.l d0,16(sp)  
+  725  007ba 42af L007ba     clr.l  4(sp)      
+  726  007be 7009            moveq  #9,d0      
+  727  007c0 2f40            move.l d0,8(sp)   
+  728  007c4 baaf            cmp.l  16(sp),d5  
+  729  007c8 6d00            blt.w  L00834     
+  730  007cc baaf            cmp.l  8(sp),d5   
+  731  007d0 6e62            bgt.s  L00834     
+  732  007d2 baaf            cmp.l  16(sp),d5  
+  733  007d6 662c            bne.s  L00804     
+  734  007d8 2f07            move.l d7,-(sp)   
+  735  007da 2f06            move.l d6,-(sp)   
+  736  007dc 2f04            move.l d4,-(sp)   
+  737  007de 222f            move.l 28(sp),d1  
+  738  007e2 202f            move.l 24(sp),d0  
+  739  007e6 6100            bsr.w  L008d2     
+  740  007ea 4fef            lea    12(sp),sp  
+  741  007ee 2e80            move.l d0,(sp)    
+  742  007f0 bc97            cmp.l  (sp),d6    
+  743  007f2 660a            bne.s  L007fe     
+  744  007f4 7002            moveq  #2,d0      
+  745  007f6 b0af            cmp.l  64(sp),d0  
+  746  007fa 6e38            bgt.s  L00834     
+  747  007fc 603a            bra.s  L00838     
+  748  007fe bc97 L007fe     cmp.l  (sp),d6    
+  749  00800 6f32            ble.s  L00834     
+  750  00802 6034            bra.s  L00838     
+  751  00804 baaf L00804     cmp.l  8(sp),d5   
+  752  00808 662e            bne.s  L00838     
+  753  0080a 2f07            move.l d7,-(sp)   
+  754  0080c 2f06            move.l d6,-(sp)   
+  755  0080e 2f04            move.l d4,-(sp)   
+  756  00810 222f            move.l 20(sp),d1  
+  757  00814 202f            move.l 16(sp),d0  
+  758  00818 6100            bsr.w  L008d2     
+  759  0081c 4fef            lea    12(sp),sp  
+  760  00820 2e80            move.l d0,(sp)    
+  761  00822 bc97            cmp.l  (sp),d6    
+  762  00824 660a            bne.s  L00830     
+  763  00826 7002            moveq  #2,d0      
+  764  00828 b0af            cmp.l  64(sp),d0  
+  765  0082c 6f06            ble.s  L00834     
+  766  0082e 6008            bra.s  L00838     
+  767  00830 bc97 L00830     cmp.l  (sp),d6    
+  768  00832 6d04            blt.s  L00838     
+  769  00834 7000 L00834     moveq  #0,d0      
+  770  00836 6002            bra.s  L0083a     
+  771  00838 7001 L00838     moveq  #1,d0      
+  772  0083a 4fef L0083a     lea    20(sp),sp  
+  773  0083e 4ced            movem.l -20(a5),a0/d4-d7 
+  774  00844 4e5d            unlk   a5         
+  775  00846 4e75            rts               
+  776  00848 4e55 L00848     link.w a5,#0      
+  777  0084c 48e7            movem.l d0-d1/d4-d7,-(sp) 
+  778  00850 2800            move.l d0,d4      
+  779  00852 2a01            move.l d1,d5      
+  780  00854 2c2f            move.l 32(sp),d6  
+  781  00858 2e2f            move.l 36(sp),d7  
+  782  0085c 598f            subq.l #4,sp      
+  783  0085e 7002            moveq  #2,d0      
+  784  00860 b085            cmp.l  d5,d0      
+  785  00862 6e5c            bgt.s  L008c0     
+  786  00864 7008            moveq  #8,d0      
+  787  00866 b085            cmp.l  d5,d0      
+  788  00868 6d56            blt.s  L008c0     
+  789  0086a 7002            moveq  #2,d0      
+  790  0086c b085            cmp.l  d5,d0      
+  791  0086e 6626            bne.s  L00896     
+  792  00870 2f07            move.l d7,-(sp)   
+  793  00872 2f06            move.l d6,-(sp)   
+  794  00874 2f04            move.l d4,-(sp)   
+  795  00876 7202            moveq  #2,d1      
+  796  00878 7000            moveq  #0,d0      
+  797  0087a 6156            bsr.s  L008d2     
+  798  0087c 4fef            lea    12(sp),sp  
+  799  00880 2e80            move.l d0,(sp)    
+  800  00882 bc97            cmp.l  (sp),d6    
+  801  00884 660a            bne.s  L00890     
+  802  00886 7002            moveq  #2,d0      
+  803  00888 b0af            cmp.l  44(sp),d0  
+  804  0088c 6e32            bgt.s  L008c0     
+  805  0088e 6034            bra.s  L008c4     
+  806  00890 bc97 L00890     cmp.l  (sp),d6    
+  807  00892 6f2c            ble.s  L008c0     
+  808  00894 602e            bra.s  L008c4     
+  809  00896 7008 L00896     moveq  #8,d0      
+  810  00898 b085            cmp.l  d5,d0      
+  811  0089a 6628            bne.s  L008c4     
+  812  0089c 2f07            move.l d7,-(sp)   
+  813  0089e 2f06            move.l d6,-(sp)   
+  814  008a0 2f04            move.l d4,-(sp)   
+  815  008a2 7208            moveq  #8,d1      
+  816  008a4 7000            moveq  #0,d0      
+  817  008a6 612a            bsr.s  L008d2     
+  818  008a8 4fef            lea    12(sp),sp  
+  819  008ac 2e80            move.l d0,(sp)    
+  820  008ae bc97            cmp.l  (sp),d6    
+  821  008b0 660a            bne.s  L008bc     
+  822  008b2 7002            moveq  #2,d0      
+  823  008b4 b0af            cmp.l  44(sp),d0  
+  824  008b8 6f06            ble.s  L008c0     
+  825  008ba 6008            bra.s  L008c4     
+  826  008bc bc97 L008bc     cmp.l  (sp),d6    
+  827  008be 6d04            blt.s  L008c4     
+  828  008c0 7000 L008c0     moveq  #0,d0      
+  829  008c2 6002            bra.s  L008c6     
+  830  008c4 7001 L008c4     moveq  #1,d0      
+  831  008c6 588f L008c6     addq.l #4,sp      
+  832  008c8 4ced            movem.l -16(a5),d4-d7 
+  833  008ce 4e5d            unlk   a5         
+  834  008d0 4e75            rts               
+  835  008d2 4e55 L008d2     link.w a5,#0      
+  836  008d6 48e7            movem.l a0/d0-d1/d4-d7,-(sp) 
+  837  008da 7003            moveq  #3,d0      
+  838  008dc c0af            and.l  36(sp),d0  
+  839  008e0 6606            bne.s  L008e8     
+  840  008e2 701d            moveq  #29,d0     
+  841  008e4 2d40            move.l d0,_00004(a6) 
+  842  008e8 202f L008e8     move.l 40(sp),d0  
+  843  008ec 90af            sub.l  44(sp),d0  
+  844  008f0 2a00            move.l d0,d5      
+  845  008f2 7001            moveq  #1,d0      
+  846  008f4 b085            cmp.l  d5,d0      
+  847  008f6 6f02            ble.s  L008fa     
+  848  008f8 5e85            addq.l #7,d5      
+  849  008fa 2005 L008fa     move.l d5,d0      
+  850  008fc 5380            subq.l #1,d0      
+  851  008fe 7207            moveq  #7,d1      
+  852  00900 6100            bsr.w  _T$LDiv    
+  853  00904 5280            addq.l #1,d0      
+  854  00906 2c00            move.l d0,d6      
+  855  00908 4a97            tst.l  (sp)       
+  856  0090a 661a            bne.s  L00926     
+  857  0090c 202f            move.l 4(sp),d0   
+  858  00910 e588            lsl.l  #2,d0      
+  859  00912 41ee            lea    _00000(a6),a0 
+  860  00916 2e30            move.l (a0,d0.l),d7 
+  861  0091a 6002            bra.s  L0091e     
+  862  0091c 5e85 L0091c     addq.l #7,d5      
+  863  0091e ba87 L0091e     cmp.l  d7,d5      
+  864  00920 6ffa            ble.s  L0091c     
+  865  00922 5f85            subq.l #7,d5      
+  866  00924 600c            bra.s  L00932     
+  867  00926 2017 L00926     move.l (sp),d0    
+  868  00928 9086            sub.l  d6,d0      
+  869  0092a 7207            moveq  #7,d1      
+  870  0092c 6100            bsr.w  _T$UMul    
+  871  00930 da80            add.l  d0,d5      
+  872  00932 701c L00932     moveq  #28,d0     
+  873  00934 2d40            move.l d0,_00004(a6) 
+  874  00938 2005            move.l d5,d0      
+  875  0093a 4ced            movem.l -20(a5),a0/d4-d7 
+  876  00940 4e5d            unlk   a5         
+  877  00942 4e75            rts               
+  878  00944 5053 L00944     addq.w #8,(a3)    
+  879  00946 5400            addq.b #2,d0      
+  880  00948 5044 L00948     addq.w #8,d4      
+  881  0094a 5400            addq.b #2,d0      
+  882  0094c 4d53 L0094c     dc.w   $4d53      
+  883  0094e 5400            addq.b #2,d0      
+  884  00950 4d44 L00950     dc.w   $4d44      
+  885  00952 5400            addq.b #2,d0      
+  886  00954 4353 L00954     dc.w   $4353      
+  887  00956 5400            addq.b #2,d0      
+  888  00958 4344 L00958     dc.w   $4344      
+  889  0095a 5400            addq.b #2,d0      
+  890  0095c 4553 L0095c     dc.w   $4553      
+  891  0095e 5400            addq.b #2,d0      
+  892  00960 4544 L00960     dc.w   $4544      
+  893  00962 5400            addq.b #2,d0      
+  894  00964 5953 L00964     subq.w #4,(a3)    
+  895  00966 5400            addq.b #2,d0      
+  896  00968 4153 L00968     dc.w   $4153      
+  897  0096a 5400            addq.b #2,d0      
+  898  0096c 5745 L0096c     subq.w #3,d5      
+  899  0096e 5400            addq.b #2,d0      
+  900  00970 4345 L00970     dc.w   $4345      
+  901  00972 5400            addq.b #2,d0      
+  902  00974 4545 L00974     dc.w   $4545      
+  903  00976 5400            addq.b #2,d0      
+  904  00978 474d L00978     dc.w   $474d      
+  905  0097a 5400            addq.b #2,d0      
+  906  0097c 5554 L0097c     subq.w #2,(a4)    
+  907  0097e 4300            dc.w   $4300      
+  908  00980 545a L00980     addq.w #2,(a2)+   
+  909  00982 0075            ori.w  #$7361,101(a5,d0.w) 
+  910  00983 0000 L00983     equ    *-5        
+  911  00987 0000 L00987     equ    *-1        
+  912  00988 7572            dc.w   $7572      
+  913  0098a 006e            dc.w   $006e      
+  914  0098b 0000 L0098b     equ    *-1        
+  915  0098c 6f00            dc.w   $6f00      
+  916
+  917  0098e 0000            ends              
+  918

@@ -14,17 +14,17 @@
    13
    14
    15  00000 0000            ends              
-   15
-   16  00000 4e55 _iobinit:  link.w a5,#0      
-   17  00004 48e7            movem.l d0,-(sp)   
-   18  00008 3d7c            move.w #65,D0000c(a6) 
-   19  0000e 426e            clr.w  D0000e(a6) 
-   20  00012 3d7c            move.w #2,D00028(a6) 
-   21  00018 3d7c            move.w #1,D0002a(a6) 
-   22  0001e 3d7c            move.w #2,D00044(a6) 
-   23  00024 3d7c            move.w #2,D00046(a6) 
-   24  0002a 4e5d            unlk   a5         
-   25  0002c 4e75            rts               
-   26
-   27  0002e 0000            ends              
+   16
+   17  00000 4e55 _iobinit:  link.w a5,#0      
+   18  00004 48e7            movem.l d0,-(sp)   
+   19  00008 3d7c            move.w #65,D0000c(a6) 
+   20  0000e 426e            clr.w  D0000e(a6) 
+   21  00012 3d7c            move.w #2,D00028(a6) 
+   22  00018 3d7c            move.w #1,D0002a(a6) 
+   23  0001e 3d7c            move.w #2,D00044(a6) 
+   24  00024 3d7c            move.w #2,D00046(a6) 
+   25  0002a 4e5d            unlk   a5         
+   26  0002c 4e75            rts               
    27
+   28  0002e 0000            ends              
+   29

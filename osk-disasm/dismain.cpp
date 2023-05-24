@@ -508,10 +508,8 @@ int dopass(int Pass, struct options* opt)
             readOpword(&Instruction, &parseState);
             if (Pass == 2)
             {
-                strcpy(Instruction.mnem, "dc.w");
-                Instruction.setSource(
-                    LiteralParam(FormattedNumber(Instruction.cmd_wrd & 0xFFFF, OperandSize::Word, &LITERAL_HEX_SPACE), false));
-                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
+                auto formatted = FormattedNumber(Instruction.cmd_wrd & 0xFFFF, OperandSize::Word, &LITERAL_HEX_SPACE);
+                PrintDirective("", "dc.w", formatted, parseState.CmdEnt, parseState.PCPos, opt, &CODE_SPACE);
                 parseState.CmdEnt = parseState.PCPos;
             }
         }

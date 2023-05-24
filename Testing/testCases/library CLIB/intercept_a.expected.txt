@@ -8,19 +8,19 @@
     7
     8
     9  00000 0000            ends              
-    9
-   10  00000 4e55 intercept: link.w a5,#0      
-   11  00004 48e7            movem.l a0/d1-d2,-(sp) 
-   12  00008 41fa            lea    L0001c(pc),a0 
-   13  0000c 2d40            move.l d0,D00000(a6) 
-   14  00010 6602            bne.s  L00014     
-   15  00012 2040            movea.l d0,a0      
-   16  00014 4e40 L00014     os9    F$Icpt     
-   17  00018 6000            bra.w  _sysret    
-   18  0001c 2001 L0001c     move.l d1,d0      
-   19  0001e 206e            movea.l D00000(a6),a0 
-   20  00022 4e90            jsr    (a0)       
-   21  00024 4e40            os9    F$RTE      
-   22
-   23  00028 0000            ends              
+   10
+   11  00000 4e55 intercept: link.w a5,#0      
+   12  00004 48e7            movem.l a0/d1-d2,-(sp) 
+   13  00008 41fa            lea    L0001c(pc),a0 
+   14  0000c 2d40            move.l d0,D00000(a6) 
+   15  00010 6602            bne.s  L00014     
+   16  00012 2040            movea.l d0,a0      
+   17  00014 4e40 L00014     os9    F$Icpt     
+   18  00018 6000            bra.w  _sysret    
+   19  0001c 2001 L0001c     move.l d1,d0      
+   20  0001e 206e            movea.l D00000(a6),a0 
+   21  00022 4e90            jsr    (a0)       
+   22  00024 4e40            os9    F$RTE      
    23
+   24  00028 0000            ends              
+   25

@@ -8,44 +8,44 @@
     7
     8
     9  00004 0000            ends              
-    9
-   10  00000 4e55 _errmsg:   link.w a5,#0      
-   11  00004 48e7            movem.l a0/d0-d1,-(sp) 
-   12  00008 41ee            lea    _iob+28(a6),a0 
-   13  0000c 2008            move.l a0,d0      
-   14  0000e 6100            bsr.w  fflush     
-   15  00012 6148            bsr.s  _prgname   
-   16  00014 2f00            move.l d0,-(sp)   
-   17  00016 41fa            lea    L0006c(pc),a0 
-   18  0001a 2208            move.l a0,d1      
-   19  0001c 41ee            lea    _iob+56(a6),a0 
-   20  00020 2008            move.l a0,d0      
-   21  00022 6100            bsr.w  fprintf    
-   22  00026 588f            addq.l #4,sp      
-   23  00028 2f2f            move.l 28(sp),-(sp) 
-   24  0002c 2f2f            move.l 28(sp),-(sp) 
-   25  00030 2f2f            move.l 28(sp),-(sp) 
-   26  00034 222f            move.l 16(sp),d1  
-   27  00038 41ee            lea    _iob+56(a6),a0 
-   28  0003c 2008            move.l a0,d0      
-   29  0003e 6100            bsr.w  fprintf    
-   30  00042 4fef            lea    12(sp),sp  
-   31  00046 41ee            lea    _iob+56(a6),a0 
-   32  0004a 2008            move.l a0,d0      
-   33  0004c 6100            bsr.w  fflush     
-   34  00050 2017            move.l (sp),d0    
-   35  00052 4ced            movem.l -4(a5),a0  
-   36  00058 4e5d            unlk   a5         
-   37  0005a 4e75            rts               
-   38  0005c 2f08 _prgname:  move.l a0,-(sp)   
-   39  0005e 206e            movea.l _00000(a6),a0 
-   40  00062 d1e8            adda.l M$Name(a0),a0 
-   41  00066 2008            move.l a0,d0      
-   42  00068 205f            movea.l (sp)+,a0   
-   43  0006a 4e75            rts               
-   44  0006c 2573 L0006c     dc.w   $2573      
-   45  0006e 3a20            move.w -(a0),d5   
-   46  00070 0000            dc.w   $0000      
-   47
-   48  00072 0000            ends              
+   10
+   11  00000 4e55 _errmsg:   link.w a5,#0      
+   12  00004 48e7            movem.l a0/d0-d1,-(sp) 
+   13  00008 41ee            lea    _iob+28(a6),a0 
+   14  0000c 2008            move.l a0,d0      
+   15  0000e 6100            bsr.w  fflush     
+   16  00012 6148            bsr.s  _prgname   
+   17  00014 2f00            move.l d0,-(sp)   
+   18  00016 41fa            lea    L0006c(pc),a0 
+   19  0001a 2208            move.l a0,d1      
+   20  0001c 41ee            lea    _iob+56(a6),a0 
+   21  00020 2008            move.l a0,d0      
+   22  00022 6100            bsr.w  fprintf    
+   23  00026 588f            addq.l #4,sp      
+   24  00028 2f2f            move.l 28(sp),-(sp) 
+   25  0002c 2f2f            move.l 28(sp),-(sp) 
+   26  00030 2f2f            move.l 28(sp),-(sp) 
+   27  00034 222f            move.l 16(sp),d1  
+   28  00038 41ee            lea    _iob+56(a6),a0 
+   29  0003c 2008            move.l a0,d0      
+   30  0003e 6100            bsr.w  fprintf    
+   31  00042 4fef            lea    12(sp),sp  
+   32  00046 41ee            lea    _iob+56(a6),a0 
+   33  0004a 2008            move.l a0,d0      
+   34  0004c 6100            bsr.w  fflush     
+   35  00050 2017            move.l (sp),d0    
+   36  00052 4ced            movem.l -4(a5),a0  
+   37  00058 4e5d            unlk   a5         
+   38  0005a 4e75            rts               
+   39  0005c 2f08 _prgname:  move.l a0,-(sp)   
+   40  0005e 206e            movea.l _00000(a6),a0 
+   41  00062 d1e8            adda.l M$Name(a0),a0 
+   42  00066 2008            move.l a0,d0      
+   43  00068 205f            movea.l (sp)+,a0   
+   44  0006a 4e75            rts               
+   45  0006c 2573 L0006c     dc.w   $2573      
+   46  0006e 3a20            move.w -(a0),d5   
+   47  00070 0000            dc.w   $0000      
    48
+   49  00072 0000            ends              
+   50

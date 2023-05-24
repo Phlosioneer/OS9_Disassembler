@@ -8,49 +8,49 @@
     7
     8
     9  00000 0000            ends              
-    9
-   10  00000 4e55 srqcmem:   link.w a5,#0      
-   11  00004 48e7            movem.l a2/d1,-(sp) 
-   12  00008 4e40            os9    F$SRqCMem  
-   13  0000c 650e            bcs.s  L0001c     
-   14  0000e 200a            move.l a2,d0      
-   15  00010 2d40            move.l d0,_srqcsiz(a6) 
-   16  00014 4cdf L00014     movem.l (sp)+,a2/d1 
-   17  00018 4e5d            unlk   a5         
-   18  0001a 4e75            rts               
-   19  0001c 70ff L0001c     moveq  #255,d0    
-   20  0001e 2d41            move.l d1,errno(a6) 
-   21  00022 60f0            bra.s  L00014     
-   22  00024 4e55 modcload:  link.w a5,#0      
-   23  00028 48e7            movem.l a0-a2/d1,-(sp) 
-   24  0002c 2040            movea.l d0,a0      
-   25  0002e 1001            move.b d1,d0      
-   26  00030 08c0            bset.l #7,d0      
-   27  00034 222f            move.l 24(sp),d1  
-   28  00038 4e40            os9    F$Load     
-   29  0003c 650a            bcs.s  L00048     
-   30  0003e 200a            move.l a2,d0      
-   31  00040 4cdf L00040     movem.l (sp)+,a0-a2/d1 
-   32  00044 4e5d            unlk   a5         
-   33  00046 4e75            rts               
-   34  00048 70ff L00048     moveq  #255,d0    
-   35  0004a 2d41            move.l d1,errno(a6) 
-   36  0004e 60f0            bra.s  L00040     
-   37  00050 4e55 make_module: link.w a5,#0      
-   38  00054 48e7            movem.l a0/d1-d2,-(sp) 
-   39  00058 48e7            movem.l a1-a2/d3-d4,-(sp) 
-   40  0005c 2040            movea.l d0,a0      
-   41  0005e 2001            move.l d1,d0      
-   42  00060 222d            move.l 8(a5),d1   
-   43  00064 242d            move.l 12(a5),d2  
-   44  00068 08c2            bset.l #15,d2     
-   45  0006c 262d            move.l 16(a5),d3  
-   46  00070 282d            move.l 20(a5),d4  
-   47  00074 4e40            os9    F$DatMod   
-   48  00078 6502            bcs.s  L0007c     
-   49  0007a 200a            move.l a2,d0      
-   50  0007c 4cdf L0007c     movem.l (sp)+,a1-a2/d3-d4 
-   51  00080 6000            bra.w  _sysret    
-   52
-   53  00084 0000            ends              
+   10
+   11  00000 4e55 srqcmem:   link.w a5,#0      
+   12  00004 48e7            movem.l a2/d1,-(sp) 
+   13  00008 4e40            os9    F$SRqCMem  
+   14  0000c 650e            bcs.s  L0001c     
+   15  0000e 200a            move.l a2,d0      
+   16  00010 2d40            move.l d0,_srqcsiz(a6) 
+   17  00014 4cdf L00014     movem.l (sp)+,a2/d1 
+   18  00018 4e5d            unlk   a5         
+   19  0001a 4e75            rts               
+   20  0001c 70ff L0001c     moveq  #255,d0    
+   21  0001e 2d41            move.l d1,errno(a6) 
+   22  00022 60f0            bra.s  L00014     
+   23  00024 4e55 modcload:  link.w a5,#0      
+   24  00028 48e7            movem.l a0-a2/d1,-(sp) 
+   25  0002c 2040            movea.l d0,a0      
+   26  0002e 1001            move.b d1,d0      
+   27  00030 08c0            bset.l #7,d0      
+   28  00034 222f            move.l 24(sp),d1  
+   29  00038 4e40            os9    F$Load     
+   30  0003c 650a            bcs.s  L00048     
+   31  0003e 200a            move.l a2,d0      
+   32  00040 4cdf L00040     movem.l (sp)+,a0-a2/d1 
+   33  00044 4e5d            unlk   a5         
+   34  00046 4e75            rts               
+   35  00048 70ff L00048     moveq  #255,d0    
+   36  0004a 2d41            move.l d1,errno(a6) 
+   37  0004e 60f0            bra.s  L00040     
+   38  00050 4e55 make_module: link.w a5,#0      
+   39  00054 48e7            movem.l a0/d1-d2,-(sp) 
+   40  00058 48e7            movem.l a1-a2/d3-d4,-(sp) 
+   41  0005c 2040            movea.l d0,a0      
+   42  0005e 2001            move.l d1,d0      
+   43  00060 222d            move.l 8(a5),d1   
+   44  00064 242d            move.l 12(a5),d2  
+   45  00068 08c2            bset.l #15,d2     
+   46  0006c 262d            move.l 16(a5),d3  
+   47  00070 282d            move.l 20(a5),d4  
+   48  00074 4e40            os9    F$DatMod   
+   49  00078 6502            bcs.s  L0007c     
+   50  0007a 200a            move.l a2,d0      
+   51  0007c 4cdf L0007c     movem.l (sp)+,a1-a2/d3-d4 
+   52  00080 6000            bra.w  _sysret    
    53
+   54  00084 0000            ends              
+   55

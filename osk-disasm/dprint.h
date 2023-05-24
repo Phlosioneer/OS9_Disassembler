@@ -135,10 +135,14 @@ std::ostream& operator<<(std::ostream& os, const PrettyNumber<T>& self)
     return os;
 }
 
-void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t PCPos,
-                    struct options* opt);
+void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t CmdEnt, uint32_t PCPos, 
+                    struct options* opt, AddrSpaceHandle space);
 void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params,
-                    uint32_t PCPos, struct options* opt);
+                    uint32_t CmdEnt, uint32_t PCPos, struct options* opt, AddrSpaceHandle space);
+void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt, uint32_t PCPos,
+                    struct options* opt, AddrSpaceHandle space);
+void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt, uint32_t PCPos,
+                    struct options* opt, const std::vector<uint16_t>& rawData, AddrSpaceHandle space);
 void PrintPsect(struct options* opt, bool printEquates);
 void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                struct options* opt);
@@ -146,8 +150,8 @@ void printXtraBytes(std::string& data);
 void WrtEnds(struct options* opt, int PCPos);
 void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 void GetIRefs(struct options* opt);
-int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state);
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpaceHandle iSpace,
+int DoAsciiBlock(const std::string& labelName, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state);
+int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, AddrSpaceHandle iSpace,
                  struct parse_state* state);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);

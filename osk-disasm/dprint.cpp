@@ -90,8 +90,8 @@ const std::unordered_map<uint8_t, const char*> ModTypes{{1, "Prgrm"},   {2, "Sbr
                                                         {5, "CSDData"}, {11, "TrapLib"}, {12, "Systm"}, {13, "FlMgr"},
                                                         {14, "Drivr"},  {15, "Devic"}};
 
-const std::unordered_map<uint8_t, const char*> ModLangs{{1, "Objct"},   {2, "ICode"},    {3, "PCode"}, {4, "CCode"},
-                                  {5, "CblCode"}, {6, "FrtnCode"}};
+const std::unordered_map<uint8_t, const char*> ModLangs{{1, "Objct"}, {2, "ICode"},   {3, "PCode"},
+                                                        {4, "CCode"}, {5, "CblCode"}, {6, "FrtnCode"}};
 
 const struct modnam ModAtts[] = {{"SupStat", 0x20}, {"Ghost", 0x40}, {"ReEnt", 0x80}, {"", 0}};
 
@@ -128,14 +128,14 @@ void PrintPsect(struct options* opt, bool printEquates)
         ProgType = it->second;
         if (printEquates)
         {
-            PrintDirective(ProgType, "set", FormattedNumber(type, OperandSize::Byte, &LITERAL_HEX_SPACE), 0, opt);
+            auto formatted = FormattedNumber(type, OperandSize::Byte, &LITERAL_HEX_SPACE);
+            PrintDirective(ProgType, "set", formatted, 0, 0, opt, nullptr);
         }
     }
     else
     {
         ProgType = FormattedNumber(type).str();
     }
-
 
     int lang = opt->modHeader ? opt->modHeader->lang : opt->ROFHd->lang;
     std::string ProgLang;
@@ -145,7 +145,8 @@ void PrintPsect(struct options* opt, bool printEquates)
         ProgLang = it->second;
         if (printEquates)
         {
-            PrintDirective(ProgLang, "set", FormattedNumber(lang, OperandSize::Byte, &LITERAL_HEX_SPACE), 0, opt);
+            auto formatted = FormattedNumber(lang, OperandSize::Byte, &LITERAL_HEX_SPACE);
+            PrintDirective(ProgLang, "set", formatted, 0, 0, opt, nullptr);
         }
     }
     else
@@ -169,8 +170,8 @@ void PrintPsect(struct options* opt, bool printEquates)
             if (printEquates)
             {
                 std::string attName(ModAtts[c].name);
-                PrintDirective(attName, "set", FormattedNumber(ModAtts[c].val, OperandSize::Byte, &LITERAL_HEX_SPACE),
-                               0, opt);
+                auto formatted = FormattedNumber(ModAtts[c].val, OperandSize::Byte, &LITERAL_HEX_SPACE);
+                PrintDirective(attName, "set", formatted, 0, 0, opt, nullptr);
             }
         }
     }
@@ -251,7 +252,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     pgWdthSave = opt->PgWidth;
     opt->PgWidth = 200;
     if (printEquates) BlankLine(opt);
-    PrintDirective("", "psect", psectParams, 0, opt);
+    PrintDirective("", "psect", psectParams, 0, 0, opt, nullptr);
     BlankLine(opt);
     opt->PgWidth = pgWdthSave;
 }
@@ -261,13 +262,13 @@ void PrintPsect(struct options* opt, bool printEquates)
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
+static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt, AddrSpaceHandle space)
 {
     Label* nl;
 
-    if (InProg && ci->lblname.empty())
+    if (InProg && ci->lblname.empty() && space)
     {
-        nl = findlbl(&CODE_SPACE, CmdEnt);
+        nl = findlbl(space, CmdEnt);
         if (nl)
         {
             if (opt->IsROF && nl->global())
@@ -334,30 +335,47 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
 void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                options* opt)
 {
-    OutputLine(pfmt, ci, opt, CmdEnt);
+    auto prevInProg = InProg;
+    if (space && !(*space == CODE_SPACE))
+    {
+        InProg = 0;
+    }
+    OutputLine(pfmt, ci, opt, CmdEnt, space);
     PrintCleanup(CmdEnt);
     NonBoundsLbl(space, opt, CmdEnt, PCPos); /*Check for non-boundary labels */
+    InProg = prevInProg;
 }
 
-void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t PCPos,
-                    struct options* opt)
+void PrintDirective(const std::string& label, const char* directive, FormattedNumber value, uint32_t CmdEnt, uint32_t PCPos,
+                    struct options* opt, AddrSpaceHandle space)
 {
     // This is a hacky way to do this.
 
     struct cmd_items instr;
+    if (value.size == OperandSize::Long)
+    {
+        uint16_t high = (value.number >> 16) & 0xFFFF;
+        uint16_t low = value.number & 0xFFFF;
+        instr.cmd_wrd = high;
+        instr.code[0] = high;
+        instr.code[1] = low;
+        instr.wcount = 2;
+    }
+    else
+    {
+        instr.cmd_wrd = truncateUnsignedToOperandSize(value.size, value.number);
+        instr.code[0] = instr.cmd_wrd;
+        instr.wcount = 1;
+    }
+
     instr.lblname = label;
     strcpy(instr.mnem, directive);
-    instr.cmd_wrd = value.number;
-    instr.code[0] = value.number;
-    instr.wcount = 1;
     instr.setSource(LiteralParam(value, false));
-    InProg = 0;
-    PrintLine(pseudcmd, &instr, nullptr, PCPos, PCPos, opt);
-    InProg = 1;
+    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params,
-                    uint32_t PCPos, struct options* opt)
+                    uint32_t CmdEnt, uint32_t PCPos, struct options* opt, AddrSpaceHandle space)
 {
     std::ostringstream paramBuffer;
 
@@ -379,9 +397,46 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     instr.lblname = label;
     strcpy(instr.mnem, directive);
     instr.setSource(LiteralParam(paramString, false));
-    InProg = 0;
-    PrintLine(pseudcmd, &instr, nullptr, PCPos, PCPos, opt);
-    InProg = 1;
+    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+}
+
+void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt,
+                    uint32_t PCPos,
+                    struct options* opt, AddrSpaceHandle space)
+{
+    // This is a hacky way to do this.
+
+    struct cmd_items instr;
+    instr.lblname = label;
+    strcpy(instr.mnem, directive);
+    instr.setSource(LiteralParam(param, false));
+    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+}
+
+void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt,
+                    uint32_t PCPos,
+                    struct options* opt, const std::vector<uint16_t>& rawData, AddrSpaceHandle space)
+{
+    // This is a hacky way to do this.
+
+    struct cmd_items instr;
+    instr.lblname = label;
+    strcpy(instr.mnem, directive);
+    instr.setSource(LiteralParam(param, false));
+
+    if (rawData.size() >= CODE_LEN) throw std::runtime_error("Too much data for directive!");
+    for (size_t i = 0; i < rawData.size(); i++)
+    {
+        instr.code[i] = rawData[i];
+    }
+    instr.wcount = rawData.size();
+
+    if (!rawData.empty())
+    {
+        instr.cmd_wrd = rawData[0];
+    }
+
+    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
 }
 
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
@@ -444,51 +499,29 @@ void printXtraBytes(std::string& data)
     }
 }
 
-static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC)
+void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC)
 {
     if (space)
     {
-        struct cmd_items Ci;
-        Label* nl;
-
-        strcpy(Ci.mnem, "equ");
-        Ci.comment = "";
-
         for (auto x = startPC + 1; x < endPC; x++)
         {
-            nl = findlbl(space, x);
-            if (nl)
+            auto label = findlbl(space, x);
+            if (label)
             {
-
-                if (opt->IsROF && nl->global())
+                std::string name;
+                if (opt->IsROF && label->global())
                 {
-                    Ci.lblname = nl->nameWithColon();
+                    name = label->nameWithColon();
                 }
                 else
                 {
-                    Ci.lblname = nl->name();
+                    name = label->name();
                 }
 
                 std::ostringstream paramsBuffer;
                 paramsBuffer << "*-" << (endPC - x);
                 auto params = paramsBuffer.str();
-                Ci.setSource(LiteralParam(params));
-
-                if (opt->IsUnformatted)
-                {
-                    writer_printf(stdout_writer, &(pseudcmd[3]), nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
-                                  params.c_str(), "");
-                }
-                else
-                {
-                    writer_printf(stdout_writer, pseudcmd, LinNum++, nl->value, Ci.cmd_wrd, Ci.lblname.c_str(), Ci.mnem,
-                                  params.c_str(), "");
-                }
-
-                if (opt->asmFile)
-                {
-                    writer_printf(opt->asmFile, "%s %s %s\n", Ci.lblname.c_str(), Ci.mnem, params.c_str());
-                }
+                PrintDirective(name, "equ", params, label->value, label->value, opt, space);
             }
         }
     }
@@ -500,19 +533,9 @@ static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t st
 
 void WrtEnds(struct options* opt, int PCPos)
 {
-    struct cmd_items Ci;
-
-    strcpy(Ci.mnem, "ends");
-
     BlankLine(opt);
     // CmdEnt = PCPos; /* This should always work */
-    PrintFormatted(pseudcmd, &Ci, opt, PCPos);
-
-    if (opt->asmFile)
-    {
-        writer_printf(opt->asmFile, "%s %s %s\n", "", "ends", "");
-    }
-
+    PrintDirective("", "ends", "", PCPos, PCPos, opt, nullptr);
     BlankLine(opt);
 }
 
@@ -646,19 +669,21 @@ static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote
 }
 
 // Attempt to match an ascii string within a data block.
-int DoAsciiBlock(struct cmd_items* ci, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state)
+int DoAsciiBlock(const std::string& labelName, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state)
 {
     std::vector<char> buffer{};
     auto mark = state->Module->position();
     state->Module->readVec(buffer, blockSize);
 
-    auto actualBytesUsed = DoAsciiBlock(ci, buffer.data(), buffer.size(), space, state);
+    auto actualBytesUsed = DoAsciiBlock(labelName, buffer.data(), buffer.size(), space, state);
     state->Module->seekAbsolute(mark + actualBytesUsed);
     return actualBytesUsed;
 }
 
-int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpaceHandle space, struct parse_state* state)
+int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, AddrSpaceHandle space,
+                 struct parse_state* state)
 {
+    auto labelNameCopy(labelName);
     auto count = bufEnd;
     const char* ch = buf;
     int hasAscii = 0;
@@ -790,12 +815,9 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
             // Output the line first.
             count += consumedThisLine;
             state->PCPos += (uint32_t)consumedThisLine;
-            strncpy(ci->mnem, "dc.b", MNEM_LEN);
-            ci->setSource(LiteralParam(paramBuffer));
-            PrintLine(pseudcmd, ci, space, state->CmdEnt, state->PCPos, state->opt);
+            PrintDirective(labelNameCopy, "dc.b", paramBuffer, state->CmdEnt, state->PCPos, state->opt, space);
+            labelNameCopy.clear();
             state->CmdEnt = state->PCPos;
-            ci->lblname.clear();
-            ci->source = nullptr;
 
             // Then copy the whole group to the start of the next line.
             // paramBuffer.clear();
@@ -809,12 +831,9 @@ int DoAsciiBlock(struct cmd_items* ci, const char* buf, size_t bufEnd, AddrSpace
     {
         count += consumedThisLine;
         state->PCPos += (uint32_t)consumedThisLine;
-        strncpy(ci->mnem, "dc.b", MNEM_LEN);
-        ci->setSource(LiteralParam(paramBuffer));
-        PrintLine(pseudcmd, ci, space, state->CmdEnt, state->PCPos, state->opt);
+        PrintDirective(labelNameCopy, "dc.b", paramBuffer, state->CmdEnt, state->PCPos, state->opt, space);
+        labelNameCopy.clear();
         state->CmdEnt = state->PCPos;
-        ci->lblname.clear();
-        ci->source = nullptr;
     }
 
     return (uint32_t)count;
@@ -1062,9 +1081,6 @@ void OS9DataPrint(struct options* opt)
 // bytes).
 void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt)
 {
-    struct cmd_items Ci;
-    register uint32_t datasize;
-
     // Nothing to print.
     if (maxAddress == 0) return;
 
@@ -1073,10 +1089,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     // If there are no labels, just print the whole thing as one directive.
     if (category->size() == 0)
     {
-        strcpy(Ci.mnem, "ds.b");
-        Ci.setSource(LiteralParam(FormattedNumber(maxAddress), false));
-        Ci.lblname.clear();
-        PrintLine(pseudcmd, &Ci, space, 0, 0, opt);
+        PrintDirective("", "ds.b", FormattedNumber(maxAddress), 0, 0, opt, space);
         return;
     }
 
@@ -1085,10 +1098,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
     if (category->getFirst()->value != 0)
     {
         auto first = category->getFirst();
-        strcpy(Ci.mnem, "ds.b");
-        Ci.setSource(LiteralParam(FormattedNumber(first->value), false));
-        Ci.lblname.clear();
-        PrintLine(pseudcmd, &Ci, &UNINIT_DATA_SPACE, 0, 0, opt);
+        PrintDirective("", "ds.b", FormattedNumber(first->value), 0, first->value, opt, space);
     }
 
     // Iterate through all the other labels.
@@ -1104,6 +1114,7 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
 
         auto next = it + 1;
 
+        uint32_t datasize;
         if (next != category->end() && (*next)->address() < maxAddress)
         {
             datasize = (*next)->address() - (*it)->address();
@@ -1113,19 +1124,16 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
             datasize = maxAddress - (*it)->address();
         }
 
-        strcpy(Ci.mnem, "ds.b");
-        Ci.setSource(LiteralParam(FormattedNumber(datasize), false));
-
+        std::string labelName;
         if (opt->IsROF && (*it)->global())
         {
-            Ci.lblname = (*it)->nameWithColon();
+            labelName = (*it)->nameWithColon();
         }
         else
         {
-            Ci.lblname = (*it)->name();
+            labelName = (*it)->name();
         }
-
-        PrintLine(pseudcmd, &Ci, space, (*it)->value, (*it)->value, opt);
+        PrintDirective(labelName, "ds.b", FormattedNumber(datasize), (*it)->value, (*it)->value, opt, space);
     }
 }
 
@@ -1238,9 +1246,6 @@ void WrtEquates(int stdflg, struct options* opt)
 
 static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, struct options* opt)
 {
-    struct cmd_items Ci;
-
-    strcpy(Ci.mnem, "equ");
 
     while (me)
     {
@@ -1273,27 +1278,18 @@ static void TellLabels(Label* me, int flg, AddrSpaceHandle space, int minval, st
                     BlankLine(opt);
                 }
 
-                Ci.cmd_wrd = me->value;
-
+                std::string labelName;
                 if (opt->IsROF && me->global())
                 {
-                    Ci.lblname = me->nameWithColon();
+                    labelName = me->nameWithColon();
                 }
                 else
                 {
-                    Ci.lblname = me->name();
+                    labelName = me->name();
                 }
 
-                // if (strchr("!^", space))
-                //{
-                Ci.setSource(LiteralParam(FormattedNumber(me->value, OperandSize::Byte, &LITERAL_HEX_SPACE), false));
-                //}
-                // else
-                //{
-                //    sprintf(Ci.params, "$%05lx", me->value);
-                //}
-
-                PrintLine(pseudcmd, &Ci, space, me->value, me->value, opt);
+                auto formatted = FormattedNumber(me->value, OperandSize::Byte, &LITERAL_HEX_SPACE);
+                PrintDirective(labelName, "equ", formatted, me->value, me->value, opt, nullptr);
             }
         }
 
