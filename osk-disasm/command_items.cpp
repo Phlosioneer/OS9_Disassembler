@@ -127,16 +127,13 @@ std::string cmd_items::renderParams() const
 
 cmd_items& cmd_items::operator=(struct cmd_items&& other)
 {
-    cmd_wrd = other.cmd_wrd;
-    lblname = other.lblname;
-    strcpy(mnem, other.mnem);
-    memcpy(code, other.code, CODE_LEN * sizeof(short));
-    wcount = other.wcount;
+    lblname = std::move(other.lblname);
+    mnem = std::move(other.mnem);
     comment = other.comment;
-    extend = other.extend;
-
     source.swap(other.source);
     dest.swap(other.dest);
+    memcpy_s(rawData, 10, other.rawData, 10);
+    rawDataSize = other.rawDataSize;
 
     return *this;
 }
@@ -204,7 +201,7 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
     if (!ci->source) return 0;
 
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     Register destReg = Registers::makeDReg(destRegCode);
     if (op->id == InstrId::LEA)
     {
@@ -258,7 +255,8 @@ int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* s
     if (!eaParam) return 0;
 
     auto mnem = std::string(op->name) + getOperandSizeLetter(size);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(size);
 
     if (regsAreDest)
     {
@@ -276,7 +274,7 @@ int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* s
 int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
 {
     auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
 
     if (op->id == InstrId::UNLK)
     {
@@ -672,8 +670,8 @@ int getnext_w(struct cmd_items* ci, struct parse_state* state)
         filereadexit();
     }
     state->PCPos += 2;
-    ci->code[ci->wcount] = w;
-    ci->wcount += 1;
+    ci->rawData[ci->rawDataSize] = w;
+    ci->rawDataSize += 1;
     return w;
 }
 
@@ -685,5 +683,5 @@ void ungetnext_w(struct cmd_items* ci, struct parse_state* state)
 {
     state->Module->undo();
     state->PCPos -= 2;
-    ci->wcount -= 1;
+    ci->rawDataSize -= 1;
 }

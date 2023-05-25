@@ -69,7 +69,7 @@ int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
         return 0;
     }
 
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     ci->setSource(LiteralParam(FormattedNumber(ext1, OperandSize::Byte, &LITERAL_DEC_SPACE)));
     ci->setDest(RegParam(reg));
 
@@ -108,8 +108,8 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state);
     if (!ci->dest) return 0;
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }
 
@@ -145,8 +145,8 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state, &LITERAL_HEX_SPACE);
     if (!ci->dest) return 0;
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }
 
@@ -174,8 +174,8 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
     if (!ci->dest) return 0;
 
     ci->setSource(RegParam(Registers::makeDReg(sourceRegCode), RegParamMode::Direct));
-    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(size);
     return 1;
 }
 
@@ -215,10 +215,8 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     ci->dest = get_eff_addr(ci, d_mode, d_reg, size, state);
     if (!ci->dest) return 0;
 
-    std::string mnem(d_mode == DirectAddrReg ? "movea" : "move");
-    mnem += getOperandSizeSuffix(size);
-    strcpy(ci->mnem, mnem.c_str());
-
+    ci->mnem = d_mode == DirectAddrReg ? "movea" : "move";
+    ci->mnem += getOperandSizeSuffix(size);
     return 1;
 }
 
@@ -269,7 +267,7 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
         // Unreachable
         ;
     }
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -292,8 +290,7 @@ int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
         ci->setDest(usp);
     }
 
-    strcpy(ci->mnem, op->name);
-
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -318,8 +315,8 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
         ci->setDest(dataParam);
     }
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(size);
     return 1;
 }
 
@@ -343,8 +340,7 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
     ci->setDest(RegParam(Registers::makeDReg(destRegCode), RegParamMode::Direct));
 
-    strcpy(ci->mnem, op->name);
-
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -372,8 +368,8 @@ int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     ci->source = get_eff_addr(ci, mode, reg, sizeOp, state);
     if (!ci->source) return 0;
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }
 
@@ -389,8 +385,7 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     ci->source = get_eff_addr(ci, mode, reg, OperandSize::Long, state);
     if (!ci->source) return 0;
 
-    strcpy(ci->mnem, op->name);
-
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -398,14 +393,13 @@ int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     uint8_t regCode = ci->cmd_wrd & 7;
     ci->setSource(RegParam(Registers::makeDReg(regCode), RegParamMode::Direct));
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     return 1;
 }
 
 int cmd_no_params(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    strcpy(ci->mnem, op->name);
-
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -423,7 +417,7 @@ int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
     ci->source = get_eff_addr(ci, mode, regCode, OperandSize::Byte, state);
     if (!ci->source) return 0;
 
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -448,8 +442,8 @@ int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }
 
@@ -530,12 +524,12 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
         ci->setSource(LiteralParam(FormattedNumber(displ, size)));
     }
 
-    std::string mnem(op->name);
-    auto conditionStart = mnem.find('~');
+    ci->mnem = op->name;
+    auto conditionStart = ci->mnem.find('~');
     if (conditionStart != std::string::npos)
     {
-        mnem = mnem.substr(0, conditionStart);
-        mnem += typecondition[conditionCode].condition;
+        ci->mnem = ci->mnem.substr(0, conditionStart);
+        ci->mnem += typecondition[conditionCode].condition;
     }
 
     // DBcc is always word sized, so no suffix is needed.
@@ -544,14 +538,13 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
         // Branches use ".s" instead of ".b"
         if (size == OperandSize::Byte)
         {
-            mnem += ".s";
+            ci->mnem += ".s";
         }
         else
         {
-            mnem += getOperandSizeSuffix(size);
+            ci->mnem += getOperandSizeSuffix(size);
         }
     }
-    strcpy(ci->mnem, mnem.c_str());
 
     return 1;
 }
@@ -619,8 +612,8 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
         ci->setDest(RegParam(dataReg, RegParamMode::Direct));
     }
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }
 
@@ -640,8 +633,8 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
 
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(size);
     return 1;
 }
 
@@ -680,8 +673,8 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(size);
     return 1;
 }
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -706,9 +699,8 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
     ci->setSource(LiteralParam(FormattedNumber(data, OperandSize::Byte)));
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
-
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }
 
@@ -735,19 +727,19 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     if (vec_ref)
     {
         ci->setSource(LiteralParam(extern_def_name(vec_ref)));
-        strcpy(ci->mnem, "tcall");
+        ci->mnem = "tcall";
 
         // Only guess math syscall if this is the math trap lib.
         shouldGuessMathLib = !strcmp(extern_def_name(vec_ref), MATH_TRAP_LIB_NAME);
     }
     else if (vector == 0)
     {
-        strcpy(ci->mnem, "os9");
+        ci->mnem = "os9";
         shouldGuessSyscall = true;
     }
     else
     {
-        strcpy(ci->mnem, "tcall");
+        ci->mnem = "tcall";
         vectorHasName = false;
 
         // We may change this later if the syscall matches something from T$Math
@@ -807,7 +799,7 @@ int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     if (!hasnext_w(state)) return 0;
     uint8_t imm = getnext_w(ci, state);
     ci->setSource(LiteralParam(FormattedNumber(imm, OperandSize::Word)));
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -824,7 +816,7 @@ int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     if (!ci->source) return 0;
 
     auto mnem = std::string("s") + typecondition[conditionCode].condition;
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = mnem.c_str();
 
     return 1;
 }
@@ -859,7 +851,7 @@ int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
     ci->setSource(RegParam(sourceReg, RegParamMode::Direct));
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
-    strcpy(ci->mnem, op->name);
+    ci->mnem = op->name;
     return 1;
 }
 
@@ -887,8 +879,8 @@ int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
     ci->setSource(RegParam(reg, RegParamMode::Direct));
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
-    strcpy(ci->mnem, mnem.c_str());
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(size);
     return 1;
 }
 
@@ -903,7 +895,7 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 
     if (op->id == InstrId::ABCD || op->id == InstrId::SBCD)
     {
-        strcpy(ci->mnem, op->name);
+        ci->mnem = op->name;
     }
     else
     {
@@ -911,8 +903,8 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
         OperandSize sizeOp;
         if (!parseStandardSize(size, sizeOp)) return 0;
 
-        auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-        strcpy(ci->mnem, mnem.c_str());
+        ci->mnem = op->name;
+        ci->mnem += getOperandSizeLetter(sizeOp);
     }
 
     ci->setSource(RegParam(maker(srcRegno), mode));
@@ -932,8 +924,7 @@ int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     ci->setSource(RegParam(Registers::makeAReg(srcRegno), RegParamMode::PostIncrement));
     ci->setDest(RegParam(Registers::makeAReg(dstRegno), RegParamMode::PostIncrement));
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(sizeOp);
-    strcpy(ci->mnem, mnem.c_str());
-
+    ci->mnem = op->name;
+    ci->mnem += getOperandSizeLetter(sizeOp);
     return 1;
 }

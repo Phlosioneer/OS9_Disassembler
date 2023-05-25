@@ -483,17 +483,17 @@ int dopass(int Pass, struct options* opt)
             {
                 PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
 
-                if (opt->PrintAllCode && Instruction.wcount)
+                if (opt->PrintAllCode && Instruction.rawDataSize > 0)
                 {
-                    int count = Instruction.wcount;
+                    size_t count = Instruction.rawDataSize;
                     std::ostringstream codbuf;
-                    int wpos = 0;
+                    size_t wpos = 0;
 
                     while (count)
                     {
                         char tmpcod[10];
 
-                        sprintf(tmpcod, "%04x ", (unsigned short)Instruction.code[wpos++]);
+                        sprintf(tmpcod, "%04x ", (unsigned short)Instruction.rawData[wpos++]);
                         codbuf << tmpcod;
                         --count;
                     }
@@ -629,25 +629,24 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 
     /* This may be temporary, and we may set PBytSiz
      * to the appropriate value */
-    strcpy(Ci.mnem, "dc");
+    Ci.mnem = "dc";
     Ci.lblname = "";
-    Ci.comment = NULL;
     Ci.cmd_wrd = 0;
 
     switch (db->size())
     {
     case 1:
-        strcat(Ci.mnem, ".b");
+        Ci.mnem += ".b";
         maxLst = 4;
         bmask = 0xff;
         break;
     case 2:
-        strcat(Ci.mnem, ".w");
+        Ci.mnem += ".w";
         maxLst = 2;
         bmask = 0xffff;
         break;
     case 4:
-        strcat(Ci.mnem, ".l");
+        Ci.mnem += ".l";
         maxLst = 1;
         bmask = 0xffff;
         break;

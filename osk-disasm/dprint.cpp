@@ -288,7 +288,7 @@ static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* o
 
         // writer_printf(opt->asmFile, "%s %s %s", ci->lblname.c_str(), ci->mnem, ci->params);
 
-        if (ci->comment && strlen(ci->comment))
+        if (!ci->comment.empty())
         {
             line << ' ' << ci->comment;
             // writer_printf(opt->asmFile, " %s", ci->comment);
@@ -348,19 +348,19 @@ void PrintDirective(const std::string& label, const char* directive, FormattedNu
         uint16_t high = (value.number >> 16) & 0xFFFF;
         uint16_t low = value.number & 0xFFFF;
         instr.cmd_wrd = high;
-        instr.code[0] = high;
-        instr.code[1] = low;
-        instr.wcount = 2;
+        instr.rawData[0] = high;
+        instr.rawData[1] = low;
+        instr.rawDataSize = 2;
     }
     else
     {
         instr.cmd_wrd = truncateUnsignedToOperandSize(value.size, value.number);
-        instr.code[0] = instr.cmd_wrd;
-        instr.wcount = 1;
+        instr.rawData[0] = instr.cmd_wrd;
+        instr.rawDataSize = 1;
     }
 
     instr.lblname = label;
-    strcpy(instr.mnem, directive);
+    instr.mnem = directive;
     instr.setSource(LiteralParam(value, false));
     PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
 }
@@ -386,7 +386,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     auto paramString = paramBuffer.str();
     struct cmd_items instr;
     instr.lblname = label;
-    strcpy(instr.mnem, directive);
+    instr.mnem = directive;
     instr.setSource(LiteralParam(paramString, false));
     PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
 }
@@ -398,7 +398,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
 
     struct cmd_items instr;
     instr.lblname = label;
-    strcpy(instr.mnem, directive);
+    instr.mnem = directive;
     instr.setSource(LiteralParam(param, false));
     PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
 }
@@ -410,15 +410,15 @@ void PrintDirective(const std::string& label, const char* directive, const std::
 
     struct cmd_items instr;
     instr.lblname = label;
-    strcpy(instr.mnem, directive);
+    instr.mnem = directive;
     instr.setSource(LiteralParam(param, false));
 
-    if (rawData.size() >= CODE_LEN) throw std::runtime_error("Too much data for directive!");
+    if (rawData.size() >= cmd_items::RAW_DATA_MAX) throw std::runtime_error("Too much data for directive!");
     for (size_t i = 0; i < rawData.size(); i++)
     {
-        instr.code[i] = rawData[i];
+        instr.rawData[i] = rawData[i];
     }
-    instr.wcount = rawData.size();
+    instr.rawDataSize = rawData.size();
 
     if (!rawData.empty())
     {
@@ -432,24 +432,18 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
 {
     int _linlen;
 
-    /* make sure any non-initialized fields don't create Segfault */
-
-    /*if ( ! ci->mnem)        strcpy(ci->mnem, "");
-    if ( ! ci->params)     strcpy(ci->params, "");*/
-    if (!ci->comment) ci->comment = "";
-
     auto params = ci->renderParams();
     if (pfmt == pseudcmd)
     {
         if (opt->IsUnformatted)
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, params.c_str(), ci->comment);
+                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
         else
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, params.c_str(), ci->comment);
+                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
     }
     else
@@ -457,12 +451,12 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
         if (opt->IsUnformatted)
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, params.c_str(), ci->comment);
+                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
         else
         {
             _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem, params.c_str(), ci->comment);
+                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
     }
 

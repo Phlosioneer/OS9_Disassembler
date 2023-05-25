@@ -45,7 +45,7 @@ namespace UnitTests
 			testData.push_back(low);
 		}
 
-		void runTest(const char* expectedMneumonic, const char* expectedParams)
+		void runTest(std::string expectedMneumonic, std::string expectedParams)
 		{
 			stream = std::make_unique<BigEndianStream>(std::move(testData));
 			state.Module = stream.get();
@@ -55,7 +55,7 @@ namespace UnitTests
 			Assert::AreEqual(expectedMneumonic, instr.mnem, subtestName);
 			std::string params = instr.renderParams();
 
-			Assert::AreEqual(expectedParams, params.c_str(), subtestName);
+			Assert::AreEqual(expectedParams, params, subtestName);
 		}
 
 		void runFailTest()

@@ -4,7 +4,7 @@
 
 #include "pch.h"
 
-//#include <ostream>
+#include <array>
 
 #include "disglobs.h"
 #include "params.h"
@@ -13,26 +13,20 @@
 struct opst;
 struct options;
 
-#define LABEL_LEN 200
-#define MNEM_LEN 50
-#define CODE_LEN 10
-#define OPCODE_LEN 200
-#define COMMENT_LEN 200
-
 struct cmd_items
 {
-    int cmd_wrd = 0; // The single effective address word (the command)
-    // char lblname[LABEL_LEN];
-    std::string lblname{};
-    char mnem[MNEM_LEN]{};
-    short code[CODE_LEN]{};
-    int wcount = 0;            // The count of words in the instrct/.(except sea)
-    // char comment[COMMENT_LEN];     // Inline comment - NULL if none
-    char* comment = "";
-    extWbrief extend{}; // The extended command (if present)
+  public:
 
+    uint16_t cmd_wrd = 0;
+    std::string lblname{};
+    std::string mnem{};
+    std::string comment{};
     std::unique_ptr<InstrParam> source{};
     std::unique_ptr<InstrParam> dest{};
+
+    static constexpr size_t RAW_DATA_MAX = 10;
+    uint16_t rawData[RAW_DATA_MAX]{};
+    size_t rawDataSize = 0;
 
     void setSource(const LiteralParam& param);
     void setSource(const RegParam& param);
@@ -47,6 +41,12 @@ struct cmd_items
     void setDest(const MultiRegParam& param);
 
     std::string renderParams() const;
+
+    inline uint16_t cmd() const
+    {
+        if (rawDataSize == 0) throw std::runtime_error("No command word available");
+        return rawData[0];
+    }
 
     // Allow move-assignment
     struct cmd_items& operator=(struct cmd_items&& other);
