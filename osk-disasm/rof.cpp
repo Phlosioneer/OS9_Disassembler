@@ -535,10 +535,10 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                 size = OperandSize::Long;
                 state->Module->readVec(rawData, 2);
             }
-            state->PCPos += getOperandSizeInBytes(size);
+            state->PCPos += OperandSizes::getByteCount(size);
 
             std::string mnem("dc");
-            mnem += getOperandSizeSuffix(size);
+            mnem += OperandSizes::getSuffix(size);
 
             std::string name;
             if (ref->Extrn)
@@ -577,8 +577,8 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                     size = OperandSize::Byte;
                 }
 
-                const auto directive = std::string("dc") + getOperandSizeSuffix(size);
-                const auto dataCount = (blkEnd - state->PCPos) / getOperandSizeInBytes(size);
+                const auto directive = std::string("dc") + OperandSizes::getSuffix(size);
+                const auto dataCount = (blkEnd - state->PCPos) / OperandSizes::getByteCount(size);
 
                 for (size_t i = 0; i < dataCount; i++)
                 {
@@ -598,7 +598,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                     default:
                         throw std::runtime_error("Unexpected size");
                     }
-                    state->PCPos += getOperandSizeInBytes(size);
+                    state->PCPos += OperandSizes::getByteCount(size);
                     auto formatted = FormattedNumber(val, size, &LITERAL_HEX_SPACE);
                     PrintDirective(labelName, directive.c_str(), formatted,
                                    state->CmdEnt, state->PCPos,

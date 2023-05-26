@@ -9,6 +9,7 @@
 #include "address_space.h"
 #include "either.h"
 #include "disglobs.h"
+#include "size.h"
 
 class Label;
 
@@ -94,12 +95,6 @@ enum class RegParamMode
     PreDecrement
 };
 
-enum class OperandSize : uint8_t
-{
-    Byte,
-    Word,
-    Long
-};
 
 // Helper methods for the Register enum.
 namespace Registers
@@ -127,14 +122,6 @@ constexpr uint8_t getIndex(Register reg);
 constexpr uint8_t getIndexUnchecked(Register reg);
 
 }; // namespace Registers
-
-char getOperandSizeLetter(OperandSize size);
-const char* getOperandSizeSuffix(OperandSize size);
-uint8_t getOperandSizeInBytes(OperandSize size);
-// Excess bytes are filled with 0
-uint32_t truncateUnsignedToOperandSize(OperandSize size, uint32_t value);
-// Excess bytes are sign-extended
-int32_t truncateSignedToOperandSize(OperandSize size, int32_t value);
 
 // Parses the size field, assuming the standard size encoding. The result is written
 // into out_sizeOp. Returns true if successful.

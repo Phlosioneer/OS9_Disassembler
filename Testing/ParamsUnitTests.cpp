@@ -80,66 +80,66 @@ namespace UnitTests
 		TEST_METHOD(OperandTruncationUnsignedTest)
 		{
 			// Check negative numbers
-			auto actual = truncateUnsignedToOperandSize(OperandSize::Byte, -1);
+			auto actual = OperandSizes::truncateUnsigned(OperandSize::Byte, -1);
 			Assert::AreEqual((uint32_t)0xFF, actual);
 
-			actual = truncateUnsignedToOperandSize(OperandSize::Word, -1);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Word, -1);
 			Assert::AreEqual((uint32_t)0xFFFF, actual);
 
 			// Check oversized numbers
 			const uint32_t oversized = 0x12345678;
-			actual = truncateUnsignedToOperandSize(OperandSize::Byte, oversized);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Byte, oversized);
 			Assert::AreEqual((uint32_t)0x78, actual);
 
-			actual = truncateUnsignedToOperandSize(OperandSize::Word, oversized);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Word, oversized);
 			Assert::AreEqual((uint32_t)0x5678, actual);
 
 			// Check oversized numbers with top bit set
 			const uint32_t oversizedTopBit = 0xF234F6F8;
-			actual = truncateUnsignedToOperandSize(OperandSize::Byte, oversizedTopBit);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Byte, oversizedTopBit);
 			Assert::AreEqual((uint32_t)0xF8, actual);
 
-			actual = truncateUnsignedToOperandSize(OperandSize::Word, oversizedTopBit);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Word, oversizedTopBit);
 			Assert::AreEqual((uint32_t)0xF6F8, actual);
 
 			// Check correctly sized numbers with top bit set
-			actual = truncateUnsignedToOperandSize(OperandSize::Byte, 0xFF);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Byte, 0xFF);
 			Assert::AreEqual((uint32_t)0xFF, actual);
 
-			actual = truncateUnsignedToOperandSize(OperandSize::Word, 0xFFFF);
+			actual = OperandSizes::truncateUnsigned(OperandSize::Word, 0xFFFF);
 			Assert::AreEqual((uint32_t)0xFFFF, actual);
 		}
 
 		TEST_METHOD(OperandTruncationSignedTest)
 		{
 			// Check negative numbers
-			auto actual = truncateSignedToOperandSize(OperandSize::Byte, -1);
+			auto actual = OperandSizes::truncateSigned(OperandSize::Byte, -1);
 			Assert::AreEqual((int32_t)0xFFFFFFFF, actual);
 
-			actual = truncateSignedToOperandSize(OperandSize::Word, -1);
+			actual = OperandSizes::truncateSigned(OperandSize::Word, -1);
 			Assert::AreEqual((int32_t)0xFFFFFFFF, actual);
 
 			// Check oversized numbers
 			const int32_t oversized = 0x12345678;
-			actual = truncateSignedToOperandSize(OperandSize::Byte, oversized);
+			actual = OperandSizes::truncateSigned(OperandSize::Byte, oversized);
 			Assert::AreEqual((int32_t)0x78, actual);
 
-			actual = truncateSignedToOperandSize(OperandSize::Word, oversized);
+			actual = OperandSizes::truncateSigned(OperandSize::Word, oversized);
 			Assert::AreEqual((int32_t)0x5678, actual);
 
 			// Check oversized numbers with top bit set
 			const int32_t oversizedTopBit = 0xF234F6F8;
-			actual = truncateSignedToOperandSize(OperandSize::Byte, oversizedTopBit);
+			actual = OperandSizes::truncateSigned(OperandSize::Byte, oversizedTopBit);
 			Assert::AreEqual((int32_t)0xFFFFFFF8, actual);
 
-			actual = truncateSignedToOperandSize(OperandSize::Word, oversizedTopBit);
+			actual = OperandSizes::truncateSigned(OperandSize::Word, oversizedTopBit);
 			Assert::AreEqual((int32_t)0xFFFFF6F8, actual);
 
 			// Check correctly sized numbers with top bit set
-			actual = truncateSignedToOperandSize(OperandSize::Byte, 0xFF);
+			actual = OperandSizes::truncateSigned(OperandSize::Byte, 0xFF);
 			Assert::AreEqual((int32_t)0xFFFFFFFF, actual);
 
-			actual = truncateSignedToOperandSize(OperandSize::Word, 0xFFFF);
+			actual = OperandSizes::truncateSigned(OperandSize::Word, 0xFFFF);
 			Assert::AreEqual((int32_t)0xFFFFFFFF, actual);
 		}
 	};

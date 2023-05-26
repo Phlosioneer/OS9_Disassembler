@@ -55,6 +55,9 @@
     <ClCompile Include="address_space.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="size.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -127,6 +130,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="size.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

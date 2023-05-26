@@ -354,7 +354,7 @@ void PrintDirective(const std::string& label, const char* directive, FormattedNu
     }
     else
     {
-        instr.cmd_wrd = truncateUnsignedToOperandSize(value.size, value.number);
+        instr.cmd_wrd = OperandSizes::truncateUnsigned(value.size, value.number);
         instr.rawData[0] = instr.cmd_wrd;
         instr.rawDataSize = 1;
     }

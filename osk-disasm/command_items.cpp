@@ -254,9 +254,9 @@ int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* s
     auto eaParam = get_eff_addr(ci, mode, reg, size, state);
     if (!eaParam) return 0;
 
-    auto mnem = std::string(op->name) + getOperandSizeLetter(size);
+    auto mnem = std::string(op->name) + OperandSizes::getLetter(size);
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(size);
+    ci->mnem += OperandSizes::getLetter(size);
 
     if (regsAreDest)
     {

@@ -136,6 +136,7 @@
     <ClCompile Include="params.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="reset.cpp" />
+    <ClCompile Include="size.cpp" />
     <ClCompile Include="textdef.cpp" />
     <ClCompile Include="writer.cpp" />
     <ClCompile Include="rof.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="reset.h" />
+    <ClInclude Include="size.h" />
     <ClInclude Include="writer.h" />
     <ClInclude Include="rof.h" />
     <ClInclude Include="sysnames.h" />

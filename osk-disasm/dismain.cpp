@@ -620,8 +620,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 {
     struct cmd_items Ci;
     char tmps[20];
-    unsigned int valu;
-    int bmask;
+    uint32_t value;
     std::ostringstream xtrabytes;
     int cCount = 0, maxLst;
 
@@ -633,26 +632,8 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
     Ci.lblname = "";
     Ci.cmd_wrd = 0;
 
-    switch (db->size())
-    {
-    case 1:
-        Ci.mnem += ".b";
-        maxLst = 4;
-        bmask = 0xff;
-        break;
-    case 2:
-        Ci.mnem += ".w";
-        maxLst = 2;
-        bmask = 0xffff;
-        break;
-    case 4:
-        Ci.mnem += ".l";
-        maxLst = 1;
-        bmask = 0xffff;
-        break;
-    default:
-        throw std::runtime_error("Unexpected byte size");
-    }
+    Ci.mnem += OperandSizes::getSuffix(db->size);
+    maxLst = 4 / OperandSizes::getByteCount(db->size);
 
     std::string paramsBuffer;
     while (state->PCPos <= db->range.end)
@@ -661,43 +642,46 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 
         tmps[0] = '\0';
 
-        switch (db->size())
+        switch (db->size)
         {
-        case 1:
-            valu = state->Module->read<uint8_t>();
+        case OperandSize::Byte:
+            value = state->Module->read<uint8_t>();
             break;
-        case 2:
-            valu = state->Module->read<uint16_t>();
+        case OperandSize::Word:
+            value = state->Module->read<uint16_t>();
             break;
-        case 4:
-            valu = state->Module->read<uint32_t>();
+        case OperandSize::Long:
+            value = state->Module->read<uint32_t>();
             break;
         default:
-            errexit("Unexpected byte size");
+            errexit("Unexpected size");
         }
 
-        state->PCPos += db->size();
+        auto dataEnt = state->PCPos;
+        state->PCPos += OperandSizes::getByteCount(db->size);
         ++cCount;
 
         /* AMode = 0 to prevent LblCalc from defining class */
-        if (!LblCalc(tmps, valu, 0, state->PCPos - db->size(), state->opt->IsROF, state->Pass))
+        if (!LblCalc(tmps, value, 0, dataEnt, state->opt->IsROF, state->Pass))
         {
-            PrintNumber(tmps, valu, 0, db->size(), literalSpace);
+            PrintNumber(tmps, value, 0, OperandSizes::getByteCount(db->size), literalSpace);
         }
 
         if (state->Pass == 2)
         {
+            value = OperandSizes::truncateUnsigned(db->size, value);
             if (cCount == 0)
             {
-                Ci.cmd_wrd = valu & bmask;
+                Ci.cmd_wrd = value;
             }
             else if (cCount < maxLst)
             {
-                Ci.cmd_wrd = ((Ci.cmd_wrd << (db->size() * 8)) | (valu & bmask));
+                auto shift = OperandSizes::getByteCount(db->size) * 8;
+                Ci.cmd_wrd = (Ci.cmd_wrd << shift) | value;
             }
             else
             {
-                xtrabytes << PrettyNumber<uint32_t>(valu & bmask).fill('0').hex().width(4);
+                xtrabytes << PrettyNumber<uint32_t>(value).fill('0').hex().width(4);
             }
 
             ++cCount;
@@ -750,23 +734,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
  */
 void HandleRegion(const DataRegion* bp, struct parse_state* state)
 {
-    switch (bp->type)
-    {
-    case DataRegion::DataSize::String:
-        // TODO: Replace with a call to DoAsciiData.
-        // MovASC(bp->range.end - PCPos + 1, 'L', state);
-        throw std::runtime_error("Explicit string region not supported yet.");
-        break; /* bump PC  */
-    case DataRegion::DataSize::Words:
-        HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
-        break;
-    case DataRegion::DataSize::Longs:
-        HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
-        break;
-    case DataRegion::DataSize::Bytes:
-        HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
-        break;
-    default:
-        throw std::runtime_error("Unexpected DataSize enum value");
-    }
+    // For now, this is just a pass-through. When more Region types are supported, this
+    // function will dispatch by type.
+    HandleDataRegion(bp, state, &LITERAL_HEX_SPACE);
 }

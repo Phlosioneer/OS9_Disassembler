@@ -73,18 +73,18 @@ void do_cmd_file(struct options* opt)
         if (type == "data")
         {
             auto size = region["size"];
-            DataRegion::DataSize sizeEnum;
+            OperandSize sizeEnum;
             if (size == "byte")
             {
-                sizeEnum = DataRegion::DataSize::Bytes;
+                sizeEnum = OperandSize::Byte;
             }
             else if (size == "word")
             {
-                sizeEnum = DataRegion::DataSize::Words;
+                sizeEnum = OperandSize::Word;
             }
             else if (size == "long")
             {
-                sizeEnum = DataRegion::DataSize::Longs;
+                sizeEnum = OperandSize::Long;
             }
             else
             {
@@ -108,24 +108,8 @@ Range::Range(size_t start, size_t end) : start(start), end(end)
 
 #pragma region DataRegion
 
-DataRegion::DataRegion(Range range, DataSize type) : range(range), type(type)
+DataRegion::DataRegion(Range range, OperandSize size) : range(range), size(size)
 {
-}
-
-uint8_t DataRegion::asByteSize(DataSize size)
-{
-    switch (size)
-    {
-    case DataSize::String:
-    case DataSize::Bytes:
-        return 1;
-    case DataSize::Words:
-        return 2;
-    case DataSize::Longs:
-        return 4;
-    default:
-        throw std::exception();
-    }
 }
 
 #pragma endregion

@@ -4,6 +4,8 @@
 
 #include "pch.h"
 
+#include "size.h"
+
 class Range
 {
   public:
@@ -21,25 +23,10 @@ class Range
 class DataRegion
 {
   public:
-    enum class DataSize
-    {
-        String,
-        Bytes,
-        Words,
-        Longs
-    };
-
-    DataRegion(Range range, DataSize type);
-
-    static uint8_t asByteSize(DataSize size);
-
-    inline uint8_t size() const
-    {
-        return DataRegion::asByteSize(type);
-    }
+    DataRegion(Range range, OperandSize size);
 
     const Range range;
-    const DataSize type;
+    const OperandSize size;
 };
 
 class RegionManager

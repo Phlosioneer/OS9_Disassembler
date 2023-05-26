@@ -13,8 +13,6 @@
 
 const char* registerNames[] = {"a0", "a1", "a2", "a3", "a4", "a5", "a6", "sp",  "pc", "d0",
                                "d1", "d2", "d3", "d4", "d5", "d6", "d7", "ccr", "sr", "usp"};
-const char sizeLetters[] = {'b', 'w', 'l'};
-const char* sizeSuffixes[] = {".b", ".w", ".l"};
 
 static_assert(_countof(registerNames) == Registers::MAX_ID + 1, "Some registers are missing names");
 
@@ -71,65 +69,6 @@ constexpr uint8_t getIndexUnchecked(Register reg)
 } // namespace Registers
 
 #pragma endregion
-
-char getOperandSizeLetter(OperandSize size)
-{
-    auto i = static_cast<size_t>(size);
-    if (i >= _countof(sizeLetters)) throw std::exception();
-    return sizeLetters[i];
-}
-
-const char* getOperandSizeSuffix(OperandSize size)
-{
-    auto i = static_cast<size_t>(size);
-    if (i >= _countof(sizeSuffixes)) throw std::exception();
-    return sizeSuffixes[i];
-}
-
-uint8_t getOperandSizeInBytes(OperandSize size)
-{
-    switch (size)
-    {
-    case OperandSize::Byte:
-        return 1;
-    case OperandSize::Word:
-        return 2;
-    case OperandSize::Long:
-        return 4;
-    default:
-        throw std::runtime_error("Unknown OperandSize variant");
-    }
-}
-
-uint32_t truncateUnsignedToOperandSize(OperandSize size, uint32_t value)
-{
-    switch (size)
-    {
-    case OperandSize::Byte:
-        return value & 0xFF;
-    case OperandSize::Word:
-        return value & 0xFFFF;
-    case OperandSize::Long:
-        return value;
-    default:
-        throw std::runtime_error("Unexpected size");
-    }
-}
-
-int32_t truncateSignedToOperandSize(OperandSize size, int32_t value)
-{
-    switch (size)
-    {
-    case OperandSize::Byte:
-        return (int32_t)((int8_t)value);
-    case OperandSize::Word:
-        return (int32_t)((int16_t)value);
-    case OperandSize::Long:
-        return value;
-    default:
-        throw std::runtime_error("Unexpected size");
-    }
-}
 
 #pragma region RegisterSet
 
@@ -319,8 +258,8 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
     if (!self.labelSpace) throw std::runtime_error("Unexpected class!");
     if (*self.labelSpace == LITERAL_HEX_SPACE)
     {
-        uint32_t trunc = truncateUnsignedToOperandSize(self.size, self.number);
-        os << '$' << PrettyNumber<int32_t>(trunc).fill('0').hex().width((size_t)getOperandSizeInBytes(self.size) * 2);
+        uint32_t trunc = OperandSizes::truncateUnsigned(self.size, self.number);
+        os << '$' << PrettyNumber<int32_t>(trunc).fill('0').hex().width((size_t)OperandSizes::getByteCount(self.size) * 2);
     }
     else if (*self.labelSpace == LITERAL_DEC_SPACE || *self.labelSpace == LITERAL_SPACE)
     {
@@ -538,7 +477,7 @@ void AbsoluteAddrParam::format(std::ostream& stream) const
     {
         stream << value.right();
     }
-    stream << ')' << getOperandSizeSuffix(size);
+    stream << ')' << OperandSizes::getSuffix(size);
 }
 
 #pragma endregion
@@ -608,7 +547,7 @@ void RegOffsetParam::format(std::ostream& stream) const
     stream << '(' << Registers::getName(addressReg);
     if (_hasOffsetReg)
     {
-        stream << ',' << Registers::getName(_offsetReg) << getOperandSizeSuffix(_offsetRegSize);
+        stream << ',' << Registers::getName(_offsetReg) << OperandSizes::getSuffix(_offsetRegSize);
     }
     stream << ')';
 }

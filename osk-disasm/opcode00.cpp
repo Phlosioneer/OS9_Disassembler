@@ -109,7 +109,7 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     if (!ci->dest) return 0;
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
 
@@ -146,7 +146,7 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     if (!ci->dest) return 0;
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
 
@@ -175,7 +175,7 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
 
     ci->setSource(RegParam(Registers::makeDReg(sourceRegCode), RegParamMode::Direct));
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(size);
+    ci->mnem += OperandSizes::getLetter(size);
     return 1;
 }
 
@@ -216,7 +216,7 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     if (!ci->dest) return 0;
 
     ci->mnem = d_mode == DirectAddrReg ? "movea" : "move";
-    ci->mnem += getOperandSizeSuffix(size);
+    ci->mnem += OperandSizes::getSuffix(size);
     return 1;
 }
 
@@ -316,7 +316,7 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     }
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(size);
+    ci->mnem += OperandSizes::getLetter(size);
     return 1;
 }
 
@@ -369,7 +369,7 @@ int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     if (!ci->source) return 0;
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
 
@@ -443,7 +443,7 @@ int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
 
@@ -542,7 +542,7 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
         }
         else
         {
-            ci->mnem += getOperandSizeSuffix(size);
+            ci->mnem += OperandSizes::getSuffix(size);
         }
     }
 
@@ -613,7 +613,7 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     }
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
 
@@ -634,7 +634,7 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(size);
+    ci->mnem += OperandSizes::getLetter(size);
     return 1;
 }
 
@@ -674,7 +674,7 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(size);
+    ci->mnem += OperandSizes::getLetter(size);
     return 1;
 }
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -700,7 +700,7 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     ci->setSource(LiteralParam(FormattedNumber(data, OperandSize::Byte)));
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
 
@@ -880,7 +880,7 @@ int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     ci->setSource(RegParam(reg, RegParamMode::Direct));
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(size);
+    ci->mnem += OperandSizes::getLetter(size);
     return 1;
 }
 
@@ -904,7 +904,7 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
         if (!parseStandardSize(size, sizeOp)) return 0;
 
         ci->mnem = op->name;
-        ci->mnem += getOperandSizeLetter(sizeOp);
+        ci->mnem += OperandSizes::getLetter(sizeOp);
     }
 
     ci->setSource(RegParam(maker(srcRegno), mode));
@@ -925,6 +925,6 @@ int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     ci->setDest(RegParam(Registers::makeAReg(dstRegno), RegParamMode::PostIncrement));
 
     ci->mnem = op->name;
-    ci->mnem += getOperandSizeLetter(sizeOp);
+    ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
 }
