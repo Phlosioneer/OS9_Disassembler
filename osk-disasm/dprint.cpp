@@ -382,13 +382,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
         paramBuffer << ',' << *it;
     }
 
-    // This is a hacky way to do this.
-    auto paramString = paramBuffer.str();
-    struct cmd_items instr;
-    instr.lblname = label;
-    instr.mnem = directive;
-    instr.setSource(LiteralParam(paramString, false));
-    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+    PrintDirective(label, directive, paramBuffer.str(), CmdEnt, PCPos, opt, space);
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt,
@@ -426,6 +420,26 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     }
 
     PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+}
+
+void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params, uint32_t CmdEnt,
+                    uint32_t PCPos, struct options* opt, const std::vector<uint16_t>& rawData, AddrSpaceHandle space)
+{
+    std::ostringstream paramBuffer;
+
+    auto it = params.cbegin();
+    if (it != params.cend())
+    {
+        paramBuffer << *it;
+        it++;
+    }
+
+    for (it; it != params.cend(); it++)
+    {
+        paramBuffer << ',' << *it;
+    }
+
+    PrintDirective(label, directive, paramBuffer.str(), CmdEnt, PCPos, opt, rawData, space);
 }
 
 static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
@@ -480,6 +494,19 @@ void printXtraBytes(std::string& data)
     {
         writer_printf(stdout_writer, xtraFmt, data.c_str());
     }
+}
+
+void printXtraBytes(const std::vector<uint16_t>& data)
+{
+    if (data.empty()) return;
+
+    std::ostringstream buffer;
+    for (auto word : data)
+    {
+        buffer << PrettyNumber<uint16_t>(word).width(4).fill('0').hex();
+    }
+    auto result = buffer.str();
+    writer_printf(stdout_writer, xtraFmt, result.c_str());
 }
 
 void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC)

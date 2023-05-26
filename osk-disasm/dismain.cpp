@@ -618,24 +618,20 @@ bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
  */
 void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpaceHandle literalSpace)
 {
-    struct cmd_items Ci;
-    char tmps[20];
+    char tmps[200];
     uint32_t value;
-    std::ostringstream xtrabytes;
-    int cCount = 0, maxLst;
 
     state->CmdEnt = state->PCPos;
 
-    /* This may be temporary, and we may set PBytSiz
-     * to the appropriate value */
-    Ci.mnem = "dc";
-    Ci.lblname = "";
-    Ci.cmd_wrd = 0;
+    std::string directive("dc");
+    directive += OperandSizes::getSuffix(db->size);
 
-    Ci.mnem += OperandSizes::getSuffix(db->size);
-    maxLst = 4 / OperandSizes::getByteCount(db->size);
-
-    std::string paramsBuffer;
+    std::vector<std::string> paramsBuffer;
+    std::vector<uint16_t> rawData;
+    paramsBuffer.reserve(4);
+    rawData.reserve(4);
+    size_t paramsBufferStringLen = 0;
+    size_t bytesRead = 0;
     while (state->PCPos <= db->range.end)
     {
         /* Init dest buffer to null string for LblCalc concatenation */
@@ -646,20 +642,33 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
         {
         case OperandSize::Byte:
             value = state->Module->read<uint8_t>();
+            if (bytesRead % 2 == 0)
+            {
+                rawData.push_back(value << 8);
+            }
+            else
+            {
+                uint16_t prev = rawData.back();
+                rawData.pop_back();
+                rawData.push_back(prev | value);
+            }
             break;
         case OperandSize::Word:
             value = state->Module->read<uint16_t>();
+            rawData.push_back(value);
             break;
         case OperandSize::Long:
             value = state->Module->read<uint32_t>();
+            rawData.push_back(value >> 16);
+            rawData.push_back(value & 0xFFFF);
             break;
         default:
-            errexit("Unexpected size");
+            throw std::runtime_error("Unexpected size");
         }
+        bytesRead += OperandSizes::getByteCount(db->size);
 
         auto dataEnt = state->PCPos;
         state->PCPos += OperandSizes::getByteCount(db->size);
-        ++cCount;
 
         /* AMode = 0 to prevent LblCalc from defining class */
         if (!LblCalc(tmps, value, 0, dataEnt, state->opt->IsROF, state->Pass))
@@ -669,63 +678,44 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 
         if (state->Pass == 2)
         {
-            value = OperandSizes::truncateUnsigned(db->size, value);
-            if (cCount == 0)
-            {
-                Ci.cmd_wrd = value;
-            }
-            else if (cCount < maxLst)
-            {
-                auto shift = OperandSizes::getByteCount(db->size) * 8;
-                Ci.cmd_wrd = (Ci.cmd_wrd << shift) | value;
-            }
-            else
-            {
-                xtrabytes << PrettyNumber<uint32_t>(value).fill('0').hex().width(4);
-            }
-
-            ++cCount;
-
             if (!paramsBuffer.empty())
             {
-                paramsBuffer += ",";
+                // Account for the comma
+                paramsBufferStringLen += 1;
             }
 
-            paramsBuffer += tmps;
+            paramsBufferStringLen += strlen(tmps);
+            paramsBuffer.push_back(tmps);
 
             // If length of operand string is max, print a line
             // Baked-in assumption that this function is only called within CODE_SPACE.
-            if ((paramsBuffer.size() > 22) || labelManager.getLabel(&CODE_SPACE, state->PCPos))
+            if ((paramsBufferStringLen > 22) || labelManager.getLabel(&CODE_SPACE, state->PCPos))
             {
-                Ci.setSource(LiteralParam(paramsBuffer));
+                PrintDirective("", directive.c_str(), paramsBuffer, state->CmdEnt, state->PCPos, state->opt, rawData, &CODE_SPACE);
+                // TODO: this should be a setting, not an extra call. Need more internal printer state for
+                // that though, which is on hold until the printer is a class.
+                rawData.erase(rawData.begin());
+                printXtraBytes(rawData);
 
-                PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->PCPos, state->opt);
-
-                printXtraBytes(xtrabytes.str());
-                xtrabytes = {};
-
-                Ci.source = nullptr;
-                Ci.cmd_wrd = 0;
-                Ci.lblname.clear();
                 paramsBuffer.clear();
+                paramsBufferStringLen = 0;
+                rawData.clear();
+                tmps[0] = '\0';
                 state->CmdEnt = state->PCPos;
-                cCount = 0;
             }
         }
-
-        /*PCPos += db->size();*/
     }
 
     /* Loop finished.. print any unprinted data */
 
     if ((state->Pass == 2) && !paramsBuffer.empty())
     {
-        Ci.setSource(LiteralParam(paramsBuffer));
-
         // Baked-in assumption that this function is only called within CODE_SPACE.
-        PrintLine(pseudcmd, &Ci, &CODE_SPACE, state->CmdEnt, state->PCPos, state->opt);
-
-        printXtraBytes(xtrabytes.str());
+        PrintDirective("", directive.c_str(), paramsBuffer, state->CmdEnt, state->PCPos, state->opt, rawData, &CODE_SPACE);
+        // TODO: this should be a setting, not an extra call. Need more internal printer state for
+        // that though, which is on hold until the printer is a class.
+        rawData.erase(rawData.begin());
+        printXtraBytes(rawData);
     }
 }
 
