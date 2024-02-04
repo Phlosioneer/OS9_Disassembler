@@ -67,41 +67,6 @@ enum
     REFLOCAL
 };
 
-/* ************************* *
- *  External references      *
- *  -------------------      *
- *  We will attempt to place *
- *  all in one set           *
- * ************************* */
-struct rof_header
-{
-    uint32_t sync = 0;
-    uint8_t type = 0;
-    uint8_t lang = 0;
-    uint8_t attributes = 0;
-    uint8_t revision = 0;
-    uint16_t valid = 0, /* Nonzero if valid */
-        series = 0;     /* Assembler version used to compile */
-    std::vector<uint8_t> rdate{};
-    uint16_t edition = 0;
-    uint32_t statstorage = 0, /* Size of static variable storage */
-        idatsz = 0,           /* Size of initialized data */
-        codsz = 0,            /* Size of the object code  */
-        stksz = 0,            /* Size of stack required   */
-        code_begin = 0,       /* Offset to entry point of object code   */
-        utrap = 0,            /* Offset to unitialized trap entry point */
-        remotestatsiz = 0,    /* Size of remote static storage   */
-        remoteidatsiz = 0,    /* Size of remote initialized data */
-        debugsiz = 0;         /* Size of the debug   */
-    std::string rname{};      /* Ptr to module name  */
-
-    uint32_t CodeEnd = 0;
-    std::unique_ptr<BigEndianStream> codeStream{};
-    std::unique_ptr<BigEndianStream> initDataStream{};
-    std::unique_ptr<BigEndianStream> initRemoteDataStream{};
-    std::unique_ptr<BigEndianStream> debugDataStream{};
-};
-
 struct rof_extrn
 {
     rof_extrn() = default;
@@ -127,66 +92,68 @@ extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrn
 class RoffFile
 {
   private:
+    /* Represents the raw values in a ROFF file header.*/
     struct Header
     {
-        uint32_t sync = 0;
-        uint8_t type = 0;
-        uint8_t lang = 0;
-        uint8_t attributes = 0;
-        uint8_t revision = 0;
-        uint16_t valid = 0, /* Nonzero if valid */
-            series = 0;     /* Assembler version used to compile */
-        std::vector<uint8_t> rdate{};
-        uint16_t edition = 0;
-        uint32_t statstorage = 0, /* Size of static variable storage */
-            idatsz = 0,           /* Size of initialized data */
-            codsz = 0,            /* Size of the object code  */
-            stksz = 0,            /* Size of stack required   */
-            code_begin = 0,       /* Offset to entry point of object code   */
-            utrap = 0,            /* Offset to unitialized trap entry point */
-            remotestatsiz = 0,    /* Size of remote static storage   */
-            remoteidatsiz = 0,    /* Size of remote initialized data */
-            debugsiz = 0;         /* Size of the debug   */
-        std::string rname{};      /* Ptr to module name  */
+        uint8_t type = 0, language = 0, attributes = 0, revision = 0;
+        uint16_t valid = 0, assemblerVersion = 0, edition = 0;
+        uint32_t staticStorage = 0, combinedDataSize = 0, codeSize = 0, stackSize = 0, entryPointOffset = 0,
+            trapHandlerOffset = 0, remoteStaticDataSize = 0, remoteCombinedDataSize = 0, debugSize = 0;
+        std::vector<uint8_t> assembleDate{};
+        std::string moduleName{};
 
         Header(BigEndianStream& stream);
     };
 
   public:
-    const uint32_t sync;
     const uint8_t type;
-    const uint8_t lang;
+    const uint8_t language;
     const uint8_t attributes;
     const uint8_t revision;
-    /* Nonzero if valid */
-    const uint16_t valid;
-    /* Assembler version used to compile */
-    const uint16_t series;
-            
-    const std::vector<uint8_t> rdate;
+
+    /* Flag in the Roff file indicating whether it can be linked. Probably used to prevent
+     * linking partially-finished files.
+     */
+    const bool isValid;
+
+    /* Assembler version used to compile the file. */
+    const uint16_t assemblerVersion;
+    
+    /* The date this file was assembled. */
+    const std::vector<uint8_t> assembleDate;
+
     const uint16_t edition;
+    
     /* Size of static variable storage */
     const uint32_t statstorage;
-    /* Size of initialized data */
-    const uint32_t idatsz;
+    
+    /* Size of uninitialized and initialized data */
+    const uint32_t combinedDataSize;
+    
     /* Size of the object code  */
-    const uint32_t codsz;
+    const uint32_t codeSize;
+    
     /* Size of stack required   */
-    const uint32_t stksz;
+    const uint32_t stackSize;
+    
     /* Offset to entry point of object code   */
-    const uint32_t code_begin;
+    const uint32_t entryPointOffset;
+    
     /* Offset to unitialized trap entry point */
-    const uint32_t utrap;
+    const uint32_t trapHandlerOffset;
+    
     /* Size of remote static storage   */
-    const uint32_t remotestatsiz;
+    const uint32_t remoteStaticDataSize;
+    
     /* Size of remote initialized data */
-    const uint32_t remoteidatsiz;
+    const uint32_t remoteCombinedDataSize;
+    
     /* Size of the debug   */ 
-    const uint32_t debugsiz;
+    const uint32_t debugSize;
+    
     /* Module name  */
-    const std::string rname;
+    const std::string moduleName;
 
-    uint32_t CodeEnd = 0;
     std::unique_ptr<BigEndianStream> codeStream{};
     std::unique_ptr<BigEndianStream> initDataStream{};
     std::unique_ptr<BigEndianStream> initRemoteDataStream{};
@@ -194,6 +161,11 @@ class RoffFile
 
     inline RoffFile(BigEndianStream* stream) : RoffFile(stream, Header(*stream))
     {
+    }
+
+    static constexpr uint32_t sync()
+    {
+        return 0xdeadface;
     }
 
 private:

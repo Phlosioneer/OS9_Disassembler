@@ -440,7 +440,7 @@ int dopass(int Pass, struct options* opt)
     if (opt->IsROF)
     {
         parseState.PCPos = 0;
-        CodeEnd = opt->ROFHd->CodeEnd;
+        CodeEnd = opt->ROFHd->codeSize;
         parseState.Module = opt->ROFHd->codeStream.get();
     }
     else

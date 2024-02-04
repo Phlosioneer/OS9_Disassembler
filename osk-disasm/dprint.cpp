@@ -135,7 +135,7 @@ void PrintPsect(struct options* opt, bool printEquates)
         ProgType = FormattedNumber(type).str();
     }
 
-    int lang = opt->modHeader ? opt->modHeader->lang : opt->ROFHd->lang;
+    int lang = opt->modHeader ? opt->modHeader->lang : opt->ROFHd->language;
     std::string ProgLang;
     it = ModLangs.find(lang);
     if (it != ModLangs.end())
@@ -181,7 +181,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     }
     else if (opt->IsROF)
     {
-        psectParams.push_back(opt->ROFHd->rname);
+        psectParams.push_back(opt->ROFHd->moduleName);
     }
     else if (strrchr(opt->ModFile.c_str(), PATHSEP))
     {
@@ -218,10 +218,10 @@ void PrintPsect(struct options* opt, bool printEquates)
     int edition = opt->modHeader ? opt->modHeader->edition : opt->ROFHd->edition;
     psectParams.push_back(FormattedNumber(edition).str());
 
-    int stack = opt->modHeader ? opt->modHeader->stackSize : opt->ROFHd->stksz;
+    int stack = opt->modHeader ? opt->modHeader->stackSize : opt->ROFHd->stackSize;
     psectParams.push_back(FormattedNumber(stack).str());
 
-    int execOffset = opt->modHeader ? opt->modHeader->execOffset : opt->ROFHd->code_begin;
+    int execOffset = opt->modHeader ? opt->modHeader->execOffset : opt->ROFHd->entryPointOffset;
     auto execOffsetLabel = labelManager.getLabel(&CODE_SPACE, execOffset);
     if (execOffsetLabel)
     {
@@ -232,7 +232,7 @@ void PrintPsect(struct options* opt, bool printEquates)
         psectParams.push_back(FormattedNumber(execOffset).str());
     }
 
-    uint32_t exceptOffset = opt->modHeader ? opt->modHeader->exceptionOffset : opt->ROFHd->utrap;
+    uint32_t exceptOffset = opt->modHeader ? opt->modHeader->exceptionOffset : opt->ROFHd->trapHandlerOffset;
     if (exceptOffset != (uint32_t)-1)
     {
         auto exceptOffsetLabel = labelManager.getLabel(&CODE_SPACE, exceptOffset);
@@ -949,7 +949,7 @@ void ROFDataPrint(struct options* opt)
         WrtEnds(opt, state.PCPos);
     }
 
-    if (opt->ROFHd->idatsz)
+    if (opt->ROFHd->combinedDataSize)
     {
         dataprintHeader(idat, &INIT_DATA_SPACE, FALSE, opt);
 
@@ -962,11 +962,11 @@ void ROFDataPrint(struct options* opt)
 
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
-        /*ListInitWithHeader (srch, ROFHd.idatsz, '_');*/
-        /*ListInit (dta, ROFHd.idatsz, '_');*/
+        /*ListInitWithHeader (srch, ROFHd.combinedDataSize, '_');*/
+        /*ListInit (dta, ROFHd.combinedDataSize, '_');*/
     }
 
-    if (opt->ROFHd->remotestatsiz)
+    if (opt->ROFHd->remoteStaticDataSize)
     {
         parse_state state;
         state.Module = opt->Module.get();
@@ -977,15 +977,15 @@ void ROFDataPrint(struct options* opt)
 
         /*first, if first entry is not D000, rmb bytes up to first */
 
-        ListUninitData(opt->ROFHd->remotestatsiz, &UNINIT_REMOTE_SPACE, opt);
+        ListUninitData(opt->ROFHd->remoteStaticDataSize, &UNINIT_REMOTE_SPACE, opt);
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
     }
 
-    if (opt->ROFHd->remoteidatsiz)
+    if (opt->ROFHd->remoteCombinedDataSize)
     {
 
-        int size = opt->ROFHd->remoteidatsiz;
+        int size = opt->ROFHd->remoteCombinedDataSize;
         dataprintHeader(idat, &INIT_REMOTE_SPACE, TRUE, opt);
 
         parse_state state;
@@ -995,10 +995,10 @@ void ROFDataPrint(struct options* opt)
         state.Module->reset();
         ListInit(&refs_iremote, &INIT_REMOTE_SPACE, &state);
         BlankLine(opt);
-        /*ListInitWithHeader (srch, ROFHd.idatsz, 'H');*/
+        /*ListInitWithHeader (srch, ROFHd.combinedDataSize, 'H');*/
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
-        /*ListInit (dta, ROFHd.idatsz, 'H');*/
+        /*ListInit (dta, ROFHd.combinedDataSize, 'H');*/
     }
 }
 
@@ -1060,7 +1060,7 @@ void OS9DataPrint(struct options* opt)
     opt->Module->seekAbsolute(filePos);
 }
 
-// Lists the uninit data as a series of labels with ds.b directives. The algorithm
+// Lists the uninit data as a assemblerVersion of labels with ds.b directives. The algorithm
 // is greedy, and assumes all space between labels is used by a label (no wasted
 // bytes).
 void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt)

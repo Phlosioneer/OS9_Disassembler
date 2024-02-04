@@ -109,49 +109,53 @@ void getRofHdr(struct options* opt)
 /*
  * Read and interpret rof header
  */
-/* getRofHdr */
 RoffFile::Header::Header(BigEndianStream& stream)
 {
 
     stream.reset(); /* Start all over */
 
-    sync = stream.read<uint32_t>();
+    uint32_t sync = stream.read<uint32_t>();
 
-    if (sync != 0xdeadface)
+    if (sync != RoffFile::sync())
     {
         errexit("Illegal ROF Module sync bytes");
     }
 
     type = stream.read<uint8_t>();
-    lang = stream.read<uint8_t>();
+    language = stream.read<uint8_t>();
     attributes = stream.read<uint8_t>();
     revision = stream.read<uint8_t>();
     valid = stream.read<uint16_t>();  /* Nonzero if valid */
-    series = stream.read<uint16_t>(); /* Assembler version used to compile */
-    stream.readVec(rdate, 6);
+    assemblerVersion = stream.read<uint16_t>(); /* Assembler version used to compile */
+    stream.readVec(assembleDate, 6);
     edition = stream.read<uint16_t>();
 
-    statstorage = stream.read<uint32_t>();   /* Size of static variable storage */
-    idatsz = stream.read<uint32_t>();        /* Size of initialized data */
-    codsz = stream.read<uint32_t>();         /* Size of the object code  */
-    stksz = stream.read<uint32_t>();         /* Size of stack required   */
-    code_begin = stream.read<uint32_t>();    /* Offset to entry point of object code   */
-    utrap = stream.read<uint32_t>();         /* Offset to unitialized trap entry point */
-    remotestatsiz = stream.read<uint32_t>(); /* Size of remote static storage */
-    remoteidatsiz = stream.read<uint32_t>(); /* Size of remote initialized data */
-    debugsiz = stream.read<uint32_t>();      /* Size of the debug   */
+    staticStorage = stream.read<uint32_t>();   /* Size of static variable storage */
+    combinedDataSize = stream.read<uint32_t>();        /* Size of initialized data */
+    codeSize = stream.read<uint32_t>();         /* Size of the object code  */
+    stackSize = stream.read<uint32_t>();         /* Size of stack required   */
+    entryPointOffset = stream.read<uint32_t>();    /* Offset to entry point of object code   */
+    trapHandlerOffset = stream.read<uint32_t>();         /* Offset to unitialized trap entry point */
+    remoteStaticDataSize = stream.read<uint32_t>(); /* Size of remote static storage */
+    remoteCombinedDataSize = stream.read<uint32_t>(); /* Size of remote initialized data */
+    debugSize = stream.read<uint32_t>();      /* Size of the debug   */
 
-    rname = stream.read<std::string>();
+    moduleName = stream.read<std::string>();
 }
 
 RoffFile::RoffFile(BigEndianStream* stream, Header& header)
-    : sync(header.sync), type(header.type), lang(header.lang), attributes(header.attributes), revision(header.revision),
-      valid(header.valid), series(header.series), rdate(header.rdate), edition(header.edition),
-      statstorage(header.statstorage), idatsz(header.idatsz), codsz(header.codsz), stksz(header.stksz),
-      code_begin(header.code_begin), utrap(header.utrap), remotestatsiz(header.remotestatsiz),
-      remoteidatsiz(header.remoteidatsiz), debugsiz(header.debugsiz),
-      rname(header.rname)
+    : type(header.type), language(header.language), attributes(header.attributes), revision(header.revision),
+      isValid(header.valid != 0), assemblerVersion(header.assemblerVersion), assembleDate(header.assembleDate),
+      edition(header.edition), statstorage(header.staticStorage), combinedDataSize(header.combinedDataSize),
+      codeSize(header.codeSize), stackSize(header.stackSize), entryPointOffset(header.entryPointOffset),
+      trapHandlerOffset(header.trapHandlerOffset), remoteStaticDataSize(header.remoteStaticDataSize),
+      remoteCombinedDataSize(header.remoteCombinedDataSize), debugSize(header.debugSize), moduleName(header.moduleName)
 {
+    if (header.valid > 1)
+    {
+        // TODO: Emit a warning
+    }
+
     /* ************************************************ *
      * Get the Global definitions                       *
      * ************************************************ */
@@ -175,22 +179,19 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
         }
     }
 
-    /* Code section... read, or save file position   */
-    CodeEnd = codsz;
-
     /* Read code into buffer for get_refs() while we're here */
 
-    // codeBuf = new char[(size_t)codsz + 1];
-    // stream->readRaw(codeBuf, codsz);
-    codeStream = std::make_unique<BigEndianStream>(stream->fork(codsz));
+    // codeBuf = new char[(size_t)codeSize + 1];
+    // stream->readRaw(codeBuf, codeSize);
+    codeStream = std::make_unique<BigEndianStream>(stream->fork(codeSize));
 
     /* ********************************** *
      *    Initialized data Section        *
      * ********************************** */
 
-    initDataStream = std::make_unique<BigEndianStream>(stream->fork(idatsz));
-    initRemoteDataStream = std::make_unique<BigEndianStream>(stream->fork(remoteidatsiz));
-    debugDataStream = std::make_unique<BigEndianStream>(stream->fork(debugsiz));
+    initDataStream = std::make_unique<BigEndianStream>(stream->fork(combinedDataSize));
+    initRemoteDataStream = std::make_unique<BigEndianStream>(stream->fork(remoteCombinedDataSize));
+    debugDataStream = std::make_unique<BigEndianStream>(stream->fork(debugSize));
 
     /* ********************************** *
      *    External References Section     *
@@ -477,13 +478,13 @@ int rof_datasize(char cclass, struct options* opt)
         dsize = opt->ROFHd->statstorage;
         break;
     case 'H':
-        dsize = opt->ROFHd->remoteidatsiz;
+        dsize = opt->ROFHd->remoteCombinedDataSize;
         break;
     case 'G':
-        dsize = opt->ROFHd->remotestatsiz;
+        dsize = opt->ROFHd->remoteStaticDataSize;
         break;
     case '_':
-        dsize = opt->ROFHd->idatsz;
+        dsize = opt->ROFHd->combinedDataSize;
         break;
     default:
         dsize = 0;
