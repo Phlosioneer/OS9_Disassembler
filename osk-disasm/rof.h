@@ -124,6 +124,85 @@ typedef std::unordered_map<uint32_t, rof_extrn> refmap;
 
 extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns; /* Generic external pointer */
 
+class RoffFile
+{
+  private:
+    struct Header
+    {
+        uint32_t sync = 0;
+        uint8_t type = 0;
+        uint8_t lang = 0;
+        uint8_t attributes = 0;
+        uint8_t revision = 0;
+        uint16_t valid = 0, /* Nonzero if valid */
+            series = 0;     /* Assembler version used to compile */
+        std::vector<uint8_t> rdate{};
+        uint16_t edition = 0;
+        uint32_t statstorage = 0, /* Size of static variable storage */
+            idatsz = 0,           /* Size of initialized data */
+            codsz = 0,            /* Size of the object code  */
+            stksz = 0,            /* Size of stack required   */
+            code_begin = 0,       /* Offset to entry point of object code   */
+            utrap = 0,            /* Offset to unitialized trap entry point */
+            remotestatsiz = 0,    /* Size of remote static storage   */
+            remoteidatsiz = 0,    /* Size of remote initialized data */
+            debugsiz = 0;         /* Size of the debug   */
+        std::string rname{};      /* Ptr to module name  */
+
+        Header(BigEndianStream& stream);
+    };
+
+  public:
+    const uint32_t sync;
+    const uint8_t type;
+    const uint8_t lang;
+    const uint8_t attributes;
+    const uint8_t revision;
+    /* Nonzero if valid */
+    const uint16_t valid;
+    /* Assembler version used to compile */
+    const uint16_t series;
+            
+    const std::vector<uint8_t> rdate;
+    const uint16_t edition;
+    /* Size of static variable storage */
+    const uint32_t statstorage;
+    /* Size of initialized data */
+    const uint32_t idatsz;
+    /* Size of the object code  */
+    const uint32_t codsz;
+    /* Size of stack required   */
+    const uint32_t stksz;
+    /* Offset to entry point of object code   */
+    const uint32_t code_begin;
+    /* Offset to unitialized trap entry point */
+    const uint32_t utrap;
+    /* Size of remote static storage   */
+    const uint32_t remotestatsiz;
+    /* Size of remote initialized data */
+    const uint32_t remoteidatsiz;
+    /* Size of the debug   */ 
+    const uint32_t debugsiz;
+    /* Module name  */
+    const std::string rname;
+
+    uint32_t CodeEnd = 0;
+    std::unique_ptr<BigEndianStream> codeStream{};
+    std::unique_ptr<BigEndianStream> initDataStream{};
+    std::unique_ptr<BigEndianStream> initRemoteDataStream{};
+    std::unique_ptr<BigEndianStream> debugDataStream{};
+
+    inline RoffFile(BigEndianStream* stream) : RoffFile(stream, Header(*stream))
+    {
+    }
+
+private:
+    RoffFile(BigEndianStream* stream, Header& header);
+    
+};
+
+
+
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
 void getRofHdr(struct options* opt);
 AddrSpaceHandle rof_class(int typ, int refTy);

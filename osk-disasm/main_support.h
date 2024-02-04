@@ -26,7 +26,7 @@ struct options
     std::string psectName{};
     std::unique_ptr<BigEndianStream> Module{};
 
-    std::unique_ptr<rof_header> ROFHd;
+    std::unique_ptr<RoffFile> ROFHd;
     std::unique_ptr<module_header> modHeader;
 
     ~options();

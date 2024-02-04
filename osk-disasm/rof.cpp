@@ -100,58 +100,63 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
     }
 }
 
+void getRofHdr(struct options* opt)
+{
+    opt->IsROF = true;
+    opt->ROFHd = std::make_unique<RoffFile>(opt->Module.get());
+}
+
 /*
  * Read and interpret rof header
  */
-void getRofHdr(struct options* opt)
+/* getRofHdr */
+RoffFile::Header::Header(BigEndianStream& stream)
 {
-    uint16_t glbl_cnt, count; /* Generic counter */
 
-    opt->IsROF = true;    /* Flag that module is an ROF module */
-    opt->Module->reset(); /* Start all over */
+    stream.reset(); /* Start all over */
 
-    /* get header data */
-    opt->ROFHd = std::make_unique<rof_header>();
+    sync = stream.read<uint32_t>();
 
-    opt->ROFHd->sync = opt->Module->read<uint32_t>();
-
-    if (opt->ROFHd->sync != 0xdeadface)
+    if (sync != 0xdeadface)
     {
         errexit("Illegal ROF Module sync bytes");
     }
 
-    opt->ROFHd->type = opt->Module->read<uint8_t>();
-    opt->ROFHd->lang = opt->Module->read<uint8_t>();
-    opt->ROFHd->attributes = opt->Module->read<uint8_t>();
-    opt->ROFHd->revision = opt->Module->read<uint8_t>();
-    opt->ROFHd->valid = opt->Module->read<uint16_t>();   /* Nonzero if valid */
-    opt->ROFHd->series = opt->Module->read<uint16_t>();  /* Assembler version used to compile */
-    opt->Module->readVec(opt->ROFHd->rdate, 6);
-    opt->ROFHd->edition = opt->Module->read<uint16_t>();
+    type = stream.read<uint8_t>();
+    lang = stream.read<uint8_t>();
+    attributes = stream.read<uint8_t>();
+    revision = stream.read<uint8_t>();
+    valid = stream.read<uint16_t>();  /* Nonzero if valid */
+    series = stream.read<uint16_t>(); /* Assembler version used to compile */
+    stream.readVec(rdate, 6);
+    edition = stream.read<uint16_t>();
 
-    opt->ROFHd->statstorage = opt->Module->read<uint32_t>();   /* Size of static variable storage */
-    opt->ROFHd->idatsz = opt->Module->read<uint32_t>();        /* Size of initialized data */
-    opt->ROFHd->codsz = opt->Module->read<uint32_t>();         /* Size of the object code  */
-    opt->ROFHd->stksz = opt->Module->read<uint32_t>();         /* Size of stack required   */
-    opt->ROFHd->code_begin = opt->Module->read<uint32_t>();    /* Offset to entry point of object code   */
-    opt->ROFHd->utrap = opt->Module->read<uint32_t>();         /* Offset to unitialized trap entry point */
-    opt->ROFHd->remotestatsiz = opt->Module->read<uint32_t>(); /* Size of remote static storage */
-    opt->ROFHd->remoteidatsiz = opt->Module->read<uint32_t>(); /* Size of remote initialized data */
-    opt->ROFHd->debugsiz = opt->Module->read<uint32_t>();      /* Size of the debug   */
+    statstorage = stream.read<uint32_t>();   /* Size of static variable storage */
+    idatsz = stream.read<uint32_t>();        /* Size of initialized data */
+    codsz = stream.read<uint32_t>();         /* Size of the object code  */
+    stksz = stream.read<uint32_t>();         /* Size of stack required   */
+    code_begin = stream.read<uint32_t>();    /* Offset to entry point of object code   */
+    utrap = stream.read<uint32_t>();         /* Offset to unitialized trap entry point */
+    remotestatsiz = stream.read<uint32_t>(); /* Size of remote static storage */
+    remoteidatsiz = stream.read<uint32_t>(); /* Size of remote initialized data */
+    debugsiz = stream.read<uint32_t>();      /* Size of the debug   */
 
-    opt->ROFHd->rname = opt->Module->read<std::string>();
+    rname = stream.read<std::string>();
+}
 
-    /* Set ModData to an unreasonable high number so ListUninitData
-     * won't do it's thing...
-     */
-
-    // modHeader->memorySize = 0x10000;
-    /*ModData = 0x7fff;*/
-
+RoffFile::RoffFile(BigEndianStream* stream, Header& header)
+    : sync(header.sync), type(header.type), lang(header.lang), attributes(header.attributes), revision(header.revision),
+      valid(header.valid), series(header.series), rdate(header.rdate), edition(header.edition),
+      statstorage(header.statstorage), idatsz(header.idatsz), codsz(header.codsz), stksz(header.stksz),
+      code_begin(header.code_begin), utrap(header.utrap), remotestatsiz(header.remotestatsiz),
+      remoteidatsiz(header.remoteidatsiz), debugsiz(header.debugsiz),
+      rname(header.rname)
+{
     /* ************************************************ *
      * Get the Global definitions                       *
      * ************************************************ */
-    count = glbl_cnt = opt->Module->read<uint16_t>();
+    uint16_t glbl_cnt, count; /* Generic counter */
+    count = glbl_cnt = stream->read<uint16_t>();
 
     while (count--)
     {
@@ -159,9 +164,9 @@ void getRofHdr(struct options* opt)
         uint16_t typ;
         uint32_t adrs;
 
-        name = opt->Module->read<std::string>();
-        typ = opt->Module->read<uint16_t>();
-        adrs = opt->Module->read<uint32_t>();
+        name = stream->read<std::string>();
+        typ = stream->read<uint16_t>();
+        adrs = stream->read<uint32_t>();
 
         auto me = labelManager.addLabel(rof_class(typ, REFGLBL), adrs, std::move(name));
         if (me)
@@ -171,53 +176,53 @@ void getRofHdr(struct options* opt)
     }
 
     /* Code section... read, or save file position   */
-    opt->ROFHd->CodeEnd = opt->ROFHd->codsz;
+    CodeEnd = codsz;
 
     /* Read code into buffer for get_refs() while we're here */
 
-    // codeBuf = new char[(size_t)opt->ROFHd->codsz + 1];
-    // opt->Module->readRaw(codeBuf, opt->ROFHd->codsz);
-    opt->ROFHd->codeStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->codsz));
+    // codeBuf = new char[(size_t)codsz + 1];
+    // stream->readRaw(codeBuf, codsz);
+    codeStream = std::make_unique<BigEndianStream>(stream->fork(codsz));
 
     /* ********************************** *
      *    Initialized data Section        *
      * ********************************** */
 
-    opt->ROFHd->initDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->idatsz));
-    opt->ROFHd->initRemoteDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->remoteidatsiz));
-    opt->ROFHd->debugDataStream = std::make_unique<BigEndianStream>(opt->Module->fork(opt->ROFHd->debugsiz));
+    initDataStream = std::make_unique<BigEndianStream>(stream->fork(idatsz));
+    initRemoteDataStream = std::make_unique<BigEndianStream>(stream->fork(remoteidatsiz));
+    debugDataStream = std::make_unique<BigEndianStream>(stream->fork(debugsiz));
 
     /* ********************************** *
      *    External References Section     *
      * ********************************** */
 
-    for (auto ext_count = opt->Module->read<uint16_t>(); ext_count > 0; ext_count--)
+    for (auto ext_count = stream->read<uint16_t>(); ext_count > 0; ext_count--)
     {
         std::string _name;
         uint16_t refcount;
 
-        _name = opt->Module->read<std::string>();
-        refcount = opt->Module->read<uint16_t>();
+        _name = stream->read<std::string>();
+        refcount = stream->read<uint16_t>();
 
         /* Get the individual occurrences for this name */
 
-        get_refs(_name, refcount, REFXTRN, NULL, opt->Module.get());
+        get_refs(_name, refcount, REFXTRN, NULL, stream);
     }
 
     /* *************************** *
      *    Local variables...       *
      * *************************** */
 
-    auto local_count = opt->Module->read<uint16_t>();
-    get_refs(std::string(), local_count, REFLOCAL, opt->ROFHd->codeStream.get(), opt->Module.get());
+    auto local_count = stream->read<uint16_t>();
+    get_refs(std::string(), local_count, REFLOCAL, codeStream.get(), stream);
 
     /* Now we need to add labels for these refs */
 
     /* common block variables... */
     /* Do this after everything else is done */
 
-    AddInitLbls(refs_idata, '_', opt->ROFHd->initDataStream.get());
-    AddInitLbls(refs_iremote, 'H', opt->ROFHd->initRemoteDataStream.get());
+    AddInitLbls(refs_idata, '_', initDataStream.get());
+    AddInitLbls(refs_iremote, 'H', initRemoteDataStream.get());
 
     /* Now we're ready to disassemble the code */
 }
