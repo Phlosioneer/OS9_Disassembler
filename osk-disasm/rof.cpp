@@ -55,9 +55,10 @@ struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremot
 //refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns;
 ReferenceManager refManager{};
 
-static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream* codebuffer, BigEndianStream* Module);
+static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
+                     BigEndianStream* Module);
 
-rof_extrn::rof_extrn(uint16_t type, uint32_t offset, bool isExternal) : Type(type), Ofst(offset), Extrn((int)isExternal)
+rof_extrn::rof_extrn(uint16_t type, uint32_t offset, bool isExternal) : type(type), offset(offset), isExternal(isExternal)
 {
 }
 
@@ -67,7 +68,7 @@ const char* extern_def_name(struct rof_extrn* handle)
     {
         errexit("Cannot access name of label; not implemented yet");
     }
-    return handle->nam.c_str();
+    return handle->name.c_str();
 }
 
 /*
@@ -80,11 +81,11 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
 
     for (auto& it : tbl)
     {
-        if (!it.second.Extrn)
+        if (!it.second.isExternal)
         {
-            Module->seekAbsolute(it.second.Ofst);
+            Module->seekAbsolute(it.second.offset);
 
-            switch (REFSIZ(it.second.Type))
+            switch (it.second.size())
             {
             case 1: /*SIZ_BYTE:*/
                 refVal = Module->read<uint8_t>();
@@ -95,8 +96,8 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
             default:
                 refVal = Module->read<uint32_t>();
             }
-            it.second.hasName = FALSE;
-            it.second.lbl = labelManager.addLabel(it.second.dstSpace, refVal);
+            it.second.hasName = false;
+            it.second.label = labelManager.addLabel(it.second.space, refVal);
         }
     }
 }
@@ -173,7 +174,9 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
         typ = stream->read<uint16_t>();
         adrs = stream->read<uint32_t>();
 
-        auto me = labelManager.addLabel(rof_class(typ, REFGLBL), adrs, std::move(name));
+        RoffReferenceInfo info{typ, ReferenceScope::REFGLBL};
+
+        auto me = labelManager.addLabel(info.space(), adrs, std::move(name));
         if (me)
         {
             me->setGlobal(true);
@@ -208,7 +211,7 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
 
         /* Get the individual occurrences for this name */
 
-        get_refs(_name, refcount, REFXTRN, NULL, stream);
+        get_refs(_name, refcount, ReferenceScope::REFXTRN, NULL, stream);
     }
 
     /* *************************** *
@@ -216,7 +219,7 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
      * *************************** */
 
     auto local_count = stream->read<uint16_t>();
-    get_refs(std::string(), local_count, REFLOCAL, codeStream.get(), stream);
+    get_refs(std::string(), local_count, ReferenceScope::REFLOCAL, codeStream.get(), stream);
 
     /* Now we need to add labels for these refs */
 
@@ -244,7 +247,7 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
  * Passed: The Type byte from the reference.
  * Returns: The Class Letter for the entry.
  */
-AddrSpaceHandle rof_class(int typ, int refTy)
+AddrSpaceHandle RoffReferenceInfo::space() const
 {
     /* We'll tie up additional classes for data/bss as follows
      * D for data
@@ -254,19 +257,19 @@ AddrSpaceHandle rof_class(int typ, int refTy)
      *
      */
 
-    switch (refTy)
+    switch (scope)
     {
-    case REFGLBL:
-        switch (typ & 0x100)
+    case ReferenceScope::REFGLBL:
+        switch (type & 0x100)
         {
         case 0:                 /* NOT common */
-            switch (typ & 0x04) /* Docs are backward? */
+            switch (type & 0x04) /* Docs are backward? */
             {
             case 0:                 /* Data */
-                switch (typ & 0x01) /* Docs are backward ? */
+                switch (type & 0x01) /* Docs are backward ? */
                 {
                 case 0: /* Uninit */
-                    switch (typ & 0x02)
+                    switch (type & 0x02)
                     {
                     case 0:
                         // return 'D';
@@ -276,7 +279,7 @@ AddrSpaceHandle rof_class(int typ, int refTy)
                         return &UNINIT_REMOTE_SPACE;
                     }
                 default: /* Init */
-                    switch (typ & 0x02)
+                    switch (type & 0x02)
                     {
                     case 0:
                         // return '_';
@@ -287,7 +290,7 @@ AddrSpaceHandle rof_class(int typ, int refTy)
                     }
                 }
             default: /* Code or Equ */
-                switch (typ & 0x02)
+                switch (type & 0x02)
                 {
                 case 0: /* NOT remote */
                     // return 'L';
@@ -298,7 +301,7 @@ AddrSpaceHandle rof_class(int typ, int refTy)
                 }
             }
         default: /* common */
-            switch (typ & 0x20)
+            switch (type & 0x20)
             {
             case 0: /* NOT Remote */
                 /* These are WRONG! but for now, we'll use them */
@@ -312,12 +315,12 @@ AddrSpaceHandle rof_class(int typ, int refTy)
 
         break;
 
-    case REFXTRN:
-    case REFLOCAL:
-        switch (typ & 0x20)
+    case ReferenceScope::REFXTRN:
+    case ReferenceScope::REFLOCAL:
+        switch (type & 0x20)
         {
         case 0: /* NOT remote */
-            switch (typ & 0x200)
+            switch (type & 0x200)
             {
             case 0: /* data */
                 // return '_';
@@ -327,14 +330,14 @@ AddrSpaceHandle rof_class(int typ, int refTy)
                 return &CODE_SPACE;
             }
         default:
-            switch (typ & 0x200)
+            switch (type & 0x200)
             {
             case 0: /* code */
                 // return 'L';
                 return &CODE_SPACE;
             default: /* debug */
                 // return 'L';
-                return &CODE_SPACE;
+                return &DEBUG_SPACE;
             }
         }
     }
@@ -349,13 +352,13 @@ AddrSpaceHandle rof_class(int typ, int refTy)
  *          count - number of entries to process
  *          1 if external, 0 if local
  */
-static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream* code_buf, BigEndianStream* Module)
+static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* code_buf,
+                     BigEndianStream* Module)
 {
     struct rof_extrn* prevRef = NULL;
     AddrSpaceHandle space;
     uint16_t _ty;
     uint32_t _ofst;
-    // struct rof_extrn *new_ref, *curRef, **base = 0;
     refmap* base;
 
     for (; count > 0; count--)
@@ -363,17 +366,10 @@ static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream
         _ty = Module->read<uint16_t>();   // fread_w(ModFP);
         _ofst = Module->read<uint32_t>(); // fread_l(ModFP);
 
-        /* Skip Debug refs */
-        if (ref_typ == REFLOCAL)
-        {
-            if ((_ty & 0x220) == 0x220)
-            {
-                continue;
-            }
-        }
+        RoffReferenceInfo info{_ty, ref_typ};
 
         /* Add to externs table */
-        space = rof_class(_ty, ref_typ);
+        space = info.space();
         if (!space) throw std::runtime_error("Unexpected class: nullptr");
         if (*space == CODE_SPACE)
         {
@@ -395,69 +391,69 @@ static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream
         {
             base = &refManager.refs_iremote;
         }
+        else if (*space == DEBUG_SPACE)
+        {
+            /* Skip Debug refs */
+            continue;
+        }
         else
         {
             throw std::runtime_error("Unexpected class: " + space->name);
         }
+        
+        rof_extrn new_ref(_ty, _ofst, ref_typ == ReferenceScope::REFXTRN);
 
-        /*if ((ref_typ == REFLOCAL) && (myClass == 'L'))
+        /*base = &refs_data;*/ /* For the time being, let's try to just use one list for all refs */
+
+        if (new_ref.isExternal)
         {
+            new_ref.hasName = true;
+            new_ref.name = vname;
         }
-        else*/
+        else
         {
-            rof_extrn new_ref(_ty, _ofst, ref_typ == REFXTRN);
+            register int dstVal;
+            code_buf->seekAbsolute(new_ref.offset);
 
-            /*base = &refs_data;*/ /* For the time being, let's try to just use one list for all refs */
+            RoffReferenceInfo globalInfo{_ty, ReferenceScope::REFGLBL};
+            new_ref.space = globalInfo.space();
 
-            if (new_ref.Extrn)
+            if ((ref_typ == ReferenceScope::REFLOCAL) && (*space == CODE_SPACE))
             {
-                new_ref.hasName = TRUE;
-                new_ref.nam = vname;
+                switch (new_ref.size())
+                {
+                case 1:
+                    // dstVal = *pt & 0xff;
+                    dstVal = code_buf->read<uint8_t>();
+                    break;
+                case 2:
+                    // dstVal = bufReadW(&pt);
+                    dstVal = code_buf->read<uint16_t>();
+                    break;
+                case 3:
+                    // dstVal = bufReadL(&pt);
+                    dstVal = code_buf->read<uint32_t>();
+                    break;
+                default:
+                    throw std::runtime_error("Unexpected size");
+                }
+                new_ref.hasName = false;
+                new_ref.label = labelManager.addLabel(new_ref.space, dstVal);
             }
             else
             {
-                register int dstVal;
-                code_buf->seekAbsolute(new_ref.Ofst);
+                // These are local refs; they indicate a label's value should be subbed
+                // into the expression. DoDataBlock should handle this automatically for
+                // data references by just existing in the refmap. Not sure about code references?
 
-                new_ref.dstSpace = rof_class(_ty, REFGLBL);
-
-                if ((ref_typ == REFLOCAL) && (*space == CODE_SPACE))
-                {
-                    switch (REFSIZ(new_ref.Type))
-                    {
-                    case 1:
-                        // dstVal = *pt & 0xff;
-                        dstVal = code_buf->read<uint8_t>();
-                        break;
-                    case 2:
-                        // dstVal = bufReadW(&pt);
-                        dstVal = code_buf->read<uint16_t>();
-                        break;
-                    case 3:
-                        // dstVal = bufReadL(&pt);
-                        dstVal = code_buf->read<uint32_t>();
-                        break;
-                    default:
-                        throw std::runtime_error("Unexpected size");
-                    }
-                    new_ref.hasName = FALSE;
-                    new_ref.lbl = labelManager.addLabel(new_ref.dstSpace, dstVal);
-                }
-                else
-                {
-                    // These are local refs; they indicate a label's value should be subbed
-                    // into the expression. DoDataBlock should handle this automatically for
-                    // data references by just existing in the refmap. Not sure about code references?
-
-                    // TODO: Lookup the value in the specified location, and ensure there
-                    // is a label for it. Maybe add a tag to the label to force it to appear
-                    // for that particular address?
-                }
+                // TODO: Lookup the value in the specified location, and ensure there
+                // is a label for it. Maybe add a tag to the label to force it to appear
+                // for that particular address?
             }
+        }
 
-            (*base)[_ofst] = new_ref;
-        } /* end "if (ref_typ == REFXTRN)" */
-    }     /* end "while (count--) */
+        (*base)[_ofst] = new_ref;
+    }
 }
 
 struct rof_extrn* ReferenceManager::find_extrn(refmap& xtrn, unsigned int adrs)
@@ -501,7 +497,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
         {
             OperandSize size;
             std::vector<uint16_t> rawData;
-            switch (REFSIZ(ref->Type))
+            switch (ref->size())
             {
             case 1: /* SIZ_BYTE */
                 size = OperandSize::Byte;
@@ -521,13 +517,13 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
             mnem += OperandSizes::getSuffix(size);
 
             std::string name;
-            if (ref->Extrn)
+            if (ref->isExternal)
             {
-                name = ref->nam;
+                name = ref->name;
             }
             else
             {
-                name = ref->lbl->name();
+                name = ref->label->name();
             }
             
             PrintDirective(labelName, mnem.c_str(), name, state->CmdEnt, state->PCPos, state->opt, rawData, space);
@@ -612,11 +608,11 @@ int rof_setup_ref(refmap& ref, int addrs, char* dest, int val)
     {
         if (r->hasName)
         {
-            strcpy(dest, r->nam.c_str());
+            strcpy(dest, r->name.c_str());
         }
         else
         {
-            strcpy(dest, r->lbl->name().c_str());
+            strcpy(dest, r->label->name().c_str());
         }
 
         if (val != 0)
@@ -646,16 +642,16 @@ char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
         }
         else
         {
-            if (it->second.Extrn)
+            if (it->second.isExternal)
             {
-                strcpy(dst, it->second.nam.c_str());
+                strcpy(dst, it->second.name.c_str());
                 retVal = dst;
 
                 if (ival)
                 {
                     char offsetbuf[20];
 
-                    strcat(dst, (it->second.Type & 0x80) ? "-" : "+");
+                    strcat(dst, (it->second.type & 0x80) ? "-" : "+");
                     sprintf(offsetbuf, "%d", ival);
                     strcat(dst, offsetbuf);
                 }
@@ -663,7 +659,7 @@ char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
             else
             {
                 // Pretty sure this is a bug, and it's supposed to be strcpy().
-                strcat(dst, it->second.lbl->name().c_str());
+                strcat(dst, it->second.label->name().c_str());
                 retVal = dst;
             }
         }

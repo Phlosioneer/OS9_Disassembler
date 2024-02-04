@@ -43,7 +43,6 @@
 #define LOCLLOC 0x100   /* Local Ref is Remote      */
 #define LOCLCCODE 0x200 /* Local Ref is in Code     */
 
-#define REFSIZ(a) ((a >> 3) & 3)
 #define REFREL 0x04 /* Ref is relative to loc   */
 #define NEGMSK 0x08 /* Negate the symbol offset */
 
@@ -60,11 +59,38 @@ struct rof_header;
 struct rof_extrn;
 
 /* Define flags for type of reference */
-enum
+enum class ReferenceScope
 {
     REFGLBL = 1,
     REFXTRN,
     REFLOCAL
+};
+
+struct RoffReferenceInfo
+{
+  private:
+    uint16_t type;
+    ReferenceScope scope;
+
+  public:
+    inline RoffReferenceInfo(uint16_t type, ReferenceScope scope) noexcept : type(type), scope(scope)
+    {
+    }
+
+    inline RoffReferenceInfo(const RoffReferenceInfo& other) noexcept : type(other.type), scope(other.scope)
+    {
+    }
+
+    inline RoffReferenceInfo(RoffReferenceInfo&& other) noexcept : type(other.type), scope(other.scope)
+    {
+    }
+
+    inline size_t size() const noexcept
+    {
+        return (type >> 3) & 3;
+    }
+
+    AddrSpaceHandle space() const;
 };
 
 struct rof_extrn
@@ -72,17 +98,18 @@ struct rof_extrn
     rof_extrn() = default;
     rof_extrn(uint16_t type, uint32_t offset, bool isExternal);
 
-    int hasName = 0;
-    std::string nam{};
-    std::shared_ptr<Label> lbl{};
-    /*  void *EName;*/                  /* External name                    */
-    AddrSpaceHandle dstSpace = nullptr; /* Class for referenced item NUll if extern */
-    uint16_t Type = 0;                  /* Type Flag                        */
-    uint32_t Ofst = 0;                  /* Offset into code                 */
-    int Extrn = 0;                      /* Flag that it's an external ref   */
-    struct rof_extrn *EUp = nullptr,    /* Previous Ref for entire list     */
-        *ENext = nullptr,               /* Next Reference for All externs   */
-            *MyNext = nullptr;          /* Next ref for this name.  If NULL, we can free EName */
+    bool hasName = false;
+    std::string name{};
+    std::shared_ptr<Label> label{};
+    AddrSpaceHandle space = nullptr; /* Class for referenced item NUll if extern */
+    uint16_t type = 0;                  /* Type Flag                        */
+    uint32_t offset = 0;                  /* Offset into code                 */
+    bool isExternal = false;            /* Flag that it's an external ref   */
+
+    inline size_t size() const
+    {
+        return (type >> 3) & 3;
+    }
 };
 
 typedef std::unordered_map<uint32_t, rof_extrn> refmap;

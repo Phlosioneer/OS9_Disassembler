@@ -313,7 +313,7 @@ namespace UnitTests
 			pushWord(0);
 			rof_extrn unlink(0, 2, true);
 			unlink.hasName = true;
-			unlink.nam = "F$UnLink";
+			unlink.name = "F$UnLink";
 			refManager.refs_code.insert(std::make_pair<uint32_t, rof_extrn>(2, std::move(unlink)));
 			runTest("os9", "F$UnLink");
 			refManager.refs_code.clear();
@@ -324,11 +324,11 @@ namespace UnitTests
 			pushWord(0);
 			rof_extrn temp(0, 1, true);
 			temp.hasName = true;
-			temp.nam = "T$Math";
+			temp.name = "T$Math";
 			refManager.refs_code.insert(std::make_pair<uint32_t, rof_extrn>(1, std::move(temp)));
 			rof_extrn temp2(0, 2, true);
 			temp2.hasName = true;
-			temp2.nam = "T$Tan";
+			temp2.name = "T$Tan";
 			refManager.refs_code.insert(std::make_pair<uint32_t, rof_extrn>(2, std::move(temp2)));
 			runTest("tcall", "T$Math,T$Tan");
 			refManager.refs_code.clear();

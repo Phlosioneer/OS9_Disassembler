@@ -47,6 +47,9 @@ extern const AddressSpace INIT_REMOTE_SPACE;
 /* Formerly class 'G'. */
 extern const AddressSpace UNINIT_REMOTE_SPACE;
 
+// Values that are in ROF file debug data. Did not have a class before.
+extern const AddressSpace DEBUG_SPACE;
+
 /* Values that are in some data space, but it's unclear which one. In modules, these
  * values are resolved after the first pass based on the size of init data space.
  * In ROF files, the values must be hardcoded, and can't be resolved at all.

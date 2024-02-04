@@ -31,6 +31,7 @@ const AddressSpace INIT_DATA_SPACE("initData", "_");
 const AddressSpace UNINIT_DATA_SPACE("uninitData", "D");
 const AddressSpace INIT_REMOTE_SPACE("initRemote", "H");
 const AddressSpace UNINIT_REMOTE_SPACE("uninitRemote", "G");
+const AddressSpace DEBUG_SPACE("debug", "B");
 const AddressSpace UNKNOWN_DATA_SPACE("unknownData", "U");
 const AddressSpace LITERAL_SPACE("literal", "@", true, true);
 const AddressSpace LITERAL_DEC_SPACE("literal:decimal", "&", true, true);
@@ -39,5 +40,5 @@ const AddressSpace LITERAL_ASCII_SPACE("literal:ascii", "^", true, true);
 const AddressSpace EQUATE_SPACE("equate", "Q", true);
 
 const std::vector<AddrSpaceHandle> allSpaces{&CODE_SPACE,        &INIT_DATA_SPACE,     &UNINIT_DATA_SPACE,
-                                             &INIT_REMOTE_SPACE, &UNINIT_REMOTE_SPACE, &LITERAL_SPACE,
+                                             &INIT_REMOTE_SPACE, &UNINIT_REMOTE_SPACE, &DEBUG_SPACE, &LITERAL_SPACE,
                                              &EQUATE_SPACE};
