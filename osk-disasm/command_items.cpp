@@ -543,7 +543,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 throw std::runtime_error("Invalid size");
             }
 
-            if (rof_setup_ref(refs_code, ref_ptr, dispstr, ext1))
+            if (rof_setup_ref(refManager.refs_code, ref_ptr, dispstr, ext1))
             {
                 char temp[200];
                 temp[0] = '\0';

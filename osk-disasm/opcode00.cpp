@@ -509,7 +509,7 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
 
     char temp[200];
     temp[0] = '\0';
-    if (state->opt->IsROF && rof_setup_ref(refs_code, immAddress, temp, displ))
+    if (state->opt->IsROF && rof_setup_ref(refManager.refs_code, immAddress, temp, displ))
     {
         ci->setSource(LiteralParam(temp));
     }
@@ -716,8 +716,8 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     struct rof_extrn* call_ref = nullptr;
     if (state->opt->IsROF)
     {
-        vec_ref = find_extrn(refs_code, state->CmdEnt + 1);
-        call_ref = find_extrn(refs_code, state->CmdEnt + 2);
+        vec_ref = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 1);
+        call_ref = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 2);
     }
 
     // Start with vec_ref.

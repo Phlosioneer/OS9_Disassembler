@@ -52,7 +52,8 @@ struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremot
     *codeRefs_sav;
 */
 
-refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns;
+//refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns;
+ReferenceManager refManager{};
 
 static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream* codebuffer, BigEndianStream* Module);
 
@@ -222,11 +223,21 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
     /* common block variables... */
     /* Do this after everything else is done */
 
-    AddInitLbls(refs_idata, '_', initDataStream.get());
-    AddInitLbls(refs_iremote, 'H', initRemoteDataStream.get());
+    AddInitLbls(refManager.refs_idata, '_', initDataStream.get());
+    AddInitLbls(refManager.refs_iremote, 'H', initRemoteDataStream.get());
 
     /* Now we're ready to disassemble the code */
 }
+
+#define IS_COMMON(type) ((type & 0x100) != 0)
+#define IS_COMMON_INIT(type) ((type & 0x020) != 0)
+/* Docs are backward? */
+#define IS_DATA(type)   ((type & 0x004) == 0)
+#define IS_REMOTE(type) ((type & 0x002) != 0)
+/* Docs are backward ? */
+#define IS_INIT(type)   ((type & 0x001) != 0)
+#define IS_EQUATE(type) ((type & 0x002) != 0)
+#define IS_DEBUG(type)  ((type & 0x200) != 0)
 
 /*
  * Returns the Destination reference for the reference.
@@ -366,23 +377,23 @@ static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream
         if (!space) throw std::runtime_error("Unexpected class: nullptr");
         if (*space == CODE_SPACE)
         {
-            base = &refs_code;
+            base = &refManager.refs_code;
         }
         else if (*space == UNINIT_DATA_SPACE)
         {
-            base = &refs_data;
+            base = &refManager.refs_data;
         }
         else if (*space == INIT_DATA_SPACE)
         {
-            base = &refs_idata;
+            base = &refManager.refs_idata;
         }
         else if (*space == UNINIT_REMOTE_SPACE)
         {
-            base = &refs_remote;
+            base = &refManager.refs_remote;
         }
         else if (*space == INIT_REMOTE_SPACE)
         {
-            base = &refs_iremote;
+            base = &refManager.refs_iremote;
         }
         else
         {
@@ -449,48 +460,11 @@ static void get_refs(std::string& vname, int count, int ref_typ, BigEndianStream
     }     /* end "while (count--) */
 }
 
-/*
- * Find an external reference.
- * Passed : (1) xtrn - starting extrn ref
- *          (2) adrs - Address to match
- * Pure function.
- */
-struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs)
+struct rof_extrn* ReferenceManager::find_extrn(refmap& xtrn, unsigned int adrs)
 {
     auto it = xtrn.find(adrs);
     if (it == xtrn.end()) return nullptr;
     return &it->second;
-}
-
-/*
- * Returns the end of rof data area
- * Passed: Label Class letter to search
- * Returns: size of this data area. If not a data area, returns 0.
- * Unused, but useful as documentation
- */
-int rof_datasize(char cclass, struct options* opt)
-{
-    int dsize;
-
-    switch (cclass)
-    {
-    case 'D':
-        dsize = opt->ROFHd->statstorage;
-        break;
-    case 'H':
-        dsize = opt->ROFHd->remoteCombinedDataSize;
-        break;
-    case 'G':
-        dsize = opt->ROFHd->remoteStaticDataSize;
-        break;
-    case '_':
-        dsize = opt->ROFHd->combinedDataSize;
-        break;
-    default:
-        dsize = 0;
-    }
-
-    return dsize;
 }
 
 /*
@@ -522,7 +496,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
         state->CmdEnt = state->PCPos;
 
         // Check if this is the start of a reference.
-        rof_extrn* ref = refsList ? find_extrn(*refsList, state->CmdEnt) : nullptr;
+        rof_extrn* ref = refsList ? refManager.find_extrn(*refsList, state->CmdEnt) : nullptr;
         if (ref)
         {
             OperandSize size;
@@ -633,7 +607,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
  */
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val)
 {
-    auto r = find_extrn(ref, addrs);
+    auto r = refManager.find_extrn(ref, addrs);
     if (r)
     {
         if (r->hasName)
@@ -663,8 +637,8 @@ char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
 {
     register char* retVal = NULL;
 
-    auto it = refs_code.find(curloc);
-    if (it != refs_code.end())
+    auto it = refManager.refs_code.find(curloc);
+    if (it != refManager.refs_code.end())
     {
         if (Pass == 1)
         {
@@ -696,4 +670,14 @@ char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
     }
 
     return retVal;
+}
+
+void ReferenceManager::clear()
+{
+    refs_data.clear();
+    refs_idata.clear();
+    refs_remote.clear();
+    refs_iremote.clear();
+    refs_code.clear();
+    extrns.clear();
 }

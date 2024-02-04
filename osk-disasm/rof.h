@@ -87,7 +87,30 @@ struct rof_extrn
 
 typedef std::unordered_map<uint32_t, rof_extrn> refmap;
 
-extern refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns; /* Generic external pointer */
+class ReferenceManager
+{
+  public:
+    refmap refs_data;
+    refmap refs_idata;
+    refmap refs_code;
+    refmap refs_remote;
+    refmap refs_iremote;
+
+    /* Generic external pointer */
+    refmap extrns;
+
+    void clear();
+    
+    /*
+     * Find an external reference.
+     * Passed : (1) xtrn - starting extrn ref
+     *          (2) adrs - Address to match
+     * Pure function.
+     */
+    struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
+};
+
+extern ReferenceManager refManager;
 
 class RoffFile
 {
@@ -178,8 +201,6 @@ private:
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
 void getRofHdr(struct options* opt);
 AddrSpaceHandle rof_class(int typ, int refTy);
-struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
-int rof_datasize(char cclass, struct options* opt);
 void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
 int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
 char* IsRef(char* dst, uint32_t curloc, int ival, int Pass);

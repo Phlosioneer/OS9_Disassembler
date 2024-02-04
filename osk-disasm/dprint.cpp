@@ -958,7 +958,7 @@ void ROFDataPrint(struct options* opt)
         state.opt = opt;
         state.Pass = 2;
         state.Module->reset();
-        ListInit(&refs_idata, &INIT_DATA_SPACE, &state);
+        ListInit(&refManager.refs_idata, &INIT_DATA_SPACE, &state);
 
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
@@ -993,7 +993,7 @@ void ROFDataPrint(struct options* opt)
         state.opt = opt;
         state.Pass = 2;
         state.Module->reset();
-        ListInit(&refs_iremote, &INIT_REMOTE_SPACE, &state);
+        ListInit(&refManager.refs_iremote, &INIT_REMOTE_SPACE, &state);
         BlankLine(opt);
         /*ListInitWithHeader (srch, ROFHd.combinedDataSize, 'H');*/
         BlankLine(opt);

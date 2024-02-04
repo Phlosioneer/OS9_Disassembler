@@ -23,10 +23,5 @@ void reset()
     LinNum = 0;
 
     // rof.c
-    refs_data.clear();
-    refs_idata.clear();
-    refs_remote.clear();
-    refs_iremote.clear();
-    refs_code.clear();
-    extrns.clear();
+    refManager.clear();
 }
