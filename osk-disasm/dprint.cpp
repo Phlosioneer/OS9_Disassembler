@@ -56,6 +56,8 @@
 #include "userdef.h"
 #include "writer.h"
 
+#include <iomanip>
+
 #ifdef _WIN32
 #define snprintf _snprintf
 #endif
@@ -70,18 +72,16 @@ struct modnam
 
 struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
-static void PrintFormatted(const std::string& pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
+static void PrintFormatted(struct cmd_items* ci, struct options* opt, int CmdEnt);
 static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
-static void TellLabels(LabelCategory& me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
+static void TellLabels(LabelCategory& me, bool printStdLabels, AddrSpaceHandle space, int minval, struct options* opt);
 
-const std::string pseudcmd{"%5d  %05x %04x %-10s %-6s %-10s %s\n"};
-const std::string realcmd{"%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n"};
+
 static const char* xtraFmt = "             %s\n";
 
-static char ClsHd[100];  /* header string for label equates */
-static char FmtBuf[200]; /* Buffer to store formatted string */
+static std::string ClsHd{}; /* header format string for label equates */
 static int HadWrote;     /* flag that header has been written */
-static char* SrcHd;      /* ptr for header for source file */
+static const char* SrcHd;      /* ptr for header for source file */
 int LinNum;
 
 const std::unordered_map<uint8_t, const char*> ModTypes{{1, "Prgrm"},   {2, "Sbrtn"},    {3, "Multi"},  {4, "Data"},
@@ -260,7 +260,7 @@ void PrintPsect(struct options* opt, bool printEquates)
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine(const std::string& pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt,
+static void OutputLine(struct cmd_items* ci, struct options* opt, uint32_t CmdEnt,
                        AddrSpaceHandle space)
 {
     if (space && ci->lblname.empty())
@@ -279,7 +279,7 @@ static void OutputLine(const std::string& pfmt, struct cmd_items* ci, struct opt
         }
     }
 
-    PrintFormatted(pfmt, ci, opt, CmdEnt);
+    PrintFormatted(ci, opt, CmdEnt);
 
     if (opt->asmFile)
     {
@@ -310,11 +310,6 @@ static void PrintCleanup(int CmdEnt)
 
 static void BlankLine(struct options* opt) /* Prints a blank line */
 {
-    if (opt->IsUnformatted)
-    {
-        return;
-    }
-
     writer_printf(stdout_writer, "%5d\n", LinNum++);
 
     if (opt->asmFile)
@@ -329,10 +324,10 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const std::string &pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
+void PrintLine(struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                options* opt)
 {
-    OutputLine(pfmt, ci, opt, CmdEnt, space);
+    OutputLine(ci, opt, CmdEnt, space);
     PrintCleanup(CmdEnt);
     NonBoundsLbl(space, opt, CmdEnt, PCPos); /*Check for non-boundary labels */
 }
@@ -362,7 +357,7 @@ void PrintDirective(const std::string& label, const char* directive, FormattedNu
     instr.lblname = label;
     instr.mnem = directive;
     instr.setSource(LiteralParam(value, false));
-    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+    PrintLine(&instr, space, CmdEnt, PCPos, opt);
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params,
@@ -394,7 +389,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     instr.lblname = label;
     instr.mnem = directive;
     instr.setSource(LiteralParam(param, false));
-    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+    PrintLine(&instr, space, CmdEnt, PCPos, opt);
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::string& param, uint32_t CmdEnt,
@@ -419,7 +414,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
         instr.cmd_wrd = rawData[0];
     }
 
-    PrintLine(pseudcmd, &instr, space, CmdEnt, PCPos, opt);
+    PrintLine(&instr, space, CmdEnt, PCPos, opt);
 }
 
 void PrintDirective(const std::string& label, const char* directive, const std::vector<std::string>& params, uint32_t CmdEnt,
@@ -442,46 +437,29 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     PrintDirective(label, directive, paramBuffer.str(), CmdEnt, PCPos, opt, rawData, space);
 }
 
-static void PrintFormatted(const std::string& pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
+static void PrintFormatted(struct cmd_items* ci, struct options* opt, int CmdEnt)
 {
-    int _linlen;
+    using namespace std;
 
     auto params = ci->renderParams();
-    if (pfmt == pseudcmd)
+    ostringstream lineBuf;
+    lineBuf << setw(5) << LinNum << "  ";
+    lineBuf << setfill('0') << setw(5) << hex << CmdEnt << " ";
+    lineBuf << setw(4) << ci->cmd_wrd << " ";
+    lineBuf << setfill(' ') << left << setw(10) << ci->lblname << " ";
+    lineBuf << setw(6) << ci->mnem << " ";
+    lineBuf << setw(10) << ci->renderParams() << " ";
+    lineBuf << ci->comment << "\n";
+    auto line = lineBuf.str();
+
+    if ((line.length() >= (size_t)opt->PgWidth - 2))
     {
-        if (opt->IsUnformatted)
-        {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt.c_str()[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
-        }
-        else
-        {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt.c_str(), LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
-        }
-    }
-    else
-    {
-        if (opt->IsUnformatted)
-        {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt.c_str()[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
-        }
-        else
-        {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt.c_str(), LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
-                               ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
-        }
+        line.erase((size_t)opt->PgWidth - 3);
+        line += '\n';
     }
 
-    if ((_linlen >= opt->PgWidth - 2) || (_linlen < 0))
-    {
-        FmtBuf[opt->PgWidth - 3] = '\n';
-        FmtBuf[opt->PgWidth - 2] = '\0';
-    }
-
-    writer_printf(stdout_writer, "%s", FmtBuf);
-    writer_flush(stdout_writer);
+    stdout_writer->inner->write(line);
+    stdout_writer->inner->flush();
 }
 
 /* **************************************************************** *
@@ -646,18 +624,10 @@ static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote
 {
     BlankLine(opt);
 
-    if (opt->IsUnformatted)
-    {
-        writer_printf(stdout_writer, hdr, space->shortcode.c_str());
-        ++LinNum;
-    }
-    else
-    {
-        char f_fmt[100];
+    char f_fmt[100];
 
-        sprintf(f_fmt, "%%5d %s", hdr);
-        writer_printf(stdout_writer, f_fmt, LinNum++, space->shortcode.c_str());
-    }
+    sprintf(f_fmt, "%%5d %s", hdr);
+    writer_printf(stdout_writer, f_fmt, LinNum++, space->shortcode.c_str());
 
     if (opt->asmFile)
     {
@@ -851,15 +821,7 @@ static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct p
     uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
     BlankLine(state->opt);
-    if (state->opt->IsUnformatted)
-    {
-        writer_printf(stdout_writer, " %s\n", what);
-        ++LinNum;
-    }
-    else
-    {
-        writer_printf(stdout_writer, "%5d %s\n", LinNum++, what);
-    }
+    writer_printf(stdout_writer, "%5d %s\n", LinNum++, what);
     if (state->opt->asmFile)
     {
         writer_printf(state->opt->asmFile, "%s\n", what);
@@ -1021,15 +983,7 @@ void OS9DataPrint(struct options* opt)
     // Print the vsect header
     {
         BlankLine(opt);
-        if (opt->IsUnformatted)
-        {
-            writer_printf(stdout_writer, " %22s%s\n", "", what);
-            ++LinNum;
-        }
-        else
-        {
-            writer_printf(stdout_writer, "%5d %22s%s\n", LinNum++, "", what);
-        }
+        writer_printf(stdout_writer, "%5d %22s%s\n", LinNum++, "", what);
         if (opt->asmFile)
         {
             writer_printf(opt->asmFile, "%s\n", what);
@@ -1126,54 +1080,29 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
  * Passed: stdflg - 1 for std labels, 0 for externals *
  * ************************************************** */
 
-void WrtEquates(int stdflg, struct options* opt)
+void WrtEquates(bool pritnStdLabels, struct options* opt)
 {
-    char *claspt = "_!^ABCDEFGHIJKMNOPQRSTUVWXYZ;", *curnt = claspt, *syshd = "* OS-9 system function equates\n",
-         *aschd = "* ASCII control character equates\n";
-    static char* genhd[2] = {"* Class %s external label equates\n", "* Class %s standard named label equates\n"};
-    register int flg; /* local working flg - clone of stdflg */
+    const char* claspt = "_!^ABCDEFGHIJKMNOPQRSTUVWXYZ;";
+    const char* curnt = claspt;
+    const char* syshd = "* OS-9 system function equates\n";
+    const char* aschd = "* ASCII control character equates\n";
+    static const char* genhd[2] = {"* Class %s external label equates\n", "* Class %s standard named label equates\n"};
     curnt = claspt;
 
-    if (!stdflg) /* print ! and ^ only on std cClass pass */
+    if (!pritnStdLabels) /* print ! and ^ only on std cClass pass */
     {
         curnt += 2;
     }
 
     int minval;
 
-    flg = stdflg;
-    strcpy(ClsHd, "%5d %21s");
+    ClsHd = "%5d %21s";
     LabelCategory& category = labelManager.getCategory(&EQUATE_SPACE);
 
     if (category.size() > 0)
     {
-        /* For OS9, we only want external labels this pass */
-
-        /* Don't write vsect data for ROF's */
-
-        /*
-        if ((opt->IsROF) && stdflg && strchr("BDGH", NowClass))
-        {
-            continue;
-        }
-
-        switch (NowClass)
-        {
-        case '!':
-            strcat(ClsHd, syshd);
-            SrcHd = syshd;
-            flg = -1;
-            break;
-        case '^':
-            strcat(ClsHd, aschd);
-            SrcHd = aschd;
-            flg = -1;
-            break;
-        default:
-        */
-        strcat(ClsHd, genhd[flg]);
-        SrcHd = genhd[flg];
-        //}
+        ClsHd += genhd[pritnStdLabels ? 1 : 0];
+        SrcHd = genhd[pritnStdLabels ? 1 : 0];
 
         HadWrote = 0; /* flag header not written */
 
@@ -1183,50 +1112,17 @@ void WrtEquates(int stdflg, struct options* opt)
 
         minval = 0; /* Default to "print all" */
 
-        // Added OR to satisfy VS null checker.
-        if (opt->IsROF || !opt->modHeader)
-        {
-            /*minval = rof_datasize (NowClass);*/
-
-            /* If this cClass has any data, we want to exclude
-             * printing the last entry.
-             * Otherwise, if no real entries, we want to print
-             * element "0"
-             */
-
-            /*if (minval)
-            {
-                ++minval;
-            }*/
-        }
-        else
-        {
-            /*
-            if (NowClass == 'D')
-            {
-                minval = opt->modHeader->memorySize + 1;
-            }
-            else
-            {
-                if (NowClass == 'L')
-                {
-                    minval = opt->modHeader->size + 1;
-                }
-            }
-            */
-        }
-
-        TellLabels(category, flg, &EQUATE_SPACE, minval, opt);
+        TellLabels(category, pritnStdLabels, &EQUATE_SPACE, minval, opt);
     }
 }
 
 /* TellLabels(me) - Print out the labels for cClass in "me" array */
 
-static void TellLabels(LabelCategory& category, int flg, AddrSpaceHandle space, int minval, struct options* opt)
+static void TellLabels(LabelCategory& category, bool printStdLabels, AddrSpaceHandle space, int minval, struct options* opt)
 {
     for (const auto me : category)
     {
-        if ((flg < 0) || flg == (int)me->stdName())
+        if (printStdLabels == me->stdName())
         {
             /* Don't print real OS9 Data variables here */
 
@@ -1236,15 +1132,8 @@ static void TellLabels(LabelCategory& category, int flg, AddrSpaceHandle space, 
                 {
                     BlankLine(opt);
 
-                    if (opt->IsUnformatted)
-                    {
-                        writer_printf(stdout_writer, &(ClsHd[3]), "", space->name.c_str());
-                        ++LinNum;
-                    }
-                    else
-                    {
-                        writer_printf(stdout_writer, ClsHd, LinNum++, "", space->name.c_str());
-                    }
+                    writer_printf(stdout_writer, ClsHd.c_str(), LinNum++, "", space->name.c_str());
+                    
 
                     if (opt->asmFile)
                     {

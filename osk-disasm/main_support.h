@@ -20,7 +20,6 @@ struct options
     /* Pointers to the path names for the files */
     std::vector<std::string> labelFiles{};
     int PgWidth = 80;
-    bool IsUnformatted = false;
     std::string DefDir{};
     std::string ModFile{};
     std::string psectName{};

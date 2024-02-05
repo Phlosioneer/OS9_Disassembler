@@ -147,7 +147,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
                     uint32_t CmdEnt, uint32_t PCPos, struct options* opt, const std::vector<uint16_t>& rawData,
                     AddrSpaceHandle space);
 void PrintPsect(struct options* opt, bool printEquates);
-void PrintLine(const std::string& pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
+void PrintLine(struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                struct options* opt);
 void printXtraBytes(std::string& data);
 void printXtraBytes(const std::vector<uint16_t>& data);
@@ -160,11 +160,9 @@ int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, A
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
 void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt);
-void WrtEquates(int stdflg, struct options* opt);
+void WrtEquates(bool printStdLabels, struct options* opt);
 void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* state);
 
-extern const std::string pseudcmd;
-extern const std::string realcmd;
 extern int LinNum;
 extern struct ireflist* IRefs;
 

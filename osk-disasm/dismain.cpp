@@ -418,8 +418,8 @@ int dopass(int Pass, struct options* opt)
         }
         GetLabels(opt);
 
-        WrtEquates(1, opt);
-        WrtEquates(0, opt);
+        WrtEquates(true, opt);
+        WrtEquates(false, opt);
 
         if (opt->IsROF)
         {
@@ -481,7 +481,7 @@ int dopass(int Pass, struct options* opt)
         {
             if (Pass == 2)
             {
-                PrintLine(pseudcmd, &Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
+                PrintLine(&Instruction, &CODE_SPACE, parseState.CmdEnt, parseState.PCPos, opt);
 
                 if (opt->PrintAllCode && Instruction.rawDataSize > 0)
                 {

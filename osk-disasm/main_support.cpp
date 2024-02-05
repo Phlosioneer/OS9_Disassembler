@@ -297,10 +297,6 @@ void do_opt(char* c, struct options* opt)
         }
 
         break;
-    case 'u': /* Translate to upper-case */
-        opt->IsUnformatted = true;
-        /*UpCase = 1;*/
-        break;
     case 'd':
         pt = pass_eq(pt);
         opt->DefDir = pt;
