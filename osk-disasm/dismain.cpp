@@ -618,7 +618,7 @@ bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
  */
 void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpaceHandle literalSpace)
 {
-    char tmps[200];
+    std::string tmps;
     uint32_t value;
 
     state->CmdEnt = state->PCPos;
@@ -634,9 +634,8 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
     size_t bytesRead = 0;
     while (state->PCPos <= db->range.end)
     {
-        /* Init dest buffer to null string for LblCalc concatenation */
-
-        tmps[0] = '\0';
+        /* Init dest buffer to empty string for LblCalc concatenation */
+        tmps.clear();
 
         switch (db->size)
         {
@@ -673,7 +672,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
         /* AMode = 0 to prevent LblCalc from defining class */
         if (!LblCalc(tmps, value, 0, dataEnt, state->opt->IsROF, state->Pass))
         {
-            PrintNumber(tmps, value, 0, OperandSizes::getByteCount(db->size), literalSpace);
+            tmps = PrintNumber(value, 0, OperandSizes::getByteCount(db->size), literalSpace);
         }
 
         if (state->Pass == 2)
@@ -684,7 +683,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
                 paramsBufferStringLen += 1;
             }
 
-            paramsBufferStringLen += strlen(tmps);
+            paramsBufferStringLen += tmps.size();
             paramsBuffer.push_back(tmps);
 
             // If length of operand string is max, print a line
@@ -700,7 +699,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
                 paramsBuffer.clear();
                 paramsBufferStringLen = 0;
                 rawData.clear();
-                tmps[0] = '\0';
+                tmps.clear();
                 state->CmdEnt = state->PCPos;
             }
         }

@@ -49,7 +49,7 @@ class Writer
 class FileWriter : public Writer
 {
   public:
-    FileWriter(char* filename);
+    FileWriter(const char* filename);
     virtual ~FileWriter();
 
     virtual void close() override;
@@ -95,7 +95,7 @@ class StringWriter : public Writer
 #endif
 
 // Creates a new writer.
-struct writer_handle* file_writer_fopen(char* name);
+struct writer_handle* file_writer_fopen(const char* name);
 struct writer_handle* stdout_writer_open(void);
 
 // Deletes the writer.

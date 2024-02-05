@@ -324,13 +324,12 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
 {
     uint8_t immParamValue = ci->cmd_wrd & 0xff;
 
-    char labelBuffer[200];
-    labelBuffer[0] = '\0';
+    std::string labelBuffer;
     // The immediate value is at address+1
     auto immParamAddress = state->CmdEnt + 1;
     if (LblCalc(labelBuffer, immParamValue, AM_IMM, immParamAddress, state->opt->IsROF, state->Pass))
     {
-        ci->setSource(LiteralParam(std::string(labelBuffer)));
+        ci->setSource(LiteralParam(labelBuffer));
     }
     else
     {
@@ -507,9 +506,8 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
 {
     if (displ & 1) return 0;
 
-    char temp[200];
-    temp[0] = '\0';
-    if (state->opt->IsROF && rof_setup_ref(refManager.refs_code, immAddress, temp, displ))
+    std::string temp;
+    if (state->opt->IsROF && rof_setup_ref(temp, refManager.refs_code, immAddress, displ))
     {
         ci->setSource(LiteralParam(temp));
     }

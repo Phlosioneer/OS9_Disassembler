@@ -601,35 +601,37 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
  *
  * Returns: trturns TRUE (1) if a ref was found and set up, FALSE (0) if no ref found here
  */
-int rof_setup_ref(refmap& ref, int addrs, char* dest, int val)
+bool rof_setup_ref(std::string& out_name, refmap& ref, uint32_t addrs, int32_t val)
 {
     auto r = refManager.find_extrn(ref, addrs);
     if (r)
     {
         if (r->hasName)
         {
-            strcpy(dest, r->name.c_str());
+            out_name = r->name;
         }
         else
         {
-            strcpy(dest, r->label->name().c_str());
+            out_name = r->label->name();
         }
 
         if (val != 0)
         {
-            strcat(dest, (val > 0 ? "+" : "-"));
-            sprintf(&dest[strlen(dest)], "%d", abs(val));
+            out_name += val > 0 ? "+" : "-";
+            char temp[200];
+            sprintf_s(temp, "%d", abs(val));
+            out_name += temp;
         }
 
-        return 1;
+        return true;
     }
     else
     {
-        return 0;
+        return false;
     }
 }
 
-char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
+bool IsRef(std::string& out_name, uint32_t curloc, uint32_t ival, int Pass)
 {
     register char* retVal = NULL;
 
@@ -638,29 +640,28 @@ char* IsRef(char* dst, uint32_t curloc, int ival, int Pass)
     {
         if (Pass == 1)
         {
-            retVal = dst;
+            return true;
         }
         else
         {
             if (it->second.isExternal)
             {
-                strcpy(dst, it->second.name.c_str());
-                retVal = dst;
+                out_name = it->second.name;
 
                 if (ival)
                 {
-                    char offsetbuf[20];
-
-                    strcat(dst, (it->second.type & 0x80) ? "-" : "+");
-                    sprintf(offsetbuf, "%d", ival);
-                    strcat(dst, offsetbuf);
+                    out_name += (it->second.type & 0x80) ? "-" : "+";
+                    char temp[200];
+                    sprintf_s(temp, "%d", ival);
+                    out_name += temp;
                 }
+                return true;
             } /* Else leave retVal=NULL - for local refs, let calling process handle it */
             else
             {
                 // Pretty sure this is a bug, and it's supposed to be strcpy().
-                strcat(dst, it->second.label->name().c_str());
-                retVal = dst;
+                out_name = it->second.label->name();
+                return true;
             }
         }
     }

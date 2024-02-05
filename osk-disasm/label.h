@@ -128,9 +128,9 @@ class LabelManager
     std::unordered_map<std::string, LabelCategory> _labelCategories;
 };
 
-bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);
-void PrintNumber(char* dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
+bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);
 void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
+std::string PrintNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 
 extern LabelManager labelManager;
 

@@ -330,21 +330,6 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg,
     return 1;
 }
 
-int get_eff_addr(struct cmd_items* ci, char* ea, int mode, int reg, int size, struct parse_state* state)
-{
-    auto param = get_eff_addr(ci, mode, reg, size, state);
-    if (param)
-    {
-        auto paramStr = param->toStr();
-        strcpy(ea, paramStr.c_str());
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
 /*
  * get_eff_addr() - Build the appropriate opcode string for the command
  *     and store it in the command structure opcode string
@@ -380,11 +365,9 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
     int ext1;
     int ext2;
     int ref_ptr;
-    char dispstr[50];
     struct extWbrief ew_b;
     int ea_addr;
 
-    dispstr[0] = '\0';
     ea_addr = state->PCPos;
     bool pbytsizIsValid = true;
 
@@ -403,6 +386,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
         param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
         break;
     case Displacement: /* d{16}(An) */
+    {
         if (!hasnext_w(state)) return nullptr;
         ext1 = getnext_w(ci, state);
 
@@ -416,9 +400,10 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
         }
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
+        std::string dispstr;
         if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass))
         {
-            param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), std::string(dispstr));
+            param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), dispstr);
         }
         else
         {
@@ -431,6 +416,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
         ((RegOffsetParam*)param.get())->setShouldForceZero(true);
 
         break;
+    }
     case Index: /* d{8}(An,Xn) */
         if (get_ext_wrd(ci, &ew_b, mode, reg, state))
         {
@@ -446,10 +432,11 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             {
                 // ew_b.displ -= 2;
                 int amode = AM_A0 + reg;
+                std::string dispstr;
                 if (LblCalc(dispstr, ew_b.displ, amode, state->PCPos - 2, state->opt->IsROF, state->Pass))
                 {
                     param =
-                        std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, std::string(dispstr));
+                        std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, dispstr);
                 }
                 else
                 {
@@ -496,9 +483,10 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
                 amode_local = AM_LONG;
             }
+            std::string dispstr;
             if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF, state->Pass))
             {
-                param = std::make_unique<AbsoluteAddrParam>(std::string(dispstr), opSize);
+                param = std::make_unique<AbsoluteAddrParam>(dispstr, opSize);
             }
             else
             {
@@ -543,16 +531,17 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 throw std::runtime_error("Invalid size");
             }
 
-            if (rof_setup_ref(refManager.refs_code, ref_ptr, dispstr, ext1))
+            std::string dispstr;
+            if (rof_setup_ref(dispstr, refManager.refs_code, static_cast<uint32_t>(ref_ptr), ext1))
             {
                 char temp[200];
                 temp[0] = '\0';
-                sprintf(temp, Mode07Strings[reg].str, dispstr);
+                sprintf(temp, Mode07Strings[reg].str, dispstr.c_str());
                 param = std::make_unique<LiteralParam>(std::string(temp));
             }
             else if (LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass))
             {
-                param = std::make_unique<LiteralParam>(std::string(dispstr));
+                param = std::make_unique<LiteralParam>(dispstr);
             }
             else
             {
@@ -562,11 +551,13 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             break;
         }
         case PcDisplacement: /* (d16,PC) */
+        {
             if (!hasnext_w(state)) return 0;
             ext1 = getnext_w(ci, state);
+            std::string dispstr;
             if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
             {
-                param = std::make_unique<RegOffsetParam>(Register::PC, std::string(dispstr));
+                param = std::make_unique<RegOffsetParam>(Register::PC, dispstr);
             }
             else
             {
@@ -574,6 +565,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 param = std::make_unique<RegOffsetParam>(Register::PC, number);
             }
             break;
+        }
         case PcIndex: /* d8(PC,Xn) */
             if (get_ext_wrd(ci, &ew_b, mode, reg, state))
             {
@@ -588,6 +580,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 if (ew_b.displ != 0)
                 {
                     ew_b.displ -= 2;
+                    std::string dispstr;
                     if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
                     {
                         param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
@@ -604,6 +597,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 {
                     // The PC-1 is due to the 8-bit offset placed in the 2nd byte of the brief
                     // extension word.
+                    std::string dispstr;
                     if (state->opt->IsROF && IsRef(dispstr, state->PCPos - 1, 0, state->Pass))
                     {
                         param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,

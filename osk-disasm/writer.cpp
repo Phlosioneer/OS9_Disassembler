@@ -34,7 +34,7 @@ void Writer::write(const std::string& s)
     this->printf("%s", s.c_str());
 }
 
-FileWriter::FileWriter(char* filename)
+FileWriter::FileWriter(const char* filename)
 {
     _fp = fopen(filename, "wb");
 }
@@ -139,7 +139,7 @@ void StringWriter::write(const std::string& s)
     _stream << s;
 }
 
-writer_handle* file_writer_fopen(char* name)
+writer_handle* file_writer_fopen(const char* name)
 {
     FileWriter* ret = new FileWriter(name);
     return ret->handle();

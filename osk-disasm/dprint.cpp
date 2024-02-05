@@ -70,12 +70,12 @@ struct modnam
 
 struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
-static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
+static void PrintFormatted(const std::string& pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt);
 static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
 static void TellLabels(LabelCategory& me, int flg, AddrSpaceHandle space, int minval, struct options* opt);
 
-const char pseudcmd[80] = "%5d  %05x %04x %-10s %-6s %-10s %s\n";
-const char realcmd[80] = "%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n";
+const std::string pseudcmd{"%5d  %05x %04x %-10s %-6s %-10s %s\n"};
+const std::string realcmd{"%5d  %05x %04x %-9s %-10s %-6s %-10s %s\n"};
 static const char* xtraFmt = "             %s\n";
 
 static char ClsHd[100];  /* header string for label equates */
@@ -260,7 +260,7 @@ void PrintPsect(struct options* opt, bool printEquates)
  * to the listing and/or source file      *
  * ************************************** */
 
-static void OutputLine(const char* pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt,
+static void OutputLine(const std::string& pfmt, struct cmd_items* ci, struct options* opt, uint32_t CmdEnt,
                        AddrSpaceHandle space)
 {
     if (space && ci->lblname.empty())
@@ -329,7 +329,7 @@ static void BlankLine(struct options* opt) /* Prints a blank line */
  *                the line, and then does cleanup           *
  * ******************************************************** */
 
-void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
+void PrintLine(const std::string &pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                options* opt)
 {
     OutputLine(pfmt, ci, opt, CmdEnt, space);
@@ -442,7 +442,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     PrintDirective(label, directive, paramBuffer.str(), CmdEnt, PCPos, opt, rawData, space);
 }
 
-static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
+static void PrintFormatted(const std::string& pfmt, struct cmd_items* ci, struct options* opt, int CmdEnt)
 {
     int _linlen;
 
@@ -451,12 +451,12 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
     {
         if (opt->IsUnformatted)
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt.c_str()[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
                                ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
         else
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt.c_str(), LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
                                ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
     }
@@ -464,12 +464,12 @@ static void PrintFormatted(const char* pfmt, struct cmd_items* ci, struct option
     {
         if (opt->IsUnformatted)
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, &(pfmt.c_str()[3]), CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
                                ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
         else
         {
-            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt, LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
+            _linlen = snprintf(FmtBuf, (size_t)opt->PgWidth - 2, pfmt.c_str(), LinNum, CmdEnt, ci->cmd_wrd, ci->lblname.c_str(),
                                ci->mnem.c_str(), params.c_str(), ci->comment.c_str());
         }
     }

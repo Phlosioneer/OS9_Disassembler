@@ -227,10 +227,9 @@ private:
 
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
 void getRofHdr(struct options* opt);
-AddrSpaceHandle rof_class(int typ, int refTy);
 void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
-int rof_setup_ref(refmap& ref, int addrs, char* dest, int val);
-char* IsRef(char* dst, uint32_t curloc, int ival, int Pass);
+bool rof_setup_ref(std::string& out_name, refmap& ref, uint32_t addrs, int32_t val);
+bool IsRef(std::string& out_name, uint32_t curloc, uint32_t ival, int Pass);
 const char* extern_def_name(struct rof_extrn* handle);
 
 #endif // ROF_H

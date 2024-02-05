@@ -147,7 +147,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
                     uint32_t CmdEnt, uint32_t PCPos, struct options* opt, const std::vector<uint16_t>& rawData,
                     AddrSpaceHandle space);
 void PrintPsect(struct options* opt, bool printEquates);
-void PrintLine(const char* pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
+void PrintLine(const std::string& pfmt, struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uint32_t PCPos,
                struct options* opt);
 void printXtraBytes(std::string& data);
 void printXtraBytes(const std::vector<uint16_t>& data);
@@ -163,8 +163,8 @@ void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* 
 void WrtEquates(int stdflg, struct options* opt);
 void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* state);
 
-extern const char pseudcmd[80];
-extern const char realcmd[80];
+extern const std::string pseudcmd;
+extern const std::string realcmd;
 extern int LinNum;
 extern struct ireflist* IRefs;
 

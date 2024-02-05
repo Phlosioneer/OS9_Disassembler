@@ -240,12 +240,11 @@ std::string Label::nameWithColon() const
     return _global ? _name + ':' : _name;
 }
 
-void PrintNumber(char* dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space)
+std::string PrintNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space)
 {
     std::ostringstream stream;
     PrintNumber(stream, value, amod, defaultHexSize, space);
-    auto result = stream.str();
-    strcat(dest, result.c_str());
+    return stream.str();
 }
 
 /*
@@ -266,7 +265,7 @@ void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, Ad
  *          (3) amod - the AMode desired
  * This is NOT SAFE AT ALL.
  */
-bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass)
+bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass)
 {
 
     auto adjusted = adr;
@@ -279,7 +278,7 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
 
     if (isRof)
     {
-        if (IsRef(dst, curloc, adr, Pass))
+        if (IsRef(out_name, curloc, adr, Pass))
         {
             return true;
         }
@@ -336,7 +335,8 @@ bool LblCalc(char* dst, uint32_t adr, int amod, uint32_t curloc, bool isRof, int
             throw std::runtime_error("");
         }
     }
-    std::string destStr = dest.str();
-    strcat(dst, destStr.c_str());
+    out_name = dest.str();
+    //std::string destStr = dest.str();
+    //strcat(dst, destStr.c_str());
     return true;
 }
