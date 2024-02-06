@@ -714,16 +714,13 @@ int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, A
     count = 0;
     size_t consumedThisLine = 0;
     size_t consumedByGroup = 0;
-    char group[MAX_ASCII_LINE_LEN + 5];
+    std::string group;
     std::string paramBuffer;
     while (state->PCPos + consumedThisLine < bufEnd)
     {
-        // The way this is written is kinda odd for C, but it translates well
-        // into C++
-        group[0] = '\0';
         if (*buf == '\"')
         {
-            strcpy(group, "'\"'");
+            group += "'\"'";
             consumedByGroup = 1;
             buf++;
         }
@@ -748,11 +745,11 @@ int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, A
                 maxGroupLen = MAX_ASCII_LINE_LEN - 3 - paramBuffer.size();
             }
 
-            strcpy(group, "\"");
+            group += "\"";
             consumedByGroup = 0;
             while (isprint((unsigned char)*buf) && *buf != '\"' && consumedByGroup < maxGroupLen)
             {
-                group[consumedByGroup + 1] = *buf;
+                group += *buf;
                 buf++;
                 consumedByGroup++;
 
@@ -761,13 +758,13 @@ int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, A
                 // characters. Therefore we don't need to check `PCPos + consumedThisLine < bufEnd`
                 // during this loop.
             }
-            group[consumedByGroup + 1] = '\"';
-            group[consumedByGroup + 2] = '\0';
+            group += '\"';
         }
         else
         {
-            snprintf(group, 10, "$%d", (unsigned char)*buf);
-            group[11] = '\0';
+            //snprintf(group, 10, "$%d", (unsigned char)*buf);
+            group += '$';
+            group += std::to_string(static_cast<uint8_t>(*buf));
             consumedByGroup = 1;
             buf++;
         }
@@ -780,7 +777,7 @@ int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, A
             consumedThisLine = consumedByGroup;
         }
         // Check if the group fits, accounting for a comma with +1.
-        else if (paramBuffer.size() + 1 + strlen(group) <= MAX_ASCII_LINE_LEN)
+        else if (paramBuffer.size() + 1 + group.size() <= MAX_ASCII_LINE_LEN)
         {
             paramBuffer += ",";
             paramBuffer += group;
@@ -796,10 +793,11 @@ int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, A
             state->CmdEnt = state->PCPos;
 
             // Then copy the whole group to the start of the next line.
-            // paramBuffer.clear();
-            paramBuffer = group;
+            paramBuffer.clear();
+            paramBuffer += group;
             consumedThisLine = consumedByGroup;
         }
+        group.clear();
     }
 
     // Output whatever is leftover.

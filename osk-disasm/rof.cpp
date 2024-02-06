@@ -618,9 +618,7 @@ bool rof_setup_ref(std::string& out_name, refmap& ref, uint32_t addrs, int32_t v
         if (val != 0)
         {
             out_name += val > 0 ? "+" : "-";
-            char temp[200];
-            sprintf_s(temp, "%d", abs(val));
-            out_name += temp;
+            out_name += std::to_string(val);
         }
 
         return true;
@@ -651,9 +649,7 @@ bool IsRef(std::string& out_name, uint32_t curloc, uint32_t ival, int Pass)
                 if (ival)
                 {
                     out_name += (it->second.type & 0x80) ? "-" : "+";
-                    char temp[200];
-                    sprintf_s(temp, "%d", ival);
-                    out_name += temp;
+                    out_name += std::to_string(ival);
                 }
                 return true;
             } /* Else leave retVal=NULL - for local refs, let calling process handle it */

@@ -35,6 +35,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <iomanip>
 
 #include "cmdfile.h"
 #include "command_items.h"
@@ -485,20 +486,15 @@ int dopass(int Pass, struct options* opt)
 
                 if (opt->PrintAllCode && Instruction.rawDataSize > 0)
                 {
-                    size_t count = Instruction.rawDataSize;
-                    std::ostringstream codbuf;
-                    size_t wpos = 0;
+                    std::ostringstream buffer;
+                    buffer << std::hex << std::setfill('0');
 
-                    while (count)
+                    for (size_t i = 0; i < Instruction.rawDataSize; i++)
                     {
-                        char tmpcod[10];
-
-                        sprintf(tmpcod, "%04x ", (unsigned short)Instruction.rawData[wpos++]);
-                        codbuf << tmpcod;
-                        --count;
+                        buffer << std::setw(4) << Instruction.rawData[i];
                     }
 
-                    printXtraBytes(codbuf.str());
+                    printXtraBytes(buffer.str());
                 }
             }
         }
