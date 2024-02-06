@@ -31,6 +31,7 @@ class Writer
     virtual bool openedSuccessfully() = 0;
     virtual void flush() = 0;
     virtual void write(const std::string& s);
+    virtual void write(const char* s);
 
     inline writer_handle* handle()
     {
@@ -81,6 +82,7 @@ class StringWriter : public Writer
     virtual bool openedSuccessfully() override;
     virtual void flush() override;
     virtual void write(const std::string& s) override;
+    virtual void write(const char* s) override;
 
     inline std::string result()
     {

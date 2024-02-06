@@ -34,6 +34,11 @@ void Writer::write(const std::string& s)
     this->printf("%s", s.c_str());
 }
 
+void Writer::write(const char* s)
+{
+    this->printf("%s", s);
+}
+
 FileWriter::FileWriter(const char* filename)
 {
     _fp = fopen(filename, "wb");
@@ -135,6 +140,11 @@ void StringWriter::flush()
 }
 
 void StringWriter::write(const std::string& s)
+{
+    _stream << s;
+}
+
+void StringWriter::write(const char* s)
 {
     _stream << s;
 }

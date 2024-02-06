@@ -620,23 +620,27 @@ void GetIRefs(struct options* opt)
     }
 }
 
-static void dataprintHeader(const char* hdr, AddrSpaceHandle space, int isRemote, struct options* opt)
+static void dataprintHeader(AddrSpaceHandle space, struct options* opt)
 {
+    using namespace std;
+
     BlankLine(opt);
 
-    char f_fmt[100];
-
-    sprintf(f_fmt, "%%5d %s", hdr);
-    writer_printf(stdout_writer, f_fmt, LinNum++, space->shortcode.c_str());
+    std::ostringstream buffer;
+    buffer << setw(5) << LinNum++ << " * ";
+    buffer << SpaceKinds::getName(space->kind);
+    buffer << " Data (Class \"" << space->shortcode << "\")\n";
+    stdout_writer->inner->write(buffer.str());
 
     if (opt->asmFile)
     {
-        writer_printf(opt->asmFile, "* %s", space->shortcode.c_str());
+        opt->asmFile->inner->write("* ");
+        opt->asmFile->inner->write(space->shortcode);
     }
 
     BlankLine(opt);
 
-    std::string remoteString(isRemote ? "remote" : "");
+    std::string remoteString(space->isRemote ? "remote" : "");
     PrintDirective("", "vsect", remoteString, 0, 0, opt, nullptr);
 }
 
@@ -889,22 +893,15 @@ void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state
 
 void ROFDataPrint(struct options* opt)
 {
-    /*char dattmp[5];*/
-    const char* udat = "* Uninitialized Data (Class \"%s\")\n";
-    // TODO: Change this to add a space. The reference exe will also have to be
-    // patched.
-    const char* idat = "* Initialized Data (Class\"%s\")\n";
 
     if (opt->ROFHd->statstorage)
     {
+        dataprintHeader(&UNINIT_DATA_SPACE, opt);
+
         parse_state state;
         state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
-
-        dataprintHeader(udat, &UNINIT_DATA_SPACE, FALSE, opt);
-
-        /*first, if first entry is not D000, rmb bytes up to first */
 
         ListUninitData(opt->ROFHd->statstorage, &UNINIT_DATA_SPACE, opt);
         BlankLine(opt);
@@ -913,7 +910,7 @@ void ROFDataPrint(struct options* opt)
 
     if (opt->ROFHd->combinedDataSize)
     {
-        dataprintHeader(idat, &INIT_DATA_SPACE, FALSE, opt);
+        dataprintHeader(&INIT_DATA_SPACE, opt);
 
         parse_state state;
         state.Module = opt->ROFHd->initDataStream.get();
@@ -924,20 +921,16 @@ void ROFDataPrint(struct options* opt)
 
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
-        /*ListInitWithHeader (srch, ROFHd.combinedDataSize, '_');*/
-        /*ListInit (dta, ROFHd.combinedDataSize, '_');*/
     }
 
     if (opt->ROFHd->remoteStaticDataSize)
     {
+        dataprintHeader(&UNINIT_REMOTE_SPACE, opt);
+
         parse_state state;
         state.Module = opt->Module.get();
         state.opt = opt;
         state.Pass = 2;
-
-        dataprintHeader(udat, &UNINIT_REMOTE_SPACE, TRUE, opt);
-
-        /*first, if first entry is not D000, rmb bytes up to first */
 
         ListUninitData(opt->ROFHd->remoteStaticDataSize, &UNINIT_REMOTE_SPACE, opt);
         BlankLine(opt);
@@ -946,9 +939,7 @@ void ROFDataPrint(struct options* opt)
 
     if (opt->ROFHd->remoteCombinedDataSize)
     {
-
-        int size = opt->ROFHd->remoteCombinedDataSize;
-        dataprintHeader(idat, &INIT_REMOTE_SPACE, TRUE, opt);
+        dataprintHeader(&INIT_REMOTE_SPACE, opt);
 
         parse_state state;
         state.Module = opt->ROFHd->initRemoteDataStream.get();
@@ -956,11 +947,10 @@ void ROFDataPrint(struct options* opt)
         state.Pass = 2;
         state.Module->reset();
         ListInit(&refManager.refs_iremote, &INIT_REMOTE_SPACE, &state);
+        // TODO: Remove extra blank line.
         BlankLine(opt);
-        /*ListInitWithHeader (srch, ROFHd.combinedDataSize, 'H');*/
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
-        /*ListInit (dta, ROFHd.combinedDataSize, 'H');*/
     }
 }
 

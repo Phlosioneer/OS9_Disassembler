@@ -12,7 +12,7 @@
    11  00000 0000            ends              
    12
    13
-   14 * Initialized Data (Class"_")
+   14 * Initialized Data (Class "_")
    15
    16  00000 0000            vsect             
    17  00000 0000 _memmins:  dc.l   $00002000  

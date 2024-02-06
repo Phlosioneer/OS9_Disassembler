@@ -22,7 +22,7 @@
    21  00000 0000            ends              
    22
    23
-   24 * Initialized Data (Class"_")
+   24 * Initialized Data (Class "_")
    25
    26  00000 0000            vsect             
    27  00000 0000 _00000     dc.l   $0000001f  

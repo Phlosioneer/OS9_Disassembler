@@ -47,7 +47,7 @@ LabelManager::LabelManager(){};
 LabelCategory& LabelManager::getCategory(AddrSpaceHandle code)
 {
     if (!code) throw std::runtime_error("Address space cannot be null");
-    if (code->isLiteralSpace) throw std::runtime_error("Cannot make a category for a literal space");
+    if (code->kind == SpaceKind::LITERAL) throw std::runtime_error("Cannot make a category for a literal space");
 
     auto pair = _labelCategories.find(code->name);
     if (pair == _labelCategories.end())
@@ -78,21 +78,21 @@ void LabelManager::clear()
 
 std::shared_ptr<Label> LabelManager::addLabel(AddrSpaceHandle code, long value)
 {
-    if (!code || code->isLiteralSpace) return nullptr;
+    if (!code || code->kind == SpaceKind::LITERAL) return nullptr;
 
     return getCategory(code).add(value);
 }
 
 std::shared_ptr<Label> LabelManager::addLabel(AddrSpaceHandle code, long value, std::string&& name)
 {
-    if (!code || code->isLiteralSpace) return nullptr;
+    if (!code || code->kind == SpaceKind::LITERAL) return nullptr;
 
     return getCategory(code).add(value, std::move(name));
 }
 
 std::shared_ptr<Label> LabelManager::getLabel(AddrSpaceHandle code, long value)
 {
-    if (!code || code->isLiteralSpace) return nullptr;
+    if (!code || code->kind == SpaceKind::LITERAL) return nullptr;
 
     return getCategory(code).get(value);
 }
@@ -318,7 +318,7 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
     else
     { /*Pass2 */
         auto mylabel = labelManager.getLabel(mainclass, adjusted);
-        if (!mainclass || mainclass->isLiteralSpace)
+        if (!mainclass || mainclass->kind == SpaceKind::LITERAL)
         {
             return false;
         }

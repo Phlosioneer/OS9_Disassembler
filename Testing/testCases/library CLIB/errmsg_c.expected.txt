@@ -1,7 +1,7 @@
     0  00000 0000            psect  errmsg_c,0,0,0,0,_errmsg 
     1
     2
-    3 * Initialized Data (Class"_")
+    3 * Initialized Data (Class "_")
     4
     5  00000 0000            vsect             
     6  00000 0000 _00000     dc.l   btext      

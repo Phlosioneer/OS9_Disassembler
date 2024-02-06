@@ -3,10 +3,65 @@
 
 #include "pch.h"
 
+enum class SpaceKind
+{
+    /// <summary>
+    /// Members of this space point to data that was initialized by the file. All
+    /// addresses have a corresponding file offset (though it's not tracked).
+    /// </summary>
+    INITIALIZED,
+
+    /// <summary>
+    /// Members of this space point to data that only exists at runtime. 
+    /// </summary>
+    UNINITIALIZED,
+
+    /// <summary>
+    /// Members of this space don't point to any memory at all. Instead, they're
+    /// constant or abstract values.
+    /// </summary>
+    NAMED_LITERAL,
+
+    /// <summary>
+    /// Members of this space are unnamed literal values. Used to correctly render
+    /// literals in different bases and formats (like ascii).
+    /// </summary>
+    LITERAL
+};
+
+namespace SpaceKinds
+{
+
+const char* getName(SpaceKind kind);
+
+}
+
 class AddressSpace
 {
   public:
-    AddressSpace(const char* name, const char* shortcode, bool allowsAliases = false, bool isLiteralSpace = false);
+    class isRemote_tag_t
+    {
+    };
+    class canAlias_tag_t
+    {
+    };
+
+  private:
+    AddressSpace(const char* name, const char* shortcode, SpaceKind kind, bool allowsAliases, bool isRemote);
+
+  public:
+    inline AddressSpace(const char* name, const char* shortcode, SpaceKind kind)
+        : AddressSpace(name, shortcode, kind, false, false)
+    {
+    }
+    inline AddressSpace(const char* name, const char* shortcode, SpaceKind kind, canAlias_tag_t tag)
+        : AddressSpace(name, shortcode, kind, true, false)
+    {
+    }
+    inline AddressSpace(const char* name, const char* shortcode, SpaceKind kind, isRemote_tag_t tag)
+        : AddressSpace(name, shortcode, kind, false, true)
+    {
+    }
     virtual ~AddressSpace() = default;
 
     // Human readable name for the address space. Must be unique.
@@ -22,7 +77,9 @@ class AddressSpace
     // have the same value!
     const bool allowsAliases;
 
-    const bool isLiteralSpace;
+    const SpaceKind kind;
+
+    const bool isRemote;
 
     // Uses the unique name constraint as a shortcut.
     bool operator==(const AddressSpace& other) const;

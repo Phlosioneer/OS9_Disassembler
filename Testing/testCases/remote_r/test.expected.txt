@@ -10,7 +10,7 @@
     9  00000 0000            ends              
    10
    11
-   12 * Initialized Data (Class"H")
+   12 * Initialized Data (Class "H")
    13
    14  00000 0000            vsect  remote     
    15  00000 0000 loremIpsum: dc.b   "Lorem ipsum dolor sit am" 

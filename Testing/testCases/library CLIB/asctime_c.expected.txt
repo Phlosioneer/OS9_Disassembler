@@ -10,7 +10,7 @@
     9  00000 0000            ends              
    10
    11
-   12 * Initialized Data (Class"_")
+   12 * Initialized Data (Class "_")
    13
    14  00000 0000            vsect             
    15  00000 0000 _00000     dc.l   L00064     
