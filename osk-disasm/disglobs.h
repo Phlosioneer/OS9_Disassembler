@@ -87,20 +87,13 @@ enum
     AM_REL,
     AM_MAXMODES /* Count of Modes + 1 */
 };
-#define AMODE_BOUNDS_CHECK(mode)                                                                                       \
-    if ((mode) >= AM_MAXMODES || (mode) == 0)                                                                          \
-    {                                                                                                                  \
-        char _errMessage[30];                                                                                          \
-        snprintf(_errMessage, 30, "Invalid AMode: %d", (mode));                                                        \
-        errexit(_errMessage);                                                                                          \
-    }
 
 /* The following two structures define
  * the extended word
  */
 struct extWbrief
 {
-    char regNam = '\0'; /* Index Register ('D' or 'A' */
+    bool isAddrReg = false; /* Index Register ('D' or 'A' */
     int regno = 0;      /* Register # */
     int isLong = 0;     /* Index size (W/L, 0 if sign-extended word */
     int scale = 0;      /* Scale  00 = 1, 01 = 2, 03 = 4, 11= 8 */

@@ -81,7 +81,4 @@ void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
 // Unused
 char getnext_b(struct cmd_items* ci, struct parse_state* state);
 
-extern const char* SizSufx[3];
-extern const char dispRegNam[];
-
 #endif // COMMAND_ITEMS_H

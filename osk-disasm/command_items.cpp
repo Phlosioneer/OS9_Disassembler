@@ -21,8 +21,6 @@
 #define OPCODE_LEN 200
 #define COMMENT_LEN 200
 
-extern const char dispRegNam[] = {'d', 'a'};
-
 /*
 struct cmd_items_inner {
     int cmd_wrd;        // The single effective address word (the command)
@@ -36,30 +34,11 @@ struct cmd_items_inner {
 };
 */
 
-const char* SizSufx[] = {"b", "w", "l"};
-
 typedef struct modestrs
 {
     const char* str;
     int CPULvl;
 } MODE_STR;
-
-MODE_STR ModeStrings[] = {{"d%d", 0},    {"a%d", 0},     {"(a%d)", 0},     {"(a%d)+", 0},
-                          {"-(a%d)", 0}, {"%s(a%d)", 0}, {"%s(a%d,%s)", 0}};
-
-/* The above strings for when the register is A7 (sp) */
-MODE_STR SPStrings[] = {{"", 99999}, /* Should never be used */
-                        {"sp", 0},   {"(sp)", 0}, {"(sp)+", 0}, {"-(sp)", 0}, {"%s(sp)", 0}, {"%s(sp,%s)", 0}};
-
-/* Need to add for 68020-up modes.  Don't know if they can be included in these two arrays or not..*/
-MODE_STR Mode07Strings[] = {{"(%s).w", 0}, {"(%s).l", 0}, {"%s(pc)", 0}, {"%s(pc,%s)", 0}, {"#%s", 0}};
-
-MODE_STR Mode020Strings[] = {
-    {"(%s,A%d)"},        /* (disp.w,An) */
-    {"(%s,%s,%s)"},      /* (bd,An,Xn) | (bd,PC,Xn) */
-    {"([%d,%s],%s,%d)"}, /* ([bd,An],Xn,disp) | ([bd,PC],Xn,disp) */
-    {"([%d,%s,%s],%d)"}, /* ([bd,An,Xn],disp) | ([bd,PC,Xn],disp) */
-};
 
 void cmd_items::setSource(const LiteralParam& param)
 {
@@ -318,7 +297,7 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg,
     extW->isLong = (ew >> 11) & 1;
     extW->scale = (ew >> 9) & 3;
     extW->regno = (ew >> 12) & 7;
-    extW->regNam = dispRegNam[(ew >> 15) & 1];
+    extW->isAddrReg = ((ew >> 15) & 1) == 1;
 
     extW->displ = ew & 0xff;
 
@@ -426,7 +405,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 return 0;
             }
             auto addressReg = Registers::makeAReg(reg);
-            auto offsetReg = ew_b.regNam == 'a' ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
+            auto offsetReg = ew_b.isAddrReg ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
             auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
             if (ew_b.displ != 0)
             {
@@ -534,10 +513,8 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             std::string dispstr;
             if (rof_setup_ref(dispstr, refManager.refs_code, static_cast<uint32_t>(ref_ptr), ext1))
             {
-                char temp[200];
-                temp[0] = '\0';
-                sprintf(temp, Mode07Strings[reg].str, dispstr.c_str());
-                param = std::make_unique<LiteralParam>(std::string(temp));
+                dispstr = "#" + dispstr;
+                param = std::make_unique<LiteralParam>(dispstr);
             }
             else if (LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass))
             {
@@ -574,7 +551,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                     ungetnext_w(ci, state);
                     return nullptr;
                 }
-                auto offsetReg = ew_b.regNam == 'a' ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
+                auto offsetReg = ew_b.isAddrReg ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
                 auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
                 char* label = nullptr;
                 if (ew_b.displ != 0)
