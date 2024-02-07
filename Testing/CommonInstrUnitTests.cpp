@@ -311,10 +311,10 @@ namespace UnitTests
 			subtestName = L"Syscall Unlink trap";
 			pushWord(TRAP | 0);
 			pushWord(0);
-			rof_extrn unlink(0, 2, true);
+			rof_extrn unlink(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
 			unlink.hasName = true;
 			unlink.name = "F$UnLink";
-			refManager.refs_code.insert(std::make_pair<uint32_t, rof_extrn>(2, std::move(unlink)));
+			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(2, std::vector<rof_extrn>{ std::move(unlink) }));
 			runTest("os9", "F$UnLink");
 			refManager.refs_code.clear();
 
@@ -322,14 +322,14 @@ namespace UnitTests
 			subtestName = L"Math Tangent trap";
 			pushWord(TRAP | MATH_TRAP);
 			pushWord(0);
-			rof_extrn temp(0, 1, true);
+			rof_extrn temp(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 1);
 			temp.hasName = true;
 			temp.name = "T$Math";
-			refManager.refs_code.insert(std::make_pair<uint32_t, rof_extrn>(1, std::move(temp)));
-			rof_extrn temp2(0, 2, true);
+			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(1, std::vector<rof_extrn>{std::move(temp)}));
+			rof_extrn temp2(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
 			temp2.hasName = true;
 			temp2.name = "T$Tan";
-			refManager.refs_code.insert(std::make_pair<uint32_t, rof_extrn>(2, std::move(temp2)));
+			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(2, std::vector<rof_extrn>{std::move(temp2)}));
 			runTest("tcall", "T$Math,T$Tan");
 			refManager.refs_code.clear();
 		}

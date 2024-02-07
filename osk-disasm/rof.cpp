@@ -58,18 +58,10 @@ ReferenceManager refManager{};
 static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
                      BigEndianStream* Module);
 
-rof_extrn::rof_extrn(uint16_t type, uint32_t offset, bool isExternal) : type(type), offset(offset), isExternal(isExternal)
+rof_extrn::rof_extrn(RoffReferenceInfo refInfo, uint32_t offset) : info(refInfo), offset(offset)
 {
 }
 
-const char* extern_def_name(struct rof_extrn* handle)
-{
-    if (!handle->hasName)
-    {
-        errexit("Cannot access name of label; not implemented yet");
-    }
-    return handle->name.c_str();
-}
 
 /*
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
@@ -79,25 +71,31 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
 {
     uint32_t refVal;
 
-    for (auto& it : tbl)
+    for (auto& vec : tbl)
     {
-        if (!it.second.isExternal)
+        for (auto& ref : vec.second)
         {
-            Module->seekAbsolute(it.second.offset);
-
-            switch (it.second.size())
+            if (!ref.isExternal())
             {
-            case 1: /*SIZ_BYTE:*/
-                refVal = Module->read<uint8_t>();
-                break;
-            case 2: /*SIZ_WORD:*/
-                refVal = Module->read<uint16_t>();
-                break;
-            default:
-                refVal = Module->read<uint32_t>();
+                Module->seekAbsolute(ref.offset);
+
+                switch (ref.info.opSize())
+                {
+                case OperandSize::Byte:
+                    refVal = Module->read<uint8_t>();
+                    break;
+                case OperandSize::Word:
+                    refVal = Module->read<uint16_t>();
+                    break;
+                case OperandSize::Long:
+                    refVal = Module->read<uint32_t>();
+                    break;
+                default:
+                    throw std::runtime_error("Unreachable");
+                }
+                ref.hasName = false;
+                ref.label = labelManager.addLabel(ref.space, refVal);
             }
-            it.second.hasName = false;
-            it.second.label = labelManager.addLabel(it.second.space, refVal);
         }
     }
 }
@@ -263,13 +261,13 @@ AddrSpaceHandle RoffReferenceInfo::space() const
         switch (type & 0x100)
         {
         case 0:                 /* NOT common */
-            switch (type & 0x04) /* Docs are backward? */
+            switch (type & 0x04) /* Docs are backward? They say 0x01 */
             {
             case 0:                 /* Data */
-                switch (type & 0x01) /* Docs are backward ? */
+                switch (type & 0x01) /* Docs are backward? They say 0x02 */
                 {
                 case 0: /* Uninit */
-                    switch (type & 0x02)
+                    switch (type & 0x02) /* Docs are backward? They say 0x04 */
                     {
                     case 0:
                         // return 'D';
@@ -279,7 +277,7 @@ AddrSpaceHandle RoffReferenceInfo::space() const
                         return &UNINIT_REMOTE_SPACE;
                     }
                 default: /* Init */
-                    switch (type & 0x02)
+                    switch (type & 0x02) /* Docs are backward? They say 0x04 */
                     {
                     case 0:
                         // return '_';
@@ -290,17 +288,21 @@ AddrSpaceHandle RoffReferenceInfo::space() const
                     }
                 }
             default: /* Code or Equ */
+                /* FIXME: Based on the above backwards columns, I think this should be `type & 0x1`.
+                 * For now, it's using 0x02 as documented.
+                 */
                 switch (type & 0x02)
                 {
-                case 0: /* NOT remote */
+                case 0: /* code */
                     // return 'L';
                     return &CODE_SPACE;
-                default:
+                default: /* equ */
                     // return 'L';
                     return &CODE_SPACE; /* FIXME: This is actually 'equ' */
                 }
             }
         default: /* common */
+            /* FIXME: This appears to be a typo. */
             switch (type & 0x20)
             {
             case 0: /* NOT Remote */
@@ -317,26 +319,22 @@ AddrSpaceHandle RoffReferenceInfo::space() const
 
     case ReferenceScope::REFXTRN:
     case ReferenceScope::REFLOCAL:
-        switch (type & 0x20)
+        switch (type & 0x200)
         {
         case 0: /* NOT remote */
-            switch (type & 0x200)
+            switch (type & 0x20)
             {
             case 0: /* data */
-                // return '_';
                 return &INIT_DATA_SPACE;
-            default: /* remote */
-                // return 'L';
+            default: /* code */
                 return &CODE_SPACE;
             }
         default:
-            switch (type & 0x200)
+            switch (type & 0x20)
             {
-            case 0: /* code */
-                // return 'L';
-                return &CODE_SPACE;
-            default: /* debug */
-                // return 'L';
+            case 0: /* Remote */
+                return &INIT_REMOTE_SPACE;
+            default: /* debug (undocumented) */
                 return &DEBUG_SPACE;
             }
         }
@@ -401,11 +399,11 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
             throw std::runtime_error("Unexpected class: " + space->name);
         }
         
-        rof_extrn new_ref(_ty, _ofst, ref_typ == ReferenceScope::REFXTRN);
+        rof_extrn new_ref(info, _ofst);
 
         /*base = &refs_data;*/ /* For the time being, let's try to just use one list for all refs */
 
-        if (new_ref.isExternal)
+        if (new_ref.isExternal())
         {
             new_ref.hasName = true;
             new_ref.name = vname;
@@ -420,18 +418,15 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
 
             if ((ref_typ == ReferenceScope::REFLOCAL) && (*space == CODE_SPACE))
             {
-                switch (new_ref.size())
+                switch (new_ref.info.opSize())
                 {
-                case 1:
-                    // dstVal = *pt & 0xff;
+                case OperandSize::Byte:
                     dstVal = code_buf->read<uint8_t>();
                     break;
-                case 2:
-                    // dstVal = bufReadW(&pt);
+                case OperandSize::Word:
                     dstVal = code_buf->read<uint16_t>();
                     break;
-                case 3:
-                    // dstVal = bufReadL(&pt);
+                case OperandSize::Long:
                     dstVal = code_buf->read<uint32_t>();
                     break;
                 default:
@@ -452,11 +447,20 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
             }
         }
 
-        (*base)[_ofst] = new_ref;
+        auto it = base->find(_ofst);
+        if (it == base->end())
+        {
+            base->insert({_ofst, {new_ref}});
+        }
+        else
+        {
+            it->second.emplace_back(new_ref);
+        }
+        //(*base)[_ofst] = new_ref;
     }
 }
 
-struct rof_extrn* ReferenceManager::find_extrn(refmap& xtrn, unsigned int adrs)
+std::vector<rof_extrn>* ReferenceManager::find_extrn(refmap& xtrn, unsigned int adrs)
 {
     auto it = xtrn.find(adrs);
     if (it == xtrn.end()) return nullptr;
@@ -492,41 +496,40 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
         state->CmdEnt = state->PCPos;
 
         // Check if this is the start of a reference.
-        rof_extrn* ref = refsList ? refManager.find_extrn(*refsList, state->CmdEnt) : nullptr;
-        if (ref)
+        std::vector<rof_extrn>* refs = refsList ? refManager.find_extrn(*refsList, state->CmdEnt) : nullptr;
+        if (refs && refs->size() > 0)
         {
-            OperandSize size;
+            const OperandSize size = maxSizeOfRefs(*refs);
             std::vector<uint16_t> rawData;
-            switch (ref->size())
+            uint32_t valueRead;
+            switch (size)
             {
-            case 1: /* SIZ_BYTE */
-                size = OperandSize::Byte;
-                rawData.push_back(state->Module->read<uint8_t>());
+            case OperandSize::Byte:
+                valueRead = state->Module->read<uint8_t>();
+                rawData.push_back(valueRead);
                 break;
-            case 2: /* SIZ_WORD */
-                size = OperandSize::Word;
+            case OperandSize::Word:
+                valueRead = state->Module->read<uint16_t>();
+                state->Module->undo();
                 state->Module->readVec(rawData, 1);
                 break;
-            default: /* SIZ_LONG */
-                size = OperandSize::Long;
+            case OperandSize::Long:
+                valueRead = state->Module->read<uint32_t>();
+                state->Module->undo();
                 state->Module->readVec(rawData, 2);
+                break;
+            default:
+                throw std::runtime_error("Unreachable");
             }
             state->PCPos += OperandSizes::getByteCount(size);
 
             std::string mnem("dc");
             mnem += OperandSizes::getSuffix(size);
-
-            std::string name;
-            if (ref->isExternal)
-            {
-                name = ref->name;
-            }
-            else
-            {
-                name = ref->label->name();
-            }
             
-            PrintDirective(labelName, mnem.c_str(), name, state->CmdEnt, state->PCPos, state->opt, rawData, space);
+            std::string expression;
+            refsToExpression(expression, *refs, state->PCPos, valueRead, state->Pass, OperandSize::Long, false);
+            
+            PrintDirective(labelName, mnem.c_str(), expression, state->CmdEnt, state->PCPos, state->opt, rawData, space);
             labelName.clear();
             state->CmdEnt = state->PCPos;
         }
@@ -572,7 +575,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
                         val = state->Module->read<uint32_t>();
                         break;
                     default:
-                        throw std::runtime_error("Unexpected size");
+                        throw std::runtime_error("Unreachable");
                     }
                     state->PCPos += OperandSizes::getByteCount(size);
                     auto formatted = FormattedNumber(val, size, &LITERAL_HEX_SPACE);
@@ -600,69 +603,33 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
  * portion of the opcode
  *
  * Returns: trturns TRUE (1) if a ref was found and set up, FALSE (0) if no ref found here
+ * 
+ * isRelativeRefImplied: For some instructions (branches) and some argument forms (pc displacements), the assembler
+ * forces references to be relative. For correct disassembly, we need to undo that.
  */
-bool rof_setup_ref(std::string& out_name, refmap& ref, uint32_t addrs, int32_t val)
+bool rof_setup_ref(std::string& out_text, refmap& ref, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied)
 {
-    auto r = refManager.find_extrn(ref, addrs);
-    if (r)
+    auto refs = refManager.find_extrn(ref, addrs);
+    if (refs && refs->size() > 0)
     {
-        if (r->hasName)
-        {
-            out_name = r->name;
-        }
-        else
-        {
-            out_name = r->label->name();
-        }
-
-        if (val != 0)
-        {
-            out_name += val > 0 ? "+" : "-";
-            out_name += std::to_string(val);
-        }
-
-        return true;
+        return refsToExpression(out_text, *refs, addrs, val, Pass, sizeConstraint, isRelativeRefImplied);
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
-bool IsRef(std::string& out_name, uint32_t curloc, uint32_t ival, int Pass)
+ /* isRelativeRefImplied : For some instructions(branches) and some argument forms(pc displacements), the assembler
+  * forces references to be relative.For correct disassembly, we need to undo that.
+  */
+bool IsRef(std::string& out_text, uint32_t curloc, uint32_t ival, int Pass, OperandSize sizeConstraint,
+           bool isRelativeRefImplied)
 {
-    register char* retVal = NULL;
-
     auto it = refManager.refs_code.find(curloc);
     if (it != refManager.refs_code.end())
     {
-        if (Pass == 1)
-        {
-            return true;
-        }
-        else
-        {
-            if (it->second.isExternal)
-            {
-                out_name = it->second.name;
-
-                if (ival)
-                {
-                    out_name += (it->second.type & 0x80) ? "-" : "+";
-                    out_name += std::to_string(ival);
-                }
-                return true;
-            } /* Else leave retVal=NULL - for local refs, let calling process handle it */
-            else
-            {
-                // Pretty sure this is a bug, and it's supposed to be strcpy().
-                out_name = it->second.label->name();
-                return true;
-            }
-        }
+        return refsToExpression(out_text, it->second, curloc, ival, Pass, sizeConstraint, isRelativeRefImplied);
     }
 
-    return retVal;
+    return false;
 }
 
 void ReferenceManager::clear()
@@ -673,4 +640,116 @@ void ReferenceManager::clear()
     refs_iremote.clear();
     refs_code.clear();
     extrns.clear();
+}
+
+OperandSize maxSizeOfRefs(const std::vector<rof_extrn>& refs)
+{
+    OperandSize max = OperandSize::Byte;
+    for (const rof_extrn& ref : refs)
+    {
+        max = OperandSizes::max(max, ref.info.opSize());
+    }
+    return max;
+}
+
+static bool areAllRefsExternal(const std::vector<rof_extrn>& refs)
+{
+    for (const rof_extrn& ref : refs) {
+        if (!ref.isExternal())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+/* isRelativeRefImplied : For some instructions(branches) and some argument forms(pc displacements), the assembler
+ * forces references to be relative.For correct disassembly, we need to undo that. 
+ */
+bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs, uint32_t currentAddress, uint32_t literalValue,
+                      int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied)
+{
+    std::ostringstream buffer;
+    bool isFirstRef = true;
+
+    if (literalValue != 0 && areAllRefsExternal(refs))
+    {
+        // TODO: This needs to change. If isRelativeRefImplied = true, and literal != 0, then this literal needs
+        // to be registered as a label just like LblCalc would normally do. But we can't call lblcalc, because that's
+        // recursive!
+        bool labelWritten = false;
+        if (isRelativeRefImplied)
+        {
+            int32_t adjustedValue = static_cast<int32_t>(literalValue + currentAddress);
+            bool isNegative = (adjustedValue < 0);
+            uint32_t absoluteValue = abs(adjustedValue);
+            if (Pass == 1)
+            {
+                labelManager.addLabel(&CODE_SPACE, absoluteValue);
+            }
+            else
+            {
+                auto label = labelManager.getLabel(&CODE_SPACE, absoluteValue);
+                if (label)
+                {
+                    if (isNegative)
+                    {
+                        buffer << '-';
+                    }
+                    buffer << label->name();
+                    labelWritten = true;
+                }
+            }
+        }
+
+        if (!labelWritten)
+        {
+            buffer << "$" << std::hex << literalValue;
+        }
+        isFirstRef = false;
+    }
+
+    for (const rof_extrn& ref : refs)
+    {
+        if (ref.info.opSize() > sizeConstraint)
+        {
+            return false;
+        }
+
+        if (isFirstRef)
+        {
+            isFirstRef = false;
+            buffer << (ref.info.isPositive() ? "" : "-");
+        }
+        else
+        {
+            buffer << (ref.info.isPositive() ? "+" : "-");
+        }
+
+        std::string name;
+        if (ref.hasName)
+        {
+            name = ref.name;
+        }
+        else
+        {
+            name = ref.label->name();
+        }
+
+        // Note: I've confirmed through experiments that the assembler makes ALL
+        //       references in an expression relative.
+        if (ref.info.isRelative() && !isRelativeRefImplied)
+        {
+            // Print out as relative ref.
+            buffer << "(*-" << name << ")";
+        }
+        else
+        {
+            // Print out normally.
+            buffer << name;
+        }
+    }
+
+    out_text = buffer.str();
+    return true;
 }

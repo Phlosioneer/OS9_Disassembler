@@ -26,7 +26,7 @@
    25  00044 4e40            os9    I$GetStt   
    26  00048 65d4            bcs.s  L0001e     
    27  0004a 1f6f            move.b 17(sp),FD_OWN(sp) 
-   28  00050 1f6f            move.b 19(sp),FD_OWN+1(sp) 
+   28  00050 1f6f            move.b 19(sp),$1+FD_OWN(sp) 
    29  00056 4e40            os9    I$SetStt   
    30  0005a 65c2            bcs.s  L0001e     
    31  0005c 4e40 L0005c     os9    I$Close    

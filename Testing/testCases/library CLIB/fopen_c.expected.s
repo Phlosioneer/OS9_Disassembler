@@ -11,7 +11,7 @@ L0000e moveq #3,d0
  move.l a2,d0
  bra.s L00032
 L0001a adda.l #28,a2
-L00020 lea _iob+896(a6),a0
+L00020 lea $380+_iob(a6),a0
  cmpa.l a2,a0
  bhi.s L0000e
  move.l #200,errno(a6)

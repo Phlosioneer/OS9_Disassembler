@@ -263,9 +263,11 @@ void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, Ad
  * Passed:  (1) dst - pointer to character string into which to APPEND result                                       *
  *          (2) adr -  the address of the label
  *          (3) amod - the AMode desired
- * This is NOT SAFE AT ALL.
+ * 
+ * isRelativeRefImplied : For some instructions(branches) and some argument forms(pc displacements), the assembler
+ * forces references to be relative.For correct disassembly, we need to undo that.
  */
-bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass)
+bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass, OperandSize sizeConstraint)
 {
 
     auto adjusted = adr;
@@ -278,17 +280,15 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
 
     if (isRof)
     {
-        if (IsRef(out_name, curloc, adr, Pass))
+        if (IsRef(out_name, curloc, adr, Pass, sizeConstraint, amod == AM_REL))
         {
             return true;
         }
     }
 
-    std::ostringstream dest;
-
     /* if amod is non-zero, we're doing a label class */
 
-    if (amod)
+    if (amod != AM_NO_LABELS)
     {
         /*mainclass = DEFAULTCLASS;*/
         // AMODE_BOUNDS_CHECK(amod);
@@ -308,6 +308,9 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
     }
     else /* amod=0, it's a boundary def  */
     {
+        if (isRof)
+        {
+        }
         return false;
     }
 
@@ -317,6 +320,7 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
     }
     else
     { /*Pass2 */
+        std::ostringstream dest;
         auto mylabel = labelManager.getLabel(mainclass, adjusted);
         if (!mainclass || mainclass->kind == SpaceKind::LITERAL)
         {
@@ -334,8 +338,8 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
             /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
             throw std::runtime_error("");
         }
+        out_name = dest.str();
     }
-    out_name = dest.str();
     //std::string destStr = dest.str();
     //strcat(dst, destStr.c_str());
     return true;

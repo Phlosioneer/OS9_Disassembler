@@ -1,8 +1,10 @@
  psect functions,0,0,0,0,function_table
 
-function_table: dc.w function_table,function_table
- dc.w function_table,$0180,$0228
- dc.w $0306,function_table,function_table
+function_table: dc.w set_gc_args-function_table
+ dc.w set_pc_args-function_table
+ dc.w install_frame_tick_handler-function_table
+ dc.w $0180,$0228,$0306,del_program-function_table
+ dc.w set_patch_desc-function_table
  dc.w $007e,$0088
 driver_set_stat_dc: movem.l a0-a2/a4-a6,-(sp)
  movem.l drawControlArgs(pc),a1-a2/a4-a6/d0

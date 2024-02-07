@@ -385,6 +385,40 @@ static void GetLabels(struct options* opt) /* Read the labelfiles */
     }
 }
 
+void doDataDirective(struct parse_state& parseState, OperandSize size)
+{
+    uint32_t value = parseState.Module->read(size);
+
+    if (parseState.Pass == 2)
+    {
+        std::string text;
+
+        std::string directive{"dc"};
+        directive += OperandSizes::getSuffix(size);
+
+        // Amod = 0 to suppress label creation.
+        if (LblCalc(text, value, AM_NO_LABELS, parseState.PCPos, parseState.opt->IsROF, parseState.Pass, size))
+        {
+            std::vector<uint16_t> rawData;
+            if (size == OperandSize::Long)
+            {
+                rawData.push_back(static_cast<uint16_t>(value >> 16));
+            }
+            rawData.push_back(static_cast<uint16_t>(value));
+            
+            PrintDirective("", directive.c_str(), text, parseState.CmdEnt, parseState.PCPos, parseState.opt,
+                            rawData, &CODE_SPACE);
+        }
+        else
+        {
+            auto formatted = FormattedNumber(value, size, &LITERAL_HEX_SPACE);
+            PrintDirective("", directive.c_str(), formatted, parseState.CmdEnt, parseState.PCPos, parseState.opt, &CODE_SPACE);
+        }
+    }
+    parseState.PCPos += OperandSizes::getByteCount(size);
+    parseState.CmdEnt = parseState.PCPos;
+}
+
 /*
  * Do a complete single pass through the module. The first pass establishes the
  * addresses of necessary labels. On the second pass, the desired label names
@@ -470,10 +504,32 @@ int dopass(int Pass, struct options* opt)
         /* NOTE: The 6809 version did an "if" and it apparently worked,
          *     but we had to do this to get it to work with consecutive bounds.
          */
-        for (bp = allRegions.classHere(parseState.PCPos); bp; bp = allRegions.classHere(parseState.PCPos))
+        // Check for user-specified data region (via json)
+        if (bp = allRegions.classHere(parseState.PCPos))
         {
             HandleRegion(bp, &parseState);
-            parseState.CmdEnt = parseState.PCPos;
+            continue;
+        }
+
+        // Check for references that cover the current byte; they can't possibly be instructions.
+        const auto maybeRefList = refManager.refs_code.find(parseState.PCPos);
+        if (maybeRefList != refManager.refs_code.cend())
+        {
+            OperandSize largestRefSize = OperandSize::Byte;
+            for (const rof_extrn& ref : maybeRefList->second)
+            {
+                largestRefSize = OperandSizes::max(largestRefSize, ref.info.opSize());
+            }
+
+            doDataDirective(parseState, largestRefSize);
+            continue;
+        }
+
+        // Correct alignment if needed before trying to parse code.
+        if (parseState.PCPos % 2 == 1)
+        {
+            doDataDirective(parseState, OperandSize::Byte);
+            continue;
         }
 
         if (parseState.CmdEnt >= CodeEnd) continue;
@@ -500,13 +556,7 @@ int dopass(int Pass, struct options* opt)
         }
         else
         {
-            readOpword(&Instruction, &parseState);
-            if (Pass == 2)
-            {
-                auto formatted = FormattedNumber(Instruction.cmd_wrd & 0xFFFF, OperandSize::Word, &LITERAL_HEX_SPACE);
-                PrintDirective("", "dc.w", formatted, parseState.CmdEnt, parseState.PCPos, opt, &CODE_SPACE);
-                parseState.CmdEnt = parseState.PCPos;
-            }
+            doDataDirective(parseState, OperandSize::Word);
         }
     }
 
@@ -666,7 +716,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
         state->PCPos += OperandSizes::getByteCount(db->size);
 
         /* AMode = 0 to prevent LblCalc from defining class */
-        if (!LblCalc(tmps, value, 0, dataEnt, state->opt->IsROF, state->Pass))
+        if (!LblCalc(tmps, value, AM_NO_LABELS, dataEnt, state->opt->IsROF, state->Pass, db->size))
         {
             tmps = PrintNumber(value, 0, OperandSizes::getByteCount(db->size), literalSpace);
         }

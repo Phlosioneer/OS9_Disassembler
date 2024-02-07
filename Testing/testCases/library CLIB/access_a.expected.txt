@@ -22,7 +22,7 @@
    21  00042 4e55 mknod:     link.w a5,#0      
    22  00046 48e7            movem.l a0/d1-d2,-(sp) 
    23  0004a 2040            movea.l d0,a0      
-   24  0004c 7000            moveq  Write_,d0  
+   24  0004c 7000            moveq  Dir_+Write_,d0 
    25  0004e 7400            moveq  #0,d2      
    26  00050 4e40 L00050     os9    I$MakDir   
    27  00054 6000            bra.w  _sysret0   
@@ -45,17 +45,17 @@
    44  0008e 48e7            movem.l a0/d0-d2,-(sp) 
    45  00092 2040            movea.l d0,a0      
    46  00094 3001            move.w d1,d0      
-   47  00096 0241            andi.w #PExec_,d1 
-   48  0009a 0041            ori.w  #Write_,d1 
+   47  00096 0241            andi.w #Exec_+PExec_,d1 
+   48  0009a 0041            ori.w  #Read_+Write_,d1 
    49  0009e 7400            moveq  #0,d2      
    50  000a0 4e40            os9    I$Create   
    51  000a4 205f            movea.l (sp)+,a0   
    52  000a6 6400            bcc.w  _sysret    
-   53  000aa 0c01            cmpi.b E$CEF,d1   
+   53  000aa 0c01            cmpi.b #0,d1      
    54  000ae 6600            bne.w  _os9err    
    55  000b2 302f            move.w 2(sp),d0   
    56  000b6 6b00            bmi.w  _os9err    
-   57  000ba 0240            andi.w #Write_,d0 
+   57  000ba 0240            andi.w #Exec_+Read_+Write_,d0 
    58  000be 4e40            os9    I$Open     
    59  000c2 6500            bcs.w  _os9err    
    60  000c6 7400            moveq  #0,d2      

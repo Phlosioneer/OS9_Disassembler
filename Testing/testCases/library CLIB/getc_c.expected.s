@@ -88,13 +88,13 @@ L000ba link.w a5,#0
 L000ec lea _iob(a6),a0
  cmpa.l a2,a0
  bne.s L00112
- move.w _iob+40(a6),d0
+ move.w $28+_iob(a6),d0
  ext.l d0
  btst.l #15,d0
  beq.s L00112
  btst.b #7,13(a2)
  bne.s L00112
- lea _iob+28(a6),a0
+ lea $1c+_iob(a6),a0
  move.l a0,d0
  bsr.w fflush
 L00112 btst.b #3,13(a2)

@@ -11,14 +11,14 @@
    10
    11  00000 4e55 _errmsg:   link.w a5,#0      
    12  00004 48e7            movem.l a0/d0-d1,-(sp) 
-   13  00008 41ee            lea    _iob+28(a6),a0 
+   13  00008 41ee            lea    $1c+_iob(a6),a0 
    14  0000c 2008            move.l a0,d0      
    15  0000e 6100            bsr.w  fflush     
    16  00012 6148            bsr.s  _prgname   
    17  00014 2f00            move.l d0,-(sp)   
    18  00016 41fa            lea    L0006c(pc),a0 
    19  0001a 2208            move.l a0,d1      
-   20  0001c 41ee            lea    _iob+56(a6),a0 
+   20  0001c 41ee            lea    $38+_iob(a6),a0 
    21  00020 2008            move.l a0,d0      
    22  00022 6100            bsr.w  fprintf    
    23  00026 588f            addq.l #4,sp      
@@ -26,11 +26,11 @@
    25  0002c 2f2f            move.l 28(sp),-(sp) 
    26  00030 2f2f            move.l 28(sp),-(sp) 
    27  00034 222f            move.l 16(sp),d1  
-   28  00038 41ee            lea    _iob+56(a6),a0 
+   28  00038 41ee            lea    $38+_iob(a6),a0 
    29  0003c 2008            move.l a0,d0      
    30  0003e 6100            bsr.w  fprintf    
    31  00042 4fef            lea    12(sp),sp  
-   32  00046 41ee            lea    _iob+56(a6),a0 
+   32  00046 41ee            lea    $38+_iob(a6),a0 
    33  0004a 2008            move.l a0,d0      
    34  0004c 6100            bsr.w  fflush     
    35  00050 2017            move.l (sp),d0    

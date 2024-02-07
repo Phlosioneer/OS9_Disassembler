@@ -78,7 +78,7 @@
    77  000e0 200a L000e0     move.l a2,d0      
    78  000e2 6118            bsr.s  fclose     
    79  000e4 d5fc            adda.l #28,a2     
-   80  000ea 41ee L000ea     lea    _iob+896(a6),a0 
+   80  000ea 41ee L000ea     lea    $380+_iob(a6),a0 
    81  000ee b1ca            cmpa.l a2,a0      
    82  000f0 62ee            bhi.s  L000e0     
    83  000f2 4ced            movem.l -8(a5),a0/a2 

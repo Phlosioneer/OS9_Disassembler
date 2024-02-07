@@ -51,6 +51,7 @@
 #include "address_space.h"
 #include "label.h"
 #include "reader.h"
+#include "size.h"
 
 #include <stdio.h>
 
@@ -72,6 +73,20 @@ struct RoffReferenceInfo
     uint16_t type;
     ReferenceScope scope;
 
+    /* Documentation is WRONG. It has the sign flag and relative flag bits backwards.
+     * Documentation says sign = 0x80, relative = 0x40.
+     */
+    constexpr static uint16_t SIGN_FLAG = 0x40;
+    constexpr static uint16_t RELATIVE_FLAG = 0x80;
+    constexpr static uint16_t REF_SIZE_OFFSET = 3;
+    constexpr static uint16_t REF_SIZE_MASK = 0b11000;
+
+    
+    inline size_t rawSize() const noexcept
+    {
+        return (type & REF_SIZE_MASK) >> REF_SIZE_OFFSET;
+    }
+
   public:
     inline RoffReferenceInfo(uint16_t type, ReferenceScope scope) noexcept : type(type), scope(scope)
     {
@@ -81,38 +96,99 @@ struct RoffReferenceInfo
     {
     }
 
-    inline RoffReferenceInfo(RoffReferenceInfo&& other) noexcept : type(other.type), scope(other.scope)
+    inline RoffReferenceInfo& operator=(const RoffReferenceInfo& other) noexcept
     {
-    }
-
-    inline size_t size() const noexcept
-    {
-        return (type >> 3) & 3;
+        type = other.type;
+        scope = other.scope;
     }
 
     AddrSpaceHandle space() const;
+
+    inline ReferenceScope getScope() const
+    {
+        return scope;
+    }
+
+    inline bool isPositive() const
+    {
+        if (scope == ReferenceScope::REFXTRN || scope == ReferenceScope::REFLOCAL)
+        {
+            return (type & SIGN_FLAG) == 0;
+        }
+        return true;
+    }
+
+    inline bool isRelative() const
+    {
+        //if (scope == ReferenceScope::REFXTRN || scope == ReferenceScope::REFLOCAL)
+        //{
+            return (type & RELATIVE_FLAG) != 0;
+        //}
+        //return false;
+    }
+
+    inline size_t sizeInBytes() const
+    {
+        switch (rawSize())
+        {
+        case 0:
+            throw std::runtime_error("Illegal size value: 0");
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+        case 3:
+            return 4;
+        default:
+            throw std::runtime_error("Unreachable");
+        }
+    }
+
+    inline OperandSize opSize() const
+    {
+        switch (rawSize())
+        {
+        case 0:
+            throw std::runtime_error("Illegal size value: 0");
+        case 1:
+            return OperandSize::Byte;
+        case 2:
+            return OperandSize::Word;
+        case 3:
+            return OperandSize::Long;
+        default:
+            throw std::runtime_error("Unreachable");
+        }
+    }
 };
 
 struct rof_extrn
 {
-    rof_extrn() = default;
-    rof_extrn(uint16_t type, uint32_t offset, bool isExternal);
+    rof_extrn(RoffReferenceInfo refInfo, uint32_t offset);
 
     bool hasName = false;
     std::string name{};
     std::shared_ptr<Label> label{};
     AddrSpaceHandle space = nullptr; /* Class for referenced item NUll if extern */
-    uint16_t type = 0;                  /* Type Flag                        */
+    RoffReferenceInfo info;                /* Type Flag                        */
     uint32_t offset = 0;                  /* Offset into code                 */
-    bool isExternal = false;            /* Flag that it's an external ref   */
 
-    inline size_t size() const
+    inline bool isExternal() const
     {
-        return (type >> 3) & 3;
+        return info.getScope() == ReferenceScope::REFXTRN;
+    }
+
+    inline const char* getName() const
+    {
+        if (!hasName)
+        {
+            throw std::runtime_error("Cannot access name of label; not implemented yet");
+        }
+        return name.c_str();
     }
 };
 
-typedef std::unordered_map<uint32_t, rof_extrn> refmap;
+typedef std::unordered_map<uint32_t, std::vector<rof_extrn>> refmap;
 
 class ReferenceManager
 {
@@ -134,7 +210,7 @@ class ReferenceManager
      *          (2) adrs - Address to match
      * Pure function.
      */
-    struct rof_extrn* find_extrn(refmap& xtrn, unsigned int adrs);
+    std::vector<rof_extrn> *find_extrn(refmap& xtrn, unsigned int adrs);
 };
 
 extern ReferenceManager refManager;
@@ -228,8 +304,11 @@ private:
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
 void getRofHdr(struct options* opt);
 void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
-bool rof_setup_ref(std::string& out_name, refmap& ref, uint32_t addrs, int32_t val);
-bool IsRef(std::string& out_name, uint32_t curloc, uint32_t ival, int Pass);
-const char* extern_def_name(struct rof_extrn* handle);
+bool rof_setup_ref(std::string& out_text, refmap& ref, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint,
+                   bool isRelativeRefImplied);
+bool IsRef(std::string& out_text, uint32_t curloc, uint32_t ival, int Pass, OperandSize sizeConstraint, bool flipRefSign);
+bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs, uint32_t currentAddress, uint32_t literalValue,
+                      int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied);
+OperandSize maxSizeOfRefs(const std::vector<rof_extrn>& refs);
 
 #endif // ROF_H

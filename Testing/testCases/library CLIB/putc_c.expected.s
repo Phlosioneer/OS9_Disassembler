@@ -78,7 +78,7 @@ _tidyup: link.w a5,#0
 L000e0 move.l a2,d0
  bsr.s fclose
  adda.l #28,a2
-L000ea lea _iob+896(a6),a0
+L000ea lea $380+_iob(a6),a0
  cmpa.l a2,a0
  bhi.s L000e0
  movem.l -8(a5),a0/a2

@@ -11,7 +11,7 @@
    10  00016 200a            move.l a2,d0      
    11  00018 6018            bra.s  L00032     
    12  0001a d5fc L0001a     adda.l #28,a2     
-   13  00020 41ee L00020     lea    _iob+896(a6),a0 
+   13  00020 41ee L00020     lea    $380+_iob(a6),a0 
    14  00024 b1ca            cmpa.l a2,a0      
    15  00026 62e6            bhi.s  L0000e     
    16  00028 2d7c            move.l #200,errno(a6) 

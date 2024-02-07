@@ -113,6 +113,7 @@ cmd_items& cmd_items::operator=(struct cmd_items&& other)
     dest.swap(other.dest);
     memcpy_s(rawData, 10, other.rawData, 10);
     rawDataSize = other.rawDataSize;
+    forceRelativeImmediateMode = other.forceRelativeImmediateMode;
 
     return *this;
 }
@@ -177,7 +178,27 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
         throw std::runtime_error("Unexpected instruction id");
     }
 
-    ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
+    // TODO: undo this hack and handle size properly above.
+    OperandSize opSize;
+    switch (size)
+    {
+    case SIZ_BYTE:
+        opSize = OperandSize::Byte;
+        break;
+    case SIZ_WORD:
+        opSize = OperandSize::Word;
+        break;
+    case SIZ_LONG:
+        opSize = OperandSize::Long;
+        break;
+    default:
+        // This needs to be set to a value (any value other than byte). It's only used for
+        // hexadecimal sizes, and nothing else.
+        opSize = OperandSize::Long;
+        break;
+    }
+
+    ci->source = get_eff_addr(ci, sourceMode, sourceReg, opSize, state);
     if (!ci->source) return 0;
 
     ci->mnem = op->name;
@@ -309,34 +330,6 @@ int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg,
     return 1;
 }
 
-/*
- * get_eff_addr() - Build the appropriate opcode string for the command
- *     and store it in the command structure opcode string
- */
-std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, uint8_t size,
-                                         struct parse_state* state)
-{
-    OperandSize opSize;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        opSize = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        opSize = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        opSize = OperandSize::Long;
-        break;
-    default:
-        // This needs to be set to a value (any value other than byte). It's only used for
-        // hexadecimal sizes, and nothing else.
-        opSize = OperandSize::Long;
-        break;
-    }
-    return get_eff_addr(ci, mode, reg, opSize, state);
-}
-
 // literalSpaceHint applies to (xxx).w, (xxx).l, and #<data> cases.
 std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
                                          struct parse_state* state, AddrSpaceHandle literalSpaceHint)
@@ -380,7 +373,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
 
         /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
         std::string dispstr;
-        if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass))
+        if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass, OperandSize::Word))
         {
             param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), dispstr);
         }
@@ -412,7 +405,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 // ew_b.displ -= 2;
                 int amode = AM_A0 + reg;
                 std::string dispstr;
-                if (LblCalc(dispstr, ew_b.displ, amode, state->PCPos - 2, state->opt->IsROF, state->Pass))
+                if (LblCalc(dispstr, ew_b.displ, amode, state->PCPos - 2, state->opt->IsROF, state->Pass, OperandSize::Byte))
                 {
                     param =
                         std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, dispstr);
@@ -463,7 +456,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 amode_local = AM_LONG;
             }
             std::string dispstr;
-            if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF, state->Pass))
+            if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF, state->Pass, opSize))
             {
                 param = std::make_unique<AbsoluteAddrParam>(dispstr, opSize);
             }
@@ -510,13 +503,16 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 throw std::runtime_error("Invalid size");
             }
 
+            // Not enough information to say whether refs are automatically relative; allow the caller (mainly branches) to decide.
+            int addressMode = ci->forceRelativeImmediateMode ? AM_REL : AM_IMM;
+
             std::string dispstr;
-            if (rof_setup_ref(dispstr, refManager.refs_code, static_cast<uint32_t>(ref_ptr), ext1))
+            if (rof_setup_ref(dispstr, refManager.refs_code, static_cast<uint32_t>(ref_ptr), ext1, state->Pass, size, ci->forceRelativeImmediateMode))
             {
                 dispstr = "#" + dispstr;
                 param = std::make_unique<LiteralParam>(dispstr);
             }
-            else if (LblCalc(dispstr, ext1, AM_IMM, ea_addr, state->opt->IsROF, state->Pass))
+            else if (LblCalc(dispstr, ext1, addressMode, ea_addr, state->opt->IsROF, state->Pass, size))
             {
                 param = std::make_unique<LiteralParam>(dispstr);
             }
@@ -532,7 +528,8 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             if (!hasnext_w(state)) return 0;
             ext1 = getnext_w(ci, state);
             std::string dispstr;
-            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass))
+            // PC displacements automatically imply any references/labels used are relative.
+            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass, OperandSize::Word))
             {
                 param = std::make_unique<RegOffsetParam>(Register::PC, dispstr);
             }
@@ -558,7 +555,8 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 {
                     ew_b.displ -= 2;
                     std::string dispstr;
-                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass))
+                    // PC displacements automatically imply any references/labels used are relative.
+                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass, OperandSize::Byte))
                     {
                         param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
                                                                  std::string(dispstr));
@@ -574,11 +572,12 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                 {
                     // The PC-1 is due to the 8-bit offset placed in the 2nd byte of the brief
                     // extension word.
-                    std::string dispstr;
-                    if (state->opt->IsROF && IsRef(dispstr, state->PCPos - 1, 0, state->Pass))
+                    std::string refDisplayString;
+                    // PC displacements automatically imply any references/labels used are relative.
+                    if (state->opt->IsROF && IsRef(refDisplayString, state->PCPos - 1, 0, state->Pass, OperandSize::Byte, true))
                     {
                         param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
-                                                                 std::string(dispstr));
+                                                                 refDisplayString);
                     }
                     else
                     {

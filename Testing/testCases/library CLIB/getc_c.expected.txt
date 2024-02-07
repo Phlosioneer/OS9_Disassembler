@@ -88,13 +88,13 @@
    87  000ec 41ee L000ec     lea    _iob(a6),a0 
    88  000f0 b1ca            cmpa.l a2,a0      
    89  000f2 661e            bne.s  L00112     
-   90  000f4 302e            move.w _iob+40(a6),d0 
+   90  000f4 302e            move.w $28+_iob(a6),d0 
    91  000f8 48c0            ext.l  d0         
    92  000fa 0800            btst.l #15,d0     
    93  000fe 6712            beq.s  L00112     
    94  00100 082a            btst.b #7,13(a2)  
    95  00106 660a            bne.s  L00112     
-   96  00108 41ee            lea    _iob+28(a6),a0 
+   96  00108 41ee            lea    $1c+_iob(a6),a0 
    97  0010c 2008            move.l a0,d0      
    98  0010e 6100            bsr.w  fflush     
    99  00112 082a L00112     btst.b #3,13(a2)  

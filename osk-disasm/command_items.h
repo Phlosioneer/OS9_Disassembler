@@ -28,6 +28,8 @@ struct cmd_items
     uint16_t rawData[RAW_DATA_MAX]{};
     size_t rawDataSize = 0;
 
+    bool forceRelativeImmediateMode = false;
+
     void setSource(const LiteralParam& param);
     void setSource(const RegParam& param);
     void setSource(const AbsoluteAddrParam& param);
@@ -65,8 +67,6 @@ struct parse_state
     struct options* opt = nullptr;
 };
 
-std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, uint8_t size,
-                                         struct parse_state* state);
 std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
                                          struct parse_state* state, AddrSpaceHandle literalSpaceHint = nullptr);
 int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);

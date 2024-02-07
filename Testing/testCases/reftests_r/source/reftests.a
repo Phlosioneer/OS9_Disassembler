@@ -1,0 +1,76 @@
+
+
+* extDef2: set 70 ; Support for global "set" labels was added later
+
+  psect  reftests,0,0,0,0,int1
+extDef1: equ 50  
+  dc.w  $1234,$5678  ; Padding before tests
+  
+* The following tests assume ext* are external symbols.
+  dc.w  ext1                    ; Simple external ref
+  dc.w  ext1+5                  ; External refs can have offsets
+  dc.l  ext2+88                 ; External refs can have different sizes
+  dc.w  -ext1                   ; External refs can be negative
+  dc.w  74-ext1                 ; External refs can be subtracted from offsets
+  dc.w  ext1+ext2               ; Multiple external refs can be added
+  dc.w  ext3+ext3               ; External refs can be added to themselves
+  dc.w  ext1+ext2+ext3+ext4     ; Can add any number of external refs
+  bgt.w  ext1                   ; External refs can be relative
+  bgt.w  ext1+4                 ; Relative external refs can have offsets
+  bgt.w  -ext1                  ; Relative external refs can be negative
+  bgt.w  -ext1+ext2             ; Relative external refs can be added
+  bgt.w  ext1-4                 ; Relative external refs can have different sizes
+  dc.w  *                       ; Asterisks create local refs
+  dc.w  *+42                    ; Local refs can have offsets
+  dc.w  *-ext1                  ; Local and external refs can be mixed
+  dc.w  ext3-*                  ; Local refs can be negative
+  bgt.w  *+4                    ; Asterisk doesn't create relative local refs
+  bgt.w  *+*                    ; This doesn't make a relative local ref. 
+*                               ; Assembler bug, or nonsense input?
+  bgt.w  int1                   ; Assembler doesn't make refs for internal symbols.
+  bgt.w  int1-ext1              ; Internal symbols and relative external refs can be mixed.
+  bgt.w  ext1-int1              ;
+  dc.b int1-ext1                ; Internal symbols and external refs can be mixed.
+  dc.l ext1-int1                ;
+* As far as I can tell, the assembler will never create relative local refs.
+* It's just not needed, because it knows the PC of every line.
+  
+  dc.w  0,0
+  dc.l  uninitStart
+  dc.l  initStart
+  dc.l  uninitRemoteStart
+  dc.l  initRemoteStart
+  dc.l  int1
+  
+int1:
+  dc.w  0
+int2
+  dc.l  0
+
+  vsect
+uninitStart:  ds.b  4
+  ends
+  
+  vsect
+initStart:
+  dc.w  0,0
+  dc.l  uninitStart
+  dc.l  initStart
+  dc.l  uninitRemoteStart
+  dc.l  initRemoteStart
+  dc.l  int1
+  ends
+
+  vsect remote
+uninitRemoteStart:  ds.b  20
+  ends
+  
+  vsect remote
+initRemoteStart:
+  dc.l  0
+  dc.l  uninitStart
+  dc.l  initStart
+  dc.l  uninitRemoteStart
+  dc.l  initRemoteStart
+  dc.l  int1
+  ends

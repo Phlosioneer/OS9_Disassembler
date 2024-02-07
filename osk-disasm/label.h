@@ -6,6 +6,7 @@
 
 #include "address_space.h"
 #include "disglobs.h"
+#include "size.h"
 
 #define LBLLEN 40
 
@@ -128,7 +129,8 @@ class LabelManager
     std::unordered_map<std::string, LabelCategory> _labelCategories;
 };
 
-bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass);
+bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass,
+             OperandSize sizeConstraint);
 void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 std::string PrintNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
 

@@ -4,6 +4,13 @@
 #include "main_support.h"
 #include "reset.h"
 
+#define INIT_LIBRARY_FIELD(libFolderStr) const char* _libname = libFolderStr;
+#define LIBRARY_TEST_METHOD(fileName) \
+	TEST_METHOD(TestFile_ ## fileName) { \
+		reset(); \
+		IntegrationTestCase test(_libname, #fileName); \
+		test.run(); \
+	}
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -51,7 +58,7 @@ namespace IntegrationTests
 		{
 			reset();
 			IntegrationTestCase test("init data zerocat_r");
-			
+
 			test.run();
 		}
 
@@ -67,6 +74,16 @@ namespace IntegrationTests
 		{
 			reset();
 			IntegrationTestCase test("empty_r");
+
+			test.run();
+		}
+
+		// Test all the myriad ways that external and internal references
+		// can be combined in expressions.
+		TEST_METHOD(RefTestsRoff)
+		{
+			reset();
+			IntegrationTestCase test("reftests_r");
 
 			test.run();
 		}
@@ -92,54 +109,100 @@ namespace IntegrationTests
 		}
 	};
 
-	TEST_CLASS(StandardLibraryTests)
+	TEST_CLASS(CStandardLibraryTests)
 	{
 	public:
-		TEST_METHOD(LibraryCLIB)
-		{
-			const std::vector<std::string> filenames
-			{
-				"_pkpaths", "_utdummy", "abs_a", "access_a", "alarm_a",
-				"asctime_c", "atof_c", "atoi_c", "atol_c", "atou_c",
-				"case_c", "cdiv_a", "cfinish_a", "change_a", "chcodes_c",
-				"clock_c", "cmul_a", "color_a", "defdrive_c", "dev_a", 
-				"dir_a", "direct_c", "errmsg_c", "events_a", "fflush_c",
-				"findstr_c", "fopen_c", "fread_c", "frexp_c", "fseek_c",
-				"fwrite_c", "getc_c", "getenv_c", "gets_c", "globals_a",
-				"id_a", "index_c", "initarg_a", "intercept_a", "io_a",
-				"iobinit_c", "ldexp_c", "mem_a", "memchr_c", "memcmp_c",
-				"memcpy_c", "memory_c", "memset_a", "misc_a", "mktemp_c",
-				"mod_a", "modloadp_c", "os9exec_c", "pfinits_c", "printf_c",
-				"process_a", "profdummy_a", "putc_c", "puts_c", "qsort_c",
-				"scanf_c", "setjmp_a", "sigmask_a", "ss_stat_a", "stat_a",
-				"strass_c", "strings_c", "stringsn_c", "strtod_c", "strtol_c",
-				"strtoul_c", "syscommon_a", "system_c", "tidyup_a", "time_a",
-				"time_c", "trigs_c"
-			};
 
-			for (const auto& name : filenames)
-			{
-				reset();
-				IntegrationTestCase test("library CLIB", name);
+		INIT_LIBRARY_FIELD("library CLIB");
 
-				test.run();
-			}
-		}
+		LIBRARY_TEST_METHOD(_pkpaths);
+		LIBRARY_TEST_METHOD(_utdummy);
+		LIBRARY_TEST_METHOD(abs_a);
+		LIBRARY_TEST_METHOD(access_a);
+		LIBRARY_TEST_METHOD(alarm_a);
+		LIBRARY_TEST_METHOD(asctime_c);
+		LIBRARY_TEST_METHOD(atof_c);
+		LIBRARY_TEST_METHOD(atoi_c);
+		LIBRARY_TEST_METHOD(atol_c);
+		LIBRARY_TEST_METHOD(atou_c);
+		LIBRARY_TEST_METHOD(case_c);
+		LIBRARY_TEST_METHOD(cdiv_a);
+		LIBRARY_TEST_METHOD(cfinish_a);
+		LIBRARY_TEST_METHOD(change_a);
+		LIBRARY_TEST_METHOD(chcodes_c);
+		LIBRARY_TEST_METHOD(clock_c);
+		LIBRARY_TEST_METHOD(cmul_a);
+		LIBRARY_TEST_METHOD(color_a);
+		LIBRARY_TEST_METHOD(defdrive_c);
+		LIBRARY_TEST_METHOD(dev_a);
+		LIBRARY_TEST_METHOD(dir_a);
+		LIBRARY_TEST_METHOD(direct_c);
+		LIBRARY_TEST_METHOD(errmsg_c);
+		LIBRARY_TEST_METHOD(events_a);
+		LIBRARY_TEST_METHOD(fflush_c);
+		LIBRARY_TEST_METHOD(findstr_c);
+		LIBRARY_TEST_METHOD(fopen_c);
+		LIBRARY_TEST_METHOD(fread_c);
+		LIBRARY_TEST_METHOD(frexp_c);
+		LIBRARY_TEST_METHOD(fseek_c);
+		LIBRARY_TEST_METHOD(fwrite_c);
+		LIBRARY_TEST_METHOD(getc_c);
+		LIBRARY_TEST_METHOD(getenv_c);
+		LIBRARY_TEST_METHOD(gets_c);
+		LIBRARY_TEST_METHOD(globals_a);
+		LIBRARY_TEST_METHOD(id_a);
+		LIBRARY_TEST_METHOD(index_c);
+		LIBRARY_TEST_METHOD(initarg_a);
+		LIBRARY_TEST_METHOD(intercept_a);
+		LIBRARY_TEST_METHOD(io_a);
+		LIBRARY_TEST_METHOD(iobinit_c);
+		LIBRARY_TEST_METHOD(ldexp_c);
+		LIBRARY_TEST_METHOD(mem_a);
+		LIBRARY_TEST_METHOD(memchr_c);
+		LIBRARY_TEST_METHOD(memcmp_c);
+		LIBRARY_TEST_METHOD(memcpy_c);
+		LIBRARY_TEST_METHOD(memory_c);
+		LIBRARY_TEST_METHOD(memset_a);
+		LIBRARY_TEST_METHOD(misc_a);
+		LIBRARY_TEST_METHOD(mktemp_c);
+		LIBRARY_TEST_METHOD(mod_a);
+		LIBRARY_TEST_METHOD(modloadp_c);
+		LIBRARY_TEST_METHOD(os9exec_c);
+		LIBRARY_TEST_METHOD(pfinits_c);
+		LIBRARY_TEST_METHOD(printf_c);
+		LIBRARY_TEST_METHOD(process_a);
+		LIBRARY_TEST_METHOD(profdummy_a);
+		LIBRARY_TEST_METHOD(putc_c);
+		LIBRARY_TEST_METHOD(puts_c);
+		LIBRARY_TEST_METHOD(qsort_c);
+		LIBRARY_TEST_METHOD(scanf_c);
+		LIBRARY_TEST_METHOD(setjmp_a);
+		LIBRARY_TEST_METHOD(sigmask_a);
+		LIBRARY_TEST_METHOD(ss_stat_a);
+		LIBRARY_TEST_METHOD(stat_a);
+		LIBRARY_TEST_METHOD(strass_c);
+		LIBRARY_TEST_METHOD(strings_c);
+		LIBRARY_TEST_METHOD(stringsn_c);
+		LIBRARY_TEST_METHOD(strtod_c);
+		LIBRARY_TEST_METHOD(strtol_c);
+		LIBRARY_TEST_METHOD(strtoul_c);
+		LIBRARY_TEST_METHOD(syscommon_a);
+		LIBRARY_TEST_METHOD(system_c);
+		LIBRARY_TEST_METHOD(tidyup_a);
+		LIBRARY_TEST_METHOD(time_a);
+		LIBRARY_TEST_METHOD(time_c);
+		LIBRARY_TEST_METHOD(trigs_c);
+	};
 
-		TEST_METHOD(LibrarySYS)
-		{
-			const std::vector<std::string> filenames
-			{
-				"io", "module", "oskfuncs", "process", "sysglob"
-			};
+	TEST_CLASS(SystemLibraryTests)
+	{
+	public:
+		INIT_LIBRARY_FIELD("library SYS");
 
-			for (const auto& name : filenames)
-			{
-				reset();
-				IntegrationTestCase test("library SYS", name);
-
-				test.run();
-			}
-		}
+		LIBRARY_TEST_METHOD(io);
+		LIBRARY_TEST_METHOD(module);
+		LIBRARY_TEST_METHOD(oskfuncs);
+		LIBRARY_TEST_METHOD(process);
+		LIBRARY_TEST_METHOD(sysglob);
 	};
 }

@@ -22,7 +22,7 @@ close: link.w a5,#0
 mknod: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
- moveq Write_,d0
+ moveq Dir_+Write_,d0
  moveq #0,d2
 L00050 os9 I$MakDir
  bra.w _sysret0
@@ -45,17 +45,17 @@ creat: link.w a5,#0
  movem.l a0/d0-d2,-(sp)
  movea.l d0,a0
  move.w d1,d0
- andi.w #PExec_,d1
- ori.w #Write_,d1
+ andi.w #Exec_+PExec_,d1
+ ori.w #Read_+Write_,d1
  moveq #0,d2
  os9 I$Create
  movea.l (sp)+,a0
  bcc.w _sysret
- cmpi.b E$CEF,d1
+ cmpi.b #0,d1
  bne.w _os9err
  move.w 2(sp),d0
  bmi.w _os9err
- andi.w #Write_,d0
+ andi.w #Exec_+Read_+Write_,d0
  os9 I$Open
  bcs.w _os9err
  moveq #0,d2

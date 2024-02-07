@@ -1,0 +1,10 @@
+{
+	"ranges": [
+		{
+			"type": "data",
+			"size": "word",
+			"start": 0,
+			"end": 3
+		}
+	]
+}

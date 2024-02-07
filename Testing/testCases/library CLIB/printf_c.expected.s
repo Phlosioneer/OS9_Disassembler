@@ -61,7 +61,7 @@ L00001 equ *-3
  move.l #-76,d0
  bsr.w _stkcheck
 L0000f equ *-3
- lea _iob+28(a6),a0
+ lea $1c+_iob(a6),a0
  move.l a0,D00214(a6)
  pea 24(sp)
  pea 8(sp)
@@ -71,7 +71,7 @@ L0000f equ *-3
  bsr.w L000d0
  addq.l #8,sp
  move.l d0,d4
- btst.b #5,_iob+41(a6)
+ btst.b #5,$29+_iob(a6)
  beq.s L00040
  moveq #255,d0
  bra.s L00042
@@ -968,7 +968,6 @@ L00a5a dc.w $3031
  dc.w $4344
  dc.w $4546
  dc.w $0030
-L00a6b equ *-1
  dc.w $3132
  dc.w $3334
  dc.w $3536

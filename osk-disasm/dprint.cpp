@@ -120,7 +120,7 @@ void PrintPsect(struct options* opt, bool printEquates)
     /* Type/Language */
     std::string ProgType;
     uint16_t type = opt->modHeader ? opt->modHeader->type : opt->ROFHd->type;
-    auto it = ModTypes.find(type);
+    auto it = ModTypes.find(static_cast<uint8_t>(type));
     if (it != ModTypes.end())
     {
         ProgType = it->second;

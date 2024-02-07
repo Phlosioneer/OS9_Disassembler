@@ -327,7 +327,7 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     std::string labelBuffer;
     // The immediate value is at address+1
     auto immParamAddress = state->CmdEnt + 1;
-    if (LblCalc(labelBuffer, immParamValue, AM_IMM, immParamAddress, state->opt->IsROF, state->Pass))
+    if (LblCalc(labelBuffer, immParamValue, AM_IMM, immParamAddress, state->opt->IsROF, state->Pass, OperandSize::Byte))
     {
         ci->setSource(LiteralParam(labelBuffer));
     }
@@ -504,14 +504,15 @@ int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state, int32_t displ,
                          OperandSize size, uint32_t immAddress, uint8_t conditionCode)
 {
+    ci->forceRelativeImmediateMode = true;
     if (displ & 1) return 0;
 
     std::string temp;
-    if (state->opt->IsROF && rof_setup_ref(temp, refManager.refs_code, immAddress, displ))
+    if (state->opt->IsROF && rof_setup_ref(temp, refManager.refs_code, immAddress, displ, state->Pass, size, true))
     {
         ci->setSource(LiteralParam(temp));
     }
-    else if (LblCalc(temp, displ, AM_REL, state->CmdEnt + 2, state->opt->IsROF, state->Pass))
+    else if (LblCalc(temp, displ, AM_REL, state->CmdEnt + 2, state->opt->IsROF, state->Pass, size))
     {
         if (displ == 0) return 0;
         ci->setSource(LiteralParam(temp));
@@ -710,25 +711,28 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     const size_t sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
     const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
-    struct rof_extrn* vec_ref = nullptr;
-    struct rof_extrn* call_ref = nullptr;
+    std::vector<rof_extrn>* vec_refs = nullptr;
+    std::vector<rof_extrn>* call_refs = nullptr;
     if (state->opt->IsROF)
     {
-        vec_ref = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 1);
-        call_ref = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 2);
+        vec_refs = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 1);
+        call_refs = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 2);
     }
 
     // Start with vec_ref.
     bool shouldGuessSyscall = false;
     bool shouldGuessMathLib = false;
     bool vectorHasName = true;
-    if (vec_ref)
+    if (vec_refs && vec_refs->size() > 0)
     {
-        ci->setSource(LiteralParam(extern_def_name(vec_ref)));
+        // TODO: Throw an error if more than one ref is detected here.
+
+        rof_extrn &vec_ref = vec_refs->at(0);
+        ci->setSource(LiteralParam(vec_ref.getName()));
         ci->mnem = "tcall";
 
         // Only guess math syscall if this is the math trap lib.
-        shouldGuessMathLib = !strcmp(extern_def_name(vec_ref), MATH_TRAP_LIB_NAME);
+        shouldGuessMathLib = !strcmp(vec_ref.getName(), MATH_TRAP_LIB_NAME);
     }
     else if (vector == 0)
     {
@@ -746,10 +750,12 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     }
 
     // Then do call_ref.
-    if (call_ref)
+    if (call_refs && call_refs->size() > 0)
     {
         // No need to guess anything.
-        ci->setDest(LiteralParam(extern_def_name(call_ref)));
+
+        // TODO: Throw an error if more than one ref is detected here.
+        ci->setDest(LiteralParam(call_refs->at(0).getName()));
     }
     else if (shouldGuessSyscall && trapNumber < sysCallCount)
     {

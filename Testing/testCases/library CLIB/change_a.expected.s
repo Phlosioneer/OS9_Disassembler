@@ -26,7 +26,7 @@ chown: link.w a5,#-28
  os9 I$GetStt
  bcs.s L0001e
  move.b 17(sp),FD_OWN(sp)
- move.b 19(sp),FD_OWN+1(sp)
+ move.b 19(sp),$1+FD_OWN(sp)
  os9 I$SetStt
  bcs.s L0001e
 L0005c os9 I$Close

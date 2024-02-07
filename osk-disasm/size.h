@@ -64,6 +64,38 @@ uint32_t truncateUnsigned(OperandSize size, uint32_t value);
 // Excess bytes are sign-extended
 int32_t truncateSigned(OperandSize size, int32_t value);
 
+inline OperandSize max(OperandSize s1, OperandSize s2)
+{
+    if (s1 < s2)
+    {
+        return s2;
+    }
+    else
+    {
+        return s1;
+    }
+}
+
+}
+
+inline bool operator<(OperandSize& left, OperandSize& right) noexcept
+{
+    return static_cast<uint8_t>(left) < static_cast<uint8_t>(right);
+}
+
+inline bool operator<=(OperandSize& left, OperandSize& right) noexcept
+{
+    return static_cast<uint8_t>(left) <= static_cast<uint8_t>(right);
+}
+
+inline bool operator>(OperandSize& left, OperandSize& right) noexcept
+{
+    return static_cast<uint8_t>(left) > static_cast<uint8_t>(right);
+}
+
+inline bool operator>=(OperandSize& left, OperandSize& right) noexcept
+{
+    return static_cast<uint8_t>(left) >= static_cast<uint8_t>(right);
 }
 
 

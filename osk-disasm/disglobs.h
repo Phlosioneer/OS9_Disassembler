@@ -73,6 +73,7 @@ enum
 
 enum
 {
+    AM_NO_LABELS = 0,
     AM_A0 = 1,
     AM_A1,
     AM_A2,

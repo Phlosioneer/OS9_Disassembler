@@ -4,6 +4,8 @@
 
 #include "pch.h"
 
+#include "size.h"
+
 class BigEndianStream
 {
   public:
@@ -26,6 +28,21 @@ class BigEndianStream
         T ret;
         readInto(ret);
         return ret;
+    }
+
+    inline uint32_t read(OperandSize size)
+    {
+        switch (size)
+        {
+        case OperandSize::Byte:
+            return read<uint8_t>();
+        case OperandSize::Word:
+            return read<uint16_t>();
+        case OperandSize::Long:
+            return read<uint32_t>();
+        default:
+            throw std::runtime_error("Unreachable");
+        }
     }
 
     template <class T>
