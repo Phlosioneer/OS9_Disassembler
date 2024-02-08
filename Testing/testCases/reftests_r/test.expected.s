@@ -1,3 +1,7 @@
+
+* Class equate external label equates
+
+extDef1: equ $32
  psect reftests,0,0,0,0,int1
 
 
@@ -63,7 +67,7 @@ L0002a dc.w L0002a
  dc.w L00056
 L0002e dc.w -ext1+L0002e
  dc.w ext3-L0ffd0
-extDef1: bgt.w L00036
+ bgt.w L00036
 L00034 equ *-2
 L00036 bgt.w L00034
  bgt.w int1

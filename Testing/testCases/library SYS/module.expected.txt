@@ -1,5 +1,64 @@
-    0  00000 0000            psect  module,0,0,23,0,MD$MPtr 
-    1
+    0
+    1                      * Class equate external label equates
     2
-    3  00000 0000            ends              
-    4
+    3  00000 0000 MD$MPtr:   equ    $00        
+    4  00001 0001 M$Rev:     equ    $01        
+    5  00002 0002 M$SysRev:  equ    $02        
+    6  00003 0003 DT_SBF:    equ    $03        
+    7  00004 0004 MD$Group:  equ    $04        
+    8  00005 0005 DT_CDFM:   equ    $05        
+    9  00006 0006 DT_UCM:    equ    $06        
+   10  00007 0007 DT_SOCK:   equ    $07        
+   11  00008 0008 MD$Static: equ    $08        
+   12  00009 0009 DT_INET:   equ    $09        
+   13  0000a 000a DT_NRF:    equ    $0a        
+   14  0000b 000b DT_GFM:    equ    $0b        
+   15  0000c 000c MD$Link:   equ    $0c        
+   16  0000e 000e MD$MChk:   equ    $0e        
+   17  00010 0010 MD$ESize:  equ    $10        
+   18  00012 0012 M$Type:    equ    $12        
+   19  00013 0013 M$Lang:    equ    $13        
+   20  00014 0014 M$Attr:    equ    $14        
+   21  00015 0015 M$Revs:    equ    $15        
+   22  00016 0016 M$Edit:    equ    $16        
+   23  00018 0018 M$Usage:   equ    $18        
+   24  0001c 001c M$Symbol:  equ    $1c        
+   25  0002e 002e M$Parity:  equ    $2e        
+   26  00030 0030 M$Port:    equ    $30        
+   27  00034 0034 M$Vector:  equ    $34        
+   28  00035 0035 M$IRQLvl:  equ    $35        
+   29  00036 0036 M$Prior:   equ    $36        
+   30  00037 0037 M$Mode:    equ    $37        
+   31  00038 0038 M$Procs:   equ    $38        
+   32  0003a 003a M$Paths:   equ    $3a        
+   33  0003c 003c M$Stack:   equ    $3c        
+   34  0003e 003e M$Sysgo:   equ    $3e        
+   35  00040 0040 M$SysDev:  equ    $40        
+   36  00042 0042 M$Consol:  equ    $42        
+   37  00044 0044 M$IRefs:   equ    $44        
+   38  00046 0046 M$Opt:     equ    $46        
+   39  00048 0048 M$Slice:   equ    $48        
+   40  0004a 004a M$IPID:    equ    $4a        
+   41  0004c 004c M$Term:    equ    $4c        
+   42  00050 0050 M$Instal:  equ    $50        
+   43  00052 0052 M$CPUTyp:  equ    $52        
+   44  00056 0056 M$OS9Lvl:  equ    $56        
+   45  0005a 005a M$OS9Rev:  equ    $5a        
+   46  0005c 005c M$SysPri:  equ    $5c        
+   47  0005e 005e M$MinPty:  equ    $5e        
+   48  00060 0060 M$MaxAge:  equ    $60        
+   49  00062 0062 M$MDirSz:  equ    $62        
+   50  00066 0066 M$Events:  equ    $66        
+   51  00068 0068 M$Compat:  equ    $68        
+   52  00069 0069 M$Compat2: equ    $69        
+   53  0006a 006a M$MemList: equ    $6a        
+   54  0006c 006c M$IRQStk:  equ    $6c        
+   55  0006e 006e M$ColdTrys: equ    $6e        
+   56  00100 0000 ModDir:    equ    $00        
+   57  04afc 00fc M$ID12:    equ    $fc        
+   58  800fe3 00e3 CRCCon:    equ    $e3        
+   59  00000 0000            psect  module,0,0,23,0,L00000 
+   60
+   61
+   62  00000 0000            ends              
+   63

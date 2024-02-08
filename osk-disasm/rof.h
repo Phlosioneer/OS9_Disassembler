@@ -120,11 +120,7 @@ struct RoffReferenceInfo
 
     inline bool isRelative() const
     {
-        //if (scope == ReferenceScope::REFXTRN || scope == ReferenceScope::REFLOCAL)
-        //{
-            return (type & RELATIVE_FLAG) != 0;
-        //}
-        //return false;
+        return (type & RELATIVE_FLAG) != 0;
     }
 
     inline size_t sizeInBytes() const

@@ -298,7 +298,7 @@ AddrSpaceHandle RoffReferenceInfo::space() const
                     return &CODE_SPACE;
                 default: /* equ */
                     // return 'L';
-                    return &CODE_SPACE; /* FIXME: This is actually 'equ' */
+                    return &EQUATE_SPACE;
                 }
             }
         default: /* common */

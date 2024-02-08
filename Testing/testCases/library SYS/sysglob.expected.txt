@@ -1,5 +1,115 @@
-    0  00000 0000            psect  sysglob,0,0,37,0,T_ColdSP 
-    1
+    0
+    1                      * Class equate external label equates
     2
-    3  00000 0000            ends              
-    4
+    3  00000 0000 T_ColdSP:  equ    $00        
+    4  00001 0001 SYSRAM:    equ    $01        
+    5  00002 0002 D_NoSleep: equ    $02        
+    6  00003 0003 B_SOD:     equ    $03        
+    7  00004 0004 T_ColdPC:  equ    $04        
+    8  00005 0005 B_NoClock: equ    $05        
+    9  00007 0007 B_DDIO:    equ    $07        
+   10  00008 0008 T_BusErr:  equ    $08        
+   11  0000c 000c T_AddErr:  equ    $0c        
+   12  00010 0010 T_IllIns:  equ    $10        
+   13  00014 0014 T_ZerDiv:  equ    $14        
+   14  00018 0018 T_CHK:     equ    $18        
+   15  0001c 001c T_TRAPV:   equ    $1c        
+   16  00020 0020 T_Priv:    equ    $20        
+   17  00024 0024 T_Trace:   equ    $24        
+   18  00028 0028 T_1010:    equ    $28        
+   19  0002a 002a D_Year:    equ    $2a        
+   20  0002c 002c T_1111:    equ    $2c        
+   21  0002d 002d D_Day:     equ    $2d        
+   22  0002e 002e D_Compat:  equ    $2e        
+   23  0002f 002f D_68881:   equ    $2f        
+   24  00030 0030 D_Julian:  equ    $30        
+   25  00034 0034 D_Second:  equ    $34        
+   26  0003a 003a D_IRQFlag: equ    $3a        
+   27  0003b 003b D_UnkIRQ:  equ    $3b        
+   28  0003c 003c T_UnIRQ:   equ    $3c        
+   29  00044 0044 D_PrcDBT:  equ    $44        
+   30  00048 0048 D_PthDBT:  equ    $48        
+   31  0004c 004c D_Proc:    equ    $4c        
+   32  00050 0050 D_SysPrc:  equ    $50        
+   33  00054 0054 D_Ticks:   equ    $54        
+   34  00058 0058 D_FProc:   equ    $58        
+   35  0005c 005c D_AbtStk:  equ    $5c        
+   36  00060 0060 T_SpurIO:  equ    $60        
+   37  00064 0064 T_AutIRQ:  equ    $64        
+   38  00068 0068 D_ExcJmp:  equ    $68        
+   39  0006c 006c D_TotRAM:  equ    $6c        
+   40  00070 0070 D_MinBlk:  equ    $70        
+   41  00074 0074 D_FreMem:  equ    $74        
+   42  0007c 007c D_BlkSiz:  equ    $7c        
+   43  00080 0080 VIDEO1:    equ    $80        
+   44  00081 0081 VIDEO2:    equ    $81        
+   45  00088 0088 D_AutIRQ2: equ    $88        
+   46  000a4 00a4 D_VctIRQ:  equ    $a4        
+   47  000c0 00c0 T_FPUnordC: equ    $c0        
+   48  000c4 00c4 T_FPInxact: equ    $c4        
+   49  000c8 00c8 T_FPDivZer: equ    $c8        
+   50  000cc 00cc T_FPUndrFl: equ    $cc        
+   51  000d0 00d0 T_FPOprErr: equ    $d0        
+   52  000d4 00d4 T_FPOverFl: equ    $d4        
+   53  000d8 00d8 T_FPNotNum: equ    $d8        
+   54  000e4 00e4 T_AutIRQ2: equ    $e4        
+   55  00100 0000 T_VctIRQ:  equ    $00        
+   56  00384 0084 AutOffs:   equ    $84        
+   57  003a4 00a4 D_SysDis:  equ    $a4        
+   58  003a8 00a8 D_UsrDis:  equ    $a8        
+   59  003ac 00ac D_ActivQ:  equ    $ac        
+   60  003b4 00b4 D_SleepQ:  equ    $b4        
+   61  003bc 00bc D_WaitQ:   equ    $bc        
+   62  003c4 00c4 D_ActAge:  equ    $c4        
+   63  003c8 00c8 D_MPUTyp:  equ    $c8        
+   64  003cc 00cc D_EvTbl:   equ    $cc        
+   65  003d4 00d4 D_EvID:    equ    $d4        
+   66  003d8 00d8 D_SPUMem:  equ    $d8        
+   67  003dc 00dc D_AddrLim: equ    $dc        
+   68  003e0 00e0 D_Compat2: equ    $e0        
+   69  003e1 00e1 D_SnoopD:  equ    $e1        
+   70  003e2 00e2 D_ProcSz:  equ    $e2        
+   71  003e4 00e4 D_PolTbl:  equ    $e4        
+   72  00400 0000 T_End:     equ    $00        
+   73  00404 0004 D_FreeMem: equ    $04        
+   74  0040c 000c D_IPID:    equ    $0c        
+   75  00410 0010 D_CPUs:    equ    $10        
+   76  00414 0014 D_IPCmd:   equ    $14        
+   77  00764 0064 D_CachMode: equ    $64        
+   78  00768 0068 D_DisInst: equ    $68        
+   79  0076c 006c D_DisData: equ    $6c        
+   80  00770 0070 D_ClkMem:  equ    $70        
+   81  00774 0074 D_Tick:    equ    $74        
+   82  00776 0076 D_TSlice:  equ    $76        
+   83  00778 0078 D_Slice:   equ    $78        
+   84  0077c 007c D_Elapse:  equ    $7c        
+   85  00780 0080 D_Thread:  equ    $80        
+   86  00788 0088 D_AlarTh:  equ    $88        
+   87  00790 0090 D_SStkLm:  equ    $90        
+   88  00794 0094 D_Forks:   equ    $94        
+   89  00798 0098 D_BootRAM: equ    $98        
+   90  007a4 00a4 D_IOGlob:  equ    $a4        
+   91  007c4 00c4 D_Start:   equ    $c4        
+   92  007c5 00c5 D_MotCnt:  equ    $c5        
+   93  007c6 00c6 D_ExpIRQ:  equ    $c6        
+   94  007c8 00c8 D_DskMot:  equ    $c8        
+   95  007c9 00c9 D_Row:     equ    $c9        
+   96  007cc 00cc D_DskSta:  equ    $cc        
+   97  008a6 00a6 D_MinPty:  equ    $a6        
+   98  008a8 00a8 D_MaxAge:  equ    $a8        
+   99  008aa 00aa D_Sieze:   equ    $aa        
+  100  008ac 00ac D_Cigar:   equ    $ac        
+  101  008e4 00e4 D_SysLst:  equ    $e4        
+  102  008ec 00ec D_SysDbg:  equ    $ec        
+  103  008f0 00f0 D_DbgMem:  equ    $f0        
+  104  008f4 00f4 D_DbgFlg:  equ    $f4        
+  105  008f8 00f8 D_Cache:   equ    $f8        
+  106  01000 0000 D_End:     equ    $00        
+  107  06f6b 006b NoCRC:     equ    $6b        
+  108  08000 0000 SysTrap:   equ    $00        
+  109  1000000 0000 SysGlob:   equ    $00        
+  110  00000 0000            psect  sysglob,0,0,37,0,L00000 
+  111
+  112
+  113  00000 0000            ends              
+  114

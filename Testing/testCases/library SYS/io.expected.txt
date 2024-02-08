@@ -1,5 +1,91 @@
-    0  00000 0000            psect  io,0,0,16,0,upclock 
-    1
+    0
+    1                      * Class equate external label equates
     2
-    3  00000 0000            ends              
-    4
+    3  00000 0000 upclock:   equ    $00        
+    4  00001 0001 pagpause:  equ    $01        
+    5  00002 0002 StabID_B:  equ    $02        
+    6  00003 0003 FD_DAT:    equ    $03        
+    7  00004 0004 tabsize:   equ    $04        
+    8  00005 0005 FDSL_S:    equ    $05        
+    9  00006 0006 DD_BIT:    equ    $06        
+   10  00007 0007 C$Bell:    equ    $07        
+   11  00008 0008 PD_CTLCH:  equ    $08        
+   12  00009 0009 FD_SIZ:    equ    $09        
+   13  0000a 000a C$LF:      equ    $0a        
+   14  0000b 000b DD_OWN:    equ    $0b        
+   15  0000c 000c C$Form:    equ    $0c        
+   16  0000d 000d FD_Creat:  equ    $0d        
+   17  0000e 000e DD_DSK:    equ    $0e        
+   18  00010 0010 FD_SEG:    equ    $10        
+   19  00011 0011 DD_SPT:    equ    $11        
+   20  00013 0013 DD_RES:    equ    $13        
+   21  00015 0015 DD_SIZ:    equ    $15        
+   22  00017 0017 C$Paus:    equ    $17        
+   23  00018 0018 pagsize:   equ    $18        
+   24  0001a 001a DD_DAT:    equ    $1a        
+   25  0001b 001b C$EOF:     equ    $1b        
+   26  0001c 001c OPTCNT:    equ    $1c        
+   27  0001f 001f DD_NAM:    equ    $1f        
+   28  00020 0020 DIR_SZ:    equ    $20        
+   29  0002c 002c C$Coma:    equ    $2c        
+   30  0002e 002e PDir:      equ    $2e        
+   31  0002f 002f PDelim:    equ    $2f        
+   32  0003f 003f DD_OPT:    equ    $3f        
+   33  00040 0040 PEntir:    equ    $40        
+   34  0005a 005a PipeBfSz:  equ    $5a        
+   35  00060 0060 DD_Sync:   equ    $60        
+   36  00064 0064 DD_MapLSN: equ    $64        
+   37  00068 0068 DD_LSNSize: equ    $68        
+   38  0006a 006a DD_VersID: equ    $6a        
+   39  00080 0080 PD_OPT:    equ    $80        
+   40  00081 0081 PD_UPC:    equ    $81        
+   41  00082 0082 PD_STP:    equ    $82        
+   42  00083 0083 PD_TYP:    equ    $83        
+   43  00084 0084 PD_EKO:    equ    $84        
+   44  00085 0085 PD_BFctr:  equ    $85        
+   45  00086 0086 PD_NUL:    equ    $86        
+   46  00087 0087 PD_PAU:    equ    $87        
+   47  00088 0088 PD_SID:    equ    $88        
+   48  00089 0089 PD_VFY:    equ    $89        
+   49  0008a 008a PD_Track:  equ    $8a        
+   50  0008b 008b PD_EOR:    equ    $8b        
+   51  0008c 008c PD_XAR:    equ    $8c        
+   52  0008d 008d PD_RPR:    equ    $8d        
+   53  0008e 008e PD_SAS:    equ    $8e        
+   54  0008f 008f PD_PSC:    equ    $8f        
+   55  00090 0090 PD_INT:    equ    $90        
+   56  00091 0091 PD_TFM:    equ    $91        
+   57  00092 0092 PD_TOffs:  equ    $92        
+   58  00093 0093 PD_SOffs:  equ    $93        
+   59  00094 0094 PD_SSize:  equ    $94        
+   60  00095 0095 PD_BAU:    equ    $95        
+   61  00096 0096 PD_D2P:    equ    $96        
+   62  00098 0098 PD_XON:    equ    $98        
+   63  00099 0099 PD_XOFF:   equ    $99        
+   64  0009a 009a PD_WPC:    equ    $9a        
+   65  0009b 009b PD_Tabs:   equ    $9b        
+   66  0009c 009c PD_TBL:    equ    $9c        
+   67  0009e 009e PD_Park:   equ    $9e        
+   68  000a0 00a0 PD_LSNOffs: equ    $a0        
+   69  000a2 00a2 PD_ERR:    equ    $a2        
+   70  000a4 00a4 PD_TotCyls: equ    $a4        
+   71  000a5 00a5 PD_CPInt:  equ    $a5        
+   72  000a6 00a6 PD_D4N:    equ    $a6        
+   73  000a7 00a7 PD_Rate:   equ    $a7        
+   74  000a8 00a8 PD_ScsiOpt: equ    $a8        
+   75  000ac 00ac PD_MaxCnt: equ    $ac        
+   76  000b2 00b2 PD_PTNUM:  equ    $b2        
+   77  000b4 00b4 PD_PTOFF:  equ    $b4        
+   78  000b5 00b5 PD_ATT:    equ    $b5        
+   79  000b6 00b6 PD_FD:     equ    $b6        
+   80  000ba 00ba PD_DFD:    equ    $ba        
+   81  000be 00be PD_DCP:    equ    $be        
+   82  000c2 00c2 PD_DVT:    equ    $c2        
+   83  000c8 00c8 PD_SctSiz: equ    $c8        
+   84  000e0 00e0 PD_Name:   equ    $e0        
+   85  00100 0000 PDSIZE:    equ    $00        
+   86  00000 0000            psect  io,0,0,16,0,L00000 
+   87
+   88
+   89  00000 0000            ends              
+   90
