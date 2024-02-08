@@ -733,7 +733,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
         ci->mnem = "tcall";
 
         // Only guess math syscall if this is the math trap lib.
-        shouldGuessMathLib = !strcmp(vec_ref.getName(), MATH_TRAP_LIB_NAME);
+        shouldGuessMathLib = vec_ref.getName() == MATH_TRAP_LIB_NAME;
     }
     else if (vector == 0)
     {

@@ -48,7 +48,7 @@
 
 ReferenceManager refManager{};
 
-static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
+static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
                      BigEndianStream* Module);
 
 rof_extrn::rof_extrn(RoffReferenceInfo refInfo, uint32_t offset) : info(refInfo), offset(offset)
@@ -86,17 +86,10 @@ void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
                 default:
                     throw std::runtime_error("Unreachable");
                 }
-                ref.hasName = false;
-                ref.label = labelManager.addLabel(ref.space, refVal);
+                ref.setLabel(labelManager.addLabel(ref.space, refVal));
             }
         }
     }
-}
-
-void getRofHdr(struct options* opt)
-{
-    opt->IsROF = true;
-    opt->ROFHd = std::make_unique<RoffFile>(opt->Module.get());
 }
 
 /*
@@ -339,10 +332,10 @@ AddrSpaceHandle RoffReferenceInfo::space() const
  *          count - number of entries to process
  *          1 if external, 0 if local
  */
-static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* code_buf,
+static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* code_buf,
                      BigEndianStream* Module)
 {
-    struct rof_extrn* prevRef = NULL;
+    rof_extrn* prevRef = NULL;
     AddrSpaceHandle space;
     uint16_t _ty;
     uint32_t _ofst;
@@ -392,8 +385,7 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
 
         if (new_ref.isExternal())
         {
-            new_ref.hasName = true;
-            new_ref.name = vname;
+            new_ref.setName(vname);
         }
         else
         {
@@ -419,8 +411,7 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
                 default:
                     throw std::runtime_error("Unexpected size");
                 }
-                new_ref.hasName = false;
-                new_ref.label = labelManager.addLabel(new_ref.space, dstVal);
+                new_ref.setLabel(labelManager.addLabel(new_ref.space, dstVal));
             }
             else
             {
@@ -712,27 +703,17 @@ bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs,
             buffer << (ref.info.isPositive() ? "+" : "-");
         }
 
-        std::string name;
-        if (ref.hasName)
-        {
-            name = ref.name;
-        }
-        else
-        {
-            name = ref.label->name();
-        }
-
         // Note: I've confirmed through experiments that the assembler makes ALL
         //       references in an expression relative.
         if (ref.info.isRelative() && !isRelativeRefImplied)
         {
             // Print out as relative ref.
-            buffer << "(*-" << name << ")";
+            buffer << "(*-" << ref.getName() << ")";
         }
         else
         {
             // Print out normally.
-            buffer << name;
+            buffer << ref.getName();
         }
     }
 

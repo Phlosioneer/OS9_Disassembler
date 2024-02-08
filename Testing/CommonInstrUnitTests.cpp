@@ -313,8 +313,7 @@ namespace UnitTests
 			pushWord(TRAP | 0);
 			pushWord(0);
 			rof_extrn unlink(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
-			unlink.hasName = true;
-			unlink.name = "F$UnLink";
+			unlink.setName("F$UnLink");
 			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(2, std::vector<rof_extrn>{ std::move(unlink) }));
 			runTest("os9", "F$UnLink");
 			refManager.refs_code.clear();
@@ -324,12 +323,10 @@ namespace UnitTests
 			pushWord(TRAP | MATH_TRAP);
 			pushWord(0);
 			rof_extrn temp(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 1);
-			temp.hasName = true;
-			temp.name = "T$Math";
+			temp.setName("T$Math");
 			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(1, std::vector<rof_extrn>{std::move(temp)}));
 			rof_extrn temp2(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
-			temp2.hasName = true;
-			temp2.name = "T$Tan";
+			temp2.setName("T$Tan");
 			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(2, std::vector<rof_extrn>{std::move(temp2)}));
 			runTest("tcall", "T$Math,T$Tan");
 			refManager.refs_code.clear();

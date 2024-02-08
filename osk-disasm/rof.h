@@ -30,9 +30,9 @@
 #include "address_space_handle.h"
 #include "reader.h"
 #include "size.h"
+#include "label.h"
 
-struct rof_extrn;
-class Label;
+class rof_extrn;
 
 /* Define flags for type of reference */
 enum class ReferenceScope
@@ -133,29 +133,79 @@ struct RoffReferenceInfo
     }
 };
 
-struct rof_extrn
+class rof_extrn
 {
-    rof_extrn(RoffReferenceInfo refInfo, uint32_t offset);
-
+  private:
     bool hasName = false;
     std::string name{};
     std::shared_ptr<Label> label{};
-    AddrSpaceHandle space = nullptr; /* Class for referenced item NUll if extern */
+  public:
     RoffReferenceInfo info;                /* Type Flag                        */
+    AddrSpaceHandle space = nullptr; /* Class for referenced item NUll if extern */
     uint32_t offset = 0;                  /* Offset into code                 */
+    
+    rof_extrn(RoffReferenceInfo refInfo, uint32_t offset);
+
 
     inline bool isExternal() const
     {
         return info.getScope() == ReferenceScope::REFXTRN;
     }
 
-    inline const char* getName() const
+    inline const std::string& getName() const
     {
-        if (!hasName)
+        if (hasName)
         {
-            throw std::runtime_error("Cannot access name of label; not implemented yet");
+            return name;
         }
-        return name.c_str();
+        else if (label)
+        {
+            return label->name();
+        }
+        else
+        {
+            throw std::runtime_error("Extern has no name or label!");
+        }
+    }
+
+    inline void setName(const std::string& newName)
+    {
+        if (newName.empty())
+        {
+            throw std::runtime_error("Empty name assigned to external ref");
+        }
+        hasName = true;
+        name = newName;
+    }
+
+    inline void setName(std::string&& newName)
+    {
+        if (newName.empty())
+        {
+            throw std::runtime_error("Empty name assigned to external ref");
+        }
+        hasName = true;
+        name = std::move(newName);
+    }
+
+    inline void setName(const char* newName)
+    {
+        name = newName;
+        if (name.empty())
+        {
+            throw std::runtime_error("Empty name assigned to external ref");
+        }
+        hasName = true;
+    }
+
+    inline void setLabel(std::shared_ptr<Label> label)
+    {
+        if (!label)
+        {
+            throw std::runtime_error("Null label assigned to external ref");
+        }
+        hasName = false;
+        this->label = label;
     }
 };
 
@@ -273,7 +323,6 @@ private:
 
 
 void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
-void getRofHdr(struct options* opt);
 void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
 bool rof_setup_ref(std::string& out_text, refmap& ref, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint,
                    bool isRelativeRefImplied);

@@ -65,6 +65,11 @@ static void getModuleHeader(struct options* opt);
 static void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);
 static void HandleRegion(const DataRegion* bp, struct parse_state* state);
 
+inline void getRofHdr(struct options* opt)
+{
+    opt->IsROF = true;
+    opt->ROFHd = std::make_unique<RoffFile>(opt->Module.get());
+}
 
 // Read the Driver initialization table and set up label names.
 // NOT ACTIVELY MAINTAINED.
