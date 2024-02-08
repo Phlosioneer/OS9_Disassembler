@@ -66,7 +66,7 @@ int32_t truncateSigned(OperandSize size, int32_t value);
 
 inline OperandSize max(OperandSize s1, OperandSize s2)
 {
-    if (s1 < s2)
+    if (static_cast<uint8_t>(s1) < static_cast<uint8_t>(s2))
     {
         return s2;
     }
