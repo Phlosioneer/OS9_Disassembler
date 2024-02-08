@@ -6,12 +6,14 @@
 
 #include <bitset>
 
-#include "address_space.h"
+#include "address_space_handle.h"
 #include "either.h"
 #include "disglobs.h"
 #include "size.h"
 
 class Label;
+extern const AddressSpace LITERAL_DEC_SPACE;
+
 
 enum EffectiveAddressMode
 {
@@ -133,6 +135,10 @@ constexpr uint8_t getIndexUnchecked(Register reg);
 // functions, since it's a parsing function.
 inline bool parseStandardSize(uint8_t size, OperandSize& out_sizeOp)
 {
+    constexpr uint8_t SIZ_BYTE = 0;
+    constexpr uint8_t SIZ_WORD = 1;
+    constexpr uint8_t SIZ_LONG = 2;
+
     switch (size)
     {
     case SIZ_BYTE:

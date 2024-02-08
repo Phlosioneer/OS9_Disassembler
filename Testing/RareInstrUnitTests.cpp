@@ -3,6 +3,7 @@
 
 #include "CppUnitTest.h"
 
+#include "address_space.h"
 #include "command_items.h"
 #include "main_support.h"
 #include "dprint.h"
@@ -36,7 +37,7 @@ namespace UnitTests
 			opt.modHeader = std::make_unique<module_header>();
 			opt.IsROF = false;
 			subtestName = nullptr;
-			opt.modHeader->type = MT_PROGRAM;
+			opt.modHeader->type = MT_Program;
 			reset();
 		}
 

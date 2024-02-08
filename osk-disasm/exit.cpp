@@ -4,7 +4,6 @@
 #include "exit.h"
 
 #include <errno.h>
-#include <stdio.h>
 
 #include "main_support.h"
 

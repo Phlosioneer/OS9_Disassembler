@@ -4,13 +4,12 @@
 
 #include "pch.h"
 
-#include "address_space.h"
 #include "label.h"
-#include "params.h"
-#include "rof.h"
-#include "userdef.h"
 
+class FormattedNumber;
 struct cmd_items;
+class AddressSpace;
+typedef const AddressSpace* AddrSpaceHandle;
 
 /*
  * ireflist structure: Represents an entry in the Initialized Refs
@@ -152,16 +151,13 @@ void PrintLine(struct cmd_items* ci, AddrSpaceHandle space, uint32_t CmdEnt, uin
 void printXtraBytes(std::string& data);
 void printXtraBytes(const std::vector<uint16_t>& data);
 void WrtEnds(struct options* opt, int PCPos);
-void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 void GetIRefs(struct options* opt);
 int DoAsciiBlock(const std::string& labelName, uint32_t blockSize, AddrSpaceHandle space, struct parse_state* state);
 int DoAsciiBlock(const std::string& labelName, const char* buf, size_t bufEnd, AddrSpaceHandle iSpace,
                  struct parse_state* state);
 void ROFDataPrint(struct options* opt);
 void OS9DataPrint(struct options* opt);
-void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt);
 void WrtEquates(bool printStdLabels, struct options* opt);
-void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* state);
 
 extern int LinNum;
 extern struct ireflist* IRefs;

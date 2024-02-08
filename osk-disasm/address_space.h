@@ -3,6 +3,8 @@
 
 #include "pch.h"
 
+#include "address_space_handle.h"
+
 enum class SpaceKind
 {
     /// <summary>
@@ -86,8 +88,6 @@ class AddressSpace
 
     virtual std::string makeDefaultName(size_t address) const;
 };
-
-typedef const AddressSpace* AddrSpaceHandle;
 
 /* Values that are addresses into code. Formerly class 'L'. */
 extern const AddressSpace CODE_SPACE;

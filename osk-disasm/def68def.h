@@ -4,7 +4,7 @@
 
 #include "pch.h"
 
-#include "userdef.h"
+struct OPSTRUCTURE;
 
 const OPSTRUCTURE* tablematch(int opword, const OPSTRUCTURE* entry);
 

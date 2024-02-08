@@ -11,7 +11,6 @@
 
 #include "def68def.h"
 
-#include "dismain.h"
 #include "userdef.h"
 
 /* ********************************************* */

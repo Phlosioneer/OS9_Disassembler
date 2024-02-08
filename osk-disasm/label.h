@@ -4,13 +4,9 @@
 
 #include "pch.h"
 
-#include "address_space.h"
+#include "address_space_handle.h"
 #include "disglobs.h"
 #include "size.h"
-
-#define LBLLEN 40
-
-struct cmd_items;
 
 class Label
 {

@@ -29,6 +29,7 @@
 
 #include <ctype.h>
 
+#include "address_space.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"

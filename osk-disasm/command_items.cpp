@@ -3,42 +3,39 @@
 
 #include "command_items.h"
 
-#include <string.h>
-
 #include "commonsubs.h"
 #include "disglobs.h"
 #include "dismain.h"
 #include "dprint.h"
-#include "exit.h"
 #include "main_support.h"
 #include "modtypes.h"
 #include "params.h"
 #include "rof.h"
-
-#define LABEL_LEN 200
-#define MNEM_LEN 50
-#define CODE_LEN 10
-#define OPCODE_LEN 200
-#define COMMENT_LEN 200
-
-/*
-struct cmd_items_inner {
-    int cmd_wrd;        // The single effective address word (the command)
-    char lblname[LABEL_LEN];
-    char mnem[MNEM_LEN];
-    short code[CODE_LEN];
-    int wcount;         // The count of words in the instrct/.(except sea)
-    char opcode[OPCODE_LEN];   // Possibly ovesized, but just to be safe
-    char comment[COMMENT_LEN];     // Inline comment - NULL if none
-    struct extWbrief extend;   // The extended command (if present)
-};
-*/
+#include "userdef.h"
 
 typedef struct modestrs
 {
     const char* str;
     int CPULvl;
 } MODE_STR;
+
+/* The following two structures define
+ * the extended word
+ */
+struct extWbrief
+{
+    bool isAddrReg = false; /* Index Register ('D' or 'A' */
+    int regno = 0;          /* Register # */
+    int isLong = 0;         /* Index size (W/L, 0 if sign-extended word */
+    int scale = 0;          /* Scale  00 = 1, 01 = 2, 03 = 4, 11= 8 */
+    int displ = 0;          /* Displacement (lower byte) */
+    int is = 0;             /* Index Suppress */
+    int bs = 0;             /* Base Displacement Suppress */
+    int bdSize = 0;         /* BD Size */
+    int iiSel = 0;          /* Index/Indirect Selection */
+};
+
+static int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 
 void cmd_items::setSource(const LiteralParam& param)
 {
@@ -122,12 +119,12 @@ cmd_items& cmd_items::operator=(struct cmd_items&& other)
  * Functions that deal with a register and hold the reg #
  * in the command word, and also have an effective address
  */
-int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
+int reg_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     uint8_t sourceMode = (ci->cmd_wrd >> 3) & 7;
     uint8_t sourceReg = ci->cmd_wrd & 7;
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
-    int size = (ci->cmd_wrd >> 7) & 3;
+    uint8_t rawSize = (ci->cmd_wrd >> 7) & 3;
 
     /* Eliminate illegal Addressing modes */
     switch (op->id)
@@ -143,23 +140,23 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     case InstrId::LEA: /* lea */
         if ((sourceMode < 2) || (sourceMode == 3) || (sourceMode == 4)) return 0;
         if ((sourceMode == 7) && (sourceReg == 4)) return 0;
-        size = SIZ_LONG;
         break;
     default:
         throw std::runtime_error("Unexpected instruction id");
     }
 
     // Determine operand size
+    OperandSize size;
     switch (op->id)
     {
     case InstrId::CHK:
-        switch (size)
+        switch (rawSize)
         {
         case 0b11:
-            size = SIZ_WORD;
+            size = OperandSize::Word;
             break;
         case 0b10:
-            size = SIZ_LONG;
+            size = OperandSize::Long;
             break;
         default:
             return 0;
@@ -169,36 +166,16 @@ int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* stat
     case InstrId::DIVU:
     case InstrId::MULS:
     case InstrId::MULU:
-        size = SIZ_WORD;
+        size = OperandSize::Word;
         break;
     case InstrId::LEA:
-        size = SIZ_LONG;
+        size = OperandSize::Long;
         break;
     default:
         throw std::runtime_error("Unexpected instruction id");
     }
 
-    // TODO: undo this hack and handle size properly above.
-    OperandSize opSize;
-    switch (size)
-    {
-    case SIZ_BYTE:
-        opSize = OperandSize::Byte;
-        break;
-    case SIZ_WORD:
-        opSize = OperandSize::Word;
-        break;
-    case SIZ_LONG:
-        opSize = OperandSize::Long;
-        break;
-    default:
-        // This needs to be set to a value (any value other than byte). It's only used for
-        // hexadecimal sizes, and nothing else.
-        opSize = OperandSize::Long;
-        break;
-    }
-
-    ci->source = get_eff_addr(ci, sourceMode, sourceReg, opSize, state);
+    ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
     if (!ci->source) return 0;
 
     ci->mnem = op->name;
@@ -227,7 +204,7 @@ static RegisterSet reglist(uint16_t regmask, int mode)
     return RegisterSet(addressByte, dataByte);
 }
 
-int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
+int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     uint8_t mode = (ci->cmd_wrd >> 3) & 7;
     uint8_t reg = ci->cmd_wrd & 7;
@@ -271,7 +248,7 @@ int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* s
     return 1;
 }
 
-int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* state)
+int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
     ci->mnem = op->name;
@@ -302,7 +279,7 @@ int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* s
  *      the values.
  * Returns 1 if valid, 0 if is Full Extended Word (m68020+ only)
  */
-int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state)
+static int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state)
 {
     int ew; /* A local copy of the extended word (stored in ci->code[0]) */
     if (!hasnext_w(state)) return 0;
@@ -366,7 +343,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
          * so compensate
          */
 
-        if (reg == 6 && !state->opt->IsROF && state->opt->modHeader->type == MT_PROGRAM)
+        if (reg == 6 && !state->opt->IsROF && state->opt->modHeader->type == MT_Program)
         {
             ext1 += 0x8000;
         }
@@ -610,7 +587,7 @@ char getnext_b(struct cmd_items* ci, struct parse_state* state)
 
     if (state->Module->eof())
     {
-        filereadexit();
+        throw std::runtime_error("Error reading file: Unexpected EOF");
     }
 
     state->PCPos++;
@@ -637,7 +614,7 @@ int getnext_w(struct cmd_items* ci, struct parse_state* state)
     int16_t w = state->Module->read<int16_t>();
     if (state->Module->eof())
     {
-        filereadexit();
+        throw std::runtime_error("Error reading file: Unexpected EOF");
     }
     state->PCPos += 2;
     ci->rawData[ci->rawDataSize] = w;

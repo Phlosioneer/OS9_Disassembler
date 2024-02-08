@@ -10,7 +10,7 @@
 #include "params.h"
 #include "reader.h"
 
-struct opst;
+struct OPSTRUCTURE;
 struct options;
 
 struct cmd_items
@@ -69,11 +69,10 @@ struct parse_state
 
 std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
                                          struct parse_state* state, AddrSpaceHandle literalSpaceHint = nullptr);
-int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
 
-int reg_ea(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
-int cmd_movem(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
-int link_unlk(struct cmd_items* ci, const struct opst* op, struct parse_state* state);
+int reg_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 bool hasnext_w(struct parse_state* state);
 int getnext_w(struct cmd_items* ci, struct parse_state* state);
 void ungetnext_w(struct cmd_items* ci, struct parse_state* state);

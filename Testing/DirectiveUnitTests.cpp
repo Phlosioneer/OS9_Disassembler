@@ -4,6 +4,7 @@
 #include "CppUnitTest.h"
 #include "CppUnitTestAssert.h"
 
+#include "address_space.h"
 #include "writer.h"
 #include "rof.h"
 #include "dprint.h"
@@ -44,8 +45,8 @@ namespace UnitTests
 			opt->IsROF = false;
 			opt->psectName = "testName";
 			opt->modHeader = std::make_unique<module_header>();
-			opt->modHeader->type = MT_PROGRAM;
-			opt->modHeader->lang = ML_OBJECT;
+			opt->modHeader->type = MT_Program;
+			opt->modHeader->lang = ML_Object;
 			opt->modHeader->attributes = MA_REENT;
 			opt->modHeader->revision = 9;
 			opt->modHeader->edition = 5;

@@ -29,6 +29,8 @@
 
 #include <string.h>
 
+#include "address_space.h"
+#include "userdef.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
@@ -39,7 +41,6 @@
 #include "rof.h"
 #include "sysnames.h"
 #include "textdef.h"
-#include "userdef.h"
 
 static const uint8_t MATH_TRAP_LIB = 15;
 static const char* const MATH_TRAP_LIB_NAME = "T$Math";
@@ -931,4 +932,13 @@ int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
     return 1;
+}
+
+/*
+ * noimplemented() - A dummy function which simply returns NULL for instructions
+ *       that do not yet have handler functions
+ */
+int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    return 0;
 }

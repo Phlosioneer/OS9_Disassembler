@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="address_space.h" />
+    <ClInclude Include="address_space_handle.h" />
     <ClInclude Include="cmdfile.h" />
     <ClInclude Include="def68def.h" />
     <ClInclude Include="main_support.h" />

@@ -4,15 +4,12 @@
 
 #include "pch.h"
 
-#include <stdio.h>
-
-#include "address_space.h"
-#include "reader.h"
-#include "userdef.h"
+#include "address_space_handle.h"
 
 struct cmd_items;
 struct options;
 class DataRegion;
+class BigEndianStream;
 
 struct module_header
 {
@@ -63,8 +60,5 @@ struct module_header
 
 bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state);
 int dopass(int mypass, struct options* opt);
-int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
-void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);
-void HandleRegion(const DataRegion* bp, struct parse_state* state);
 
 #endif

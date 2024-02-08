@@ -34,7 +34,6 @@
 #define VERSION "0.1.0"
 
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #ifdef _WIN32
@@ -55,20 +54,6 @@
 
 #define MC68000 0
 
-enum
-{
-    SIZ_BYTE,
-    SIZ_WORD,
-    SIZ_LONG,
-    // This is technically a valid value, though the assemblers I have access to use
-    // SIZ_WORD incorrectly. For some instructions (including MOVEA) a size of 1 (SIZ_WORD)
-    // is illegal, and 3 is used to indicate sign-extended word.
-    //
-    // The processor seems to ignore the upper bit, and both SIZ_WORD and SIZ_WORD_SIGNX
-    // are odd.
-    SIZ_WORD_SIGNX
-};
-
 /* Addressing Modes */
 
 enum
@@ -87,22 +72,6 @@ enum
     AM_LONG,  /* Absolute Long */
     AM_REL,
     AM_MAXMODES /* Count of Modes + 1 */
-};
-
-/* The following two structures define
- * the extended word
- */
-struct extWbrief
-{
-    bool isAddrReg = false; /* Index Register ('D' or 'A' */
-    int regno = 0;      /* Register # */
-    int isLong = 0;     /* Index size (W/L, 0 if sign-extended word */
-    int scale = 0;      /* Scale  00 = 1, 01 = 2, 03 = 4, 11= 8 */
-    int displ = 0;      /* Displacement (lower byte) */
-    int is = 0;         /* Index Suppress */
-    int bs = 0;         /* Base Displacement Suppress */
-    int bdSize = 0;     /* BD Size */
-    int iiSel = 0;      /* Index/Indirect Selection */
 };
 
 /* The following is part of the description for the full extended word */

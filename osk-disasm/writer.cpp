@@ -3,8 +3,6 @@
 
 #include "writer.h"
 
-#include <cstdarg>
-
 #include "exit.h"
 
 writer_handle* stdout_writer = nullptr;

@@ -28,8 +28,6 @@
 #include "main_support.h"
 
 #include <ctype.h>
-#include <fstream>
-#include <string.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -37,19 +35,11 @@
 
 #include "cmdfile.h"
 #include "commonsubs.h"
-#include "disglobs.h"
 #include "dismain.h"
 #include "dprint.h"
 #include "exit.h"
 #include "rof.h"
-#include "userdef.h"
 #include "writer.h"
-
-#ifdef _WIN32
-#define strdup _strdup
-#define access _access
-#define R_OK 4
-#endif
 
 options::~options()
 {

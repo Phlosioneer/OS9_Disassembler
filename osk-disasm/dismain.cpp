@@ -34,33 +34,26 @@
 #include "dismain.h"
 
 #include <ctype.h>
-#include <string.h>
 #include <iomanip>
 
+#include "address_space.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
 #include "def68def.h"
-#include "disglobs.h"
 #include "dprint.h"
 #include "exit.h"
-#include "label.h"
 #include "main_support.h"
 #include "modtypes.h"
-#include "rof.h"
 #include "textdef.h"
 
 #ifdef _WIN32
 #define strcasecmp _stricmp
 #endif
 
-#ifdef _OSK
-#define strcasecmp strcmp
-#endif
+static const char* DriverJumpTableNames[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
 
-static const char* DrvrJmps[] = {"Init", "Read", "Write", "GetStat", "SetStat", "Term", "Except", NULL};
-
-static const char* FmanJmps[] = {"Open",  "Create", "Makdir",  "Chgdir",  "Delete",  "Seek",  "Read",
+static const char* FileManagerJumpTableNames[] = {"Open",  "Create", "Makdir",  "Chgdir",  "Delete",  "Seek",  "Read",
                                  "Write", "Readln", "Writeln", "Getstat", "Setstat", "Close", NULL};
 
 const OPSTRUCTURE* opmains[] = {instr00, instr01, instr02, /* Repeat 3 times for 3 move sizes */
@@ -69,6 +62,9 @@ const OPSTRUCTURE* opmains[] = {instr00, instr01, instr02, /* Repeat 3 times for
 
 static void readOpword(struct cmd_items* ci, struct parse_state* state);
 static void getModuleHeader(struct options* opt);
+static void HandleDataRegion(const DataRegion* bp, struct parse_state* state, AddrSpaceHandle literalSpace);
+static void HandleRegion(const DataRegion* bp, struct parse_state* state);
+
 
 // Read the Driver initialization table and set up label names.
 // NOT ACTIVELY MAINTAINED.
@@ -160,11 +156,11 @@ static void getModuleHeader(struct options* opt)
     /* Now get any further Mod-type specific headers */
     switch (mod->type)
     {
-    case MT_PROGRAM:
-    case MT_SYSTEM:
-    case MT_TRAPLIB:
-    case MT_FILEMAN:
-    case MT_DEVDRVR:
+    case MT_Program:
+    case MT_System:
+    case MT_TrapLibrary:
+    case MT_FileManager:
+    case MT_DeviceDriver:
         mod->execOffset = opt->Module->read<uint32_t>();
 
         /* Add label for Exception Handler, if applicable */
@@ -175,17 +171,17 @@ static void getModuleHeader(struct options* opt)
             labelManager.addLabel(&CODE_SPACE, mod->exceptionOffset);
         }
 
-        if ((mod->type != MT_SYSTEM) && (mod->type != MT_FILEMAN))
+        if ((mod->type != MT_System) && (mod->type != MT_FileManager))
         {
             mod->memorySize = opt->Module->read<uint32_t>();
 
-            if (mod->type == MT_TRAPLIB || mod->type == MT_PROGRAM)
+            if (mod->type == MT_TrapLibrary || mod->type == MT_Program)
             {
                 mod->stackSize = opt->Module->read<uint32_t>();
                 mod->initDataHeaderOffset = opt->Module->read<uint32_t>();
                 mod->refTableOffset = opt->Module->read<uint32_t>();
 
-                if (mod->type == MT_TRAPLIB)
+                if (mod->type == MT_TrapLibrary)
                 {
                     mod->initRoutineOffset = opt->Module->read<uint32_t>();
                     mod->terminationRoutineOffset = opt->Module->read<uint32_t>();
@@ -195,7 +191,7 @@ static void getModuleHeader(struct options* opt)
 
         mod->startPC = (uint32_t)opt->Module->position();
 
-        if ((mod->type == MT_DEVDRVR) || (mod->type == MT_FILEMAN))
+        if ((mod->type == MT_DeviceDriver) || (mod->type == MT_FileManager))
         {
             opt->Module->seekAbsolute(mod->execOffset);
             get_drvr_jmps(mod->type, opt->Module.get());
@@ -568,15 +564,6 @@ int dopass(int Pass, struct options* opt)
     return 0;
 }
 
-/*
- * noimplemented() - A dummy function which simply returns NULL for instructions
- *       that do not yet have handler functions
- */
-int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
-{
-    return 0;
-}
-
 static void readOpword(struct cmd_items* ci, struct parse_state* state)
 {
     *ci = {};
@@ -662,7 +649,7 @@ bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
  * buffer (and does any applicable printing if in pass 2). Only called within
  * CODE_SPACE, which is a bit weird.
  */
-void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpaceHandle literalSpace)
+static void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpaceHandle literalSpace)
 {
     std::string tmps;
     uint32_t value;
@@ -767,7 +754,7 @@ void HandleDataRegion(const DataRegion* db, struct parse_state* state, AddrSpace
 /*
  * Insert boundary area. Only called within CODE_SPACE.
  */
-void HandleRegion(const DataRegion* bp, struct parse_state* state)
+static void HandleRegion(const DataRegion* bp, struct parse_state* state)
 {
     // For now, this is just a pass-through. When more Region types are supported, this
     // function will dispatch by type.

@@ -4,11 +4,6 @@
 
 #include "pch.h"
 
-#include <fstream>
-#include <stdio.h>
-
-#include "userdef.h"
-
 struct ifstream_handle
 {
     std::ifstream* inner;

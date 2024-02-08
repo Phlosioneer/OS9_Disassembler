@@ -4,11 +4,10 @@
 
 #include "pch.h"
 
-#include <stdio.h>
-
 #include "dismain.h"
-#include "reader.h"
 #include "rof.h"
+
+class BigEndianStream;
 
 struct options
 {

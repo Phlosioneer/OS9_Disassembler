@@ -135,6 +135,9 @@
     <ClInclude Include="size.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="address_space_handle.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="test\actual.s" />

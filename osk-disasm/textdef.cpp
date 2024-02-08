@@ -4,29 +4,8 @@
 #include "textdef.h"
 
 #include "opcode00.h"
-
-extern const SIZETYPES sizefield[] = {
-    {"bwl~~~~"}, /* entry 0  */
-    {"b~~~~~~"}, /* entry 1  */
-    {"w~~~~~~"}, /* entry 2  */
-    {"lbbbb~~"}, /* entry 3  */
-    {"wl~~~~~"}, /* entry 4  */
-    {"l~~~~~~"}, /* entry 5  */
-    {"bbbbb~~"}, /* entry 6  */
-    {"~wl~~~~"}, /* entry 7  */
-    {"~b~~~~~"}, /* entry 8  */
-    {"~w~l~~~"}, /* entry 9  */
-    {"~~wl~~~"}, /* entry 10  */
-    {"~~~w~~~"}, /* entry 11  */
-    {"~l~~~~~"}, /* entry 12  */
-    {"wwwww~~"}, /* entry 13  */
-    {"~bwl~~~"}, /* entry 14  */
-    {"lsx~wdb"}, /* entry 15  */
-    {"x~~~~~~"}, /* entry 16  */
-    {"ls~~w~b"}, /* entry 17  */
-    {"~~~p~~~"}, /* entry 18  */
-    {"lsx~wdb"}  /* entry 19  */
-};
+#include "command_items.h"
+#include "commonsubs.h"
 
 extern const CONDITIONALS typecondition[] = {
     {"t"},  /* entry 0  */
@@ -45,64 +24,6 @@ extern const CONDITIONALS typecondition[] = {
     {"lt"}, /* entry 13 */
     {"gt"}, /* entry 14 */
     {"le"}  /* entry 15 */
-};
-
-extern const EAALLOWED_TYPE EAtype[] = {
-    {0xbf8},   /* entry 0 */
-    {0xbfe},   /* entry 1 */
-    {0xbff},   /* entry 2 */
-    {0x400},   /* entry 3 */
-    {0x800},   /* entry 4 */
-    {0x27e},   /* entry 5 */
-    {0x2f8},   /* entry 6 */
-    {0x37e},   /* entry 7 */
-    {0x001},   /* entry 8 */
-    {0xff8},   /* entry 9 */
-    {0xfff},   /* entry 10 */
-    {0x600},   /* entry 11 */
-    {0x3f8},   /* entry 12 */
-    {0x080},   /* entry 13 */
-    {0x278},   /* entry 14 */
-    {0xa78},   /* entry 15 */
-    {0xa7e},   /* entry 16 */
-    {0x1000},  /* entry 17 'C'	ccr		*/
-    {0x2000},  /* entry 18 'S' status register	*/
-    {0x040},   /* entry 19 */
-    {0x3000},  /* entry 20 'R'	register list	*/
-    {0x4000},  /* entry 21 'N'	none		*/
-    {0x015},   /* entry 22 */
-    {0x019},   /* entry 23 */
-    {0x100},   /* entry 24 */
-    {0xc00},   /* entry 25 */
-    {0x5000},  /* entry 26 'U' USP		*/
-    {0x6000},  /* entry 27 'Z'	control register*/
-    {0x7000},  /* entry 28 'Y'	D_:D_		*/
-    {0x8000},  /* entry 29 'W'	A/D_:A/D_	*/
-    {0x9000},  /* entry 30 			*/
-    {0xa000},  /* entry 31 			*/
-    {0xb000},  /* entry 32 'X'	E{_:_}		*/
-    {0xc000},  /* entry 33 			*/
-    {0xd000},  /* entry 34 'Q'	melds into EA[SOURCE]		*/
-    {0xe000},  /* entry 35 			*/
-    {0xf000},  /* entry 36 			*/
-    {0x10000}, /* entry 37 			*/
-    {0x11000}, /* entry 38 'F'	function code	*/
-    {0x12000}, /* entry 39 'M'	mmu register	*/
-    {0x13000}, /* entry 40 'FE,E'		*/
-    {0x020},   /* entry 41 */
-    {0x001},   /* entry 42 */
-    {0x008},   /* entry 43 */
-    {0x300},   /* entry 44 */
-    {0x14000}, /* entry 45 'H'	FPm list	*/
-    {0x15000}, /* entry 46 'I'	FPm		*/
-    {0x16000}, /* entry 47 'J'	<ea>{Dn} or {#k}*/
-    {0x3ff},   /* entry 48 */
-    {0x801},   /* entry 49 */
-    {0x17000}, /* entry 50 'K'	single FPcr	*/
-    {0xaff},   /* entry 51 */
-    {0x18000}, /* entry 52 'L'	FPIAR only	*/
-    {0x19000}, /* entry 53 'M'	FPm:FPn		*/
-    {0x1a000}  /* entry 54 'O' Fpcr list	*/
 };
 
 /* The DEVICE that the target system uses will determine which OPSTRUCTURE

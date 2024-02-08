@@ -28,15 +28,7 @@
 
 #include "commonsubs.h"
 
-#include <stdio.h>
-#include <string.h>
-
-#include "command_items.h"
 #include "exit.h"
-#include "label.h"
-#include "main_support.h"
-#include "modtypes.h"
-#include "rof.h"
 
 // Advances past any space, tab, or any newline character in the string.
 // Pure function
@@ -102,7 +94,6 @@ unsigned short bufReadW(char** pt)
 
     val = *(*pt)++ & 0xff;
     val = (val << 8) | (*(*pt)++ & 0xff);
-    /*return ((*(*pt)++ & 0xff) << 8) | (*((*pt)++) & 0xff);*/
     return val;
 }
 
@@ -130,12 +121,9 @@ char* freadString(FILE* fp)
     while (ch && (ch > 0))
     {
         buffer << ch;
-        //*(strPt++) = ch;
         ch = getc(fp);
     }
 
-    //*strPt = '\0';
-    // strcpy ((newStr = (char *)mem_alloc(strlen(strBuf) + 1)), strBuf);
     std::string temp = buffer.str();
     return _strdup(temp.c_str());
 }

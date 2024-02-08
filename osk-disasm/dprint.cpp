@@ -38,15 +38,10 @@
 #include "dprint.h"
 
 #include <algorithm>
-#include <ctype.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include <iomanip>
 
+#include "address_space.h"
 #include "command_items.h"
-#include "commonsubs.h"
-#include "disglobs.h"
 #include "dismain.h"
 #include "exit.h"
 #include "label.h"
@@ -56,12 +51,6 @@
 #include "userdef.h"
 #include "writer.h"
 
-#include <iomanip>
-
-#ifdef _WIN32
-#define snprintf _snprintf
-#endif
-
 #define MAX_ASCII_LINE_LEN 26
 
 struct modnam
@@ -70,12 +59,13 @@ struct modnam
     int val;
 };
 
-struct ireflist* IRefs = NULL;
 static void BlankLine(struct options* opt);
 static void PrintFormatted(struct cmd_items* ci, struct options* opt, int CmdEnt);
 static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
 static void TellLabels(LabelCategory& me, bool printStdLabels, AddrSpaceHandle space, int minval, struct options* opt);
-
+static void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* state);
+static void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt);
+static void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 
 static const char* xtraFmt = "             %s\n";
 
@@ -83,6 +73,7 @@ static std::string ClsHd{}; /* header format string for label equates */
 static int HadWrote;     /* flag that header has been written */
 static const char* SrcHd;      /* ptr for header for source file */
 int LinNum;
+struct ireflist* IRefs = NULL;
 
 const std::unordered_map<uint8_t, const char*> ModTypes{{1, "Prgrm"},   {2, "Sbrtn"},    {3, "Multi"},  {4, "Data"},
                                                         {5, "CSDData"}, {11, "TrapLib"}, {12, "Systm"}, {13, "FlMgr"},
@@ -533,7 +524,7 @@ void WrtEnds(struct options* opt, int PCPos)
  *    Insert appropriate labels into Label Trees and the
  *    IRef table.
  */
-void ParseIRefs(AddrSpaceHandle space, struct options* opt)
+static void ParseIRefs(AddrSpaceHandle space, struct options* opt)
 {
     uint16_t rCount; /* The count for this block */
     uint32_t MSB;
@@ -840,7 +831,7 @@ static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct p
  *          (2) mycount - count of elements in this sect.
  *          (3) class   - Label Class letter
  */
-void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state)
+static void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state)
 {
     if (state->Module->size() == 0) return;
 
@@ -1005,7 +996,7 @@ void OS9DataPrint(struct options* opt)
 // Lists the uninit data as a assemblerVersion of labels with ds.b directives. The algorithm
 // is greedy, and assumes all space between labels is used by a label (no wasted
 // bytes).
-void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt)
+static void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt)
 {
     // Nothing to print.
     if (maxAddress == 0) return;

@@ -4,9 +4,9 @@
 
 #include "pch.h"
 
-#include "userdef.h"
-
+struct OPSTRUCTURE;
 struct cmd_items;
+struct parse_state;
 
 int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
@@ -36,5 +36,6 @@ int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int notimplemented(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 
 #endif

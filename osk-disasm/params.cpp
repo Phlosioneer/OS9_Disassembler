@@ -3,10 +3,8 @@
 
 #include "params.h"
 
-#include "disglobs.h"
-#include "dismain.h"
+#include "address_space.h"
 #include "dprint.h"
-#include "exit.h"
 #include "label.h"
 
 #pragma region Registers

@@ -33,24 +33,34 @@
  * Module Type/Language values *
  * *************************** */
 
-#define MT_ANY 0
-#define MT_PROGRAM 1
-#define MT_SUBROUT 2
-#define MT_MULTI 3
-#define MT_DATA 4
-#define MT_CSDDATA 5
-#define MT_TRAPLIB 11
-#define MT_SYSTEM 12
-#define MT_FILEMAN 13
-#define MT_DEVDRVR 14
-#define MT_DEVDESC 15
+enum ModuleType : uint8_t
+{
+	MT_Any = 0,
+    MT_Program,
+    MT_Subroutine,
+    MT_MultiModule,
+    MT_Data,
+	MT_CsdData,
+
+	MT_TrapLibrary = 11,
+    MT_System,
+    MT_FileManager,
+    MT_DeviceDriver,
+    MT_DeviceDescriptor
+};
 
 /* Module Language values */
-#define ML_ANY 0
-#define ML_OBJECT 1
-#define ML_ICODE 2
+enum ModuleLanguage : uint8_t
+{
+	ML_Any = 0,
+    ML_Object,
+    ML_ICode
+};
 
-#define mktypelang(type, lang) (((type) << 8) | (lang))
+inline uint16_t mktypelang(uint8_t type, uint8_t lang)
+{
+    return (static_cast<uint16_t>(type) << 8) | lang;
+}
 
 /* Module Attribute values */
 #define MA_REENT 0x80

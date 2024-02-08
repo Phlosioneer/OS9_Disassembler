@@ -30,9 +30,9 @@
 
 #include <algorithm>
 #include <ctype.h>
-#include <stdio.h>
 #include <string.h>
 
+#include "address_space.h"
 #include "cmdfile.h"
 #include "command_items.h"
 #include "commonsubs.h"
@@ -46,13 +46,6 @@
 #include "userdef.h"
 #include "writer.h"
 
-/*
-struct rof_extrn *refs_data, *refs_idata, *refs_code, *refs_remote, *refs_iremote,
-    *extrns, // Generic external pointer
-    *codeRefs_sav;
-*/
-
-//refmap refs_data, refs_idata, refs_code, refs_remote, refs_iremote, extrns;
 ReferenceManager refManager{};
 
 static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
@@ -183,8 +176,6 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
 
     /* Read code into buffer for get_refs() while we're here */
 
-    // codeBuf = new char[(size_t)codeSize + 1];
-    // stream->readRaw(codeBuf, codeSize);
     codeStream = std::make_unique<BigEndianStream>(stream->fork(codeSize));
 
     /* ********************************** *
@@ -307,10 +298,8 @@ AddrSpaceHandle RoffReferenceInfo::space() const
             {
             case 0: /* NOT Remote */
                 /* These are WRONG! but for now, we'll use them */
-                // return '_';
                 return &UNINIT_DATA_SPACE;
             default:
-                // return 'D';
                 return &INIT_DATA_SPACE;
             }
         }
@@ -361,8 +350,8 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
 
     for (; count > 0; count--)
     {
-        _ty = Module->read<uint16_t>();   // fread_w(ModFP);
-        _ofst = Module->read<uint32_t>(); // fread_l(ModFP);
+        _ty = Module->read<uint16_t>();
+        _ofst = Module->read<uint32_t>();
 
         RoffReferenceInfo info{_ty, ref_typ};
 
@@ -400,8 +389,6 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
         }
         
         rof_extrn new_ref(info, _ofst);
-
-        /*base = &refs_data;*/ /* For the time being, let's try to just use one list for all refs */
 
         if (new_ref.isExternal())
         {
@@ -456,7 +443,6 @@ static void get_refs(std::string& vname, size_t count, ReferenceScope ref_typ, B
         {
             it->second.emplace_back(new_ref);
         }
-        //(*base)[_ofst] = new_ref;
     }
 }
 

@@ -145,22 +145,22 @@ enum class InstrId : int
 };
 
 
-typedef struct
+struct SIZETYPES
 {
     char* size;
-} SIZETYPES;
+};
 
-typedef struct
+struct CONDITIONALS
 {
     char* condition;
-} CONDITIONALS;
+};
 
-typedef struct
+struct EAALLOWED_TYPE
 {
     int allowableEA;
-} EAALLOWED_TYPE;
+};
 
-struct opst
+struct OPSTRUCTURE
 {
     const char* name = nullptr;
     short sizestr = 0; /* sizefield[size]   */
@@ -171,9 +171,7 @@ struct opst
     short sizeendbit = 0;
     int cpulvl = 0;
     InstrId id = InstrId::DC;
-    int (*opfunc)(struct cmd_items*, const struct opst*, struct parse_state*) = nullptr;
+    int (*opfunc)(struct cmd_items*, const OPSTRUCTURE*, struct parse_state*) = nullptr;
 };
-
-typedef struct opst OPSTRUCTURE;
 
 #endif

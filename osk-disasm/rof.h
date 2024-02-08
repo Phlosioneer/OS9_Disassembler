@@ -22,42 +22,17 @@
  * see <http://www.gnu.org/licenses/>.                                  *
  * ******************************************************************** */
 
-/* symbol table types */
-/* symbol definition/reference type/location */
-
 #ifndef ROF_H
 #define ROF_H
 
 #include "pch.h"
 
-/* location flags for Global Refs and Local dests */
-#define REFCOMN 0x100    /* Reference is COMMON      */
-#define EREFREMOTE 0x100 /* External Ref is Remote   */
-
-#define DATREMOTE 0x02 /* Data is REMOTE           */
-#define CODEEQU 0x02   /* Code/Equ is EQU          */
-
-#define REFINIT 0x04 /* DATA is INITIALIZED      */
-#define CODEREF 0x01 /* Reference is in CODE or EQU */
-
-#define LOCLLOC 0x100   /* Local Ref is Remote      */
-#define LOCLCCODE 0x200 /* Local Ref is in Code     */
-
-#define REFREL 0x04 /* Ref is relative to loc   */
-#define NEGMSK 0x08 /* Negate the symbol offset */
-
-/* ROF header structure */
-
-#include "address_space.h"
-#include "label.h"
+#include "address_space_handle.h"
 #include "reader.h"
 #include "size.h"
 
-#include <stdio.h>
-
-struct cmd_items;
-struct rof_header;
 struct rof_extrn;
+class Label;
 
 /* Define flags for type of reference */
 enum class ReferenceScope
