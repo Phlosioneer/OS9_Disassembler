@@ -102,7 +102,7 @@ std::string cmd_items::renderParams() const
     return paramBuffer.str();
 }
 
-cmd_items& cmd_items::operator=(struct cmd_items&& other)
+cmd_items& cmd_items::operator=(struct cmd_items&& other) noexcept
 {
     lblname = std::move(other.lblname);
     mnem = std::move(other.mnem);

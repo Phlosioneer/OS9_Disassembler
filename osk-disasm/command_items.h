@@ -51,7 +51,7 @@ struct cmd_items
     }
 
     // Allow move-assignment
-    struct cmd_items& operator=(struct cmd_items&& other);
+    struct cmd_items& operator=(struct cmd_items&& other) noexcept;
     // But not copy-assignment
     struct cmd_items& operator=(const struct cmd_items& other) = delete;
 };
