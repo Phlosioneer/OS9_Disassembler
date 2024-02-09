@@ -46,6 +46,8 @@
 #include "userdef.h"
 #include "writer.h"
 
+const refmap ReferenceManager::dummyEmptyRefmap{};
+
 ReferenceManager refManager{};
 
 static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
@@ -60,11 +62,12 @@ rof_extrn::rof_extrn(RoffReferenceInfo refInfo, uint32_t offset) : info(refInfo)
  * Add the initialization data to the Labels Ref. On entry, the file pointer is
  * positioned to the begin of the initialized data list for this particular vsect.
  */
-void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module)
+void ReferenceManager::addInitialLabels(AddrSpaceHandle space, BigEndianStream* Module)
 {
     uint32_t refVal;
 
-    for (auto& vec : tbl)
+    // Note: creates a ref space, if it doesn't exist already.
+    for (auto& vec : refsBySpace[space])
     {
         for (auto& ref : vec.second)
         {
@@ -208,8 +211,8 @@ RoffFile::RoffFile(BigEndianStream* stream, Header& header)
     /* common block variables... */
     /* Do this after everything else is done */
 
-    AddInitLbls(refManager.refs_idata, '_', initDataStream.get());
-    AddInitLbls(refManager.refs_iremote, 'H', initRemoteDataStream.get());
+    refManager.addInitialLabels(&INIT_DATA_SPACE, initDataStream.get());
+    refManager.addInitialLabels(&INIT_REMOTE_SPACE, initRemoteDataStream.get());
 
     /* Now we're ready to disassemble the code */
 }
@@ -339,7 +342,6 @@ static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_
     AddrSpaceHandle space;
     uint16_t _ty;
     uint32_t _ofst;
-    refmap* base;
 
     for (; count > 0; count--)
     {
@@ -351,34 +353,10 @@ static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_
         /* Add to externs table */
         space = info.space();
         if (!space) throw std::runtime_error("Unexpected class: nullptr");
-        if (*space == CODE_SPACE)
+        if (*space == DEBUG_SPACE)
         {
-            base = &refManager.refs_code;
-        }
-        else if (*space == UNINIT_DATA_SPACE)
-        {
-            base = &refManager.refs_data;
-        }
-        else if (*space == INIT_DATA_SPACE)
-        {
-            base = &refManager.refs_idata;
-        }
-        else if (*space == UNINIT_REMOTE_SPACE)
-        {
-            base = &refManager.refs_remote;
-        }
-        else if (*space == INIT_REMOTE_SPACE)
-        {
-            base = &refManager.refs_iremote;
-        }
-        else if (*space == DEBUG_SPACE)
-        {
-            /* Skip Debug refs */
+            // Skip Debug refs
             continue;
-        }
-        else
-        {
-            throw std::runtime_error("Unexpected class: " + space->name);
         }
         
         rof_extrn new_ref(info, _ofst);
@@ -425,23 +403,32 @@ static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_
             }
         }
 
-        auto it = base->find(_ofst);
-        if (it == base->end())
-        {
-            base->insert({_ofst, {new_ref}});
-        }
-        else
-        {
-            it->second.emplace_back(new_ref);
-        }
+        refManager.insert(space, std::move(new_ref));
     }
 }
 
-std::vector<rof_extrn>* ReferenceManager::find_extrn(refmap& xtrn, unsigned int adrs)
+const std::vector<rof_extrn>* ReferenceManager::find_extrn(AddrSpaceHandle space, uint32_t adrs) const
 {
-    auto it = xtrn.find(adrs);
-    if (it == xtrn.end()) return nullptr;
+    auto refmap = refsBySpace.find(space);
+    if (refmap == refsBySpace.cend())
+    {
+        return nullptr;
+    }
+
+    auto it = refmap->second.find(adrs);
+    if (it == refmap->second.cend())
+    {
+        return nullptr;
+    }
+
     return &it->second;
+}
+
+void ReferenceManager::insert(AddrSpaceHandle space, rof_extrn&& move_ref)
+{
+    // This will create a refmap if the space is absent, then create a vector for the
+    // address if that's absent.
+    refsBySpace[space][move_ref.offset].emplace_back(move_ref);
 }
 
 /*
@@ -450,7 +437,7 @@ std::vector<rof_extrn>* ReferenceManager::find_extrn(refmap& xtrn, unsigned int 
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
-void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state)
+void DataDoBlock(uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state)
 {
     /* Insert Label if applicable */
 
@@ -473,7 +460,7 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
         state->CmdEnt = state->PCPos;
 
         // Check if this is the start of a reference.
-        std::vector<rof_extrn>* refs = refsList ? refManager.find_extrn(*refsList, state->CmdEnt) : nullptr;
+        const std::vector<rof_extrn>* refs = refManager.find_extrn(space, state->CmdEnt);
         if (refs && refs->size() > 0)
         {
             const OperandSize size = maxSizeOfRefs(*refs);
@@ -584,9 +571,9 @@ void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struc
  * isRelativeRefImplied: For some instructions (branches) and some argument forms (pc displacements), the assembler
  * forces references to be relative. For correct disassembly, we need to undo that.
  */
-bool rof_setup_ref(std::string& out_text, refmap& ref, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied)
+bool rof_setup_ref(std::string& out_text, AddrSpaceHandle space, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied)
 {
-    auto refs = refManager.find_extrn(ref, addrs);
+    auto refs = refManager.find_extrn(space, addrs);
     if (refs && refs->size() > 0)
     {
         return refsToExpression(out_text, *refs, addrs, val, Pass, sizeConstraint, isRelativeRefImplied);
@@ -600,10 +587,10 @@ bool rof_setup_ref(std::string& out_text, refmap& ref, uint32_t addrs, uint32_t 
 bool IsRef(std::string& out_text, uint32_t curloc, uint32_t ival, int Pass, OperandSize sizeConstraint,
            bool isRelativeRefImplied)
 {
-    auto it = refManager.refs_code.find(curloc);
-    if (it != refManager.refs_code.end())
+    const auto refs = refManager.find_extrn(&CODE_SPACE, curloc);
+    if (refs)
     {
-        return refsToExpression(out_text, it->second, curloc, ival, Pass, sizeConstraint, isRelativeRefImplied);
+        return refsToExpression(out_text, *refs, curloc, ival, Pass, sizeConstraint, isRelativeRefImplied);
     }
 
     return false;
@@ -611,12 +598,7 @@ bool IsRef(std::string& out_text, uint32_t curloc, uint32_t ival, int Pass, Oper
 
 void ReferenceManager::clear()
 {
-    refs_data.clear();
-    refs_idata.clear();
-    refs_remote.clear();
-    refs_iremote.clear();
-    refs_code.clear();
-    extrns.clear();
+    refsBySpace.clear();
 }
 
 OperandSize maxSizeOfRefs(const std::vector<rof_extrn>& refs)

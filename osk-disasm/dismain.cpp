@@ -513,11 +513,11 @@ int dopass(int Pass, struct options* opt)
         }
 
         // Check for references that cover the current byte; they can't possibly be instructions.
-        const auto maybeRefList = refManager.refs_code.find(parseState.PCPos);
-        if (maybeRefList != refManager.refs_code.cend())
+        const auto maybeRefList = refManager.find_extrn(&CODE_SPACE, parseState.PCPos);
+        if (maybeRefList)
         {
             OperandSize largestRefSize = OperandSize::Byte;
-            for (const rof_extrn& ref : maybeRefList->second)
+            for (const rof_extrn& ref : *maybeRefList)
             {
                 largestRefSize = OperandSizes::max(largestRefSize, ref.info.opSize());
             }

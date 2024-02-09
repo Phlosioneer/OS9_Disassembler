@@ -314,9 +314,9 @@ namespace UnitTests
 			pushWord(0);
 			rof_extrn unlink(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
 			unlink.setName("F$UnLink");
-			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(2, std::vector<rof_extrn>{ std::move(unlink) }));
+			refManager.insert(&CODE_SPACE, std::move(unlink));
 			runTest("os9", "F$UnLink");
-			refManager.refs_code.clear();
+			refManager.clear();
 
 			// Test valid T$Math traps
 			subtestName = L"Math Tangent trap";
@@ -324,12 +324,12 @@ namespace UnitTests
 			pushWord(0);
 			rof_extrn temp(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 1);
 			temp.setName("T$Math");
-			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(1, std::vector<rof_extrn>{std::move(temp)}));
+			refManager.insert(&CODE_SPACE, std::move(temp));
 			rof_extrn temp2(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
 			temp2.setName("T$Tan");
-			refManager.refs_code.insert(std::make_pair<uint32_t, std::vector<rof_extrn>>(2, std::vector<rof_extrn>{std::move(temp2)}));
+			refManager.insert(&CODE_SPACE, std::move(temp2));
 			runTest("tcall", "T$Math,T$Tan");
-			refManager.refs_code.clear();
+			refManager.clear();
 		}
 
 		TEST_METHOD(cmd_exg)

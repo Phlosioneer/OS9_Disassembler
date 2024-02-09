@@ -509,7 +509,7 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
     if (displ & 1) return 0;
 
     std::string temp;
-    if (state->opt->IsROF && rof_setup_ref(temp, refManager.refs_code, immAddress, displ, state->Pass, size, true))
+    if (state->opt->IsROF && rof_setup_ref(temp, &CODE_SPACE, immAddress, displ, state->Pass, size, true))
     {
         ci->setSource(LiteralParam(temp));
     }
@@ -712,12 +712,12 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     const size_t sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
     const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
-    std::vector<rof_extrn>* vec_refs = nullptr;
-    std::vector<rof_extrn>* call_refs = nullptr;
+    const std::vector<rof_extrn>* vec_refs = nullptr;
+    const std::vector<rof_extrn>* call_refs = nullptr;
     if (state->opt->IsROF)
     {
-        vec_refs = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 1);
-        call_refs = refManager.find_extrn(refManager.refs_code, state->CmdEnt + 2);
+        vec_refs = refManager.find_extrn(&CODE_SPACE, state->CmdEnt + 1);
+        call_refs = refManager.find_extrn(&CODE_SPACE, state->CmdEnt + 2);
     }
 
     // Start with vec_ref.
@@ -728,7 +728,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     {
         // TODO: Throw an error if more than one ref is detected here.
 
-        rof_extrn &vec_ref = vec_refs->at(0);
+        const rof_extrn &vec_ref = vec_refs->at(0);
         ci->setSource(LiteralParam(vec_ref.getName()));
         ci->mnem = "tcall";
 

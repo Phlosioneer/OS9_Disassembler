@@ -3,6 +3,7 @@
 
 #include "command_items.h"
 
+#include "address_space.h"
 #include "commonsubs.h"
 #include "disglobs.h"
 #include "dismain.h"
@@ -484,7 +485,7 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
             int addressMode = ci->forceRelativeImmediateMode ? AM_REL : AM_IMM;
 
             std::string dispstr;
-            if (rof_setup_ref(dispstr, refManager.refs_code, static_cast<uint32_t>(ref_ptr), ext1, state->Pass, size, ci->forceRelativeImmediateMode))
+            if (rof_setup_ref(dispstr, &CODE_SPACE, static_cast<uint32_t>(ref_ptr), ext1, state->Pass, size, ci->forceRelativeImmediateMode))
             {
                 dispstr = "#" + dispstr;
                 param = std::make_unique<LiteralParam>(dispstr);

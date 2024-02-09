@@ -213,15 +213,15 @@ typedef std::unordered_map<uint32_t, std::vector<rof_extrn>> refmap;
 
 class ReferenceManager
 {
-  public:
-    refmap refs_data;
-    refmap refs_idata;
-    refmap refs_code;
-    refmap refs_remote;
-    refmap refs_iremote;
+    // Needed for const iterators for missing refmaps.
+    static const refmap dummyEmptyRefmap;
 
-    /* Generic external pointer */
-    refmap extrns;
+    std::unordered_map<AddrSpaceHandle, refmap> refsBySpace;
+  public:
+
+    typedef refmap::const_iterator ref_const_iterator;
+
+    void addInitialLabels(AddrSpaceHandle space, BigEndianStream* Module);
 
     void clear();
     
@@ -231,7 +231,35 @@ class ReferenceManager
      *          (2) adrs - Address to match
      * Pure function.
      */
-    std::vector<rof_extrn> *find_extrn(refmap& xtrn, unsigned int adrs);
+    const std::vector<rof_extrn> *find_extrn(AddrSpaceHandle space, uint32_t adrs) const;
+
+    void insert(AddrSpaceHandle space, rof_extrn&& move_ref);
+
+    inline ref_const_iterator cbegin(AddrSpaceHandle space) const
+    {
+        auto it = refsBySpace.find(space);
+        if (it != refsBySpace.cend())
+        {
+            return it->second.cbegin();
+        }
+        else
+        {
+            return dummyEmptyRefmap.cbegin();
+        }
+    }
+
+    inline ref_const_iterator cend(AddrSpaceHandle space) const
+    {
+        auto it = refsBySpace.find(space);
+        if (it != refsBySpace.cend())
+        {
+            return it->second.cend();
+        }
+        else
+        {
+            return dummyEmptyRefmap.cend();
+        }
+    }
 };
 
 extern ReferenceManager refManager;
@@ -321,10 +349,8 @@ private:
 };
 
 
-
-void AddInitLbls(refmap& tbl, char klas, BigEndianStream* Module);
-void DataDoBlock(refmap* refsList, uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
-bool rof_setup_ref(std::string& out_text, refmap& ref, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint,
+void DataDoBlock(uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* state);
+bool rof_setup_ref(std::string& out_text, AddrSpaceHandle space, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint,
                    bool isRelativeRefImplied);
 bool IsRef(std::string& out_text, uint32_t curloc, uint32_t ival, int Pass, OperandSize sizeConstraint, bool flipRefSign);
 bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs, uint32_t currentAddress, uint32_t literalValue,

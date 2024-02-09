@@ -63,7 +63,7 @@ static void BlankLine(struct options* opt);
 static void PrintFormatted(struct cmd_items* ci, struct options* opt, int CmdEnt);
 static void NonBoundsLbl(AddrSpaceHandle space, struct options* opt, uint32_t startPC, uint32_t endPC);
 static void TellLabels(LabelCategory& me, bool printStdLabels, AddrSpaceHandle space, int minval, struct options* opt);
-static void ListInit(refmap* refsList, AddrSpaceHandle iClass, struct parse_state* state);
+static void ListInit(AddrSpaceHandle space, struct parse_state* state);
 static void ListUninitData(uint32_t maxAddress, AddrSpaceHandle space, struct options* opt);
 static void ParseIRefs(AddrSpaceHandle space, struct options* opt);
 
@@ -821,7 +821,7 @@ static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct p
     }
     BlankLine(state->opt);
 
-    ListInit(refsList, space, state);
+    ListInit(space, state);
 }
 
 /*
@@ -831,22 +831,19 @@ static void ListInitWithHeader(refmap* refsList, AddrSpaceHandle space, struct p
  *          (2) mycount - count of elements in this sect.
  *          (3) class   - Label Class letter
  */
-static void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state* state)
+static void ListInit(AddrSpaceHandle space, struct parse_state* state)
 {
     if (state->Module->size() == 0) return;
+
 
     LabelCategory& category = labelManager.getCategory(space);
     uint32_t endAddress = (uint32_t)(state->PCPos + state->Module->size());
 
     std::vector<uint32_t> blockEnds;
-    auto totalSize = category.size() + (refsList ? refsList->size() : 0);
-    blockEnds.reserve(totalSize);
-    if (refsList)
+    auto endIt = refManager.cend(&INIT_DATA_SPACE);
+    for (auto it = refManager.cbegin(&INIT_DATA_SPACE); it != endIt; it++)
     {
-        for (const auto& entry : *refsList)
-        {
-            blockEnds.push_back(entry.first);
-        }
+        blockEnds.push_back(it->first);
     }
     for (auto label : category)
     {
@@ -871,7 +868,7 @@ static void ListInit(refmap* refsList, AddrSpaceHandle space, struct parse_state
             blkEnd = endAddress;
         }
 
-        DataDoBlock(refsList, blkEnd, space, state);
+        DataDoBlock(blkEnd, space, state);
     }
 }
 
@@ -906,7 +903,7 @@ void ROFDataPrint(struct options* opt)
         state.opt = opt;
         state.Pass = 2;
         state.Module->reset();
-        ListInit(&refManager.refs_idata, &INIT_DATA_SPACE, &state);
+        ListInit(&INIT_DATA_SPACE, &state);
 
         BlankLine(opt);
         WrtEnds(opt, state.PCPos);
@@ -935,7 +932,7 @@ void ROFDataPrint(struct options* opt)
         state.opt = opt;
         state.Pass = 2;
         state.Module->reset();
-        ListInit(&refManager.refs_iremote, &INIT_REMOTE_SPACE, &state);
+        ListInit(&INIT_REMOTE_SPACE, &state);
         // TODO: Remove extra blank line.
         BlankLine(opt);
         BlankLine(opt);
