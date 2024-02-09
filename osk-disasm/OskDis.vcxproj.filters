@@ -58,6 +58,9 @@
     <ClCompile Include="size.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="references.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -139,6 +142,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="module.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="references.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
