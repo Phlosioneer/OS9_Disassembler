@@ -712,8 +712,8 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     const size_t sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
     const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
-    const std::vector<rof_extrn>* vec_refs = nullptr;
-    const std::vector<rof_extrn>* call_refs = nullptr;
+    const std::vector<RelocatedReference>* vec_refs = nullptr;
+    const std::vector<RelocatedReference>* call_refs = nullptr;
     if (state->opt->IsROF)
     {
         vec_refs = refManager.find_extrn(&CODE_SPACE, state->CmdEnt + 1);
@@ -728,7 +728,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
     {
         // TODO: Throw an error if more than one ref is detected here.
 
-        const rof_extrn &vec_ref = vec_refs->at(0);
+        const RelocatedReference &vec_ref = vec_refs->at(0);
         ci->setSource(LiteralParam(vec_ref.getName()));
         ci->mnem = "tcall";
 

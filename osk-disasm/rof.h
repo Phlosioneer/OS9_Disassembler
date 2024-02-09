@@ -32,7 +32,7 @@
 #include "size.h"
 #include "label.h"
 
-class rof_extrn;
+class RelocatedReference;
 
 /* Define flags for type of reference */
 enum class ReferenceScope
@@ -133,7 +133,7 @@ struct RoffReferenceInfo
     }
 };
 
-class rof_extrn
+class RelocatedReference
 {
   private:
     bool hasName = false;
@@ -144,7 +144,7 @@ class rof_extrn
     AddrSpaceHandle space = nullptr; /* Class for referenced item NUll if extern */
     uint32_t offset = 0;                  /* Offset into code                 */
     
-    rof_extrn(RoffReferenceInfo refInfo, uint32_t offset);
+    RelocatedReference(RoffReferenceInfo refInfo, uint32_t offset);
 
 
     inline bool isExternal() const
@@ -209,7 +209,7 @@ class rof_extrn
     }
 };
 
-typedef std::unordered_map<uint32_t, std::vector<rof_extrn>> refmap;
+typedef std::unordered_map<uint32_t, std::vector<RelocatedReference>> refmap;
 
 class ReferenceManager
 {
@@ -231,9 +231,9 @@ class ReferenceManager
      *          (2) adrs - Address to match
      * Pure function.
      */
-    const std::vector<rof_extrn> *find_extrn(AddrSpaceHandle space, uint32_t adrs) const;
+    const std::vector<RelocatedReference> *find_extrn(AddrSpaceHandle space, uint32_t adrs) const;
 
-    void insert(AddrSpaceHandle space, rof_extrn&& move_ref);
+    void insert(AddrSpaceHandle space, RelocatedReference&& move_ref);
 
     inline ref_const_iterator cbegin(AddrSpaceHandle space) const
     {
@@ -353,8 +353,8 @@ void DataDoBlock(uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* sta
 bool rof_setup_ref(std::string& out_text, AddrSpaceHandle space, uint32_t addrs, uint32_t val, int Pass, OperandSize sizeConstraint,
                    bool isRelativeRefImplied);
 bool IsRef(std::string& out_text, uint32_t curloc, uint32_t ival, int Pass, OperandSize sizeConstraint, bool flipRefSign);
-bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs, uint32_t currentAddress, uint32_t literalValue,
+bool refsToExpression(std::string& out_text, const std::vector<RelocatedReference>& refs, uint32_t currentAddress, uint32_t literalValue,
                       int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied);
-OperandSize maxSizeOfRefs(const std::vector<rof_extrn>& refs);
+OperandSize maxSizeOfRefs(const std::vector<RelocatedReference>& refs);
 
 #endif // ROF_H

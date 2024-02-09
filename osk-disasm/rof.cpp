@@ -53,7 +53,7 @@ ReferenceManager refManager{};
 static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* codebuffer,
                      BigEndianStream* Module);
 
-rof_extrn::rof_extrn(RoffReferenceInfo refInfo, uint32_t offset) : info(refInfo), offset(offset)
+RelocatedReference::RelocatedReference(RoffReferenceInfo refInfo, uint32_t offset) : info(refInfo), offset(offset)
 {
 }
 
@@ -338,7 +338,7 @@ AddrSpaceHandle RoffReferenceInfo::space() const
 static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_typ, BigEndianStream* code_buf,
                      BigEndianStream* Module)
 {
-    rof_extrn* prevRef = NULL;
+    RelocatedReference* prevRef = NULL;
     AddrSpaceHandle space;
     uint16_t _ty;
     uint32_t _ofst;
@@ -359,7 +359,7 @@ static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_
             continue;
         }
         
-        rof_extrn new_ref(info, _ofst);
+        RelocatedReference new_ref(info, _ofst);
 
         if (new_ref.isExternal())
         {
@@ -407,7 +407,7 @@ static void get_refs(const std::string& vname, size_t count, ReferenceScope ref_
     }
 }
 
-const std::vector<rof_extrn>* ReferenceManager::find_extrn(AddrSpaceHandle space, uint32_t adrs) const
+const std::vector<RelocatedReference>* ReferenceManager::find_extrn(AddrSpaceHandle space, uint32_t adrs) const
 {
     auto refmap = refsBySpace.find(space);
     if (refmap == refsBySpace.cend())
@@ -424,7 +424,7 @@ const std::vector<rof_extrn>* ReferenceManager::find_extrn(AddrSpaceHandle space
     return &it->second;
 }
 
-void ReferenceManager::insert(AddrSpaceHandle space, rof_extrn&& move_ref)
+void ReferenceManager::insert(AddrSpaceHandle space, RelocatedReference&& move_ref)
 {
     // This will create a refmap if the space is absent, then create a vector for the
     // address if that's absent.
@@ -433,7 +433,7 @@ void ReferenceManager::insert(AddrSpaceHandle space, rof_extrn&& move_ref)
 
 /*
  * Process a block composed of an initialized reference from a data area.
- * Passed : (1) struct rof_extrn *mylist - pointer to tree element
+ * Passed : (1) struct RelocatedReference *mylist - pointer to tree element
  *          (2) int datasize - the size of the area to process
  *          (3) char class - the label class (D or C)
  */
@@ -460,7 +460,7 @@ void DataDoBlock(uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* sta
         state->CmdEnt = state->PCPos;
 
         // Check if this is the start of a reference.
-        const std::vector<rof_extrn>* refs = refManager.find_extrn(space, state->CmdEnt);
+        const std::vector<RelocatedReference>* refs = refManager.find_extrn(space, state->CmdEnt);
         if (refs && refs->size() > 0)
         {
             const OperandSize size = maxSizeOfRefs(*refs);
@@ -558,7 +558,7 @@ void DataDoBlock(uint32_t blkEnd, AddrSpaceHandle space, struct parse_state* sta
 /*
  * rof_setup_ref:
  *
- * ref: Reference to desired struct rof_extrn
+ * ref: Reference to desired struct RelocatedReference
  * addr: The position in the code where toe ref is located
  * dest: Pointer to where the string is to be stored
  * value: The value found at @addr.  If it's nonzero, this is the value to add o subtract to/from the ref
@@ -601,19 +601,19 @@ void ReferenceManager::clear()
     refsBySpace.clear();
 }
 
-OperandSize maxSizeOfRefs(const std::vector<rof_extrn>& refs)
+OperandSize maxSizeOfRefs(const std::vector<RelocatedReference>& refs)
 {
     OperandSize max = OperandSize::Byte;
-    for (const rof_extrn& ref : refs)
+    for (const RelocatedReference& ref : refs)
     {
         max = OperandSizes::max(max, ref.info.opSize());
     }
     return max;
 }
 
-static bool areAllRefsExternal(const std::vector<rof_extrn>& refs)
+static bool areAllRefsExternal(const std::vector<RelocatedReference>& refs)
 {
-    for (const rof_extrn& ref : refs) {
+    for (const RelocatedReference& ref : refs) {
         if (!ref.isExternal())
         {
             return false;
@@ -625,7 +625,7 @@ static bool areAllRefsExternal(const std::vector<rof_extrn>& refs)
 /* isRelativeRefImplied : For some instructions(branches) and some argument forms(pc displacements), the assembler
  * forces references to be relative.For correct disassembly, we need to undo that. 
  */
-bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs, uint32_t currentAddress, uint32_t literalValue,
+bool refsToExpression(std::string& out_text, const std::vector<RelocatedReference>& refs, uint32_t currentAddress, uint32_t literalValue,
                       int Pass, OperandSize sizeConstraint, bool isRelativeRefImplied)
 {
     std::ostringstream buffer;
@@ -668,7 +668,7 @@ bool refsToExpression(std::string& out_text, const std::vector<rof_extrn>& refs,
         isFirstRef = false;
     }
 
-    for (const rof_extrn& ref : refs)
+    for (const RelocatedReference& ref : refs)
     {
         if (ref.info.opSize() > sizeConstraint)
         {

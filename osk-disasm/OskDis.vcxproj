@@ -167,6 +167,7 @@
     <ClInclude Include="label.h" />
     <ClInclude Include="modtypes.h" />
     <ClInclude Include="either.h" />
+    <ClInclude Include="module.h" />
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="params.h" />
     <ClInclude Include="pch.h" />

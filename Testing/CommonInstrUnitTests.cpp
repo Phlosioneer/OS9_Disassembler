@@ -312,7 +312,7 @@ namespace UnitTests
 			subtestName = L"Syscall Unlink trap";
 			pushWord(TRAP | 0);
 			pushWord(0);
-			rof_extrn unlink(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
+			RelocatedReference unlink(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
 			unlink.setName("F$UnLink");
 			refManager.insert(&CODE_SPACE, std::move(unlink));
 			runTest("os9", "F$UnLink");
@@ -322,10 +322,10 @@ namespace UnitTests
 			subtestName = L"Math Tangent trap";
 			pushWord(TRAP | MATH_TRAP);
 			pushWord(0);
-			rof_extrn temp(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 1);
+			RelocatedReference temp(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 1);
 			temp.setName("T$Math");
 			refManager.insert(&CODE_SPACE, std::move(temp));
-			rof_extrn temp2(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
+			RelocatedReference temp2(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
 			temp2.setName("T$Tan");
 			refManager.insert(&CODE_SPACE, std::move(temp2));
 			runTest("tcall", "T$Math,T$Tan");

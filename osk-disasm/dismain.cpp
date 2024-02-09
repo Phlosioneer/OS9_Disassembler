@@ -517,7 +517,7 @@ int dopass(int Pass, struct options* opt)
         if (maybeRefList)
         {
             OperandSize largestRefSize = OperandSize::Byte;
-            for (const rof_extrn& ref : *maybeRefList)
+            for (const RelocatedReference& ref : *maybeRefList)
             {
                 largestRefSize = OperandSizes::max(largestRefSize, ref.info.opSize());
             }
