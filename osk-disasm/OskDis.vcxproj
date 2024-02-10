@@ -145,6 +145,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="opcode00.cpp" />
     <ClCompile Include="params.cpp" />
+    <ClCompile Include="range.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="references.cpp" />
     <ClCompile Include="reset.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="opcode00.h" />
     <ClInclude Include="params.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="range.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="references.h" />
     <ClInclude Include="reset.h" />
