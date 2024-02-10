@@ -670,7 +670,7 @@ static void HandleDataRegion(const DataRegion* db, struct parse_state* state, Ad
     rawData.reserve(4);
     size_t paramsBufferStringLen = 0;
     size_t bytesRead = 0;
-    while (state->PCPos <= db->range.end)
+    while (state->PCPos <= db->range.end())
     {
         /* Init dest buffer to empty string for LblCalc concatenation */
         tmps.clear();

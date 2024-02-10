@@ -161,6 +161,7 @@ namespace UnitTests
 				Assert::IsTrue(success);
 				Assert::AreEqual(output, temp);
 
+				success = false;
 				temp = Range32(a);
 				Assert::IsTrue(temp.tryMerge(b));
 				Assert::AreEqual(output, temp);
@@ -178,12 +179,35 @@ namespace UnitTests
 				Assert::IsFalse(a.canMerge(b));
 				Assert::IsFalse(b.canMerge(a));
 
-				//Assert::ExpectException<std::runtime_error, Range32>([&]() {return a.doUnion(b); });
-				//Assert::ExpectException<std::runtime_error, void>([&]() {b.doUnion(a); });
+				try {
+					a.doUnion(b);
+					Assert::Fail();
+				}
+				catch (std::runtime_error) {
+					
+				}
+				try {
+					b.doUnion(a);
+					Assert::Fail();
+				}
+				catch (std::runtime_error) {
 
-				//Assert::ExpectException<std::runtime_error, void>([&]() {Range32(a).merge(b); });
-				//Assert::ExpectException<std::runtime_error, void>([&]() {Range32(b).merge(a); });
+				}
+				try {
+					Range32(a).merge(b);
+					Assert::Fail();
+				}
+				catch (std::runtime_error) {
 
+				}
+				try {
+					Range32(b).merge(a);
+					Assert::Fail();
+				}
+				catch (std::runtime_error) {
+
+				}
+				
 				temp = a.tryUnion(b, success);
 				Assert::IsFalse(success);
 				Assert::AreEqual(Range32(), temp);
@@ -192,6 +216,7 @@ namespace UnitTests
 				Assert::IsFalse(success);
 				Assert::AreEqual(Range32(), temp);
 
+				success = true;
 				temp = Range32(a);
 				Assert::IsFalse(temp.tryMerge(b));
 				Assert::AreEqual(a, temp);
@@ -226,6 +251,117 @@ namespace UnitTests
 			testBadPair(r2, higher);
 			testBadPair(r2, lower);
 			testBadPair(r2, higher_zero);
+		}
+
+		TEST_METHOD(InnerRangeTest)
+		{
+			const auto testGoodPair = [](const Range32& a, const Range32& b, const Range32& output)
+			{
+				bool success = false;
+				Range32 temp{};
+				Assert::AreEqual(output, a.innerRange(b));
+				Assert::AreEqual(output, b.innerRange(a));
+				
+				temp = a.tryInnerRange(b, success);
+				Assert::IsTrue(success);
+				Assert::AreEqual(output, temp);
+				success = false;
+				temp = b.tryInnerRange(a, success);
+				Assert::IsTrue(success);
+				Assert::AreEqual(output, temp);
+			};
+
+			const auto testBadPair = [](const Range32& a, const Range32& b)
+			{
+				bool success = true;
+				Range32 temp{};
+				
+				temp = a.tryInnerRange(b, success);
+				Assert::IsFalse(success);
+				Assert::AreEqual(Range32(), temp);
+				success = true;
+				temp = b.tryInnerRange(a, success);
+				Assert::IsFalse(success);
+				Assert::AreEqual(Range32(), temp);
+
+				try {
+					a.innerRange(b);
+					Assert::Fail();
+				}
+				catch (std::runtime_error) {
+
+				}
+				try {
+					b.innerRange(a);
+					Assert::Fail();
+				}
+				catch (std::runtime_error) {
+
+				}
+			};
+
+			// Adjacent ranges
+			const Range32 r1{ 5, 20 }, r2{ 20, 25 }, r_zero{ 20, 20 };
+			testGoodPair(r1, r2, r_zero);
+			testGoodPair(r1, r_zero, r_zero);
+			testGoodPair(r2, r_zero, r_zero);
+
+			// Self-comparisons.
+			testBadPair(r1, r1);
+			testBadPair(r2, r2);
+			testGoodPair(r_zero, r_zero, r_zero);
+
+			// Overlapping ranges (with r2)
+			const Range32 overlap1{ 5, 22 }, overlap2{ 20, 28 };
+			const Range32 inside{ 21, 25 }, inside_zero{ 22, 22 };
+			testBadPair(r2, overlap1);
+			testBadPair(r2, overlap2);
+			testBadPair(r2, inside);
+			testGoodPair(r2, inside_zero, inside_zero);
+
+			// Disjoint ranges (with r2)
+			const Range32 higher{ 30, 32 }, lower{ 1, 2 }, higher_zero{ 40, 40 };
+			testGoodPair(r2, higher, Range32(25, 30));
+			testGoodPair(r2, lower, Range32(2, 20));
+			testGoodPair(r2, higher_zero, Range32(25, 40));
+		}
+
+		TEST_METHOD(OuterRangeTest)
+		{
+			// Adjacent ranges
+			Range32 r1{ 5, 20 }, r2{ 20, 25 }, r_zero{ 20, 20 };
+			Assert::AreEqual(Range32(5, 25), r1.outerRange(r2));
+			Assert::AreEqual(Range32(5, 25), r2.outerRange(r1));
+			Assert::AreEqual(r1, r1.outerRange(r_zero));
+			Assert::AreEqual(r1, r_zero.outerRange(r1));
+			Assert::AreEqual(r2, r2.outerRange(r_zero));
+			Assert::AreEqual(r2, r_zero.outerRange(r2));
+
+			// Self-comparisons.
+			Assert::AreEqual(r_zero, r_zero.outerRange(r_zero));
+			Assert::AreEqual(r1, r1.outerRange(r1));
+			Assert::AreEqual(r2, r2.outerRange(r2));
+
+			// Overlapping ranges (with r2)
+			Range32 overlap1{ 5, 22 }, overlap2{ 20, 28 };
+			Range32 inside{ 21, 25 }, inside_zero{ 22, 22 };
+			Assert::AreEqual(Range32(5, 25), r2.outerRange(overlap1));
+			Assert::AreEqual(Range32(5, 25), overlap1.outerRange(r2));
+			Assert::AreEqual(Range32(20, 28), r2.outerRange(overlap2));
+			Assert::AreEqual(Range32(20, 28), overlap2.outerRange(r2));
+			Assert::AreEqual(r2, r2.outerRange(inside));
+			Assert::AreEqual(r2, inside.outerRange(r2));
+			Assert::AreEqual(r2, r2.outerRange(inside_zero));
+			Assert::AreEqual(r2, inside_zero.outerRange(r2));
+
+			// Disjoint ranges (with r2)
+			Range32 higher{ 30, 32 }, lower{ 1, 2 }, higher_zero{ 40, 40 };
+			Assert::AreEqual(Range32(20, 32), r2.outerRange(higher));
+			Assert::AreEqual(Range32(20, 32), higher.outerRange(r2));
+			Assert::AreEqual(Range32(1, 25), r2.outerRange(lower));
+			Assert::AreEqual(Range32(1, 25), lower.outerRange(r2));
+			Assert::AreEqual(Range32(20, 40), r2.outerRange(higher_zero));
+			Assert::AreEqual(Range32(20, 40), higher_zero.outerRange(r2));
 		}
 	};
 }

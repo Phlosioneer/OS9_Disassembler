@@ -5,27 +5,14 @@
 #include "pch.h"
 
 #include "size.h"
-
-class Range
-{
-  public:
-    Range(size_t start, size_t end);
-
-    inline bool contains(size_t address) const
-    {
-        return address >= start && address < end;
-    }
-
-    const size_t start;
-    const size_t end;
-};
+#include "range.h"
 
 class DataRegion
 {
   public:
-    DataRegion(Range range, OperandSize size);
+    DataRegion(Range<size_t> range, OperandSize size);
 
-    const Range range;
+    const Range<size_t> range;
     const OperandSize size;
 };
 

@@ -89,24 +89,16 @@ void do_cmd_file(struct options* opt)
                 throw std::runtime_error("Unexpected size");
             }
 
-            Range range(region["start"], region["end"]);
+            Range<size_t> range(region["start"], region["end"]);
             allRegions.addDataRegion(DataRegion(range, sizeEnum));
         }
     }
     return;
 }
 
-#pragma region Range
-
-Range::Range(size_t start, size_t end) : start(start), end(end)
-{
-}
-
-#pragma endregion
-
 #pragma region DataRegion
 
-DataRegion::DataRegion(Range range, OperandSize size) : range(range), size(size)
+DataRegion::DataRegion(Range<size_t> range, OperandSize size) : range(range), size(size)
 {
 }
 

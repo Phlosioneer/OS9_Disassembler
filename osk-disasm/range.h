@@ -172,7 +172,7 @@ Range<T> Range<T>::tryInnerRange(const Range& other, bool& success) const noexce
 template <typename T>
 Range<T> Range<T>::outerRange(const Range& other) const noexcept
 {
-    return Range();
+    return Range(std::min(_start, other._start), std::max(_end, other._end));
 }
 
 template <typename T>
