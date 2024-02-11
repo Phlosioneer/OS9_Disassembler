@@ -145,7 +145,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="opcode00.cpp" />
     <ClCompile Include="params.cpp" />
-    <ClCompile Include="range.cpp" />
     <ClCompile Include="reader.cpp" />
     <ClCompile Include="references.cpp" />
     <ClCompile Include="reset.cpp" />
@@ -159,6 +158,7 @@
     <ClInclude Include="address_space_handle.h" />
     <ClInclude Include="cmdfile.h" />
     <ClInclude Include="def68def.h" />
+    <ClInclude Include="range_set.h" />
     <ClInclude Include="main_support.h" />
     <ClInclude Include="disglobs.h" />
     <ClInclude Include="commonsubs.h" />

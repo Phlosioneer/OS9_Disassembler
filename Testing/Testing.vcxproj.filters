@@ -39,6 +39,9 @@
     <ClCompile Include="RangeUnitTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RangeSetUnitTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IntegrationTestCase.h">

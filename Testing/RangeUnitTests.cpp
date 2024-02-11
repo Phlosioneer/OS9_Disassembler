@@ -1,20 +1,18 @@
 #include "CppUnitTest.h"
 
 #include "range.h"
+#include "util.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-template<>
-std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString(const Range32& value) {
-	std::wostringstream buffer;
-	buffer << '(' << value.start() << ", " << value.end() << ']';
-	return buffer.str();
-}
+typedef Range<uint32_t> Range32;
+
+
 
 namespace UnitTests
 {
 
-	TEST_CLASS(RangeTests)
+	TEST_CLASS(RangeUnitTests)
 	{
 	public:
 		
@@ -41,6 +39,63 @@ namespace UnitTests
 			Assert::IsFalse(r_zero.contains(19));
 			Assert::IsFalse(r_zero.contains(20));
 			Assert::IsFalse(r_zero.contains(21));
+		}
+
+		TEST_METHOD(ContainsRangeTest)
+		{
+			// Adjacent ranges
+			const Range32 r1{ 5, 20 }, r2{ 20, 25 }, r_zero{ 20, 20 };
+			Assert::IsFalse(r1.contains(r2));
+			Assert::IsFalse(r2.contains(r1));
+			Assert::IsFalse(r1.contains(r_zero));
+			Assert::IsFalse(r_zero.contains(r1));
+			Assert::IsFalse(r2.contains(r_zero));
+			Assert::IsFalse(r_zero.contains(r2));
+
+			// Self-comparisons.
+			Assert::IsFalse(r_zero.contains(r_zero));
+			Assert::IsTrue(r1.contains(r1));
+			Assert::IsTrue(r2.contains(r2));
+
+			// Overlapping ranges (with r2)
+			const Range32 overlap1{ 5, 22 }, overlap2{ 20, 28 };
+			const Range32 inside{ 21, 25 }, inside_zero{ 22, 22 };
+			Assert::IsFalse(r2.contains(overlap1));
+			Assert::IsFalse(overlap1.contains(r2));
+			Assert::IsFalse(r2.contains(overlap2));
+			Assert::IsTrue(overlap2.contains(r2));
+			Assert::IsTrue(r2.contains(inside));
+			Assert::IsFalse(inside.contains(r2));
+			Assert::IsTrue(r2.contains(inside_zero));
+			Assert::IsFalse(inside_zero.contains(r2));
+
+			// Disjoint ranges (with r2)
+			const Range32 higher{ 30, 32 }, lower{ 1, 2 }, higher_zero{ 40, 40 };
+			Assert::IsFalse(r2.contains(higher));
+			Assert::IsFalse(higher.contains(r2));
+			Assert::IsFalse(r2.contains(lower));
+			Assert::IsFalse(lower.contains(r2));
+			Assert::IsFalse(r2.contains(higher_zero));
+			Assert::IsFalse(higher_zero.contains(r2));
+
+			// Extra checks around zero-sized ranges.
+			Assert::IsFalse(r2.contains(Range32(19, 19)));
+			Assert::IsFalse(r2.contains(Range32(20, 20)));
+			Assert::IsTrue(r2.contains(Range32(21, 21)));
+			Assert::IsTrue(r2.contains(Range32(22, 22)));
+			Assert::IsTrue(r2.contains(Range32(23, 23)));
+			Assert::IsTrue(r2.contains(Range32(24, 24)));
+			Assert::IsFalse(r2.contains(Range32(25, 25)));
+			Assert::IsFalse(r2.contains(Range32(26, 26)));
+
+			Assert::IsFalse(Range32(19, 19).contains(r2));
+			Assert::IsFalse(Range32(20, 20).contains(r2));
+			Assert::IsFalse(Range32(21, 21).contains(r2));
+			Assert::IsFalse(Range32(22, 22).contains(r2));
+			Assert::IsFalse(Range32(23, 23).contains(r2));
+			Assert::IsFalse(Range32(24, 24).contains(r2));
+			Assert::IsFalse(Range32(25, 25).contains(r2));
+			Assert::IsFalse(Range32(26, 26).contains(r2));
 		}
 
 		TEST_METHOD(AdjacentTest)
@@ -362,6 +417,32 @@ namespace UnitTests
 			Assert::AreEqual(Range32(1, 25), lower.outerRange(r2));
 			Assert::AreEqual(Range32(20, 40), r2.outerRange(higher_zero));
 			Assert::AreEqual(Range32(20, 40), higher_zero.outerRange(r2));
+		}
+
+		TEST_METHOD(FromLengthTest)
+		{
+			Assert::AreEqual(Range32(20, 25), rangeFromLength<uint32_t>(20, 5));
+			Assert::AreEqual(Range32(20, 20), rangeFromLength<uint32_t>(20, 0));
+			Assert::AreEqual(Range<uint8_t>(200, 255), rangeFromLength<uint8_t>(200, 55));
+			Assert::AreEqual(Range<int8_t>(-5, 7), rangeFromLength<int8_t>(-5, 12));
+			Assert::AreEqual(Range<int8_t>(-5, 127), rangeFromLength<int8_t>(-5, 132));
+			Assert::AreEqual(Range<int8_t>(-128, 127), rangeFromLength<int8_t>(-128, 255));
+
+			try {
+				rangeFromLength<int8_t>(-100, 250);
+				Assert::Fail();
+			}
+			catch (std::runtime_error) {
+
+			}
+
+			try {
+				rangeFromLength<int8_t>(-5, 133);
+				Assert::Fail();
+			}
+			catch (std::runtime_error) {
+
+			}
 		}
 	};
 }

@@ -1,6 +1,19 @@
 
 #pragma once
 
+#include <limits>
+
+template<typename T>
+class Range;
+
+// Creates a range from a length. Checks for overflow before creating the range,
+// and throws an exception if the range can't be constructed.
+template<typename T>
+Range<T> rangeFromLength(T start, size_t length);
+
+// WARNING: Ranges cannot contain T_MAX value!! It is unrepresentable, and most attempts
+// will result in integer overflow in client code (undetectable to Range).
+// 
 // Note: A zero-length range (a, a] is considered to be between `a-1` and `a`. That means
 // the _end part of the range matters more than the _start part.
 template<typename T>
@@ -49,6 +62,19 @@ class Range
     inline bool contains(T point) const noexcept
     {
         return _start <= point && point < _end;
+    }
+
+    inline bool contains(const Range& range) const noexcept
+    {
+        if (empty())
+        {
+            return false;
+        }
+        if (range.empty())
+        {
+            return _start < range._start && _end > range._end;
+        }
+        return _start <= range._start && _end >= range._end;
     }
 
     // A zero length range is considered adjacent to any range that contains either
@@ -182,4 +208,63 @@ inline bool Range<T>::operator==(const Range<T2>& other) const noexcept
     return _start == other._start && _end == other._end;
 }
 
-typedef Range<uint32_t> Range32;
+namespace _range_helpers
+{
+
+// if (is_unsigned(T)) {
+//   size_t distanceBetween(T upper, T lower);
+// }
+template <typename T>
+typename std::enable_if<std::is_unsigned<T>::value, size_t>::type distanceToMax(T lower)
+{
+    static_assert(!std::is_same_v<float, T>, "Float ranges not supported yet");
+    static_assert(!std::is_same_v<double, T>, "Double ranges not supported yet");
+    static_assert(sizeof(size_t) >= sizeof(T), "Cannot safely compute max range length");
+    return static_cast<size_t>(std::numeric_limits<T>::max()) - lower;
+}
+
+// if (!is_unsigned(T)) {
+//   size_t distanceBetween(T upper, T lower);
+// }
+template <typename T>
+typename std::enable_if<!std::is_unsigned<T>::value, size_t>::type distanceToMax(T lower)
+{
+    static_assert(!std::is_same_v<float, T>, "Float ranges not supported yet");
+    static_assert(!std::is_same_v<double, T>, "Double ranges not supported yet");
+    static_assert(sizeof(size_t) >= sizeof(T), "Cannot safely compute max range length");
+    if (lower >= 0)
+    {
+        return static_cast<size_t>(std::numeric_limits<T>::max()) - lower;
+    }
+
+    // abs(T) is NOT always within the domain of type T! Need to handle T::MIN case separately.
+    if (lower == std::numeric_limits<T>::min())
+    {
+        return static_cast<size_t>(std::numeric_limits<T>::max()) * 2 + 1;
+    }
+    T remainder = abs(lower);
+    return static_cast<size_t>(std::numeric_limits<T>::max()) + static_cast<size_t>(remainder);
+}
+
+} // namespace _range_helpers
+
+template <typename T>
+Range<T> rangeFromLength(T start, size_t length)
+{
+    if (length > _range_helpers::distanceToMax(start))
+    {
+        throw std::runtime_error("Range too large");
+    }
+    T end = 0;
+    if (std::is_unsigned<T>() && length > std::numeric_limits<T>::max())
+    {
+        end = start + std::numeric_limits<T>::max();
+        size_t remaining = length - static_cast<size_t>(std::numeric_limits<T>::max());
+        end += static_cast<T>(remaining);
+    }
+    else
+    {
+        end = start + static_cast<T>(length);
+    }
+    return Range<T>{start, end};
+}
