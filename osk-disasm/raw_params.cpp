@@ -4,10 +4,11 @@
 #include "raw_params.h"
 #include "params.h"
 #include "rof.h"
+#include "modtypes.h"
 
 ExtensionWord::ExtensionWord(uint16_t word)
 {
-    isValid = (word & 0x0100) != 0;
+    isValid = (word & 0x0100) == 0;
     bool isLong = (word & 0x0800) != 0;
     indexRegSize = isLong ? OperandSize::Long : OperandSize::Word;
     scale = (word >> 9) & 0b11;
@@ -29,9 +30,11 @@ RawLiteralParam::RawLiteralParam(uint32_t rawValue, OperandSize size, uint32_t a
 {
 }
 
-std::unique_ptr<InstrParam> RawLiteralParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode, AddrSpaceHandle literalSpaceHint)
+std::unique_ptr<InstrParam> RawLiteralParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                     AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
 {
     std::string dispstr;
+    // TODO: When exactly is '#' needed?
     if (rof_setup_ref(dispstr, &CODE_SPACE, address, rawValue, Pass, size, forceRelativeImmediateMode))
     {
         dispstr = "#" + dispstr;
@@ -53,7 +56,7 @@ RawRegParam::RawRegParam(Register reg, RegParamMode mode) : RawParam(), reg(reg)
 }
 
 std::unique_ptr<InstrParam> RawRegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                 AddrSpaceHandle literalSpaceHint)
+                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
 {
     return std::make_unique<RegParam>(reg, mode);
 }
@@ -64,9 +67,20 @@ RawAbsoluteAddrParam::RawAbsoluteAddrParam(uint32_t value, uint32_t address, Ope
 }
 
 std::unique_ptr<InstrParam> RawAbsoluteAddrParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                 AddrSpaceHandle literalSpaceHint)
+                                                          AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
 {
-    throw std::exception();
+    int addressMode = size == OperandSize::Word ? AM_SHORT : AM_LONG;
+
+    std::string displayString;
+    if (LblCalc(displayString, value, addressMode, address, isRof, Pass, size))
+    {
+        return std::make_unique<AbsoluteAddrParam>(displayString, size);
+    }
+    else
+    {
+        auto number = MakeFormattedNumber(value, addressMode, size, literalSpaceHint);
+        return std::make_unique<AbsoluteAddrParam>(number, size);
+    }
 }
 
 RawRegOffsetParam::RawRegOffsetParam(Register baseReg, uint16_t displacement, uint32_t address, OperandSize size)
@@ -75,18 +89,88 @@ RawRegOffsetParam::RawRegOffsetParam(Register baseReg, uint16_t displacement, ui
 }
 
 std::unique_ptr<InstrParam> RawRegOffsetParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                 AddrSpaceHandle literalSpaceHint)
+                                                       AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
 {
-    throw std::exception();
+    // The system biases the data pointer (A6) by 0x8000 bytes in programs, to maximize
+    // addressable memory from a signed word offset. So a real data variable may be at
+    // offset 0x1000010, but A6 is pointing at 0x108000, so the signed displacement is
+    // 0x8010 or -32,752.
+    //
+    // This code undoes that bias before computing any labels. The assembler automatically
+    // biases A6 displacements even when they're constants, so it's correct to do this
+    // even if it doesn't correspond to a label.
+    auto actualOffset = displacement;
+    if (baseReg == Register::A6 && !isRof && moduleType == MT_Program)
+    {
+        actualOffset += 0x8000;
+    }
+    int32_t signedActualOffset = static_cast<int32_t>(static_cast<int16_t>(displacement));
+
+    const int addressMode = baseReg == Register::PC ? AM_REL : AM_A0 + Registers::getIndex(baseReg);
+
+    std::string displayString;
+    std::unique_ptr<RegOffsetParam> ret;
+    // TODO: Should labels use sign-extended displacements?
+    if (LblCalc(displayString, actualOffset, addressMode, address, isRof, Pass, size))
+    {
+        ret = std::make_unique<RegOffsetParam>(baseReg, displayString);
+    }
+    else
+    {
+        auto number = MakeFormattedNumber(signedActualOffset, addressMode, size);
+        ret = std::make_unique<RegOffsetParam>(baseReg, number);
+    }
+
+    // `0(An)` and `(An)` assemble to different instructions, so omitting the zero isn't
+    // an option here. It is required for correct disassembly. For why false is the default,
+    // see RawIndexParam::hydrate.
+    ((RegOffsetParam*)ret.get())->setShouldForceZero(true);
+
+    return ret;
 }
 
 RawIndexParam::RawIndexParam(Register baseReg, const ExtensionWord& extension, uint32_t displacementAddress)
-    : RawParam(), baseReg(baseReg), indexReg(extension.indexReg), displacement(extension.displacement), size(extension.indexRegSize)
+    : RawParam(), baseReg(baseReg), indexReg(extension.indexReg), displacement(extension.displacement),
+      size(extension.indexRegSize), displacementAddress(displacementAddress)
 {
 }
 
 std::unique_ptr<InstrParam> RawIndexParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                 AddrSpaceHandle literalSpaceHint)
+                                                   AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
 {
-    throw std::exception();
+    if (displacement == 0)
+    {
+        // Avoid making labels if the value is 0, but still check for external refs.
+        std::string displayString;
+        if (isRof && IsRef(displayString, displacementAddress, displacement, Pass, OperandSize::Byte, true))
+        {
+            // This is just a `(An,Dn)` style directive. The `0` at the front is optional, so
+            // RegOffsetParam will ignore it by default.
+            return std::make_unique<RegOffsetParam>(baseReg, indexReg, size, displayString);
+        }
+        else
+        {
+            // This is just a `(An,Dn)` style directive. The `0` at the front is optional, so
+            // RegOffsetParam will ignore it by default.
+            return std::make_unique<RegOffsetParam>(baseReg, indexReg, size, FormattedNumber(0));
+        }
+    }
+    else
+    {
+        int addressMode = baseReg == Register::PC ? AM_REL : AM_A0 + Registers::getIndex(baseReg);
+        // TODO: This is wrong. The old code used `PC-2`, but that would be the high byte of the
+        // extension word. The displacement is in the low byte.
+        auto offByOneAddress = displacementAddress - 1;
+        std::string displayString;
+        // Note: The size here is the size of the displacement literal, not the size of the memory access.
+        if (LblCalc(displayString, displacement, addressMode, offByOneAddress, isRof, Pass, OperandSize::Byte))
+        {
+            return std::make_unique<RegOffsetParam>(baseReg, indexReg, size, displayString);
+        }
+        else
+        {
+            auto number = MakeFormattedNumber(displacement, addressMode, size);
+            return std::make_unique<RegOffsetParam>(baseReg, indexReg, size, number);
+        }
+    }
 }

@@ -2124,10 +2124,9 @@ L003a8 move.l d4,d0
  cmpi.l #6,d0
  bhi.s L003ca
  add.w d0,d0
- move.w L003ba(pc,d0.w),d0
- jmp L003ba(pc,d0.w)
-L003ba equ *-2
- dc.w $ff9e
+ move.w L003bc(pc,d0.w),d0
+ jmp L003bc(pc,d0.w)
+L003bc dc.w $ff9e
  dc.w $ff88
  dc.w $ffa2
  dc.w $ffba
@@ -2395,10 +2394,9 @@ L0073a move.l d4,d0
  cmpi.l #28,d0
  bhi.s L00788
  add.w d0,d0
- move.w L0074c(pc,d0.w),d0
- jmp L0074c(pc,d0.w)
-L0074c equ *-2
- dc.w $003a
+ move.w L0074e(pc,d0.w),d0
+ jmp L0074e(pc,d0.w)
+L0074e dc.w $003a
  dc.w $fcb8
  dc.w $fccc
  dc.w $fce2
@@ -3937,10 +3935,9 @@ L01bbe move.l d5,d0
  cmpi.l #4,d0
  bhi.s L01bdc
  add.w d0,d0
- move.w L01bd0(pc,d0.w),d0
- jmp L01bd0(pc,d0.w)
-L01bd0 equ *-2
- dc.w $ffda
+ move.w L01bd2(pc,d0.w),d0
+ jmp L01bd2(pc,d0.w)
+L01bd2 dc.w $ffda
  dc.w $ffc2
  dc.w $ffd2
  dc.w $ffca
@@ -4408,10 +4405,9 @@ L02220 movea.l D00028(a6),a0
  cmpi.w #3,d0
  bhi.s L02240
  add.w d0,d0
- move.w L02236(pc,d0.w),d0
- jmp L02236(pc,d0.w)
-L02236 equ *-2
- dc.w $ff88
+ move.w L02238(pc,d0.w),d0
+ jmp L02238(pc,d0.w)
+L02238 dc.w $ff88
  dc.w $ffb8
  dc.w $ffa4
  dc.w $ffcc
@@ -5056,10 +5052,9 @@ L029f2 move.w 36(a2),d0
  cmpi.w #4,d0
  bhi.s L02a10
  add.w d0,d0
- move.w L02a04(pc,d0.w),d0
- jmp L02a04(pc,d0.w)
-L02a04 equ *-2
- dc.w $ffd6
+ move.w L02a06(pc,d0.w),d0
+ jmp L02a06(pc,d0.w)
+L02a06 dc.w $ffd6
  dc.w $ffd6
  dc.w $ffda
  dc.w $ffde
@@ -5342,20 +5337,20 @@ L02d72 move.l d5,d0
  moveq #24,d1
  lsl.l d1,d0
  addi.l #$80000000,d0
- move.b #255,d1
+ move.b #-1,d1
  and.b (a2)+,d1
  moveq #0,d2
  move.b d1,d2
  moveq #16,d1
  lsl.l d1,d2
  or.l d2,d0
- move.b #255,d1
+ move.b #-1,d1
 L02d98 and.b (a2)+,d1
  moveq #0,d2
  move.b d1,d2
  lsl.l #8,d2
  or.l d2,d0
- move.b #255,d1
+ move.b #-1,d1
  and.b (a2)+,d1
  moveq #0,d2
  move.b d1,d2
@@ -6051,7 +6046,7 @@ L03626 move.l d4,d0
  moveq #15,d1
  jsr _016a0(a6)
  move.b d0,1(a2)
- move.b #239,2(a2)
+ move.b #-17,2(a2)
  subq.l #1,d4
  addq.l #3,a2
 L03646 tst.l d4
@@ -6066,7 +6061,7 @@ L0364e move.l d4,d0
  moveq #15,d1
  jsr _016a0(a6)
  move.b d0,1(a2)
- move.b #239,2(a2)
+ move.b #-17,2(a2)
  addq.l #1,d4
  addq.l #3,a2
 L0366e moveq #15,d0
@@ -15631,10 +15626,9 @@ L0b1cc move.l d5,d0
  cmpi.l #5,d0
  bhi.s L0b1ee
  add.w d0,d0
- move.w L0b1e0(pc,d0.w),d0
- jmp L0b1e0(pc,d0.w)
-L0b1e0 equ *-2
- dc.w $ff86
+ move.w L0b1e2(pc,d0.w),d0
+ jmp L0b1e2(pc,d0.w)
+L0b1e2 dc.w $ff86
  dc.w $ffac
  dc.w $ff56
  dc.w $ff4a
@@ -20470,20 +20464,20 @@ L0f21c move.l a3,d0
  andi.l #$00ffffff,d0
  bset.l #30,d0
  move.l d0,(a2)+
- move.b #255,d0
+ move.b #-1,d0
  and.b (a4),d0
  moveq #0,d1
  move.b d0,d1
  moveq #16,d0
  lsl.l d0,d1
  ori.l #$cb000000,d1
- move.b #255,d0
+ move.b #-1,d0
  and.b 1(a4),d0
  moveq #0,d2
  move.b d0,d2
  lsl.l #8,d2
  or.l d2,d1
- move.b #255,d0
+ move.b #-1,d0
  and.b 2(a4),d0
  moveq #0,d2
  move.b d0,d2
@@ -20902,7 +20896,7 @@ L0f7aa move.l a3,d0
  move.l d0,(a4)+
  movea.l d4,a0
  addq.l #1,d4
- move.b #255,d0
+ move.b #-1,d0
  and.b (a0),d0
  moveq #0,d1
  move.b d0,d1
@@ -20911,7 +20905,7 @@ L0f7aa move.l a3,d0
  ori.l #$cb000000,d1
  movea.l d4,a0
  addq.l #1,d4
- move.b #255,d0
+ move.b #-1,d0
  and.b (a0),d0
  moveq #0,d2
  move.b d0,d2
@@ -20919,7 +20913,7 @@ L0f7aa move.l a3,d0
  or.l d2,d1
  movea.l d4,a0
  addq.l #1,d4
- move.b #255,d0
+ move.b #-1,d0
  and.b (a0),d0
  moveq #0,d2
  move.b d0,d2
@@ -21013,7 +21007,7 @@ L0f914 move.l a3,d0
  move.l d0,(a4)+
  movea.l d4,a0
  addq.l #1,d4
- move.b #255,d0
+ move.b #-1,d0
  and.b (a0),d0
  moveq #0,d1
  move.b d0,d1
@@ -21022,7 +21016,7 @@ L0f914 move.l a3,d0
  ori.l #$cb000000,d1
  movea.l d4,a0
  addq.l #1,d4
- move.b #255,d0
+ move.b #-1,d0
  and.b (a0),d0
  moveq #0,d2
  move.b d0,d2
@@ -21030,7 +21024,7 @@ L0f914 move.l a3,d0
  or.l d2,d1
  movea.l d4,a0
  addq.l #1,d4
- move.b #255,d0
+ move.b #-1,d0
  and.b (a0),d0
  moveq #0,d2
  move.b d0,d2
@@ -24689,10 +24683,9 @@ L127dc move.w 26(a2),d0
  cmpi.w #9,d0
  bhi.s L12804
  add.w d0,d0
- move.w L127ee(pc,d0.w),d0
- jmp L127ee(pc,d0.w)
-L127ee equ *-2
- dc.w $ffcc
+ move.w L127f0(pc,d0.w),d0
+ jmp L127f0(pc,d0.w)
+L127f0 dc.w $ffcc
  dc.w $ffac
  dc.w $ffb4
  dc.w $ffcc
@@ -25177,7 +25170,7 @@ L12d98 link.w a5,#0
  movea.l d0,a2
  move.l d1,d4
  movea.l 12(a2),a3
- move.b #240,d0
+ move.b #-16,d0
  and.b d4,d0
  move.b d0,d7
  cmpi.b #16,d7
@@ -27305,10 +27298,9 @@ L1479a move.l 8(sp),d0
  cmpi.l #5,d0
  bhi.s L147be
  add.w d0,d0
- move.w L147b0(pc,d0.w),d0
- jmp L147b0(pc,d0.w)
-L147b0 equ *-2
- dc.w $ff28
+ move.w L147b2(pc,d0.w),d0
+ jmp L147b2(pc,d0.w)
+L147b2 dc.w $ff28
  dc.w $ff9a
  dc.w $ffac
  dc.w $ffc2
@@ -29829,10 +29821,9 @@ L16ab6 move.w 12(sp),d0
  cmpi.w #3,d0
  bhi.w L16b80
  add.w d0,d0
- move.w L16aca(pc,d0.w),d0
- jmp L16aca(pc,d0.w)
-L16aca equ *-2
- dc.w $ffc6
+ move.w L16acc(pc,d0.w),d0
+ jmp L16acc(pc,d0.w)
+L16acc dc.w $ffc6
  dc.w $ffba
  dc.w $ffd2
  dc.w $ffde
@@ -30585,9 +30576,8 @@ L1749a move.l (a1),d3
  move.l #96,d3
  sub.l d2,d3
  lsl.l #2,d3
- jmp L174b4(pc,d3.l)
-L174b4 equ *-2
- move.l d4,(a2)+
+ jmp L174b6(pc,d3.l)
+L174b6 move.l d4,(a2)+
  addq.l #4,a1
  move.l d4,(a2)+
  addq.l #4,a1
@@ -30801,9 +30791,8 @@ L1765a move.l (a1),d3
  move.l #96,d3
  sub.l d2,d3
  lsl.l #2,d3
- jmp L17676(pc,d3.l)
-L17676 equ *-2
- move.l (a3)+,(a2)+
+ jmp L17678(pc,d3.l)
+L17678 move.l (a3)+,(a2)+
  addq.l #4,a1
  move.l (a3)+,(a2)+
  addq.l #4,a1
@@ -31140,9 +31129,8 @@ L179c0 move.l (a1),d3
  move.l #96,d3
  sub.l d2,d3
  lsl.l #3,d3
- jmp L179da(pc,d3.l)
-L179da equ *-2
- move.l (a1)+,d6
+ jmp L179dc(pc,d3.l)
+L179dc move.l (a1)+,d6
  and.l d4,d6
  or.l d5,d6
  move.l d6,(a2)+
@@ -31582,9 +31570,8 @@ L17d5a move.l (a1),d3
  move.l #96,d3
  sub.l d2,d3
  lsl.l #1,d3
- jmp L17d74(pc,d3.l)
-L17d74 equ *-2
- move.l (a1)+,(a2)+
+ jmp L17d76(pc,d3.l)
+L17d76 move.l (a1)+,(a2)+
  move.l (a1)+,(a2)+
  move.l (a1)+,(a2)+
  move.l (a1)+,(a2)+
@@ -32772,7 +32759,7 @@ L18a92 btst.b #7,-1(a0)
  bra.w L18a46
 L18aa4 move.b d6,d5
  swap d3
- move.b #255,d3
+ move.b #-1,d3
  sub.b d4,d5
  lsl.b d4,d3
  and.b d3,(a1)+
@@ -32881,7 +32868,7 @@ L18b80 bclr.l #30,d0
  bra.s L18bdc
 L18ba4 bclr.l #31,d0
  and.b d7,d0
- move.b -2(a2,d0.w),d0
+ move.b 254(a2,d0.w),d0
  move.b d0,(a1)+
  bra.s L18b72
 L18bb2 move.b d6,d5
@@ -32910,7 +32897,7 @@ L18be6 moveq #8,d5
  cmp.b d4,d5
  blt.s L18c16
  moveq #8,d5
- move.b #255,d3
+ move.b #-1,d3
  sub.b d4,d5
  lsr.b d5,d3
  and.b (a0)+,d3
@@ -35518,7 +35505,7 @@ L1aabc andi.b #$0f,d4
  move.b d0,d7
  tst.l d6
  beq.s L1aadc
- move.b #240,d0
+ move.b #-16,d0
  and.b (a2),d0
  or.b d4,d0
  move.b d0,(a2)
@@ -35603,7 +35590,7 @@ L1ab8c move.l 48(sp),d0
  moveq #1,d0
  cmp.l 48(sp),d0
  bne.s L1abb2
- move.b #240,d0
+ move.b #-16,d0
  and.b (a2),d0
  moveq #15,d1
  and.b (a3),d1
@@ -35627,7 +35614,7 @@ L1abb2 moveq #1,d0
  adda.l d4,a2
  moveq #15,d0
  and.b (a2),d0
- move.b #240,d1
+ move.b #-16,d1
  and.b (a3),d1
  or.b d1,d0
  move.b d0,(a2)
@@ -35646,7 +35633,7 @@ L1abf2 move.b d0,d5
  eor.l d0,48(sp)
  tst.l 44(sp)
  beq.s L1ac0e
- move.b #240,d0
+ move.b #-16,d0
  and.b (a2),d0
  or.b d5,d0
  move.b d0,(a2)
@@ -35688,7 +35675,7 @@ L1ac5a moveq #15,d0
  move.b d0,d6
  tst.l d5
  beq.s L1ac72
- move.b #240,d0
+ move.b #-16,d0
  and.b (a2),d0
  or.b d6,d0
  move.b d0,(a2)

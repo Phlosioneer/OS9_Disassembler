@@ -32,24 +32,59 @@ namespace Registers
 const size_t MAX_ID = static_cast<size_t>(Register::USP);
 
 typedef Register (*RegMaker)(unsigned int id);
-constexpr Register makeDReg(unsigned int id);
-constexpr Register makeAReg(unsigned int id);
 
+// Implementation in params.cpp
 const char* getName(Register reg);
-constexpr Register fromId(unsigned int id);
-inline constexpr uint8_t getId(Register reg)
+
+constexpr uint8_t getId(Register reg)
 {
     return static_cast<int>(reg);
 }
-inline constexpr Register fromIdUnchecked(unsigned int id)
+
+constexpr Register fromIdUnchecked(unsigned int id)
 {
     return static_cast<Register>(id);
 }
 
-constexpr bool isDReg(Register reg);
-constexpr bool isAReg(Register reg);
-constexpr uint8_t getIndex(Register reg);
-constexpr uint8_t getIndexUnchecked(Register reg);
+constexpr Register makeDReg(unsigned int id)
+{
+    if (id >= 8) throw std::exception();
+    return fromIdUnchecked(id + getId(Register::D0));
+}
+
+constexpr Register makeAReg(unsigned int id)
+{
+    if (id >= 8) throw std::exception();
+    return fromIdUnchecked(id + getId(Register::A0));
+}
+
+constexpr Register fromId(unsigned int id)
+{
+    if (id > MAX_ID) throw std::exception();
+    return fromIdUnchecked(id);
+}
+
+constexpr bool isDReg(Register reg)
+{
+    return getId(reg) >= getId(Register::D0) && getId(reg) <= getId(Register::D7);
+}
+
+constexpr bool isAReg(Register reg)
+{
+    return getId(reg) >= getId(Register::A0) && getId(reg) <= getId(Register::SP);
+}
+
+constexpr uint8_t getIndexUnchecked(Register reg)
+{
+    if (isDReg(reg)) return getId(reg) - getId(Register::D0);
+    return getId(reg) - getId(Register::A0);
+}
+
+constexpr uint8_t getIndex(Register reg)
+{
+    if (!isDReg(reg) && !isAReg(reg)) throw std::runtime_error("Register doesn't have an index");
+    return getIndexUnchecked(reg);
+}
 
 }; // namespace Registers
 

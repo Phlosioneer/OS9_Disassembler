@@ -106,7 +106,9 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
      */
     auto raw = parseImmediateParam(state, sizeOp);
     if (!raw) return 0;
-    ci->source = raw->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space);
+    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
+    ci->source = raw->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space,
+                              moduleType);
 
     ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state);
     if (!ci->dest) return 0;
@@ -213,8 +215,13 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     if (size == OperandSize::Byte && d_mode == DirectAddrReg) return 0;
     if (!isWritableMode(d_mode, d_reg)) return 0;
 
-    ci->source = get_eff_addr(ci, src_mode, src_reg, size, state);
-    if (!ci->source) return 0;
+    //ci->source = get_eff_addr(ci, src_mode, src_reg, size, state);
+    //if (!ci->source) return 0;
+    auto raw = parseEffectiveAddressWithMode(state, src_mode, src_reg, size);
+    if (!raw) return 0;
+    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
+    ci->source = raw->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                              moduleType);
     ci->dest = get_eff_addr(ci, d_mode, d_reg, size, state);
     if (!ci->dest) return 0;
 

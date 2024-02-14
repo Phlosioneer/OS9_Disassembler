@@ -193,10 +193,9 @@ L0019c move.b (a3)+,d0
  cmpi.l #16,d0
  bhi.s L001de
  add.w d0,d0
- move.w L001ba(pc,d0.w),d0
- jmp L001ba(pc,d0.w)
-L001ba equ *-2
- dc.w $ffba
+ move.w L001bc(pc,d0.w),d0
+ jmp L001bc(pc,d0.w)
+L001bc dc.w $ffba
  ori.b #$22,-(a2)
  dc.w $ffda
  ori.b #$22,-(a2)
@@ -341,10 +340,9 @@ L00342 move.l d5,d0
  cmpi.l #14,d0
  bhi.s L0032e
  add.w d0,d0
- move.w L0035a(pc,d0.w),d0
- jmp L0035a(pc,d0.w)
-L0035a equ *-2
- dc.w $ffb0
+ move.w L0035c(pc,d0.w),d0
+ jmp L0035c(pc,d0.w)
+L0035c dc.w $ffb0
  dc.w $ffb0
  dc.w $ffb0
  dc.w $ffd2

@@ -681,14 +681,13 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
                     ew_b.displ -= 2;
                     std::string dispstr;
                     // PC displacements automatically imply any references/labels used are relative.
-                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos - 2, state->opt->IsROF, state->Pass, OperandSize::Byte))
+                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos, state->opt->IsROF, state->Pass, OperandSize::Byte))
                     {
                         param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
                                                                  std::string(dispstr));
                     }
                     else
                     {
-                        // TODO: Is the -2 to displacement correct here?
                         auto number = MakeFormattedNumber(ew_b.displ, AM_REL, size);
                         param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize, number);
                     }

@@ -17,51 +17,12 @@ static_assert(_countof(registerNames) == Registers::MAX_ID + 1, "Some registers 
 namespace Registers
 {
 
+// Declaration in registers.h
 const char* getName(Register reg)
 {
     auto regNumber = static_cast<size_t>(reg);
     if (regNumber >= _countof(registerNames)) throw std::runtime_error("");
     return registerNames[regNumber];
-}
-
-constexpr Register makeDReg(unsigned int id)
-{
-    if (id >= 8) throw std::exception();
-    return fromIdUnchecked(id + getId(Register::D0));
-}
-
-constexpr Register makeAReg(unsigned int id)
-{
-    if (id >= 8) throw std::exception();
-    return fromIdUnchecked(id + getId(Register::A0));
-}
-
-constexpr Register fromId(unsigned int id)
-{
-    if (id > MAX_ID) throw std::exception();
-    return fromIdUnchecked(id);
-}
-
-constexpr bool isDReg(Register reg)
-{
-    return getId(reg) >= getId(Register::D0) && getId(reg) <= getId(Register::D7);
-}
-
-constexpr bool isAReg(Register reg)
-{
-    return getId(reg) >= getId(Register::A0) && getId(reg) <= getId(Register::SP);
-}
-
-constexpr uint8_t getIndex(Register reg)
-{
-    if (!isDReg(reg) && !isAReg(reg)) throw std::runtime_error("Register doesn't have an index");
-    return getIndexUnchecked(reg);
-}
-
-constexpr uint8_t getIndexUnchecked(Register reg)
-{
-    if (isDReg(reg)) return getId(reg) - getId(Register::D0);
-    return getId(reg) - getId(Register::A0);
 }
 
 } // namespace Registers

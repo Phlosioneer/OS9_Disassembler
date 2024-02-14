@@ -219,10 +219,9 @@ L0026c move.b d4,d0
  cmpi.w #52,d0
  bhi.w L00336
  add.w d0,d0
- move.w L00284(pc,d0.w),d0
- jmp L00284(pc,d0.w)
-L00284 equ *-2
- dc.w $ff60
+ move.w L00286(pc,d0.w),d0
+ jmp L00286(pc,d0.w)
+L00286 dc.w $ff60
  dc.w $ff60
  dc.w $ff60
  ori.l #$00b000b0,-80(a0,d0.w)
