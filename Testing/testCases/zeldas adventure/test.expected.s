@@ -1882,14 +1882,14 @@ L000f0 tst.b (a4)+
  bne.s L000f0
  cmpa.l a4,a2
  bls.s L00116
- cmpi.b #252,(a4)+
+ cmpi.b #-4,(a4)+
  bne.s L00116
  addq.l #1,a4
 L000ff equ *-1
 L00100 movea.l (a4),a3
  adda.l a5,a3
  bra.s L0011a
-L00106 cmpi.b #252,2(a5)
+L00106 cmpi.b #-4,2(a5)
  bne.s L00116
  movea.l 4(a5),a3
  adda.l a5,a3
@@ -34741,7 +34741,7 @@ L1a17c link.w a5,#0
  ble.s L1a19c
 L1a192 move.l #12035,D0000c(a6)
  bra.s L1a1ca
-L1a19c cmpi.b #254,_0154e(a6)
+L1a19c cmpi.b #-2,_0154e(a6)
  bls.s L1a1ae
  move.l #12032,D0000c(a6)
  bra.s L1a1ca
@@ -38817,7 +38817,7 @@ L1cd98 os9 I$MakDir
  os9 I$Create
  movea.l (sp)+,a0
  bcc.w L1d66e
- cmpi.b #218,d1
+ cmpi.b #-38,d1
  bne.w L1d670
  move.w 2(sp),d0
  bmi.w L1d670

@@ -12,6 +12,7 @@
 
 struct OPSTRUCTURE;
 struct options;
+class RawParam;
 
 struct cmd_items
 {
@@ -56,6 +57,10 @@ struct cmd_items
     struct cmd_items& operator=(const struct cmd_items& other) = delete;
 };
 
+class EofException : public std::exception
+{
+};
+
 struct parse_state
 {
     uint32_t PCPos = 0;
@@ -73,11 +78,19 @@ std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uin
 int reg_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
-bool hasnext_w(struct parse_state* state);
 int getnext_w(struct cmd_items* ci, struct parse_state* state);
 void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
 
+std::unique_ptr<RawParam> parseImmediateParam(parse_state* state, OperandSize size);
+
 // Unused
 char getnext_b(struct cmd_items* ci, struct parse_state* state);
+
+bool hasnext_w(parse_state* state);
+bool hasnext_l(parse_state* state);
+uint16_t getnext_w_raw(parse_state* state);
+uint32_t getnext_l_raw(parse_state* state);
+void ungetnext_w_raw(parse_state* state);
+void ungetnext_l_raw(parse_state* state);
 
 #endif // COMMAND_ITEMS_H

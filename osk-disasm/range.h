@@ -268,3 +268,5 @@ Range<T> rangeFromLength(T start, size_t length)
     }
     return Range<T>{start, end};
 }
+
+typedef Range<uint32_t> AddressRange;

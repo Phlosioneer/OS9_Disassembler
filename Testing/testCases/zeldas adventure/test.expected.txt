@@ -1882,14 +1882,14 @@
  1881  000f2 66fc            bne.s  L000f0     
  1882  000f4 b5cc            cmpa.l a4,a2      
  1883  000f6 631e            bls.s  L00116     
- 1884  000f8 0c1c            cmpi.b #252,(a4)+ 
+ 1884  000f8 0c1c            cmpi.b #-4,(a4)+  
  1885  000fc 6618            bne.s  L00116     
  1886  000fe 528c            addq.l #1,a4      
  1887  000ff 0000 L000ff     equ    *-1        
  1888  00100 2654 L00100     movea.l (a4),a3    
  1889  00102 d7cd            adda.l a5,a3      
  1890  00104 6014            bra.s  L0011a     
- 1891  00106 0c2d L00106     cmpi.b #252,2(a5) 
+ 1891  00106 0c2d L00106     cmpi.b #-4,2(a5)  
  1892  0010c 6608            bne.s  L00116     
  1893  0010e 266d            movea.l 4(a5),a3   
  1894  00112 d7cd            adda.l a5,a3      
@@ -34741,7 +34741,7 @@
 34740  1a190 6f0a            ble.s  L1a19c     
 34741  1a192 2d7c L1a192     move.l #12035,D0000c(a6) 
 34742  1a19a 602e            bra.s  L1a1ca     
-34743  1a19c 0c2e L1a19c     cmpi.b #254,_0154e(a6) 
+34743  1a19c 0c2e L1a19c     cmpi.b #-2,_0154e(a6) 
 34744  1a1a2 630a            bls.s  L1a1ae     
 34745  1a1a4 2d7c            move.l #12032,D0000c(a6) 
 34746  1a1ac 601c            bra.s  L1a1ca     
@@ -38817,7 +38817,7 @@
 38816  1cde8 4e40            os9    I$Create   
 38817  1cdec 205f            movea.l (sp)+,a0   
 38818  1cdee 6400            bcc.w  L1d66e     
-38819  1cdf2 0c01            cmpi.b #218,d1    
+38819  1cdf2 0c01            cmpi.b #-38,d1    
 38820  1cdf6 6600            bne.w  L1d670     
 38821  1cdfa 302f            move.w 2(sp),d0   
 38822  1cdfe 6b00            bmi.w  L1d670     

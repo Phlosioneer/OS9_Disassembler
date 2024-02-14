@@ -52,10 +52,14 @@ namespace UnitTests
 			state.Module = stream.get();
 
 			struct cmd_items instr;
-			Assert::IsTrue(get_asmcmd(&instr, &state), subtestName);
+			{
+				std::wostringstream messageBuf;
+				messageBuf << subtestName << ": ASM generation failed";
+				auto message = messageBuf.str();
+				Assert::IsTrue(get_asmcmd(&instr, &state), message.c_str());
+			}
 			Assert::AreEqual(expectedMneumonic, instr.mnem, subtestName);
 			std::string params = instr.renderParams();
-
 			Assert::AreEqual(expectedParams, params, subtestName);
 		}
 
@@ -212,18 +216,34 @@ namespace UnitTests
 			pushWord(0xFFFF);
 			runTest("ori.b", "#$ff,d0");
 
-			// Other stuff is dependent on size
-
-			subtestName = L"SUBI.l";
-			pushWord(SUBI | SIZE(2) | EA_MODE(0) | 0);
-			pushWord(0xdead);
-			pushWord(0xbeef);
-			runTest("subi.l", "#-559038737,d0");
+			// Other instructions use decimal space
 
 			subtestName = L"CMPI.b";
 			pushWord(CMPI | SIZE(0) | EA_MODE(3) | 4);
 			pushWord(78);
 			runTest("cmpi.b", "#78,(a4)+");
+
+			subtestName = L"Check large values";
+			pushWord(SUBI | SIZE(2) | EA_MODE(Indirect) | 1);
+			pushWord(0x1234);
+			pushWord(0x5678);
+			runTest("subi.l", "#305419896,(a1)");
+
+			subtestName = L"Negative decimal values are printed correctly when one byte";
+			pushWord(CMPI | SIZE(0) | EA_MODE(PreDecrement) | 4);
+			pushWord(0xB2);
+			runTest("cmpi.b", "#-78,-(a4)");
+
+			subtestName = L"Negative decimal values are printed correctly when two bytes";
+			pushWord(CMPI | SIZE(1) | EA_MODE(DirectDataReg) | 5);
+			pushWord(0xFE70);
+			runTest("cmpi.w", "#-400,d5");
+
+			subtestName = L"Negative decimal values are printed correctly when four bytes";
+			pushWord(SUBI | SIZE(2) | EA_MODE(0) | 0);
+			pushWord(0xdead);
+			pushWord(0xbeef);
+			runTest("subi.l", "#-559038737,d0");
 
 			// Make sure labels work correctly
 

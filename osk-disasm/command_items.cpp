@@ -13,6 +13,7 @@
 #include "params.h"
 #include "rof.h"
 #include "userdef.h"
+#include "raw_params.h"
 
 typedef struct modestrs
 {
@@ -306,6 +307,152 @@ static int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, i
     }
 
     return 1;
+}
+
+static std::unique_ptr<RawParam> parseDisplacementParam(parse_state* state, Register baseReg)
+{
+    if (!hasnext_w(state))
+    {
+        return nullptr;
+    }
+    auto dispAddress = state->PCPos;
+    auto displacement = getnext_w_raw(state);
+    const auto dispSize = OperandSize::Word;
+
+    return std::make_unique<RawRegOffsetParam>(baseReg, displacement, dispAddress, dispSize);
+}
+
+static std::unique_ptr<RawParam> parseIndexParam(parse_state* state, Register baseReg)
+{
+    if (!hasnext_w(state))
+    {
+        return nullptr;
+    }
+
+    ExtensionWord extensionWord{getnext_w_raw(state)};
+    // Nonzero scale not supported on M68000.
+    if (!extensionWord.isValid || extensionWord.scale != 0)
+    {
+        ungetnext_w_raw(state);
+        return nullptr;
+    }
+
+    auto dispAddress = state->PCPos - 1;
+    const auto dispSize = OperandSize::Byte;
+
+    return std::make_unique<RawIndexParam>(baseReg, extensionWord, dispAddress);
+}
+
+std::unique_ptr<RawParam> parseImmediateParam(parse_state* state, OperandSize size)
+{
+    auto immediateAddress = state->PCPos;
+    uint32_t immediate = 0;
+    switch (size)
+    {
+    case OperandSize::Byte: {
+        // The byte is treated like a word with a limited range.
+        immediateAddress += 1;
+        // Read the whole word.
+        if (!hasnext_w(state))
+        {
+            return nullptr;
+        }
+        immediate = getnext_w_raw(state);
+
+        // In theory, the top byte of the word should be 0x00. However, assemblers
+        // don't actually respect that restriction when the immediate is supposed
+        // to be negative. So the upper byte of the word must be either 0x0000 or
+        // 0xFF00.
+        uint32_t upperByte = immediate & 0xFF00;
+        if (upperByte != 0 && upperByte != 0xFF00)
+        {
+            ungetnext_w_raw(state);
+            return nullptr;
+        }
+
+        break;
+    }
+    case OperandSize::Word:
+        if (!hasnext_w(state))
+        {
+            return nullptr;
+        }
+        immediate = getnext_w_raw(state);
+        break;
+    case OperandSize::Long:
+        if (!hasnext_l(state))
+        {
+            return nullptr;
+        }
+        immediate = getnext_l_raw(state);
+        break;
+    default:
+        std::runtime_error("Invalid size");
+    }
+
+    return std::make_unique<RawLiteralParam>(immediate, size, immediateAddress);
+}
+
+std::unique_ptr<RawParam> parseEffectiveAddressWithMode(parse_state* state, uint8_t mode, uint8_t reg, OperandSize size)
+{
+    switch (mode)
+    {
+    case DirectDataReg: /* "Dn" */
+        return std::make_unique<RawRegParam>(Registers::makeDReg(reg), RegParamMode::Direct);
+    case DirectAddrReg: /* "An" */
+        if (size == OperandSize::Byte)
+        {
+            // TODO: Document why this is always illegal.
+            return nullptr;
+        }
+        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::Direct);
+    case Indirect: /* (An) */
+        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::Indirect);
+    case PostIncrement: /* (An)+ */
+        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::PostIncrement);
+    case PreDecrement: /* -(An) */
+        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::PreDecrement);
+    case Displacement: /* d16(An)*/
+        return parseDisplacementParam(state, Registers::makeAReg(reg));
+    case Index: /* d8(An,Xn) */
+        return parseIndexParam(state, Registers::makeAReg(reg));
+    case Special:
+        switch (reg)
+        {
+        case AbsoluteWord: /* (xxx).W */
+        {
+            if (!hasnext_w(state))
+            {
+                return nullptr;
+            }
+            auto addressAddress = state->PCPos;
+            auto absoluteAddress = getnext_w_raw(state);
+
+            return std::make_unique<RawAbsoluteAddrParam>(absoluteAddress, addressAddress, OperandSize::Word);
+        }
+        case AbsoluteLong: /* (xxx).L */
+        {
+            if (!hasnext_l(state))
+            {
+                return nullptr;
+            }
+            auto addressAddress = state->PCPos;
+            auto absoluteAddress = getnext_l_raw(state);
+
+            return std::make_unique<RawAbsoluteAddrParam>(absoluteAddress, addressAddress, OperandSize::Long);
+        }
+        case ImmediateData: /* #xxx */
+            return parseImmediateParam(state, size);
+        case PcDisplacement: /* d16(PC) */
+            return parseDisplacementParam(state, Register::PC);
+        case PcIndex: /* d8(PC,Xn) */
+            return parseIndexParam(state, Register::PC);
+        default:
+            throw std::runtime_error("Unknown sub-mode error");
+        }
+    default:
+        throw std::runtime_error("Unknown mode error");
+    }
 }
 
 // literalSpaceHint applies to (xxx).w, (xxx).l, and #<data> cases.
@@ -632,4 +779,50 @@ void ungetnext_w(struct cmd_items* ci, struct parse_state* state)
     state->Module->undo();
     state->PCPos -= 2;
     ci->rawDataSize -= 1;
+}
+
+/*
+ * Fetches the next word (an Extended Word) from the module
+ * Passed: The struct cmd_items pointer
+ * Returns: the word retrieved
+ *
+ * The PCPos is updated.
+ */
+uint16_t getnext_w_raw(parse_state* state)
+{
+    uint16_t ret = state->Module->read<uint16_t>();
+    if (state->Module->eof())
+    {
+        throw std::runtime_error("Error reading file: Unexpected EOF");
+    }
+    state->PCPos += 2;
+    return ret;
+}
+
+void ungetnext_w_raw(parse_state* state)
+{
+    state->Module->undo();
+    state->PCPos -= 2;
+}
+
+bool hasnext_l(parse_state* state)
+{
+    return state->Module->size() >= 4;
+}
+
+uint32_t getnext_l_raw(parse_state* state)
+{
+    uint32_t ret = state->Module->read<uint32_t>();
+    if (state->Module->eof())
+    {
+        throw std::runtime_error("Error reading file: Unexpected EOF");
+    }
+    state->PCPos += 4;
+    return ret;
+}
+
+void ungetnext_l_raw(parse_state* state)
+{
+    state->Module->undo();
+    state->PCPos -= 4;
 }

@@ -12,3 +12,4 @@ dis68
 /osk-disasm/x64/Release
 /Testing/x64/Release/Testing.tlog
 /Testing/x64/Release/Testing.log
+*.errors.txt

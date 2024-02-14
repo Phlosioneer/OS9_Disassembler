@@ -39,6 +39,7 @@ IntegrationTestCase::IntegrationTestCase(std::string folderName, std::string fil
 	commandFilePath(basePath + fileName + ".commands.json"),
 	actualAsmOutputFilePath(basePath + fileName + ".actual.s"),
 	actualStdOutputFilePath(basePath + fileName + ".actual.txt"),
+	extraErrorsFilePath(basePath + fileName + ".errors.txt"),
 	psectName()
 {
 	std::ifstream moduleExists{ inputFilePath };
@@ -168,10 +169,11 @@ void IntegrationTestCase::run()
 	}
 }
 
-void assertStreamsEqual(std::istream& expected, std::istream& actual, const std::string& prefix)
+void IntegrationTestCase::assertStreamsEqual(std::istream& expected, std::istream& actual, const std::string& prefix)
 {
 	std::string expectedLine, actualLine;
 	int lineNumber = 0;
+	std::vector<std::wstring> errors;
 	while (true)
 	{
 		bool hasExpectedLine = (bool)std::getline(expected, expectedLine);
@@ -186,23 +188,76 @@ void assertStreamsEqual(std::istream& expected, std::istream& actual, const std:
 		}
 
 		if (hasExpectedLine && hasActualLine) {
-			auto message = formatMessage("%s: Mismatch on line %d", prefix.c_str(), lineNumber);
-			Assert::AreEqual(expectedLine, actualLine, message.get());
+			if (expectedLine != actualLine)
+			{
+				std::wostringstream messageBuf;
+				messageBuf << prefix.c_str() << ": Mismatch on line " << lineNumber;
+				messageBuf << "\nExpected:<" << expectedLine.c_str();
+				messageBuf << "\nActual:  <" << actualLine.c_str();
+				errors.push_back(messageBuf.str());
+			}
 		}
 		else if (hasExpectedLine) {
-			auto message = formatMessage("%s: Expected string '%s' on line %d, found End of File.",
-				prefix.c_str(), expectedLine.c_str(), lineNumber);
-			Assert::Fail(message.get());
+			std::wostringstream messageBuf;
+			messageBuf << prefix.c_str() << ": Expected string \"" << expectedLine.c_str();
+			messageBuf << "\" on line " << lineNumber << ", but found End of File.";
+			errors.push_back(messageBuf.str());
+
+			// Stop looking for more errors.
+			break;
 		}
 		else if (hasActualLine) {
-			auto message = formatMessage("%s: Expected End of File, but found '%s' on line %d.",
-				prefix.c_str(), actualLine.c_str(), lineNumber);
-			Assert::Fail(message.get());
+			std::wostringstream messageBuf;
+			messageBuf << prefix.c_str() << ": Expected End of File, but found \"";
+			messageBuf << actualLine.c_str() << "\" on line " << lineNumber << ".";
+			errors.push_back(messageBuf.str());
+
+			// Stop looking for more errors.
+			break;
 		}
 		else {
 			// Both streams ended.
 			break;
 		}
 		lineNumber += 1;
+	}
+
+	if (!errors.empty())
+	{
+		std::wofstream extraErrorFile(extraErrorsFilePath);
+		bool writtenSuccessfully = true;
+		if (extraErrorFile.good())
+		{
+			for (auto message : errors)
+			{
+				if (extraErrorFile.good()) {
+					extraErrorFile << message << '\n';
+				}
+				else {
+					Logger::WriteMessage(L"Error while writing extra errors to error file.");
+					writtenSuccessfully = false;
+					break;
+				}
+			}
+		}
+		else
+		{
+			Logger::WriteMessage(L"Error while opening/creating error file");
+			writtenSuccessfully = false;
+		}
+
+		std::wostringstream mainMessageBuf;
+		mainMessageBuf << errors[0];
+		if (writtenSuccessfully)
+		{
+			mainMessageBuf << "\n...And " << (errors.size() - 1) << " other errors written to ";
+			mainMessageBuf << extraErrorsFilePath.c_str();
+		}
+		else
+		{
+			mainMessageBuf << "\n...And " << (errors.size() - 1) << " other errors. Could not write them to a file.";
+		}
+		auto mainMessage = mainMessageBuf.str();
+		Assert::Fail(mainMessage.c_str());
 	}
 }

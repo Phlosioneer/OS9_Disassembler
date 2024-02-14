@@ -102,13 +102,13 @@ L000f0 tst.b (a4)+
  bne.s L000f0
  cmpa.l a4,a2
  bls.s L00116
- cmpi.b #252,(a4)+
+ cmpi.b #-4,(a4)+
  bne.s L00116
  addq.l #1,a4
  movea.l (a4),a3
  adda.l a5,a3
  bra.s L0011a
-L00106 cmpi.b #252,2(a5)
+L00106 cmpi.b #-4,2(a5)
  bne.s L00116
  movea.l 4(a5),a3
  adda.l a5,a3

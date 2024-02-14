@@ -102,13 +102,13 @@
   101  000f2 66fc            bne.s  L000f0     
   102  000f4 b5cc            cmpa.l a4,a2      
   103  000f6 631e            bls.s  L00116     
-  104  000f8 0c1c            cmpi.b #252,(a4)+ 
+  104  000f8 0c1c            cmpi.b #-4,(a4)+  
   105  000fc 6618            bne.s  L00116     
   106  000fe 528c            addq.l #1,a4      
   107  00100 2654            movea.l (a4),a3    
   108  00102 d7cd            adda.l a5,a3      
   109  00104 6014            bra.s  L0011a     
-  110  00106 0c2d L00106     cmpi.b #252,2(a5) 
+  110  00106 0c2d L00106     cmpi.b #-4,2(a5)  
   111  0010c 6608            bne.s  L00116     
   112  0010e 266d            movea.l 4(a5),a3   
   113  00112 d7cd            adda.l a5,a3      

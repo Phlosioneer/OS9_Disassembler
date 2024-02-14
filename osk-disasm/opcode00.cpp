@@ -41,6 +41,7 @@
 #include "rof.h"
 #include "sysnames.h"
 #include "textdef.h"
+#include "raw_params.h"
 
 static const uint8_t MATH_TRAP_LIB = 15;
 static const char* const MATH_TRAP_LIB_NAME = "T$Math";
@@ -103,8 +104,9 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     /* The source here is always immediate, but go through
      * get_eff_addr to get the label, if needed
      */
-    ci->source = get_eff_addr(ci, (uint8_t)Special, (uint8_t)ImmediateData, sizeOp, state, space);
-    if (!ci->source) return 0;
+    auto raw = parseImmediateParam(state, sizeOp);
+    if (!raw) return 0;
+    ci->source = raw->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space);
 
     ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state);
     if (!ci->dest) return 0;

@@ -27,8 +27,9 @@ public:
 	std::string psectName;
 	std::string actualAsmOutputFilePath;
 	std::string actualStdOutputFilePath;
+	std::string extraErrorsFilePath;
 
 	void run();
+	
+	void assertStreamsEqual(std::istream& expected, std::istream& actual, const std::string& prefix);
 };
-
-void assertStreamsEqual(std::istream& expected, std::istream& actual, const std::string& prefix);

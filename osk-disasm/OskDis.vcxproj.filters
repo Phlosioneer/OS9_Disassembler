@@ -61,6 +61,9 @@
     <ClCompile Include="references.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="raw_params.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmdfile.h">
@@ -151,6 +154,12 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="range_set.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="raw_params.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="registers.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
