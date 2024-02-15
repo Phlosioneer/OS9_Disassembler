@@ -216,7 +216,7 @@ LAB_000003b4: bsr.w install_frame_tick_handler
  bcs.s LAB_000003e6
  bra.w LAB_000003d8
 LAB_000003d4: bsr.w remove_program_from_list
-LAB_000003d8: moveq #254,d2
+LAB_000003d8: moveq #-2,d2
  and.w d2,0(a2)
  clr.l 10(a2)
 LAB_000003e2: andi #0,ccr

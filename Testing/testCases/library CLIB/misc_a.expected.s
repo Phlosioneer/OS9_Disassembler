@@ -70,7 +70,7 @@ L000c4 os9 F$PrsNam
  movea.l a1,a0
  bra.s L00094
 L000d2 move.l d1,errno(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L000de
 L000da move.l a1,d0
  sub.l (sp),d0

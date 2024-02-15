@@ -10,7 +10,7 @@ L00001 equ *-3
  and.w 12(a2),d0
  cmpi.w #2,d0
  beq.s L0001e
-L0001a moveq #255,d0
+L0001a moveq #-1,d0
  bra.s L00034
 L0001e move.w 12(a2),d0
  ext.l d0
@@ -60,12 +60,12 @@ L00090 move.l d4,-(sp)
  jsr (a0)
  addq.l #4,sp
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L000b8
  bset.b #5,13(a2)
  move.l 4(a2),(a2)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L000da
 L000b8 sub.l d5,d4
  add.l d5,(a2)
@@ -189,7 +189,7 @@ ftell: link.w a5,#0
  moveq #3,d0
  and.w 12(a2),d0
  bne.s L00254
-L00250 moveq #255,d0
+L00250 moveq #-1,d0
  bra.s L00298
 L00254 move.w 12(a2),d0
  ext.l d0

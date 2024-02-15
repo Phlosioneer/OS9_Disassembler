@@ -77,10 +77,10 @@
    76  000da 2008            move.l a0,d0      
    77  000dc 6100            bsr.w  lseek      
    78  000e0 588f            addq.l #4,sp      
-   79  000e2 72ff            moveq  #255,d1    
+   79  000e2 72ff            moveq  #-1,d1     
    80  000e4 b280            cmp.l  d0,d1      
    81  000e6 6604            bne.s  L000ec     
-   82  000e8 70ff L000e8     moveq  #255,d0    
+   82  000e8 70ff L000e8     moveq  #-1,d0     
    83  000ea 6002            bra.s  L000ee     
    84  000ec 7000 L000ec     moveq  #0,d0      
    85  000ee 4ced L000ee     movem.l -20(a5),a0/a2-a3/d4-d5 

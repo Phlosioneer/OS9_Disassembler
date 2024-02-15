@@ -77,10 +77,10 @@ L000ca andi.w #$ffef,12(a2)
  move.l a0,d0
  bsr.w lseek
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L000ec
-L000e8 moveq #255,d0
+L000e8 moveq #-1,d0
  bra.s L000ee
 L000ec moveq #0,d0
 L000ee movem.l -20(a5),a0/a2-a3/d4-d5

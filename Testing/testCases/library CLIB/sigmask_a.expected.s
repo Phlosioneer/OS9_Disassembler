@@ -11,7 +11,7 @@ L00012 move.l (sp)+,d1
  unlk a5
  rts 
 L00018 move.l d1,errno(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L00012
 
  ends 

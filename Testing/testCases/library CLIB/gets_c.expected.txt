@@ -13,10 +13,10 @@
    12  0001c 720d            moveq  #13,d1     
    13  0001e b280            cmp.l  d0,d1      
    14  00020 6706            beq.s  L00028     
-   15  00022 70ff            moveq  #255,d0    
+   15  00022 70ff            moveq  #-1,d0     
    16  00024 b084            cmp.l  d4,d0      
    17  00026 66e6            bne.s  L0000e     
-   18  00028 70ff L00028     moveq  #255,d0    
+   18  00028 70ff L00028     moveq  #-1,d0     
    19  0002a b084            cmp.l  d4,d0      
    20  0002c 6604            bne.s  L00032     
    21  0002e 7000            moveq  #0,d0      
@@ -41,11 +41,11 @@
    40  00060 200b            move.l a3,d0      
    41  00062 6100            bsr.w  getc       
    42  00066 2a00            move.l d0,d5      
-   43  00068 72ff            moveq  #255,d1    
+   43  00068 72ff            moveq  #-1,d1     
    44  0006a b280            cmp.l  d0,d1      
    45  0006c 66e6            bne.s  L00054     
    46  0006e 4214 L0006e     clr.b  (a4)       
-   47  00070 70ff            moveq  #255,d0    
+   47  00070 70ff            moveq  #-1,d0     
    48  00072 b085            cmp.l  d5,d0      
    49  00074 6608            bne.s  L0007e     
    50  00076 b9ca            cmpa.l a2,a4      

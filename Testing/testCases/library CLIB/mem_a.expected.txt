@@ -24,7 +24,7 @@
    23  00004 48e7            movem.l a0/d1-d2,-(sp) 
    24  00008 2200            move.l d0,d1      
    25  0000a 6606            bne.s  L00012     
-   26  0000c 7200            moveq  E$BMode,d1 
+   26  0000c 7200            moveq  #E$BMode,d1 
    27  0000e 6000            bra.w  _os9err    
    28  00012 5281 L00012     addq.l #1,d1      
    29  00014 c23c            and.b  #254,d1    
@@ -61,7 +61,7 @@
    60  00076 2d41            move.l d1,_mtop(a6) 
    61  0007a 2202            move.l d2,d1      
    62  0007c 6032            bra.s  L000b0     
-   63  0007e 7200 L0007e     moveq  E$MemFul,d1 
+   63  0007e 7200 L0007e     moveq  #E$MemFul,d1 
    64  00080 6000            bra.w  _os9err    
    65  00084 4e55 sbrk:      link.w a5,#0      
    66  00088 48e7            movem.l a0/d1-d2,-(sp) 
@@ -104,7 +104,7 @@
   103  000ee 2441            movea.l d1,a2      
   104  000f0 4e40            os9    F$SRtMem   
   105  000f4 64ea            bcc.s  L000e0     
-  106  000f6 70ff L000f6     moveq  #255,d0    
+  106  000f6 70ff L000f6     moveq  #-1,d0     
   107  000f8 2d41            move.l d1,errno(a6) 
   108  000fc 60e2            bra.s  L000e0     
   109

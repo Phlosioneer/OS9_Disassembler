@@ -76,7 +76,7 @@
    75  0009c c684            and.l  d4,d3      
    76  0009e 6612            bne.s  L000b2     
    77  000a0 e28a            lsr.l  #1,d2      
-   78  000a2 76ff            moveq  #255,d3    
+   78  000a2 76ff            moveq  #-1,d3     
    79  000a4 e28a L000a4     lsr.l  #1,d2      
    80  000a6 55cb            dbcs   d3,L000a4  
    81  000aa 4483            neg.l  d3         
@@ -84,7 +84,7 @@
    83  000ae c284            and.l  d4,d1      
    84  000b0 603c            bra.s  L000ee     
    85  000b2 7000 L000b2     moveq  #0,d0      
-   86  000b4 76ff            moveq  #255,d3    
+   86  000b4 76ff            moveq  #-1,d3     
    87  000b6 e382 L000b6     asl.l  #1,d2      
    88  000b8 6a06            bpl.s  L000c0     
    89  000ba b481            cmp.l  d1,d2      

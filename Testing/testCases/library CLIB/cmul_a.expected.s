@@ -76,7 +76,7 @@ L00098 move.l d2,d3
  and.l d4,d3
  bne.s L000b2
  lsr.l #1,d2
- moveq #255,d3
+ moveq #-1,d3
 L000a4 lsr.l #1,d2
  dbcs d3,L000a4
  neg.l d3
@@ -84,7 +84,7 @@ L000a4 lsr.l #1,d2
  and.l d4,d1
  bra.s L000ee
 L000b2 moveq #0,d0
- moveq #255,d3
+ moveq #-1,d3
 L000b6 asl.l #1,d2
  bpl.s L000c0
  cmp.l d1,d2

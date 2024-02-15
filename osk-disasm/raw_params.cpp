@@ -42,6 +42,7 @@ std::unique_ptr<InstrParam> RawLiteralParam::hydrate(bool isRof, int Pass, bool 
     }
     else if (LblCalc(dispstr, rawValue, AM_IMM, address, isRof, Pass, size))
     {
+        dispstr = "#" + dispstr;
         return std::make_unique<LiteralParam>(dispstr);
     }
     else

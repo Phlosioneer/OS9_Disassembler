@@ -14,7 +14,7 @@ L0001a movea.w 262(sp),a0
  move.l a2,d0
  bsr.w modload
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.w L000ce
  cmpi.l #216,errno(a6)
@@ -56,7 +56,7 @@ L00070 move.l d0,d6
  move.l a3,d0
  bsr.w modload
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L000ac
  addq.l #1,d7

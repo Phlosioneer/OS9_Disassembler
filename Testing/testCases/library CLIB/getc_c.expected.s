@@ -10,7 +10,7 @@ L00001 equ *-3
  ext.l d0
  btst.l #8,d0
  beq.s L0001e
-L0001a moveq #255,d0
+L0001a moveq #-1,d0
  bra.s L0003c
 L0001e move.l (a2),d0
  cmp.l 8(a2),d0
@@ -34,13 +34,13 @@ ungetc: link.w a5,#0
  beq.s L0006a
  btst.b #0,13(a2)
  beq.s L0006a
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.s L0006a
  move.l (a2),d0
  cmp.l 4(a2),d0
  bhi.s L0006e
-L0006a moveq #255,d0
+L0006a moveq #-1,d0
  bra.s L00078
 L0006e subq.l #1,(a2)
  movea.l (a2),a0
@@ -55,7 +55,7 @@ getw: link.w a5,#0
  move.l a2,d0
  bsr.w getc
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L000a6
  move.l a2,d0
@@ -63,7 +63,7 @@ getw: link.w a5,#0
  move.l d0,d5
  cmp.l d0,d1
  bne.s L000aa
-L000a6 moveq #255,d0
+L000a6 moveq #-1,d0
  bra.s L000b0
 L000aa move.l d4,d0
  lsl.l #8,d0
@@ -124,7 +124,7 @@ L0014a addq.l #4,sp
 L0015a tst.l d4
  bge.s L00168
  bset.b #5,13(a2)
-L00164 moveq #255,d0
+L00164 moveq #-1,d0
  bra.s L00188
 L00168 move.l 4(a2),d0
  addq.l #1,d0

@@ -7,10 +7,10 @@ puts: link.w a5,#0
  move.l a0,d1
  move.l a2,d0
  bsr.s fputs
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L0001e
- moveq #255,d0
+ moveq #-1,d0
  bra.s L0002a
 L0001e lea $1c+_iob(a6),a0
  move.l a0,d1
@@ -33,7 +33,7 @@ L0004e move.b (a2)+,d4
  bne.s L00042
  btst.b #5,13(a3)
  beq.s L0005e
- moveq #255,d0
+ moveq #-1,d0
  bra.s L00060
 L0005e moveq #0,d0
 L00060 movem.l -12(a5),a2-a3/d4

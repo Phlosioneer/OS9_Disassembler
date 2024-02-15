@@ -5,96 +5,96 @@
     4  00008 2401            move.l d1,d2      
     5  0000a 262f            move.l 20(sp),d3  
     6  0000e 206f            movea.l 24(sp),a0  
-    7  00012 7200            moveq  Ev$Creat,d1 
+    7  00012 7200            moveq  #Ev$Creat,d1 
     8  00014 4e40 L00014     os9    F$Event    
     9  00018 6406            bcc.s  L00020     
    10  0001a 2d41            move.l d1,errno(a6) 
-   11  0001e 70ff            moveq  #255,d0    
+   11  0001e 70ff            moveq  #-1,d0     
    12  00020 4ced L00020     movem.l -12(a5),a0/d2-d3 
    13  00026 4e5d            unlk   a5         
    14  00028 4e75            rts               
    15  0002a 4e55 _ev_link:  link.w a5,#0      
    16  0002e 48e7            movem.l a0/d1-d3,-(sp) 
    17  00032 2040            movea.l d0,a0      
-   18  00034 7200            moveq  Ev$Link,d1 
+   18  00034 7200            moveq  #Ev$Link,d1 
    19  00036 4e40 L00036     os9    F$Event    
    20  0003a 6406            bcc.s  L00042     
    21  0003c 2d41            move.l d1,errno(a6) 
-   22  00040 70ff            moveq  #255,d0    
+   22  00040 70ff            moveq  #-1,d0     
    23  00042 4ced L00042     movem.l -16(a5),a0/d1-d3 
    24  00048 4e5d            unlk   a5         
    25  0004a 4e75            rts               
    26  0004c 4e55 _ev_unlink: link.w a5,#0      
    27  00050 48e7            movem.l a0/d1-d3,-(sp) 
-   28  00054 7200            moveq  Ev$UnLnk,d1 
+   28  00054 7200            moveq  #Ev$UnLnk,d1 
    29  00056 60de            bra.s  L00036     
    30  00058 4e55 _ev_delete: link.w a5,#0      
    31  0005c 48e7            movem.l a0/d1-d3,-(sp) 
    32  00060 2040            movea.l d0,a0      
-   33  00062 7200            moveq  Ev$Delet,d1 
+   33  00062 7200            moveq  #Ev$Delet,d1 
    34  00064 60d0            bra.s  L00036     
    35  00066 4e55 _ev_info:  link.w a5,#0      
    36  0006a 48e7            movem.l a0/d2-d3,-(sp) 
    37  0006e 2041            movea.l d1,a0      
-   38  00070 7200            moveq  Ev$Info,d1 
+   38  00070 7200            moveq  #Ev$Info,d1 
    39  00072 60a0            bra.s  L00014     
    40  00074 4e55 _ev_signal: link.w a5,#0      
    41  00078 827c            or.w   #Ev$Signl,d1 
    42  0007c 4e40            os9    F$Event    
    43  00080 6406            bcc.s  L00088     
    44  00082 2d41            move.l d1,errno(a6) 
-   45  00086 72ff            moveq  #255,d1    
+   45  00086 72ff            moveq  #-1,d1     
    46  00088 2001 L00088     move.l d1,d0      
    47  0008a 4e5d            unlk   a5         
    48  0008c 4e75            rts               
    49  0008e 4e55 _ev_read:  link.w a5,#0      
    50  00092 2f01            move.l d1,-(sp)   
-   51  00094 7200            moveq  Ev$Read,d1 
+   51  00094 7200            moveq  #Ev$Read,d1 
    52  00096 4e40            os9    F$Event    
    53  0009a 6406            bcc.s  L000a2     
    54  0009c 2d41            move.l d1,errno(a6) 
-   55  000a0 72ff            moveq  #255,d1    
+   55  000a0 72ff            moveq  #-1,d1     
    56  000a2 2001 L000a2     move.l d1,d0      
    57  000a4 222d            move.l -4(a5),d1  
    58  000a8 4e5d            unlk   a5         
    59  000aa 4e75            rts               
    60  000ac 4e55 _ev_pulse: link.w a5,#0      
    61  000b0 2f02            move.l d2,-(sp)   
-   62  000b2 7400            moveq  Ev$Pulse,d2 
+   62  000b2 7400            moveq  #Ev$Pulse,d2 
    63  000b4 6012            bra.s  L000c8     
    64  000b6 4e55 _ev_set:   link.w a5,#0      
    65  000ba 2f02            move.l d2,-(sp)   
-   66  000bc 7400            moveq  Ev$Set,d2  
+   66  000bc 7400            moveq  #Ev$Set,d2 
    67  000be 6008            bra.s  L000c8     
    68  000c0 4e55 _ev_setr:  link.w a5,#0      
    69  000c4 2f02            move.l d2,-(sp)   
-   70  000c6 7400            moveq  Ev$Incr,d2 
+   70  000c6 7400            moveq  #Ev$Incr,d2 
    71  000c8 c342 L000c8     exg    d1,d2      
    72  000ca 826f            or.w   14(sp),d1  
    73  000ce 4e40            os9    F$Event    
    74  000d2 6406            bcc.s  L000da     
    75  000d4 2d41            move.l d1,errno(a6) 
-   76  000d8 72ff            moveq  #255,d1    
+   76  000d8 72ff            moveq  #-1,d1     
    77  000da 2001 L000da     move.l d1,d0      
    78  000dc 242d            move.l -4(a5),d2  
    79  000e0 4e5d            unlk   a5         
    80  000e2 4e75            rts               
    81  000e4 4e55 _ev_wait:  link.w a5,#0      
    82  000e8 48e7            movem.l d2-d3,-(sp) 
-   83  000ec 7400            moveq  Ev$Wait,d2 
+   83  000ec 7400            moveq  #Ev$Wait,d2 
    84  000ee c342 L000ee     exg    d1,d2      
    85  000f0 262f            move.l 16(sp),d3  
    86  000f4 4e40            os9    F$Event    
    87  000f8 6406            bcc.s  L00100     
    88  000fa 2d41            move.l d1,errno(a6) 
-   89  000fe 72ff            moveq  #255,d1    
+   89  000fe 72ff            moveq  #-1,d1     
    90  00100 2001 L00100     move.l d1,d0      
    91  00102 4ced            movem.l -8(a5),d2-d3 
    92  00108 4e5d            unlk   a5         
    93  0010a 4e75            rts               
    94  0010c 4e55 _ev_waitr: link.w a5,#0      
    95  00110 48e7            movem.l d2-d3,-(sp) 
-   96  00114 7400            moveq  Ev$WaitR,d2 
+   96  00114 7400            moveq  #Ev$WaitR,d2 
    97  00116 60d6            bra.s  L000ee     
    98
    99  00118 0000            ends              

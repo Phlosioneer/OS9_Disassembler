@@ -2,7 +2,7 @@
 
 _sysret: bcc.s L0000e
 _os9err: move.l d1,errno(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L0000e
 _sysret0: bcs.s _os9err
  moveq #0,d0

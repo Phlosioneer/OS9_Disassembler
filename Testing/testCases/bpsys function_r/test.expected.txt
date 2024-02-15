@@ -249,7 +249,7 @@
   215  00370 6516            bcs.s  LAB_000003e6 
   216  00372 6000            bra.w  LAB_000003d8 
   217  00376 6100 LAB_000003d4: bsr.w  remove_program_from_list 
-  218  0037a 74fe LAB_000003d8: moveq  #254,d2    
+  218  0037a 74fe LAB_000003d8: moveq  #-2,d2     
   219  0037c c56a            and.w  d2,0(a2)   
   220  00380 42aa            clr.l  10(a2)     
   221  00384 023c LAB_000003e2: andi   #0,ccr     

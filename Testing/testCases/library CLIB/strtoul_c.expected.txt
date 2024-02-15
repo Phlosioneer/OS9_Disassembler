@@ -67,7 +67,7 @@
    66  0009e b084            cmp.l  d4,d0      
    67  000a0 6500            bcs.w  L00122     
    68  000a4 6028            bra.s  L000ce     
-   69  000a6 70ff L000a6     moveq  #255,d0    
+   69  000a6 70ff L000a6     moveq  #-1,d0     
    70  000a8 9087            sub.l  d7,d0      
    71  000aa 2204            move.l d4,d1      
    72  000ac 6100            bsr.w  _T$UDiv    
@@ -80,7 +80,7 @@
    79  000be 2c00            move.l d0,d6      
    80  000c0 600a            bra.s  L000cc     
    81  000c2 2d7c L000c2     move.l #256,errno(a6) 
-   82  000ca 7cff            moveq  #255,d6    
+   82  000ca 7cff            moveq  #-1,d6     
    83  000cc 528a L000cc     addq.l #1,a2      
    84  000ce 1012 L000ce     move.b (a2),d0    
    85  000d0 4880            ext.w  d0         
@@ -98,7 +98,7 @@
    97  000f2 b084            cmp.l  d4,d0      
    98  000f4 65b0            bcs.s  L000a6     
    99  000f6 6000            bra.w  L00170     
-  100  000fa 70ff L000fa     moveq  #255,d0    
+  100  000fa 70ff L000fa     moveq  #-1,d0     
   101  000fc 9087            sub.l  d7,d0      
   102  000fe 2204            move.l d4,d1      
   103  00100 6100            bsr.w  _T$UDiv    
@@ -111,7 +111,7 @@
   110  00112 2c00            move.l d0,d6      
   111  00114 600a            bra.s  L00120     
   112  00116 2d7c L00116     move.l #256,errno(a6) 
-  113  0011e 7cff            moveq  #255,d6    
+  113  0011e 7cff            moveq  #-1,d6     
   114  00120 528a L00120     addq.l #1,a2      
   115  00122 1012 L00122     move.b (a2),d0    
   116  00124 4880            ext.w  d0         

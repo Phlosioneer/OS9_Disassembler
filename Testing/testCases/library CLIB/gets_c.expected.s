@@ -13,10 +13,10 @@ L00010 lea _iob(a6),a0
  moveq #13,d1
  cmp.l d0,d1
  beq.s L00028
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L0000e
-L00028 moveq #255,d0
+L00028 moveq #-1,d0
  cmp.l d4,d0
  bne.s L00032
  moveq #0,d0
@@ -41,11 +41,11 @@ L0005c subq.l #1,d4
  move.l a3,d0
  bsr.w getc
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L00054
 L0006e clr.b (a4)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d5,d0
  bne.s L0007e
  cmpa.l a2,a4

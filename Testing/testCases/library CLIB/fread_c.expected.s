@@ -11,7 +11,7 @@ L00012 move.l 4(sp),d4
 L00018 move.l a3,d0
  bsr.w getc
  move.l d0,d6
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L00034
  move.b d6,(a2)+

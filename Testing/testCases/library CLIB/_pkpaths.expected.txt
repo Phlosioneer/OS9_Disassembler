@@ -2,7 +2,7 @@
     1
     2  00000 4e55 _pkpaths:  link.w a5,#0      
     3  00004 48e7            movem.l a0/d1-d2,-(sp) 
-    4  00008 7200            moveq  SS_Lock,d1 
+    4  00008 7200            moveq  #SS_Lock,d1 
     5  0000a 4e40            os9    I$SetStt   
     6  0000e 6500            bcs.w  _os9err    
     7  00012 2057            movea.l (sp),a0    

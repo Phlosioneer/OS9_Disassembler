@@ -29,7 +29,7 @@
    28  00030 200a            move.l a2,d0      
    29  00032 4cdf L00032     movem.l (sp)+,a0/a2 
    30  00036 4e75            rts               
-   31  00038 70ff L00038     moveq  #255,d0    
+   31  00038 70ff L00038     moveq  #-1,d0     
    32  0003a 2d41            move.l d1,errno(a6) 
    33  0003e 60f2            bra.s  L00032     
    34  00040 2f0a L00040     move.l a2,-(sp)   
@@ -130,10 +130,10 @@
   129  0013c 6100            bsr.w  L00022     
   130  00140 2840            movea.l d0,a4      
   131  00142 2440            movea.l d0,a2      
-  132  00144 72ff            moveq  #255,d1    
+  132  00144 72ff            moveq  #-1,d1     
   133  00146 b280            cmp.l  d0,d1      
   134  00148 6606            bne.s  L00150     
-  135  0014a 70ff            moveq  #255,d0    
+  135  0014a 70ff            moveq  #-1,d0     
   136  0014c 6000            bra.w  L0031a     
   137  00150 202f L00150     move.l 60(sp),d0  
   138  00154 5880            addq.l #4,d0      
@@ -275,7 +275,7 @@
   274  002c8 4e90            jsr    (a0)       
   275  002ca 4fef            lea    24(sp),sp  
   276  002ce 2e80            move.l d0,(sp)    
-  277  002d0 72ff            moveq  #255,d1    
+  277  002d0 72ff            moveq  #-1,d1     
   278  002d2 b280            cmp.l  d0,d1      
   279  002d4 662e            bne.s  L00304     
   280  002d6 0cae            cmpi.l #216,errno(a6) 
@@ -290,7 +290,7 @@
   289  002f4 6100            bsr.w  modloadp   
   290  002f8 588f            addq.l #4,sp      
   291  002fa 2440            movea.l d0,a2      
-  292  002fc 72ff            moveq  #255,d1    
+  292  002fc 72ff            moveq  #-1,d1     
   293  002fe b280            cmp.l  d0,d1      
   294  00300 66a2            bne.s  L002a4     
   295  00302 95ca            suba.l a2,a2      

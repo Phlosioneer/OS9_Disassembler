@@ -11,7 +11,7 @@
    10  00018 200b L00018     move.l a3,d0      
    11  0001a 6100            bsr.w  getc       
    12  0001e 2c00            move.l d0,d6      
-   13  00020 72ff            moveq  #255,d1    
+   13  00020 72ff            moveq  #-1,d1     
    14  00022 b280            cmp.l  d0,d1      
    15  00024 670e            beq.s  L00034     
    16  00026 14c6            move.b d6,(a2)+   

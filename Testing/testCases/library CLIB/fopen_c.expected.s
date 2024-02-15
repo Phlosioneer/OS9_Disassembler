@@ -91,7 +91,7 @@ L000fe move.l d5,d0
  move.l a2,d0
  bsr.w open
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L00124
  pea (L00002).w
@@ -115,7 +115,7 @@ L00144 move.l d0,d4
  bra.s L0017e
 L00148 lea -24(a5),sp
  move.l #203,errno(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L00180
 L00158 move.b (a3),d0
  ext.w d0
@@ -152,7 +152,7 @@ fopen: link.w a5,#0
  move.l a2,d0
  bsr.w L000ac
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L001c6
  suba.l a0,a0

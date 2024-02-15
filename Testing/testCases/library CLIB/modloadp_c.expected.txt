@@ -14,7 +14,7 @@
    13  00020 200a            move.l a2,d0      
    14  00022 6100            bsr.w  modload    
    15  00026 2a00            move.l d0,d5      
-   16  00028 72ff            moveq  #255,d1    
+   16  00028 72ff            moveq  #-1,d1     
    17  0002a b280            cmp.l  d0,d1      
    18  0002c 6600            bne.w  L000ce     
    19  00030 0cae            cmpi.l #216,errno(a6) 
@@ -56,7 +56,7 @@
    55  0009a 200b            move.l a3,d0      
    56  0009c 6100            bsr.w  modload    
    57  000a0 2a00            move.l d0,d5      
-   58  000a2 72ff            moveq  #255,d1    
+   58  000a2 72ff            moveq  #-1,d1     
    59  000a4 b280            cmp.l  d0,d1      
    60  000a6 6704            beq.s  L000ac     
    61  000a8 5287            addq.l #1,d7      

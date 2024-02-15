@@ -75,7 +75,7 @@
    74  00032 2800            move.l d0,d4      
    75  00034 082e            btst.b #5,$29+_iob(a6) 
    76  0003a 6704            beq.s  L00040     
-   77  0003c 70ff            moveq  #255,d0    
+   77  0003c 70ff            moveq  #-1,d0     
    78  0003e 6002            bra.s  L00042     
    79  00040 2004 L00040     move.l d4,d0      
    80  00042 4ced L00042     movem.l -8(a5),a0/d4 
@@ -97,7 +97,7 @@
    96  00078 2057            movea.l (sp),a0    
    97  0007a 0828            btst.b #5,13(a0)  
    98  00080 6704            beq.s  L00086     
-   99  00082 70ff            moveq  #255,d0    
+   99  00082 70ff            moveq  #-1,d0     
   100  00084 6002            bra.s  L00088     
   101  00086 2004 L00086     move.l d4,d0      
   102  00088 4ced L00088     movem.l -8(a5),a0/d4 
@@ -223,7 +223,7 @@
   222  00200 202e L00200     move.l D00208(a6),d0 
   223  00204 720a            moveq  #10,d1     
   224  00206 6100            bsr.w  _T$UMul    
-  225  0020a 72d0            moveq  #208,d1    
+  225  0020a 72d0            moveq  #-48,d1    
   226  0020c d285            add.l  d5,d1      
   227  0020e d081            add.l  d1,d0      
   228  00210 2d40            move.l d0,D00208(a6) 
@@ -260,7 +260,7 @@
   259  00262 202e L00262     move.l D0020c(a6),d0 
   260  00266 720a            moveq  #10,d1     
   261  00268 6100            bsr.w  _T$UMul    
-  262  0026c 72d0            moveq  #208,d1    
+  262  0026c 72d0            moveq  #-48,d1    
   263  0026e d285            add.l  d5,d1      
   264  00270 d081            add.l  d1,d0      
   265  00272 2d40            move.l d0,D0020c(a6) 
@@ -303,7 +303,7 @@
   302  002dc 727a            moveq  #122,d1    
   303  002de b285            cmp.l  d5,d1      
   304  002e0 6d12            blt.s  L002f4     
-  305  002e2 709f            moveq  #159,d0    
+  305  002e2 709f            moveq  #-97,d0    
   306  002e4 d085            add.l  d5,d0      
   307  002e6 e588            lsl.l  #2,d0      
   308  002e8 41ee            lea    _00000(a6),a0 
@@ -848,7 +848,7 @@
   847  0092c 4fef            lea    16(sp),sp  
   848  00930 5380            subq.l #1,d0      
   849  00932 2800            move.l d0,d4      
-  850  00934 70fc            moveq  #252,d0    
+  850  00934 70fc            moveq  #-4,d0     
   851  00936 b084            cmp.l  d4,d0      
   852  00938 6e06            bgt.s  L00940     
   853  0093a b8ae            cmp.l  D0020c(a6),d4 

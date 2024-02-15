@@ -46,7 +46,7 @@ getime: link.w a5,#0
 L00074 movem.l (sp)+,a0/d1-d3
  unlk a5
  rts 
-L0007c moveq #255,d0
+L0007c moveq #-1,d0
  move.l d1,errno(a6)
  bra.s L00074
 _sysdate: link.w a5,#0
@@ -67,7 +67,7 @@ L000aa moveq #0,d0
  movem.l (sp)+,a0-a1/d1-d3
  unlk a5
  rts 
-L000b4 moveq #255,d0
+L000b4 moveq #-1,d0
  move.l d1,errno(a6)
  bra.s L000aa
 _julian: link.w a5,#0

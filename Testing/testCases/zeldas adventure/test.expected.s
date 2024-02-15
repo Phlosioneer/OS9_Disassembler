@@ -2222,7 +2222,7 @@ L004ce move.l d6,d0
  bra.w L00710
  tst.l d5
  beq.s L004fe
- moveq #246,d0
+ moveq #-10,d0
  add.l d5,d0
  moveq #54,d1
  jsr _016a0(a6)
@@ -4195,7 +4195,7 @@ L01c90 andi.w #$feff,_011ba(a6)
  jsr _01760(a6)
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movea.l D00028(a6),a0
@@ -4224,10 +4224,10 @@ L01c90 andi.w #$feff,_011ba(a6)
  move.l #6496,d0
  add.l D00028(a6),d0
  move.l d0,D00156(a6)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 16(sp),d0
  bne.s L01fc8
- moveq #255,d0
+ moveq #-1,d0
  bra.s L0201c
 L01fc8 lea L02623(pc),a0
  move.l a0,d0
@@ -4247,7 +4247,7 @@ L01fc8 lea L02623(pc),a0
  move.l #6176,d0
  add.l D00028(a6),d0
  jsr _01706(a6)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L0201c
  movea.l D00028(a6),a0
@@ -4272,7 +4272,7 @@ L0202a link.w a5,#0
  addq.l #4,sp
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movea.l D00028(a6),a0
@@ -4477,7 +4477,7 @@ L022f8 movea.l D00028(a6),a0
  bra.s L02320
 L02314 clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
 L02320 move.l a2,d1
@@ -4831,7 +4831,7 @@ L02710 move.l d7,d0
  move.l 300(sp),d0
  jsr _0181a(a6)
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L027a4
  moveq #0,d0
@@ -4858,10 +4858,10 @@ L02742 moveq #64,d0
  move.l 304(sp),d0
  jsr _0181a(a6)
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L0278e
- moveq #255,d0
+ moveq #-1,d0
  lea 292(sp),sp
  bra.s L027aa
 L0278e sub.l (sp),d5
@@ -4874,7 +4874,7 @@ L0279a addq.l #1,d7
 L0279c moveq #4,d0
  cmp.l d7,d0
  bgt.w L026d4
-L027a4 moveq #255,d0
+L027a4 moveq #-1,d0
 L027a6 lea 288(sp),sp
 L027aa movem.l -28(a5),a0/a2-a3/d4-d7
  unlk a5
@@ -6676,7 +6676,7 @@ L03db2 link.w a5,#0
  jsr _01760(a6)
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  lea L03bd0(pc),a0
@@ -8055,7 +8055,7 @@ L04e6c move.w _00cdc(a6),d0
  bsr.w L048a4
  lea 16(sp),sp
 L04ee8 clr.l -(sp)
- moveq #250,d1
+ moveq #-6,d1
  move.l a3,d0
  bsr.w L0437e
  addq.l #4,sp
@@ -9046,7 +9046,7 @@ L05b5a tst.l d5
  clr.w 10(sp)
  bra.s L05b74
 L05b64 move.w #1,10(sp)
- moveq #255,d0
+ moveq #-1,d0
  move.l d5,d1
  jsr _016a0(a6)
  move.l d0,d5
@@ -9064,7 +9064,7 @@ L05b90 tst.l d6
  ble.s L05b9a
  clr.w 8(sp)
  bra.s L05baa
-L05b9a moveq #255,d0
+L05b9a moveq #-1,d0
  move.l d6,d1
  jsr _016a0(a6)
  move.l d0,d6
@@ -10965,7 +10965,7 @@ L07276 lsl.l #3,d0
  add.l D00028(a6),d0
  jsr _0170c(a6)
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  bne.s L07444
  moveq #0,d0
@@ -13287,7 +13287,7 @@ L0930c link.w a5,#0
  move.l a0,d0
  jsr _01a06(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L0932c
  jsr _0187a(a6)
@@ -13334,7 +13334,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a18(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bsr.w L0930c
  movea.l D00028(a6),a0
@@ -13343,7 +13343,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a12(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  lea L098cd(pc),a0
  move.l a0,d1
@@ -13351,7 +13351,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a18(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  lea L098da(pc),a0
  move.l a0,d1
@@ -13359,7 +13359,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a18(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  lea L098ea(pc),a0
  move.l a0,d1
@@ -13367,7 +13367,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a18(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  lea L098fa(pc),a0
  move.l a0,d1
@@ -13375,7 +13375,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a18(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  lea L09903(pc),a0
  move.l a0,d1
@@ -13383,7 +13383,7 @@ L0932c pea (L00002).w
  add.l D00028(a6),d0
  jsr _01a18(a6)
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  movem.l -12(a5),a0/d1/d4
  unlk a5
@@ -13481,7 +13481,7 @@ L0932c pea (L00002).w
  move.l 6970(a0),d1
  move.l #2304,d0
  jsr _019c4(a6)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  movea.l D00028(a6),a0
  move.l 6930(a0),d1
@@ -13504,7 +13504,7 @@ L0932c pea (L00002).w
  move.l 6974(a0),d1
  move.l #2304,d0
  jsr _019c4(a6)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  movea.l D00028(a6),a0
  move.l 6934(a0),d1
@@ -13637,7 +13637,7 @@ L097b0 moveq #68,d1
  move.l d0,d4
  cmpi.l #800,d4
  bge.s L09818
- moveq #255,d0
+ moveq #-1,d0
  bra.s L0981a
 L09810 lea (sp),a0
  move.l a0,d0
@@ -13985,7 +13985,7 @@ L09c08 link.w a5,#0
  add.l d4,d1
  add.l d1,d0
  move.l d0,4(sp)
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,8(sp)
  tst.l d6
  bne.s L09c50
@@ -14561,7 +14561,7 @@ L0a390 movea.l D00028(a6),a0
  bra.s L0a3d2
 L0a3ba cmpi.w #1,(a2)
  bne.s L0a3ce
- moveq #230,d0
+ moveq #-26,d0
  add.b d4,d0
  move.b d0,(a3)+
  movea.l D0002c(a6),a0
@@ -14717,7 +14717,7 @@ L0a4a4 link.w a5,#0
  bsr.w L08238
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  pea (L0001e).w
@@ -15199,7 +15199,7 @@ L0acce link.w a5,#0
  movem.l a0/d0-d1,-(sp)
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movea.l D00028(a6),a0
@@ -15306,7 +15306,7 @@ L0ad94 addq.l #4,sp
  jsr _019ac(a6)
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  bsr.w L09a76
@@ -15745,7 +15745,7 @@ L0b338 bmi.s L0b3aa
  bsr.w L081b2
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movea.l D00028(a6),a0
@@ -15884,7 +15884,7 @@ L0b4ee move.w 8(sp),d0
  bne.s L0b508
  moveq #0,d5
  bra.s L0b50a
-L0b508 moveq #255,d5
+L0b508 moveq #-1,d5
 L0b50a cmpi.w #-1,d5
  beq.s L0b53c
  clr.l -(sp)
@@ -16130,7 +16130,7 @@ L0b706 clr.l -(sp)
  bsr.w L08238
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  pea (L00003).w
@@ -16223,7 +16223,7 @@ L0b8d6 pea (L00004).w
  jsr _01a8a(a6)
  addq.l #8,sp
  move.l d0,72(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 72(sp),d0
  beq.w L0b9fe
  tst.l d4
@@ -16249,7 +16249,7 @@ L0b8d6 pea (L00004).w
  move.l 76(sp),d0
  jsr _01a90(a6)
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L0b9f6
  move.l 80(sp),-(sp)
@@ -16258,7 +16258,7 @@ L0b8d6 pea (L00004).w
  move.l 76(sp),d0
  jsr _01a90(a6)
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L0b9f6
  move.l 76(sp),-(sp)
@@ -16267,7 +16267,7 @@ L0b8d6 pea (L00004).w
  move.l 76(sp),d0
  jsr _01a90(a6)
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L0b9f6
  movea.l d4,a0
@@ -16303,7 +16303,7 @@ L0ba16 link.w a5,#0
  bsr.w L081b2
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movem.l -8(a5),a0/d1
@@ -17047,7 +17047,7 @@ L0c3c2 link.w a5,#0
  move.l #6222,d0
  add.l D00028(a6),d0
  jsr _0170c(a6)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  moveq #1,d1
  move.l #6176,d0
@@ -17205,7 +17205,7 @@ L0c67e link.w a5,#0
  move.l 12(a0),d0
  jsr _01a12(a6)
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  movea.l 8(sp),a0
  move.l 8(a0),-(sp)
@@ -17335,7 +17335,7 @@ L0c86e link.w a5,#0
  bsr.w L08238
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movea.l D00028(a6),a0
@@ -17724,7 +17724,7 @@ L0cd5e clr.l -(sp)
  bsr.w L08238
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  movea.l D00028(a6),a0
@@ -18851,7 +18851,7 @@ L0dce8 equ *-2
  clr.w 9824(a0)
  clr.l -(sp)
  moveq #0,d1
- moveq #255,d0
+ moveq #-1,d0
  jsr _017c0(a6)
  addq.l #4,sp
  tst.w 18(a3)
@@ -19374,7 +19374,7 @@ L0e346 lsl.l #3,d0
  add.l D00028(a6),d0
  bsr.w L15c48
  move.l d0,40(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 40(sp),d0
  bne.s L0e45a
  jsr _0187a(a6)
@@ -22613,7 +22613,7 @@ L10ee4 movea.l D00028(a6),a0
 L10ef8 moveq #3,d0
  cmp.l d5,d0
  bgt.s L10e92
- moveq #255,d0
+ moveq #-1,d0
 L10f00 addq.l #4,sp
  movem.l -24(a5),a0/a2-a4/d4-d5
  unlk a5
@@ -22748,7 +22748,7 @@ L10ffc addq.l #6,sp
  ext.l d0
  lsl.l #2,d0
  move.l d7,16(a4,d0.l)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d6,d0
  bne.s L110b4
  lea 8(sp),a0
@@ -22801,7 +22801,7 @@ L110cc link.w a5,#0
  ext.l d0
  lsl.l #2,d0
  move.l d5,16(a4,d0.l)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L11162
  lea 4(sp),a0
@@ -23036,7 +23036,7 @@ L113e6 move.l 2(a4),d0
  muls.w 2(a2),d1
  add.l d1,d0
  movea.l d0,a3
- moveq #232,d0
+ moveq #-24,d0
  add.b (a3),d0
  move.b d0,1(sp)
  cmpi.b #48,1(sp)
@@ -25500,7 +25500,7 @@ L13130 link.w a5,#0
  bne.s L13164
  move.l a4,d0
  jsr _019ee(a6)
-L1315e moveq #255,d0
+L1315e moveq #-1,d0
  bra.w L131ea
 L13164 move.l #1,(a3)
  move.l d5,d6
@@ -25633,11 +25633,11 @@ L132ec link.w a5,#0
  jsr _01b44(a6)
  addq.l #4,sp
  move.l d0,d6
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d6,d0
  bne.s L13318
  bsr.w L1a6ba
- moveq #255,d0
+ moveq #-1,d0
  bra.w L13474
 L13318 tst.l d4
  bne.s L1336a
@@ -25771,7 +25771,7 @@ L13474 movem.l -12(a5),d4-d6
  jsr _01a06(a6)
  movea.l (sp),a0
  move.l d0,8(a0)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.w L13546
  move.l a2,d0
@@ -25819,17 +25819,17 @@ L134be movea.l (sp),a0
  move.l d4,d0
  lsl.l #3,d0
  movea.l (sp),a0
- moveq #255,d1
+ moveq #-1,d1
  cmp.l 20(a0,d0.l),d1
  beq.s L13546
  move.l d4,d0
  lsl.l #3,d0
  movea.l (sp),a0
- moveq #255,d1
+ moveq #-1,d1
  cmp.l 36(a0,d0.l),d1
  bne.s L13550
 L13546 bsr.w L1a6ba
-L1354a moveq #255,d0
+L1354a moveq #-1,d0
  bra.w L13982
 L13550 clr.l -(sp)
  move.l d4,d0
@@ -26033,7 +26033,7 @@ L1379c movea.l D00028(a6),a0
  move.l 4(a0),d0
  bsr.w L18c8c
  addq.l #8,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1380c
  bsr.w L1a6ba
@@ -27375,7 +27375,7 @@ L14878 link.w a5,#0
  lea -24(sp),sp
  tst.l 24(sp)
  bne.s L14890
- moveq #255,d0
+ moveq #-1,d0
  bra.w L14a58
 L14890 clr.l D0067e(a6)
  clr.l D00686(a6)
@@ -27531,7 +27531,7 @@ L14aa8 link.w a5,#0
  move.l 4(sp),d0
  bsr.w L14878
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.s L14ace
  move.l 8(sp),d0
@@ -27555,7 +27555,7 @@ L14ad6 link.w a5,#0
  moveq #1,d0
  jsr _01b6e(a6)
  move.w #1,_015b8(a6)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L14b44
  move.l _015a2(a6),d6
@@ -27583,7 +27583,7 @@ L14b44 move.w _01596(a6),d0
  cmp.l d5,d0
  bgt.s L14b2a
 L14b4e clr.w _015b8(a6)
- moveq #255,d0
+ moveq #-1,d0
  jsr _01b6e(a6)
  move.l d6,d0
  movem.l -24(a5),a0/a2-a3/d4-d6
@@ -27619,7 +27619,7 @@ L14b7a link.w a5,#0
  bsr.w L1b152
  move.l d0,(sp)
  bra.w L14bd6
-L14bd2 moveq #255,d0
+L14bd2 moveq #-1,d0
  move.l d0,(sp)
 L14bd6 move.l (sp),d0
  addq.l #4,sp
@@ -27651,7 +27651,7 @@ L14bea link.w a5,#0
  movea.l 4(sp),a0
  clr.b 21(a0)
  bra.w L14c50
-L14c4c moveq #255,d0
+L14c4c moveq #-1,d0
  move.l d0,(sp)
 L14c50 move.l (sp),d0
  addq.l #4,sp
@@ -27675,7 +27675,7 @@ L14c64 link.w a5,#0
  movea.l 4(sp),a0
  move.l 28(sp),8(a0)
  bra.w L14ca6
-L14ca2 moveq #255,d0
+L14ca2 moveq #-1,d0
  move.l d0,(sp)
 L14ca6 move.l (sp),d0
  addq.l #4,sp
@@ -27693,7 +27693,7 @@ L14cba link.w a5,#0
  bra.w L14eac
 L14cd8 clr.l 4(sp)
  bra.w L14e02
-L14ce0 moveq #255,d0
+L14ce0 moveq #-1,d0
  cmp.l _011bc(a6),d0
  beq.w L14d1a
  move.l 4(sp),d0
@@ -27719,7 +27719,7 @@ L14d1a move.l 4(sp),d0
  lea D001d6(a6),a0
  add.l d2,d0
  clr.w 8(a0,d0.l)
-L14d3e moveq #255,d0
+L14d3e moveq #-1,d0
  cmp.l _011c0(a6),d0
  beq.w L14d78
  move.l 4(sp),d0
@@ -27745,7 +27745,7 @@ L14d78 move.l 4(sp),d0
  lea D001d6(a6),a0
  add.l d2,d0
  clr.w 92(a0,d0.l)
-L14d9c moveq #255,d0
+L14d9c moveq #-1,d0
  cmp.l _011c4(a6),d0
  beq.w L14dd8
  move.l 4(sp),d0
@@ -28264,7 +28264,7 @@ L15528 moveq #1,d0
  moveq #0,d1
  move.w d0,d1
  move.l d1,_011c8(a6)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l _011c8(a6),d0
  bne.w L15540
 L15540 moveq #1,d0
@@ -28272,7 +28272,7 @@ L15540 moveq #1,d0
  moveq #0,d1
  move.w d0,d1
  move.l d1,_011cc(a6)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l _011cc(a6),d0
  bne.w L15558
 L15558 pea (L00001).w
@@ -28284,7 +28284,7 @@ L15558 pea (L00001).w
  bsr.w L1a29a
  addq.l #8,sp
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  bne.w L1557e
 L1557e pea (L00001).w
@@ -28296,7 +28296,7 @@ L1557e pea (L00001).w
  bsr.w L1a29a
  addq.l #8,sp
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  bne.w L155a4
 L155a4 pea (L00001).w
@@ -28308,7 +28308,7 @@ L155a4 pea (L00001).w
  bsr.w L1a29a
  addq.l #8,sp
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  bne.w L155ca
 L155ca pea (L00001).w
@@ -28320,7 +28320,7 @@ L155ca pea (L00001).w
  bsr.w L1a370
  addq.l #8,sp
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  bne.w L155f0
 L155f0 bsr.w L14cba
@@ -28384,7 +28384,7 @@ L155f0 bsr.w L14cba
 L156ca movea.l 4(sp),a0
  move.w #12,32(a0)
 L156d4 bra.w L156dc
-L156d8 moveq #255,d0
+L156d8 moveq #-1,d0
  move.l d0,(sp)
 L156dc move.l (sp),d0
  addq.l #4,sp
@@ -28414,7 +28414,7 @@ L15722 addq.l #4,sp
  move.l 8(sp),d0
  bsr.w L1cd64
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.w L1573e
  movea.l 4(sp),a0
@@ -28669,11 +28669,11 @@ L15ae4 link.w a5,#0
  jsr _01b74(a6)
  tst.l (sp)
  bne.w L15b02
- moveq #255,d0
+ moveq #-1,d0
  bra.w L15b1c
 L15b02 move.l (sp),D0008e(a6)
  clr.l D00696(a6)
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,D0069a(a6)
  bsr.w L15a7c
  moveq #0,d0
@@ -28712,7 +28712,7 @@ L15b64 movea.l (sp),a0
  bsr.w L157fa
  addq.l #4,sp
 L15b94 addq.l #1,D00696(a6)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l D0069a(a6),d0
  beq.w L15bb2
  movea.l 4(sp),a0
@@ -28769,12 +28769,12 @@ L15c48 link.w a5,#0
  move.l #-76,d0
  jsr _01b74(a6)
  subq.l #8,sp
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,(sp)
  move.l 8(sp),d0
  bsr.w L15ae4
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.w L15cbc
  movea.l 8(sp),a0
@@ -28785,14 +28785,14 @@ L15c48 link.w a5,#0
  bsr.w L15752
  move.l d0,4(sp)
  bne.w L15c9a
- moveq #255,d0
+ moveq #-1,d0
  addq.l #8,sp
  bra.w L15cc6
 L15c9a move.l 4(sp),d1
  move.l 8(sp),d0
  bsr.w L15b20
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.w L15cbc
  move.l (sp),d1
@@ -28811,12 +28811,12 @@ L15cc6 movem.l -4(a5),a0
  move.l #-80,d0
  jsr _01b74(a6)
  lea -12(sp),sp
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,(sp)
  move.l 12(sp),d0
  bsr.w L15ae4
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.w L15d6c
  movea.l 12(sp),a0
@@ -28832,7 +28832,7 @@ L15d10 move.l 8(sp),d0
  bsr.w L15752
  move.l d0,4(sp)
  bne.w L15d38
- moveq #255,d0
+ moveq #-1,d0
  lea 12(sp),sp
  bra.w L15d78
 L15d38 move.l 4(sp),d1
@@ -28843,7 +28843,7 @@ L15d38 move.l 4(sp),d1
 L15d4a move.l 8(sp),d0
  cmp.l 32(sp),d0
  blt.w L15d10
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.w L15d6c
  move.l D0069a(a6),d1
@@ -28862,7 +28862,7 @@ L15d78 movem.l -4(a5),a0
  move.l #-72,d0
  jsr _01b74(a6)
  subq.l #4,sp
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,(sp)
  move.l 4(sp),d0
  bsr.w L15ae4
@@ -28881,7 +28881,7 @@ L15d78 movem.l -4(a5),a0
  move.l 4(sp),d0
  bsr.w L15b20
  move.l d0,(sp)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  beq.w L15dec
  move.l (sp),d1
@@ -28993,7 +28993,7 @@ L15f58 movea.l 12(sp),a0
  cmp.l 8(a0),d0
  bcs.s L15f3e
  bra.s L15f6a
-L15f66 moveq #255,d0
+L15f66 moveq #-1,d0
  bra.s L15f76
 L15f6a movea.l 20(sp),a0
  bset.b #7,2(a0)
@@ -29013,7 +29013,7 @@ L15f76 lea 20(sp),sp
  movea.l (sp),a0
  move.l 8(a0),d0
  bra.s L15faa
-L15fa8 moveq #255,d0
+L15fa8 moveq #-1,d0
 L15faa addq.l #4,sp
  movem.l -4(a5),a0
  unlk a5
@@ -29030,7 +29030,7 @@ L15fb6 link.w a5,#0
  move.l 4(sp),d0
  cmp.l 8(a0),d0
  bls.s L15fe2
-L15fde moveq #255,d0
+L15fde moveq #-1,d0
  bra.s L15ff4
 L15fe2 move.l 4(sp),d1
  move.l (sp),d0
@@ -29051,7 +29051,7 @@ L15ffe link.w a5,#0
  move.l d0,(sp)
  tst.l (sp)
  bne.s L16024
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1602a
 L16024 movea.l (sp),a0
  move.l 8(a0),d0
@@ -29194,7 +29194,7 @@ L161ca addq.l #8,sp
 L161f8 moveq #0,d4
  bra.w L16272
 L161fe clr.l 2(a2)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 22(a2),d0
  beq.s L1621e
  move.l 22(a2),d0
@@ -29206,7 +29206,7 @@ L161fe clr.l 2(a2)
  bra.s L16224
 L1621e clr.l 22(a2)
  moveq #1,d5
-L16224 moveq #255,d0
+L16224 moveq #-1,d0
  cmp.l 18(a2),d0
  beq.s L16240
  move.l 18(a2),d0
@@ -29235,7 +29235,7 @@ L16272 cmp.l 44(sp),d4
  bne.s L16282
  tst.l d5
  beq.s L16286
-L16282 moveq #255,d0
+L16282 moveq #-1,d0
  bra.s L16288
 L16286 moveq #0,d0
 L16288 movem.l -20(a5),a0/a2/d4-d6
@@ -29253,7 +29253,7 @@ L16288 movem.l -20(a5),a0/a2/d4-d6
 L162b8 movea.l (sp),a0
  clr.l 2(a0)
  movea.l (sp),a0
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 22(a0),d0
  beq.s L162e0
  movea.l (sp),a0
@@ -29267,7 +29267,7 @@ L162b8 movea.l (sp),a0
 L162e0 movea.l (sp),a0
  clr.l 22(a0)
 L162e6 movea.l (sp),a0
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 18(a0),d0
  beq.s L16308
  movea.l (sp),a0
@@ -29998,7 +29998,7 @@ L16cd2 link.w a5,#0
 L16d2e movea.l 24(sp),a0
  tst.l 56(a0)
  bne.s L16d3c
-L16d38 moveq #255,d0
+L16d38 moveq #-1,d0
  bra.s L16d76
 L16d3c movea.l 24(sp),a0
  movea.l 4(sp),a1
@@ -30022,7 +30022,7 @@ L16d80 link.w a5,#0
  beq.s L16d92
  tst.l 4(sp)
  bne.s L16d96
-L16d92 moveq #255,d0
+L16d92 moveq #-1,d0
  bra.s L16dfa
 L16d96 movea.l (sp),a0
  move.l 4(sp),d0
@@ -30117,7 +30117,7 @@ L16e80 movem.l -8(a5),a0/a2
 L16ee6 movea.l 24(sp),a0
  tst.l 52(a0)
  bne.s L16ef4
-L16ef0 moveq #255,d0
+L16ef0 moveq #-1,d0
  bra.s L16f2e
 L16ef4 movea.l 24(sp),a0
  movea.l 52(a0),a0
@@ -30139,7 +30139,7 @@ L16f2e movem.l -8(a5),a0-a1
  movem.l a0-a1/d0-d1,-(sp)
  tst.l 4(sp)
  bne.s L16f4a
- moveq #255,d0
+ moveq #-1,d0
  bra.s L16f92
 L16f4a movea.l (sp),a0
  movea.l 4(sp),a1
@@ -30397,7 +30397,7 @@ L17258 addq.l #4,sp
  movem.l a0-a1/d0-d1,-(sp)
  tst.l (sp)
  bne.s L17274
- moveq #255,d0
+ moveq #-1,d0
  bra.s L172d0
 L17274 tst.l 28(sp)
  beq.s L17284
@@ -30433,7 +30433,7 @@ L172d0 movem.l -8(a5),a0-a1
  movem.l a0-a1/d0-d1,-(sp)
  tst.l (sp)
  bne.s L172ea
- moveq #255,d0
+ moveq #-1,d0
  bra.s L17330
 L172ea tst.l 24(sp)
  beq.s L172fa
@@ -30463,7 +30463,7 @@ L17330 movem.l -8(a5),a0-a1
  movem.l a0/d0-d1,-(sp)
  tst.l (sp)
  bne.s L1734a
- moveq #255,d0
+ moveq #-1,d0
  bra.s L17362
 L1734a movea.l (sp),a0
  move.w #2,(a0)
@@ -30536,7 +30536,7 @@ L1743c movea.l 4(sp),a0
  move.w #8,(a0)
  moveq #0,d0
  bra.s L1744a
-L17448 moveq #255,d0
+L17448 moveq #-1,d0
 L1744a movem.l -8(a5),a0-a1
  unlk a5
  rts 
@@ -31058,7 +31058,7 @@ L178ec link.w a5,#0
  movea.l 4(sp),a0
  cmpi.w #8,(a0)
  beq.s L1790c
-L17908 moveq #255,d0
+L17908 moveq #-1,d0
  bra.s L17928
 L1790c movea.l 4(sp),a0
  clr.w (a0)
@@ -31674,7 +31674,7 @@ L17e40 link.w a5,#0
  movem.l a0-a2/d0/d4,-(sp)
  tst.l (sp)
  bne.s L17e50
- moveq #255,d0
+ moveq #-1,d0
  bra.s L17ea4
 L17e50 movea.l (sp),a0
  clr.l 24(a0)
@@ -31726,7 +31726,7 @@ L17ea4 movem.l -16(a5),a0-a2/d4
  moveq #1,d0
  cmp.l 24(sp),d0
  beq.w L1805c
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 24(sp),d0
  beq.w L1802a
  moveq #15,d0
@@ -31760,7 +31760,7 @@ L17f2e move.w 94(sp),(sp)
  moveq #1,d0
  cmp.l 24(sp),d0
  beq.w L1805c
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 24(sp),d0
  beq.w L1802a
  moveq #15,d0
@@ -31810,7 +31810,7 @@ L17fc6 tst.l 20(sp)
  move.l a4,d0
  bsr.w L1ab6c
  lea 12(sp),sp
-L17fec moveq #255,d1
+L17fec moveq #-1,d1
  cmp.l d0,d1
  beq.s L1802a
  bra.s L1803e
@@ -31831,10 +31831,10 @@ L1800a tst.l 32(sp)
  move.l a4,d0
  bsr.w L1ac36
  addq.l #8,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1803e
-L1802a moveq #255,d0
+L1802a moveq #-1,d0
  bra.s L1805e
 L1802e movea.w 12(sp),a0
  move.l a0,-(sp)
@@ -31875,7 +31875,7 @@ L1806c link.w a5,#0
  moveq #1,d0
  cmp.l 8(sp),d0
  beq.w L18142
- moveq #255,d0
+ moveq #-1,d0
  cmp.l 8(sp),d0
  beq.s L18116
  moveq #15,d0
@@ -31917,10 +31917,10 @@ L180f6 tst.l d5
  move.l a3,d0
  bsr.w L1aaa0
  addq.l #8,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1812e
-L18116 moveq #255,d0
+L18116 moveq #-1,d0
  bra.s L18144
 L1811a movea.w 4(sp),a0
  move.l a0,-(sp)
@@ -31967,7 +31967,7 @@ L18152 link.w a5,#0
  cmpi.l #256,d0
  bne.s L1819a
 L1818c move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.w L18256
 L1819a tst.w (a3)
  bge.s L181a0
@@ -32052,7 +32052,7 @@ L1827a clr.l -(sp)
  move.l (a2),d0
  bsr.w L1cec8
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L182ac
  move.l 28(sp),-(sp)
@@ -32061,14 +32061,14 @@ L1827a clr.l -(sp)
  bsr.w L1ce98
  addq.l #4,sp
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L182ac
  add.l d4,14(a2)
  move.l d4,d0
  bra.s L182b6
 L182ac move.l #12291,D0000c(a6)
-L182b4 moveq #255,d0
+L182b4 moveq #-1,d0
 L182b6 movem.l -12(a5),a2-a3/d4
  unlk a5
  rts 
@@ -32088,7 +32088,7 @@ L182da tst.l d4
  move.l d0,14(a2)
  bra.s L182f6
 L182ec move.l #12291,D0000c(a6)
-L182f4 moveq #255,d0
+L182f4 moveq #-1,d0
 L182f6 movem.l -8(a5),a2/d4
  unlk a5
  rts 
@@ -32105,7 +32105,7 @@ L18316 clr.l -(sp)
  move.l (a0),d0
  bsr.w L1cec8
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18352
  move.l 24(sp),-(sp)
@@ -32120,7 +32120,7 @@ L18316 clr.l -(sp)
  move.l d4,d0
  bra.s L1835c
 L18352 move.l #12291,D0000c(a6)
-L1835a moveq #255,d0
+L1835a moveq #-1,d0
 L1835c movem.l -8(a5),a0/d4
  unlk a5
  rts 
@@ -32138,7 +32138,7 @@ L18366 link.w a5,#0
  move.l a2,d0
  bsr.w L1cd64
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.w L18440
  bra.s L183a4
@@ -32155,7 +32155,7 @@ L183a4 move.l a4,d0
  move.l d4,d0
  bsr.w L1ce5e
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1843a
  lea L1849c(pc),a0
@@ -32168,7 +32168,7 @@ L183a4 move.l a4,d0
  move.l a0,d1
  move.l a4,d0
  bsr.w L18952
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L183f8
  lea (sp),a0
@@ -32256,7 +32256,7 @@ L184b8 move.w #-16384,d0
  move.l (a2),d0
  bsr.w L1cec8
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18506
  pea (L00002).w
@@ -32268,12 +32268,12 @@ L184b8 move.w #-16384,d0
  addq.l #4,sp
  move.l (a2),d0
  bsr.w L1cd7a
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18506
  moveq #0,d0
  bra.s L18508
-L18506 moveq #255,d0
+L18506 moveq #-1,d0
 L18508 movem.l -8(a5),a2/d1
  unlk a5
  rts 
@@ -32289,7 +32289,7 @@ L18508 movem.l -8(a5),a2/d1
  bsr.w L1aa7a
  moveq #0,d0
  bra.s L18534
-L18532 moveq #255,d0
+L18532 moveq #-1,d0
 L18534 movem.l -8(a5),a2/d1
  unlk a5
  rts 
@@ -32300,10 +32300,10 @@ L18534 movem.l -8(a5),a2/d1
  move.l a0,d0
  bsr.w L1cd64
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L18562
- moveq #255,d0
+ moveq #-1,d0
  bra.s L18572
 L18562 move.l d4,d0
  bsr.w L1b628
@@ -32426,7 +32426,7 @@ L1868a pea (L00006).w
  move.l 30(sp),d0
  bsr.w L1ce5e
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18724
  btst.b #7,6(a2)
@@ -32442,7 +32442,7 @@ L186fc moveq #42,d0
  move.l d0,d1
  move.l a2,d0
  bsr.w L18952
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18724
  moveq #74,d0
@@ -32450,12 +32450,12 @@ L186fc moveq #42,d0
  move.l d0,d1
  move.l a2,d0
  bsr.w L188ba
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1874c
 L18724 movea.l 62(sp),a0
  move.b #1,5(a0)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1874e
 L18732 movea.l 62(sp),a0
  moveq #0,d0
@@ -32522,13 +32522,13 @@ L187ce lea L188b4(pc),a0
  move.l a0,d0
  bsr.w L1cd64
  move.l d0,4(sp)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.w L1887e
  move.l 4(sp),d0
  bsr.w L1cc30
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18852
  tst.l 76(sp)
@@ -32572,7 +32572,7 @@ L1887e move.l 72(sp),d0
  move.l 72(sp),d0
  bsr.w L1bcb0
  bra.s L18898
-L18896 moveq #255,d5
+L18896 moveq #-1,d5
 L18898 move.l d5,d0
  lea 76(sp),sp
  movem.l -20(a5),a0/a2-a3/d4-d5
@@ -32600,7 +32600,7 @@ L188d8 clr.l -(sp)
  move.l (a2),d0
  bsr.w L1cec8
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L18940
  moveq #0,d0
@@ -32633,7 +32633,7 @@ L18928 lea 12(sp),a0
  moveq #0,d0
  bra.s L18944
 L18940 clr.b (a3)
-L18942 moveq #255,d0
+L18942 moveq #-1,d0
 L18944 lea 40(sp),sp
  movem.l -20(a5),a0/a2-a3/d4-d5
  unlk a5
@@ -32654,7 +32654,7 @@ L18970 clr.l -(sp)
  move.l (a0),d0
  bsr.w L1cec8
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L189f2
  movea.l 32(sp),a0
@@ -32692,7 +32692,7 @@ L18970 clr.l -(sp)
  bra.s L189fa
 L189f2 movea.l 36(sp),a0
  clr.b (a0)
-L189f8 moveq #255,d0
+L189f8 moveq #-1,d0
 L189fa lea 32(sp),sp
  movem.l -12(a5),a0/d4-d5
  unlk a5
@@ -32712,7 +32712,7 @@ L18a20 moveq #0,d0
 L18a26 move.l 48(sp),d6
  cmp.b #7,d6
  bgt.s L18a20
- moveq #255,d7
+ moveq #-1,d7
  moveq #8,d0
  sub.b d6,d0
  lsr.b d0,d7
@@ -32839,7 +32839,7 @@ L18b50 moveq #0,d0
 L18b56 move.l 48(sp),d6
  cmp.b #7,d6
  bgt.w L18a20
- moveq #255,d7
+ moveq #-1,d7
  moveq #8,d0
  sub.b d6,d0
  lsr.b d0,d7
@@ -32925,7 +32925,7 @@ L18c28 lsr.b d4,d3
  swap d7
  move.b #8,d7
  sub.b d5,d7
- moveq #255,d5
+ moveq #-1,d5
  lsr.b d7,d5
  and.b d5,d3
  swap d7
@@ -32989,7 +32989,7 @@ L18cb4 move.l d4,d1
  movea.l d0,a3
  tst.l d0
  bne.s L18cde
-L18cda moveq #255,d0
+L18cda moveq #-1,d0
  bra.s L18cec
 L18cde pea (a3)
  move.l d6,-(sp)
@@ -33043,7 +33043,7 @@ L18d74 movea.l 62(a2),a3
 L18d7a moveq #30,d0
  add.l a3,d0
  move.l d0,4(a3)
- moveq #226,d0
+ moveq #-30,d0
  add.l a3,d0
  move.l d0,8(a3)
  adda.l #30,a3
@@ -33093,12 +33093,12 @@ L18db8 move.l d5,d0
  andi.w #$feff,(a0)
  move.l a2,d0
  bsr.w L19826
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L18e36
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,D0000c(a6)
-L18e32 moveq #255,d0
+L18e32 moveq #-1,d0
  bra.s L18e46
 L18e36 move.l _013ae(a6),d0
  bsr.w L19358
@@ -33120,7 +33120,7 @@ L18e50 link.w a5,#0
  tst.l 24(a0)
  beq.s L18e7e
  move.l #14084,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L18eba
 L18e7e movea.l _013ae(a6),a0
  clr.l 24(a0)
@@ -33234,7 +33234,7 @@ L18fe6 lea -14(sp),sp
  move.l a2,d0
  bsr.w L19440
  addq.l #8,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.w L190da
  movea.l 62(a2),a4
@@ -33290,7 +33290,7 @@ L1904e move.l 8(a3),8(a4)
  move.l D006a6(a6),d0
  bsr.w L1b47a
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L190ea
  move.b #2,29(a4)
@@ -33362,7 +33362,7 @@ L19196 move.w d4,26(a3)
  move.l a2,d0
  bsr.w L19440
  addq.l #8,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L191c0
  move.l #14086,D0000c(a6)
@@ -33380,10 +33380,10 @@ L191c0 move.l (sp),12(a3)
  move.l D006a6(a6),d0
  bsr.w L1b47a
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L19202
-L191fe moveq #255,d0
+L191fe moveq #-1,d0
  bra.s L1922a
 L19202 movea.l 4(a3),a3
 L19206 move.l a3,d0
@@ -33409,7 +33409,7 @@ L19238 link.w a5,#0
  move.l a3,d0
  bne.s L19258
 L1924c move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L192a4
 L19258 movea.l _013ae(a6),a0
  move.w (a0),d0
@@ -33472,7 +33472,7 @@ L192fa link.w a5,#0
  move.l a2,d0
  bne.s L19314
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1934e
 L19314 movea.l _013ae(a6),a0
  tst.l 10(a0)
@@ -33499,7 +33499,7 @@ L19358 link.w a5,#0
  lea L19430(pc),a0
  move.l a0,d0
  bsr.w L193e8
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L193ce
  movea.l _013ae(a6),a0
@@ -33527,10 +33527,10 @@ L19358 link.w a5,#0
  move.l #2216,d0
  bsr.w L1d090
  addq.l #4,sp
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L193d2
-L193ce moveq #255,d0
+L193ce moveq #-1,d0
  bra.s L193de
 L193d2 movea.l _013ae(a6),a0
  move.w d4,36(a0)
@@ -33620,12 +33620,12 @@ L194c2 pea (L00001).w
  bsr.w L195d8
  addq.l #8,sp
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L194e6
  addq.l #2,56(sp)
  addq.l #1,4(sp)
-L194e6 moveq #255,d0
+L194e6 moveq #-1,d0
  cmp.l d5,d0
  bne.s L194f4
  moveq #4,d0
@@ -33634,7 +33634,7 @@ L194e6 moveq #255,d0
 L194f4 moveq #4,d0
  cmp.l 4(sp),d0
  bne.s L19500
-L194fc moveq #255,d0
+L194fc moveq #-1,d0
  bra.s L19514
 L19500 tst.l 4(sp)
  move.w d5,6(a3)
@@ -33694,7 +33694,7 @@ L1958a move.w 28(a3),d0
  bra.s L195ce
 L195aa adda.l #38,a3
  addq.l #1,d5
-L195b2 moveq #255,d0
+L195b2 moveq #-1,d0
  cmp.l 4(a3),d0
  beq.s L195c4
  move.w 80(a2),d0
@@ -33739,20 +33739,20 @@ L1962a moveq #0,d0
 L19632 cmp.l 44(sp),d5
  blt.s L1962a
  moveq #0,d7
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,(sp)
  moveq #0,d5
  bra.s L19666
 L19642 btst.l #0,d6
  bne.s L19654
  addq.l #1,d7
- moveq #255,d0
+ moveq #-1,d0
  cmp.l (sp),d0
  bne.s L1965a
  move.l d5,(sp)
  bra.s L1965a
 L19654 moveq #0,d7
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,(sp)
 L1965a cmp.l d4,d7
  beq.s L1966c
@@ -33767,7 +33767,7 @@ L1966c moveq #8,d0
  cmp.l d5,d0
  bne.s L1967e
  move.l #11061,D0000c(a6)
-L1967a moveq #255,d0
+L1967a moveq #-1,d0
  bra.s L196a4
 L1967e move.l d4,d1
  move.l (sp),d0
@@ -33807,10 +33807,10 @@ L196d0 move.l d4,d1
  move.l a2,d0
  bsr.w L19702
  addq.l #8,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L196f6
-L196f2 moveq #255,d0
+L196f2 moveq #-1,d0
  bra.s L196f8
 L196f6 moveq #0,d0
 L196f8 movem.l -16(a5),a2/d4-d6
@@ -33825,7 +33825,7 @@ L19702 link.w a5,#0
  move.l a2,d0
  bne.s L19726
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1975e
 L19726 tst.b 6(a2)
  bne.s L1973a
@@ -33858,7 +33858,7 @@ L1975e movem.l -20(a5),a2-a3/d4-d6
 L19768 swap d0
  move.b #8,d0
  sub.b d1,d0
- moveq #255,d1
+ moveq #-1,d1
  lsr.b d0,d1
  swap d0
  lsl.b d0,d1
@@ -33872,10 +33872,10 @@ L19768 swap d0
  move.l a0,d0
  bsr.w L1d10c
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1979e
- moveq #255,d0
+ moveq #-1,d0
  bra.s L197d6
 L1979e movea.l _013ae(a6),a0
  bset.b #6,(a0)
@@ -33937,7 +33937,7 @@ L19826 movem.l d2,-(sp)
 L19840 movem.l (sp)+,d2
  rts 
 L19846 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19840
  link.w a5,#0
  movem.l a2/d0-d1,-(sp)
@@ -33950,10 +33950,10 @@ L19860 beq.s L19866
  move.l d0,(sp)
 L19866 move.l a2,d0
  bsr.w L198ba
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L19876
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19882
 L19876 move.l a2,d1
  move.l (sp),d0
@@ -33988,7 +33988,7 @@ L198ba link.w a5,#0
 L198d2 btst.b #0,1(a2)
  beq.s L198e6
  move.l #13056,D0000c(a6)
-L198e2 moveq #255,d0
+L198e2 moveq #-1,d0
  bra.s L19904
 L198e6 clr.w (a2)
  moveq #0,d0
@@ -34013,14 +34013,14 @@ L1990e link.w a5,#0
  bne.s L1992c
  move.l #10753,D0000c(a6)
  bra.s L19940
-L1992c moveq #255,d0
+L1992c moveq #-1,d0
  cmp.l d4,d0
  beq.s L19938
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d5,d0
  bne.s L19944
 L19938 move.l #13057,D0000c(a6)
-L19940 moveq #255,d0
+L19940 moveq #-1,d0
  bra.s L1994e
 L19944 move.w d4,2(a2)
  move.w d5,4(a2)
@@ -34045,10 +34045,10 @@ L19982 move.l a2,d0
  bsr.w L19bd6
 L19988 move.l a2,d0
  bsr.s L199ba
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L19996
-L19992 moveq #255,d0
+L19992 moveq #-1,d0
  bra.s L19998
 L19996 moveq #0,d0
 L19998 movem.l -8(a5),a2/d1
@@ -34073,7 +34073,7 @@ L199ba movem.l d2,-(sp)
 L199d4 movem.l (sp)+,d2
  rts 
 L199da move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L199d4
 L199e2 movem.l d2,-(sp)
  movea.l d0,a0
@@ -34093,10 +34093,10 @@ L19a00 link.w a5,#0
  bra.s L19a22
 L19a18 move.l a2,d0
  bsr.s L19a32
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L19a26
-L19a22 moveq #255,d0
+L19a22 moveq #-1,d0
  bra.s L19a28
 L19a26 moveq #0,d0
 L19a28 movem.l -8(a5),a2/d1
@@ -34113,7 +34113,7 @@ L19a32 movem.l a0/d1,-(sp)
 L19a4c movem.l (sp)+,a0/d1
  rts 
 L19a52 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19a4c
 L19a5a link.w a5,#0
  movem.l a2/d0-d1/d4-d6,-(sp)
@@ -34215,7 +34215,7 @@ L19b72 move.l (a0)+,(a1)+
  move.w (a0)+,(a1)+
  move.l a2,d0
  bsr.w L19ec2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  move.l d6,-(sp)
  movea.w _01596(a6),a0
@@ -34260,7 +34260,7 @@ L19be0 move.l d1,D0000c(a6)
  move.l a3,d0
  bne.s L19c0a
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19c10
 L19c0a bset.b #7,(a3)
  moveq #0,d0
@@ -34274,7 +34274,7 @@ L19c1a link.w a5,#0
  move.l a3,d0
  bne.s L19c38
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19c46
 L19c38 bset.b #5,(a3)
  movea.w 8(a2),a0
@@ -34305,7 +34305,7 @@ L19c88 move.l 60(sp),d1
  bsr.w L1aa4e
  move.l d0,(sp)
  bne.s L19c9a
-L19c96 moveq #255,d0
+L19c96 moveq #-1,d0
  bra.s L19cd0
 L19c9a movea.l (sp),a0
  clr.w (a0)
@@ -34349,13 +34349,13 @@ L19d06 movea.l d5,a0
  bsr.w L19d5c
  move.l d0,d5
  bne.s L19d1e
-L19d1a moveq #255,d0
+L19d1a moveq #-1,d0
  bra.s L19d52
 L19d1e movea.l d5,a0
  move.l 20(a0),d5
  bra.s L19d2a
 L19d26 move.l 48(a4),d5
-L19d2a moveq #255,d0
+L19d2a moveq #-1,d0
  cmp.l d4,d0
  bne.s L19d38
  movea.l d5,a0
@@ -34409,7 +34409,7 @@ L19dba movea.l d4,a0
  bsr.w L19d5c
  move.l d0,d4
  bne.s L19dd2
-L19dce moveq #255,d0
+L19dce moveq #-1,d0
  bra.s L19e00
 L19dd2 movea.l d4,a0
  move.l 20(a0),d5
@@ -34460,7 +34460,7 @@ L19e50 moveq #0,d0
  move.l a3,d0
  bne.s L19e84
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19eb6
 L19e84 bset.b #7,(a3)
  move.l d5,-(sp)
@@ -34469,7 +34469,7 @@ L19e84 bset.b #7,(a3)
  move.l a0,d0
  bsr.w L1b54e
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L19eb0
  move.l d5,-(sp)
@@ -34494,10 +34494,10 @@ L19ec2 link.w a5,#0
  pea 12(sp)
  lea 18(sp),a0
  move.l a0,d1
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1ad22
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L19f0c
  movea.w (sp),a0
@@ -34509,10 +34509,10 @@ L19ec2 link.w a5,#0
  move.l a2,d0
  bsr.w L19f1e
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L19f10
-L19f0c moveq #255,d0
+L19f0c moveq #-1,d0
  bra.s L19f12
 L19f10 moveq #0,d0
 L19f12 addq.l #8,sp
@@ -34526,7 +34526,7 @@ L19f1e link.w a5,#0
  move.l a3,d0
  bne.s L19f3c
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19f5e
 L19f3c bset.b #7,(a3)
  move.l 4(sp),28(a3)
@@ -34545,7 +34545,7 @@ L19f5e movem.l -8(a5),a2-a3
  move.l a3,d0
  bne.s L19f86
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19f94
 L19f86 andi.b #$df,(a3)
  movea.w 8(a2),a0
@@ -34561,7 +34561,7 @@ L19f94 movem.l -12(a5),a0/a2-a3
  move.l a3,d0
  bne.s L19fbc
  move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L19fe4
 L19fbc move.l a2,d0
  bsr.w L19fee
@@ -34612,7 +34612,7 @@ L1a03e cmp.l d5,d4
  blt.s L1a046
  moveq #0,d0
  bra.s L1a048
-L1a046 moveq #255,d0
+L1a046 moveq #-1,d0
 L1a048 movem.l -16(a5),a2-a3/d4-d5
  unlk a5
  rts 
@@ -34874,12 +34874,12 @@ L1a33c moveq #0,d0
  move.l (sp),8(a4)
  move.l 4(sp),12(a4)
  move.w 8(sp),16(a4)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  moveq #0,d0
  lea 10(sp),sp
  bra.s L1a366
-L1a364 moveq #255,d0
+L1a364 moveq #-1,d0
 L1a366 movem.l -28(a5),a0/a2-a4/d4-d6
  unlk a5
  rts 
@@ -34926,11 +34926,11 @@ L1a3c4 moveq #1,d0
  moveq #10,d1
  bsr.w L1ca40
  move.b d5,26(a4,d0.l)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  moveq #0,d0
  bra.s L1a400
-L1a3fe moveq #255,d0
+L1a3fe moveq #-1,d0
 L1a400 addq.l #2,sp
  movem.l -20(a5),a2-a4/d4-d5
  unlk a5
@@ -35060,19 +35060,19 @@ L1a580 bsr.w L1d4f6
  addq.l #4,sp
  pea _015ba(a6)
  pea (L00001).w
- moveq #255,d1
+ moveq #-1,d1
  moveq #0,d0
  bsr.w L1d0e2
  addq.l #8,sp
  move.l d0,D006c2(a6)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1a5e0
  lea _015ba(a6),a0
  move.l a0,d0
  bsr.w L1d10c
  move.l d0,D006c2(a6)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1a5dc
  clr.l -(sp)
@@ -35080,10 +35080,10 @@ L1a580 bsr.w L1d4f6
  move.l D006c2(a6),d0
  bsr.w L1d198
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1a5e0
-L1a5dc moveq #255,d0
+L1a5dc moveq #-1,d0
  bra.s L1a608
 L1a5e0 moveq #2,d0
  bsr.w L1cf5a
@@ -35128,11 +35128,11 @@ L1a650 move.l a2,4(a4)
  bsr.w L1d64e
  move.l _01592(a6),(a4)
  move.l a4,_01592(a6)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  moveq #0,d0
  bra.s L1a672
-L1a670 moveq #255,d0
+L1a670 moveq #-1,d0
 L1a672 movem.l -16(a5),a0/a2-a4
  unlk a5
  rts 
@@ -35144,14 +35144,14 @@ L1a672 movem.l -16(a5),a0/a2-a4
  moveq #1,d0
  bsr.w L1d64e
  move.l (a2),_01592(a6)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  move.l a2,d1
  moveq #12,d0
  bsr.w L1aa7a
  bra.s L1a6b0
 L1a6a6 move.l #10753,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
 L1a6b0 movem.l -8(a5),a2/d1
  unlk a5
  rts 
@@ -35164,7 +35164,7 @@ L1a6ca moveq #1,d0
  bsr.w L1d64e
  movea.l _01592(a6),a2
  clr.l _01592(a6)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  bra.s L1a6f8
 L1a6e0 move.l 8(a2),d1
@@ -35185,7 +35185,7 @@ L1a6fc tst.l _01592(a6)
  move.l #65535,d0
  and.l D006c2(a6),d0
  bsr.w L1d148
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1a73c
  moveq #0,d5
@@ -35259,12 +35259,12 @@ L1a7da moveq #1,d0
  addq.l #4,sp
  move.l d0,d5
  clr.w _015b8(a6)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  tst.l d5
  beq.s L1a80a
  move.l d5,D0000c(a6)
-L1a806 moveq #255,d0
+L1a806 moveq #-1,d0
  bra.s L1a80c
 L1a80a moveq #0,d0
 L1a80c movem.l -16(a5),a2-a3/d4-d5
@@ -35280,7 +35280,7 @@ L1a80c movem.l -16(a5),a2-a3/d4-d5
  moveq #1,d0
  bsr.w L1d64e
  move.w #1,_015b8(a6)
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L1a874
  move.l _015a2(a6),d6
@@ -35307,7 +35307,7 @@ L1a874 move.w _01596(a6),d0
  cmp.l d5,d0
  bgt.s L1a85e
 L1a87e clr.w _015b8(a6)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  move.l a2,d0
  beq.s L1a89e
@@ -35391,9 +35391,9 @@ L1a958 subq.l #1,d0
  bsr.w L1d156
  moveq #0,d5
  bra.s L1a98c
-L1a98a moveq #255,d5
+L1a98a moveq #-1,d5
 L1a98c clr.w _015b8(a6)
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L1d64e
  move.l d5,d0
  movem.l -20(a5),a2-a4/d4-d5
@@ -35414,7 +35414,7 @@ L1a9a2 movem.l d2-d3,-(sp)
 L1a9d0 movem.l (sp)+,d2-d3
  rts 
 L1a9d6 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1a9d0
 L1a9de movem.l d2,-(sp)
  moveq #0,d1
@@ -35432,7 +35432,7 @@ L1a9fa link.w a5,#0
  move.l a0,d1
  move.l d4,d0
  bsr.w L1b60c
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1aa34
  move.l d4,d0
@@ -35445,7 +35445,7 @@ L1aa2a move.l d4,d0
  bsr.w L1a9a2
  tst.l d0
  beq.s L1aa38
-L1aa34 moveq #255,d0
+L1aa34 moveq #-1,d0
  bra.s L1aa3a
 L1aa38 moveq #0,d0
 L1aa3a movem.l -16(a5),a0/d1/d4-d5
@@ -35464,7 +35464,7 @@ L1aa4e link.w a5,#0
  move.l d4,d0
  bsr.w L1d5ca
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1aa6e
  moveq #0,d0
@@ -35481,7 +35481,7 @@ L1aa7a link.w a5,#0
  move.l d4,d0
  bsr.w L1d342
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  move.l d5,d0
  movem.l -12(a5),a2/d4-d5
@@ -35495,7 +35495,7 @@ L1aaaa move.l d1,d4
  move.l 40(sp),d6
  move.l a2,d0
  bne.s L1aabc
- moveq #255,d0
+ moveq #-1,d0
 L1aaba bra.s L1ab0a
 L1aabc andi.b #$0f,d4
  moveq #0,d0
@@ -35558,7 +35558,7 @@ L1ab36 move.l a2,d0
 L1ab42 move.l a2,d0
  add.l d5,d0
  movea.l d0,a3
- moveq #252,d1
+ moveq #-4,d1
  and.l d1,d0
  movea.l d0,a4
  bra.w L1ab54
@@ -35582,7 +35582,7 @@ L1ab6c link.w a5,#0
  beq.s L1ab86
  move.l a2,d0
  bne.s L1ab8c
-L1ab86 moveq #255,d0
+L1ab86 moveq #-1,d0
  bra.w L1ac2a
 L1ab8c move.l 48(sp),d0
  cmp.l 44(sp),d0
@@ -35666,7 +35666,7 @@ L1ac36 link.w a5,#0
  beq.s L1ac52
  move.l a2,d0
  bne.s L1ac56
-L1ac52 moveq #255,d0
+L1ac52 moveq #-1,d0
  bra.s L1ac8c
 L1ac56 moveq #0,d7
  bra.s L1ac86
@@ -35706,7 +35706,7 @@ L1ac96 link.w a5,#0
  beq.s L1acae
  move.l a2,d0
  bne.s L1acb2
-L1acae moveq #255,d0
+L1acae moveq #-1,d0
  bra.s L1acd8
 L1acb2 moveq #0,d6
  bra.s L1acd2
@@ -35738,7 +35738,7 @@ L1acd8 movem.l -20(a5),a2-a3/d4-d6
  beq.s L1acfe
  move.l a3,d0
  bne.s L1ad0e
-L1acfe moveq #255,d0
+L1acfe moveq #-1,d0
  bra.s L1ad18
 L1ad02 move.b (a3)+,d6
  cmp.b d5,d6
@@ -35794,7 +35794,7 @@ L1ad7e move.l (sp),d0
  bsr.w L1c5b4
  move.l a3,d0
  bsr.w L1c5b4
-L1ad96 moveq #255,d0
+L1ad96 moveq #-1,d0
  bra.w L1ae4e
 L1ad9c clr.l 4(sp)
  pea L1ae5a(pc)
@@ -35842,7 +35842,7 @@ L1adf6 pea L1ae61(pc)
  move.w #768,(a0)
  bra.s L1ae38
 L1ae2a move.l #11013,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  move.l d0,4(sp)
 L1ae38 move.l a2,d0
  bsr.w L1c5b4
@@ -35991,7 +35991,7 @@ L1afb2 link.w a5,#0
  movea.l d0,a3
  tst.l d0
  bne.s L1afd2
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1afdc
 L1afd2 move.l a2,d1
  move.l a3,d0
@@ -36008,7 +36008,7 @@ L1afe6 link.w a5,#0
  move.l _015c8(a6),d0
  bsr.w L1cd64
  move.l d0,d7
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1b050
  moveq #1,d6
@@ -36052,7 +36052,7 @@ L1b05c link.w a5,#0
  move.l _015c8(a6),d0
  bsr.w L1cd64
  move.l d0,d4
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1b0c2
  bra.s L1b0a6
@@ -36209,7 +36209,7 @@ L1b22e os9 I$GetStt
  bra.s L1b22e
 L1b258 move.l d1,D0000c(a6)
  movem.l (sp)+,a0/d1-d2
- moveq #255,d0
+ moveq #-1,d0
  rts 
 L1b264 move.l #0,d0
 L1b26a bcs.s L1b258
@@ -36242,7 +36242,7 @@ L1b2a4 move.w d1,d3
  moveq #0,d0
 L1b2be movem.l (sp)+,d1-d7
  rts 
-L1b2c4 moveq #255,d0
+L1b2c4 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b2be
  movem.l d1-d7,-(sp)
@@ -36263,7 +36263,7 @@ L1b2c4 moveq #255,d0
  move.l a0,(a1)
 L1b2fc movem.l (sp)+,a0-a1/d1-d4
  rts 
-L1b302 moveq #255,d0
+L1b302 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b2fc
  movem.l a0/d1-d4,-(sp)
@@ -36276,7 +36276,7 @@ L1b314 move.w d1,d3
  moveq #0,d0
 L1b322 movem.l (sp)+,a0/d1-d4
  rts 
-L1b328 moveq #255,d0
+L1b328 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b322
  movem.l a0/d1-d4,-(sp)
@@ -36310,7 +36310,7 @@ L1b366 move.l d1,D0000c(a6)
  moveq #0,d0
 L1b382 movem.l (sp)+,a0/d1-d2
  rts 
-L1b388 moveq #255,d0
+L1b388 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b382
  movem.l d1-d3,-(sp)
@@ -36321,7 +36321,7 @@ L1b388 moveq #255,d0
  bcs.s L1b3a6
  moveq #0,d0
  bra.s L1b3ac
-L1b3a6 moveq #255,d0
+L1b3a6 moveq #-1,d0
  move.l d1,D0000c(a6)
 L1b3ac movem.l (sp)+,d1-d3
  rts 
@@ -36335,7 +36335,7 @@ L1b3b8 move.w 30(sp),d5
  bcs.s L1b3d2
 L1b3cc movem.l (sp)+,d1-d5
  rts 
-L1b3d2 moveq #255,d0
+L1b3d2 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b3cc
 L1b3da movem.l d1-d5,-(sp)
@@ -36356,7 +36356,7 @@ L1b3f8 move.w d1,d3
  moveq #0,d0
 L1b406 movem.l (sp)+,d1-d3
  rts 
-L1b40c moveq #255,d0
+L1b40c moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b406
  movem.l d1-d3,-(sp)
@@ -36387,7 +36387,7 @@ L1b44e move.w 30(sp),d4
  moveq #0,d0
 L1b460 movem.l (sp)+,d1-d6
  rts 
-L1b466 moveq #255,d0
+L1b466 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b460
 L1b46e movem.l d1-d6,-(sp)
@@ -36421,7 +36421,7 @@ L1b4b0 move.w 42(sp),d5
  moveq #0,d0
 L1b4c6 movem.l (sp)+,a0/d1-d7
  rts 
-L1b4cc moveq #255,d0
+L1b4cc moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b4c6
  movem.l a0/d1-d7,-(sp)
@@ -36465,7 +36465,7 @@ L1b504 movem.l a0/d1-d7,-(sp)
 L1b540 movem.l (sp)+,a0/d1-d2
  rts 
 L1b546 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1b540
 L1b54e movem.l d1-d3,-(sp)
  moveq #3,d2
@@ -36479,7 +36479,7 @@ L1b554 move.w d1,d3
 L1b568 movem.l (sp)+,d1-d3
  rts 
 L1b56e move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1b568
  movem.l d1-d3,-(sp)
  moveq #4,d2
@@ -36509,7 +36509,7 @@ L1b5ae move.w #82,d1
 L1b5ba movem.l (sp)+,d1-d3
  rts 
 L1b5c0 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1b5ba
  movem.l a0/d1-d5,-(sp)
  move.w d1,d3
@@ -36528,7 +36528,7 @@ L1b5c0 move.l d1,D0000c(a6)
 L1b5f4 movem.l (sp)+,a0/d1-d5
  rts 
 L1b5fa move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1b5f4
  movem.l d1-d3,-(sp)
  moveq #5,d2
@@ -36543,7 +36543,7 @@ L1b60c move.l a0,-(sp)
 L1b61c movea.l (sp)+,a0
  rts 
 L1b620 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1b61c
 L1b628 link.w a5,#0
  movem.l d1-d2,-(sp)
@@ -36555,7 +36555,7 @@ L1b63c movem.l (sp)+,d1-d2
  unlk a5
  rts 
 L1b644 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1b63c
 L1b64c link.w a5,#0
  movem.l a2-a3/d0-d1,-(sp)
@@ -36576,7 +36576,7 @@ L1b66e movem.l a0/a2,-(sp)
  move.l a2,d0
 L1b67e movem.l (sp)+,a0/a2
  rts 
-L1b684 moveq #255,d0
+L1b684 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1b67e
 L1b68c move.l a2,-(sp)
@@ -36677,10 +36677,10 @@ L1b74e move.l d4,d0
  bsr.w L1b66e
  movea.l d0,a4
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1b79c
- moveq #255,d0
+ moveq #-1,d0
  bra.w L1b966
 L1b79c move.l 60(sp),d0
  addq.l #4,d0
@@ -36822,7 +36822,7 @@ L1b8f0 lea -52(a5),sp
  jsr (a0)
  lea 24(sp),sp
  move.l d0,(sp)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1b950
  cmpi.l #216,D0000c(a6)
@@ -36837,7 +36837,7 @@ L1b8f0 lea -52(a5),sp
  bsr.w L1b974
  addq.l #4,sp
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1b8f0
  suba.l a2,a2
@@ -36867,7 +36867,7 @@ L1b98e movea.w 262(sp),a0
  move.l a2,d0
  bsr.w L1d21a
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.w L1ba42
  cmpi.l #216,D0000c(a6)
@@ -36909,7 +36909,7 @@ L1b9e4 move.l d0,d6
  move.l a3,d0
  bsr.w L1d21a
  move.l d0,d5
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1ba20
  addq.l #1,d7
@@ -36985,7 +36985,7 @@ L1bac6 link.w a5,#0
  move.l 132(sp),d0
  bsr.w L1cd64
  move.l d0,(sp)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L1bafe
  move.l #268,d0
@@ -37266,7 +37266,7 @@ L1bdce moveq #1,d0
  rts 
 L1bdd6 cmpi.w #255,d0
  bls.s L1bde4
-L1bddc moveq #255,d0
+L1bddc moveq #-1,d0
  movea.l (sp)+,a0
  exg d1,a1
  rts 
@@ -37568,7 +37568,7 @@ L1c0c4 moveq #10,d0
  cmp.l d4,d0
  bcs.w L1c14a
  bra.s L1c0f6
-L1c0ce moveq #255,d0
+L1c0ce moveq #-1,d0
  sub.l d7,d0
  move.l d4,d1
  bsr.w L1cab2
@@ -37581,7 +37581,7 @@ L1c0ce moveq #255,d0
  move.l d0,d6
  bra.s L1c0f4
 L1c0ea move.l #256,D0000c(a6)
- moveq #255,d6
+ moveq #-1,d6
 L1c0f4 addq.l #1,a2
 L1c0f6 move.b (a2),d0
  ext.w d0
@@ -37599,7 +37599,7 @@ L1c0f6 move.b (a2),d0
  cmp.l d4,d0
  bcs.s L1c0ce
  bra.w L1c198
-L1c122 moveq #255,d0
+L1c122 moveq #-1,d0
  sub.l d7,d0
  move.l d4,d1
  bsr.w L1cab2
@@ -37612,7 +37612,7 @@ L1c122 moveq #255,d0
  move.l d0,d6
  bra.s L1c148
 L1c13e move.l #256,D0000c(a6)
- moveq #255,d6
+ moveq #-1,d6
 L1c148 addq.l #1,a2
 L1c14a move.b (a2),d0
  ext.w d0
@@ -37732,7 +37732,7 @@ L1c286 move.l d4,d0
  lsl.l #3,d0
  bsr.w L1d328
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L1c29a
  moveq #0,d0
@@ -38548,7 +38548,7 @@ L1cad8 move.l d2,d3
  and.l d4,d3
  bne.s L1caf2
  lsr.l #1,d2
- moveq #255,d3
+ moveq #-1,d3
 L1cae4 lsr.l #1,d2
  dbcs d3,L1cae4
  neg.l d3
@@ -38556,7 +38556,7 @@ L1cae4 lsr.l #1,d2
  and.l d4,d1
  bra.s L1cb2e
 L1caf2 moveq #0,d0
- moveq #255,d3
+ moveq #-1,d3
 L1caf6 asl.l #1,d2
  bpl.s L1cb00
  cmp.l d1,d2
@@ -38775,7 +38775,7 @@ L1cd7a link.w a5,#0
  link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  movea.l d0,a0
- moveq #130,d0
+ moveq #-126,d0
  moveq #0,d2
 L1cd98 os9 I$MakDir
  bra.w L1d678
@@ -38874,7 +38874,7 @@ L1cec8 link.w a5,#0
  beq.s L1cef2
  cmpi.b #2,d1
  beq.s L1cee8
- moveq #203,d1
+ moveq #-53,d1
 L1cee4 bra.w L1d670
 L1cee8 moveq #2,d1
  os9 I$GetStt
@@ -38961,7 +38961,7 @@ L1cfd2 os9 F$PrsNam
  movea.l a1,a0
  bra.s L1cfa2
 L1cfe0 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1cfec
 L1cfe8 move.l a1,d0
  sub.l (sp),d0
@@ -39044,7 +39044,7 @@ L1d0e2 link.w a5,#0
 L1d0f6 os9 F$Event
  bcc.s L1d102
  move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
 L1d102 movem.l -12(a5),a0/d2-d3
  unlk a5
  rts 
@@ -39055,7 +39055,7 @@ L1d10c link.w a5,#0
 L1d118 os9 F$Event
  bcc.s L1d124
  move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
 L1d124 movem.l -16(a5),a0/d1-d3
  unlk a5
  rts 
@@ -39078,7 +39078,7 @@ L1d156 link.w a5,#0
  os9 F$Event
  bcc.s L1d16a
  move.l d1,D0000c(a6)
- moveq #255,d1
+ moveq #-1,d1
 L1d16a move.l d1,d0
  unlk a5
  rts 
@@ -39088,7 +39088,7 @@ L1d170 link.w a5,#0
  os9 F$Event
  bcc.s L1d184
  move.l d1,D0000c(a6)
- moveq #255,d1
+ moveq #-1,d1
 L1d184 move.l d1,d0
  move.l -4(a5),d1
  unlk a5
@@ -39109,7 +39109,7 @@ L1d1aa exg d1,d2
  os9 F$Event
  bcc.s L1d1bc
  move.l d1,D0000c(a6)
- moveq #255,d1
+ moveq #-1,d1
 L1d1bc move.l d1,d0
  move.l -4(a5),d2
  unlk a5
@@ -39122,7 +39122,7 @@ L1d1d0 exg d1,d2
  os9 F$Event
  bcc.s L1d1e2
  move.l d1,D0000c(a6)
- moveq #255,d1
+ moveq #-1,d1
 L1d1e2 move.l d1,d0
  movem.l -8(a5),d2-d3
  unlk a5
@@ -39165,7 +39165,7 @@ L1d230 link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  bne.s L1d26c
- moveq #203,d1
+ moveq #-53,d1
  bra.w L1d670
 L1d26c addq.l #1,d1
  and.b #254,d1
@@ -39202,7 +39202,7 @@ L1d294 movea.l a2,a0
  move.l d1,D00004(a6)
  move.l d2,d1
  bra.s L1d30a
-L1d2d8 moveq #207,d1
+L1d2d8 moveq #-49,d1
  bra.w L1d670
  link.w a5,#0
  movem.l a0/d1-d2,-(sp)
@@ -39245,7 +39245,7 @@ L1d342 link.w a5,#-4
  movea.l d1,a2
  os9 F$SRtMem
  bcc.s L1d33a
-L1d350 moveq #255,d0
+L1d350 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1d33a
  link.w a5,#0
@@ -39294,7 +39294,7 @@ L1d350 moveq #255,d0
 L1d3cc movem.l (sp)+,a0/d1-d3
  unlk a5
  rts 
-L1d3d4 moveq #255,d0
+L1d3d4 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1d3cc
  link.w a5,#0
@@ -39315,7 +39315,7 @@ L1d402 moveq #0,d0
  movem.l (sp)+,a0-a1/d1-d3
  unlk a5
  rts 
-L1d40c moveq #255,d0
+L1d40c moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1d402
  link.w a5,#0
@@ -39425,7 +39425,7 @@ L1d566 move.l (sp)+,d1
  unlk a5
  rts 
 L1d56c move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1d566
 L1d574 link.w a5,#0
  movem.l d1-d4,-(sp)
@@ -39436,7 +39436,7 @@ L1d580 move.w d0,d2
  os9 F$Alarm
  bcc.s L1d590
  move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
 L1d590 movem.l (sp)+,d1-d4
  unlk a5
  rts 
@@ -39465,7 +39465,7 @@ L1d5ca link.w a5,#0
 L1d5de movem.l (sp)+,a2/d1
  unlk a5
  rts 
-L1d5e6 moveq #255,d0
+L1d5e6 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1d5de
  link.w a5,#0
@@ -39480,7 +39480,7 @@ L1d5e6 moveq #255,d0
 L1d60a movem.l (sp)+,a0-a2/d1
  unlk a5
  rts 
-L1d612 moveq #255,d0
+L1d612 moveq #-1,d0
  move.l d1,D0000c(a6)
  bra.s L1d60a
  link.w a5,#0
@@ -39509,11 +39509,11 @@ L1d660 move.l (sp)+,d1
  unlk a5
  rts 
 L1d666 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1d660
 L1d66e bcc.s L1d67c
 L1d670 move.l d1,D0000c(a6)
- moveq #255,d0
+ moveq #-1,d0
  bra.s L1d67c
 L1d678 bcs.s L1d670
  moveq #0,d0

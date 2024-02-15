@@ -10,7 +10,7 @@
     9  00010 c06a            and.w  12(a2),d0  
    10  00014 0c40            cmpi.w #2,d0      
    11  00018 6704            beq.s  L0001e     
-   12  0001a 70ff L0001a     moveq  #255,d0    
+   12  0001a 70ff L0001a     moveq  #-1,d0     
    13  0001c 6016            bra.s  L00034     
    14  0001e 302a L0001e     move.w 12(a2),d0  
    15  00022 48c0            ext.l  d0         
@@ -60,12 +60,12 @@
    59  0009e 4e90            jsr    (a0)       
    60  000a0 588f            addq.l #4,sp      
    61  000a2 2a00            move.l d0,d5      
-   62  000a4 72ff            moveq  #255,d1    
+   62  000a4 72ff            moveq  #-1,d1     
    63  000a6 b280            cmp.l  d0,d1      
    64  000a8 660e            bne.s  L000b8     
    65  000aa 08ea            bset.b #5,13(a2)  
    66  000b0 24aa            move.l 4(a2),(a2) 
-   67  000b4 70ff            moveq  #255,d0    
+   67  000b4 70ff            moveq  #-1,d0     
    68  000b6 6022            bra.s  L000da     
    69  000b8 9885 L000b8     sub.l  d5,d4      
    70  000ba db92            add.l  d5,(a2)    
@@ -189,7 +189,7 @@
   188  00248 7003            moveq  #3,d0      
   189  0024a c06a            and.w  12(a2),d0  
   190  0024e 6604            bne.s  L00254     
-  191  00250 70ff L00250     moveq  #255,d0    
+  191  00250 70ff L00250     moveq  #-1,d0     
   192  00252 6044            bra.s  L00298     
   193  00254 302a L00254     move.w 12(a2),d0  
   194  00258 48c0            ext.l  d0         

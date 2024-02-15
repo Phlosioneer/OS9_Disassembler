@@ -87,7 +87,7 @@
    86  00124 48e7            movem.l a0/d1-d2,-(sp) 
    87  00128 48e7            movem.l a1/d3-d4,-(sp) 
    88  0012c 2401            move.l d1,d2      
-   89  0012e 7200            moveq  SS_WTrk,d1 
+   89  0012e 7200            moveq  #SS_WTrk,d1 
    90  00130 4ced            movem.l 8(a5),a0-a1/d3-d4 
    91  00136 4e40            os9    I$SetStt   
    92  0013a 4cdf            movem.l (sp)+,a1/d3-d4 

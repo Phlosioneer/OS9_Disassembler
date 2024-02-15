@@ -34,7 +34,7 @@
    33  0004c 7200 L0004c     moveq  #0,d1      
    34  0004e 200b            move.l a3,d0      
    35  00050 6100            bsr.w  access     
-   36  00054 72ff            moveq  #255,d1    
+   36  00054 72ff            moveq  #-1,d1     
    37  00056 b280            cmp.l  d0,d1      
    38  00058 66e4            bne.s  L0003e     
    39  0005a 200b            move.l a3,d0      

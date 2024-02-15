@@ -30,7 +30,7 @@ L0003a moveq #1,d0
  rts 
 L00042 cmpi.w #255,d0
  bls.s L00050
-L00048 moveq #255,d0
+L00048 moveq #-1,d0
  movea.l (sp)+,a0
  exg d1,a1
  rts 

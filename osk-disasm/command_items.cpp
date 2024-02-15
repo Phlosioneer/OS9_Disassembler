@@ -309,7 +309,7 @@ static int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, i
     return 1;
 }
 
-static std::unique_ptr<RawParam> parseDisplacementParam(parse_state* state, Register baseReg)
+std::unique_ptr<RawParam> parseDisplacementParam(parse_state* state, Register baseReg)
 {
     if (!hasnext_w(state))
     {
@@ -322,7 +322,7 @@ static std::unique_ptr<RawParam> parseDisplacementParam(parse_state* state, Regi
     return std::make_unique<RawRegOffsetParam>(baseReg, displacement, dispAddress, dispSize);
 }
 
-static std::unique_ptr<RawParam> parseIndexParam(parse_state* state, Register baseReg)
+std::unique_ptr<RawParam> parseIndexParam(parse_state* state, Register baseReg)
 {
     if (!hasnext_w(state))
     {

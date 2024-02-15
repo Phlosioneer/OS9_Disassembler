@@ -18,7 +18,7 @@
    17  00014 4cdf L00014     movem.l (sp)+,a2/d1 
    18  00018 4e5d            unlk   a5         
    19  0001a 4e75            rts               
-   20  0001c 70ff L0001c     moveq  #255,d0    
+   20  0001c 70ff L0001c     moveq  #-1,d0     
    21  0001e 2d41            move.l d1,errno(a6) 
    22  00022 60f0            bra.s  L00014     
    23  00024 4e55 modcload:  link.w a5,#0      
@@ -33,7 +33,7 @@
    32  00040 4cdf L00040     movem.l (sp)+,a0-a2/d1 
    33  00044 4e5d            unlk   a5         
    34  00046 4e75            rts               
-   35  00048 70ff L00048     moveq  #255,d0    
+   35  00048 70ff L00048     moveq  #-1,d0     
    36  0004a 2d41            move.l d1,errno(a6) 
    37  0004e 60f0            bra.s  L00040     
    38  00050 4e55 make_module: link.w a5,#0      

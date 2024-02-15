@@ -17,7 +17,7 @@ srqcmem: link.w a5,#0
 L00014 movem.l (sp)+,a2/d1
  unlk a5
  rts 
-L0001c moveq #255,d0
+L0001c moveq #-1,d0
  move.l d1,errno(a6)
  bra.s L00014
 modcload: link.w a5,#0
@@ -32,7 +32,7 @@ modcload: link.w a5,#0
 L00040 movem.l (sp)+,a0-a2/d1
  unlk a5
  rts 
-L00048 moveq #255,d0
+L00048 moveq #-1,d0
  move.l d1,errno(a6)
  bra.s L00040
 make_module: link.w a5,#0

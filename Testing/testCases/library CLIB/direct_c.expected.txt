@@ -8,7 +8,7 @@
     7  00012 202f            move.l 132(sp),d0 
     8  00016 6100            bsr.w  open       
     9  0001a 2e80            move.l d0,(sp)    
-   10  0001c 72ff            moveq  #255,d1    
+   10  0001c 72ff            moveq  #-1,d1     
    11  0001e b280            cmp.l  d0,d1      
    12  00020 6716 L00020     beq.s  L00038     
    13  00021 0000 L00021     equ    *-1        

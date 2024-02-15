@@ -104,7 +104,7 @@ time: link.w a5,#0
  moveq #0,d0
  bsr.w _sysdate
  lea 12(sp),sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  beq.s L0004c
  move.l 18(sp),4(sp)
@@ -114,10 +114,10 @@ time: link.w a5,#0
  lea 4(sp),a0
  move.l a0,d0
  bsr.w _julian
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L00052
-L0004c moveq #255,d0
+L0004c moveq #-1,d0
  bra.w L000da
 L00052 tst.l D00000(a6)
  bne.s L00060
@@ -204,7 +204,7 @@ mktime: link.w a5,#0
  bsr.w _julian
  tst.l d0
  bge.s L0016c
-L00166 moveq #255,d0
+L00166 moveq #-1,d0
  bra.w L001ee
 L0016c move.l (sp),d0
  addq.l #2,d0

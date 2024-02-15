@@ -91,7 +91,7 @@
    90  00106 200a            move.l a2,d0      
    91  00108 6100            bsr.w  open       
    92  0010c 2800            move.l d0,d4      
-   93  0010e 72ff            moveq  #255,d1    
+   93  0010e 72ff            moveq  #-1,d1     
    94  00110 b280            cmp.l  d0,d1      
    95  00112 6710            beq.s  L00124     
    96  00114 4878            pea    (L00002).w 
@@ -115,7 +115,7 @@
   114  00146 6036            bra.s  L0017e     
   115  00148 4fed L00148     lea    -24(a5),sp 
   116  0014c 2d7c            move.l #203,errno(a6) 
-  117  00154 70ff            moveq  #255,d0    
+  117  00154 70ff            moveq  #-1,d0     
   118  00156 6028            bra.s  L00180     
   119  00158 1013 L00158     move.b (a3),d0    
   120  0015a 4880            ext.w  d0         
@@ -152,7 +152,7 @@
   151  001b4 200a            move.l a2,d0      
   152  001b6 6100            bsr.w  L000ac     
   153  001ba 2800            move.l d0,d4      
-  154  001bc 72ff            moveq  #255,d1    
+  154  001bc 72ff            moveq  #-1,d1     
   155  001be b280            cmp.l  d0,d1      
   156  001c0 6604            bne.s  L001c6     
   157  001c2 91c8            suba.l a0,a0      

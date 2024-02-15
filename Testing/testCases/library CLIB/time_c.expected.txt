@@ -106,7 +106,7 @@
   105  0001e 7000            moveq  #0,d0      
   106  00020 6100            bsr.w  _sysdate   
   107  00024 4fef            lea    12(sp),sp  
-  108  00028 72ff            moveq  #255,d1    
+  108  00028 72ff            moveq  #-1,d1     
   109  0002a b280            cmp.l  d0,d1      
   110  0002c 671e            beq.s  L0004c     
   111  0002e 2f6f            move.l 18(sp),4(sp) 
@@ -116,10 +116,10 @@
   115  0003c 41ef            lea    4(sp),a0   
   116  00040 2008            move.l a0,d0      
   117  00042 6100            bsr.w  _julian    
-  118  00046 72ff            moveq  #255,d1    
+  118  00046 72ff            moveq  #-1,d1     
   119  00048 b280            cmp.l  d0,d1      
   120  0004a 6606            bne.s  L00052     
-  121  0004c 70ff L0004c     moveq  #255,d0    
+  121  0004c 70ff L0004c     moveq  #-1,d0     
   122  0004e 6000            bra.w  L000da     
   123  00052 4aae L00052     tst.l  D00000(a6) 
   124  00056 6608            bne.s  L00060     
@@ -206,7 +206,7 @@
   205  0015e 6100            bsr.w  _julian    
   206  00162 4a80            tst.l  d0         
   207  00164 6c06            bge.s  L0016c     
-  208  00166 70ff L00166     moveq  #255,d0    
+  208  00166 70ff L00166     moveq  #-1,d0     
   209  00168 6000            bra.w  L001ee     
   210  0016c 2017 L0016c     move.l (sp),d0    
   211  0016e 5480            addq.l #2,d0      

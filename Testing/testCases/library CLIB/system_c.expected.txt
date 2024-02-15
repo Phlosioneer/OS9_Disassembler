@@ -17,7 +17,7 @@
    16  0002c 7200            moveq  #0,d1      
    17  0002e 202f            move.l 4(sp),d0   
    18  00032 6100            bsr.w  modlink    
-   19  00036 72ff            moveq  #255,d1    
+   19  00036 72ff            moveq  #-1,d1     
    20  00038 b280            cmp.l  d0,d1      
    21  0003a 6614            bne.s  L00050     
    22  0003c 2401            move.l d1,d2      
@@ -47,7 +47,7 @@
    46  00084 6100            bsr.w  os9exec    
    47  00088 4fef            lea    20(sp),sp  
    48  0008c 2800            move.l d0,d4      
-   49  0008e 70ff            moveq  #255,d0    
+   49  0008e 70ff            moveq  #-1,d0     
    50  00090 b084            cmp.l  d4,d0      
    51  00092 6606            bne.s  L0009a     
    52  00094 202e            move.l errno(a6),d0 

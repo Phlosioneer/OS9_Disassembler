@@ -2,7 +2,7 @@
 
 _pkpaths: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
- moveq SS_Lock,d1
+ moveq #SS_Lock,d1
  os9 I$SetStt
  bcs.w _os9err
  movea.l (sp),a0

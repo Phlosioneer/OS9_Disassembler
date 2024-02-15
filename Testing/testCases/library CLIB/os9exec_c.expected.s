@@ -28,7 +28,7 @@ L00022 movem.l a0/a2,-(sp)
  move.l a2,d0
 L00032 movem.l (sp)+,a0/a2
  rts 
-L00038 moveq #255,d0
+L00038 moveq #-1,d0
  move.l d1,errno(a6)
  bra.s L00032
 L00040 move.l a2,-(sp)
@@ -129,10 +129,10 @@ L00102 move.l d4,d0
  bsr.w L00022
  movea.l d0,a4
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L00150
- moveq #255,d0
+ moveq #-1,d0
  bra.w L0031a
 L00150 move.l 60(sp),d0
  addq.l #4,d0
@@ -274,7 +274,7 @@ L002a4 lea -52(a5),sp
  jsr (a0)
  lea 24(sp),sp
  move.l d0,(sp)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L00304
  cmpi.l #216,errno(a6)
@@ -289,7 +289,7 @@ L002a4 lea -52(a5),sp
  bsr.w modloadp
  addq.l #4,sp
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L002a4
  suba.l a2,a2

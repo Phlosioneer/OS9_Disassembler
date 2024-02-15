@@ -17,7 +17,7 @@ L00028 move.l a2,d0
  moveq #0,d1
  move.l 4(sp),d0
  bsr.w modlink
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L00050
  move.l d1,d2
@@ -47,7 +47,7 @@ L0005e move.l 4(sp),8(sp)
  bsr.w os9exec
  lea 20(sp),sp
  move.l d0,d4
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d4,d0
  bne.s L0009a
  move.l errno(a6),d0

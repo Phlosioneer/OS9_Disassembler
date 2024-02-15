@@ -67,7 +67,7 @@ L0009c moveq #10,d0
  cmp.l d4,d0
  bcs.w L00122
  bra.s L000ce
-L000a6 moveq #255,d0
+L000a6 moveq #-1,d0
  sub.l d7,d0
  move.l d4,d1
  bsr.w _T$UDiv
@@ -80,7 +80,7 @@ L000a6 moveq #255,d0
  move.l d0,d6
  bra.s L000cc
 L000c2 move.l #256,errno(a6)
- moveq #255,d6
+ moveq #-1,d6
 L000cc addq.l #1,a2
 L000ce move.b (a2),d0
  ext.w d0
@@ -98,7 +98,7 @@ L000ce move.b (a2),d0
  cmp.l d4,d0
  bcs.s L000a6
  bra.w L00170
-L000fa moveq #255,d0
+L000fa moveq #-1,d0
  sub.l d7,d0
  move.l d4,d1
  bsr.w _T$UDiv
@@ -111,7 +111,7 @@ L000fa moveq #255,d0
  move.l d0,d6
  bra.s L00120
 L00116 move.l #256,errno(a6)
- moveq #255,d6
+ moveq #-1,d6
 L00120 addq.l #1,a2
 L00122 move.b (a2),d0
  ext.w d0

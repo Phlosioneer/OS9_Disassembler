@@ -39,13 +39,13 @@
    38  0007c 6716            beq.s  L00094     
    39  0007e 0c01            cmpi.b #2,d1      
    40  00082 6706            beq.s  L0008a     
-   41  00084 7200            moveq  E$BMode,d1 
+   41  00084 7200            moveq  #E$BMode,d1 
    42  00086 6000 L00086     bra.w  _os9err    
-   43  0008a 7200 L0008a     moveq  SS_Size,d1 
+   43  0008a 7200 L0008a     moveq  #SS_Size,d1 
    44  0008c 4e40            os9    I$GetStt   
    45  00090 640e            bcc.s  L000a0     
    46  00092 60f2            bra.s  L00086     
-   47  00094 7200 L00094     moveq  SS_Pos,d1  
+   47  00094 7200 L00094     moveq  #SS_Pos,d1 
    48  00096 4e40            os9    I$GetStt   
    49  0009a 6404            bcc.s  L000a0     
    50  0009c 60e8            bra.s  L00086     

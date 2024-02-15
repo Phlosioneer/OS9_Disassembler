@@ -46,7 +46,7 @@
    45  00074 4cdf L00074     movem.l (sp)+,a0/d1-d3 
    46  00078 4e5d            unlk   a5         
    47  0007a 4e75            rts               
-   48  0007c 70ff L0007c     moveq  #255,d0    
+   48  0007c 70ff L0007c     moveq  #-1,d0     
    49  0007e 2d41            move.l d1,errno(a6) 
    50  00082 60f0            bra.s  L00074     
    51  00084 4e55 _sysdate:  link.w a5,#0      
@@ -67,7 +67,7 @@
    66  000ac 4cdf            movem.l (sp)+,a0-a1/d1-d3 
    67  000b0 4e5d            unlk   a5         
    68  000b2 4e75            rts               
-   69  000b4 70ff L000b4     moveq  #255,d0    
+   69  000b4 70ff L000b4     moveq  #-1,d0     
    70  000b6 2d41            move.l d1,errno(a6) 
    71  000ba 60ee            bra.s  L000aa     
    72  000bc 4e55 _julian:   link.w a5,#0      

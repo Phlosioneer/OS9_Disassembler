@@ -7,10 +7,10 @@
     6  0000e 2208            move.l a0,d1      
     7  00010 200a            move.l a2,d0      
     8  00012 6120            bsr.s  fputs      
-    9  00014 72ff            moveq  #255,d1    
+    9  00014 72ff            moveq  #-1,d1     
    10  00016 b280            cmp.l  d0,d1      
    11  00018 6604            bne.s  L0001e     
-   12  0001a 70ff            moveq  #255,d0    
+   12  0001a 70ff            moveq  #-1,d0     
    13  0001c 600c            bra.s  L0002a     
    14  0001e 41ee L0001e     lea    $1c+_iob(a6),a0 
    15  00022 2208            move.l a0,d1      
@@ -33,7 +33,7 @@
    32  00050 66f0            bne.s  L00042     
    33  00052 082b            btst.b #5,13(a3)  
    34  00058 6704            beq.s  L0005e     
-   35  0005a 70ff            moveq  #255,d0    
+   35  0005a 70ff            moveq  #-1,d0     
    36  0005c 6002            bra.s  L00060     
    37  0005e 7000 L0005e     moveq  #0,d0      
    38  00060 4ced L00060     movem.l -12(a5),a2-a3/d4 

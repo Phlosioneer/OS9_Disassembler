@@ -259,7 +259,7 @@ L002fe jsr (a2)
  ext.w d0
  btst.l #4,d0
  bne.s L002fe
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d7,d0
  beq.s L0031c
  move.l d7,d0
@@ -273,10 +273,10 @@ L0031e lea -56(a5),sp
  ext.l d0
  cmp.l d0,d7
  beq.s L00342
- moveq #255,d0
+ moveq #-1,d0
  cmp.l d7,d0
  bne.s L0033a
-L00336 moveq #255,d0
+L00336 moveq #-1,d0
  bra.s L00372
 L0033a move.l d7,d0
  jsr (a3)
@@ -751,7 +751,7 @@ L00850 link.w a5,#0
  ext.w d0
  ext.l d0
  bra.s L0087c
-L0087a moveq #255,d0
+L0087a moveq #-1,d0
 L0087c movem.l -4(a5),a0
  unlk a5
  rts 

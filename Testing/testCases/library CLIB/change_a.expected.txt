@@ -7,7 +7,7 @@
     6  0000c 7000            moveq  #0,d0      
     7  0000e 4e40            os9    I$Open     
     8  00012 6500            bcs.w  _os9err    
-    9  00016 7200            moveq  SS_Attr,d1 
+    9  00016 7200            moveq  #SS_Attr,d1 
    10  00018 4e40            os9    I$SetStt   
    11  0001c 643e            bcc.s  L0005c     
    12  0001e 2401 L0001e     move.l d1,d2      
@@ -20,7 +20,7 @@
    19  00036 7002            moveq  #2,d0      
    20  00038 4e40            os9    I$Open     
    21  0003c 65e0            bcs.s  L0001e     
-   22  0003e 7200            moveq  SS_FD,d1   
+   22  0003e 7200            moveq  #SS_FD,d1  
    23  00040 7410            moveq  #16,d2     
    24  00042 41d7            lea    (sp),a0    
    25  00044 4e40            os9    I$GetStt   

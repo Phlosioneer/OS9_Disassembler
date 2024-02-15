@@ -240,10 +240,10 @@ L00290 rts
  lea L00304(pc),a0
  move.l a0,d0
  bsr.s L002bc
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L002ae
- moveq #255,d0
+ moveq #-1,d0
  bsr.w L003c6
 L002ae bsr.s L002e4
  bsr.s L002fa

@@ -87,7 +87,7 @@ L000a4 move.l d4,d0
  lsl.l #3,d0
  bsr.w _srqmem
  movea.l d0,a2
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L000b8
  moveq #0,d0

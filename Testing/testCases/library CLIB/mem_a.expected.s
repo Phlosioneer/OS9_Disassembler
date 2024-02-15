@@ -22,7 +22,7 @@ ebrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  bne.s L00012
- moveq E$BMode,d1
+ moveq #E$BMode,d1
  bra.w _os9err
 L00012 addq.l #1,d1
  and.b #254,d1
@@ -59,7 +59,7 @@ ibrk: link.w a5,#0
  move.l d1,_mtop(a6)
  move.l d2,d1
  bra.s L000b0
-L0007e moveq E$MemFul,d1
+L0007e moveq #E$MemFul,d1
  bra.w _os9err
 sbrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
@@ -102,7 +102,7 @@ _srtmem: link.w a5,#-4
  movea.l d1,a2
  os9 F$SRtMem
  bcc.s L000e0
-L000f6 moveq #255,d0
+L000f6 moveq #-1,d0
  move.l d1,errno(a6)
  bra.s L000e0
 

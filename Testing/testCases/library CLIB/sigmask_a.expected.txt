@@ -11,7 +11,7 @@
    10  00014 4e5d            unlk   a5         
    11  00016 4e75            rts               
    12  00018 2d41 L00018     move.l d1,errno(a6) 
-   13  0001c 70ff            moveq  #255,d0    
+   13  0001c 70ff            moveq  #-1,d0     
    14  0001e 60f2            bra.s  L00012     
    15
    16  00020 0000            ends              

@@ -89,7 +89,7 @@
    88  000a6 e788            lsl.l  #3,d0      
    89  000a8 6100            bsr.w  _srqmem    
    90  000ac 2440            movea.l d0,a2      
-   91  000ae 72ff            moveq  #255,d1    
+   91  000ae 72ff            moveq  #-1,d1     
    92  000b0 b280            cmp.l  d0,d1      
    93  000b2 6604            bne.s  L000b8     
    94  000b4 7000            moveq  #0,d0      

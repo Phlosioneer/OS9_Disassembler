@@ -25,7 +25,7 @@
    24  0004a 206a            movea.l 24(a2),a0  
    25  0004e 4e90            jsr    (a0)       
    26  00050 588f            addq.l #4,sp      
-   27  00052 72ff            moveq  #255,d1    
+   27  00052 72ff            moveq  #-1,d1     
    28  00054 b280            cmp.l  d0,d1      
    29  00056 6646            bne.s  L0009e     
    30  00058 08ea            bset.b #5,13(a2)  
@@ -51,7 +51,7 @@
    50  00092 6100            bsr.w  _flsbuf    
    51  00096 4a80            tst.l  d0         
    52  00098 6704            beq.s  L0009e     
-   53  0009a 70ff L0009a     moveq  #255,d0    
+   53  0009a 70ff L0009a     moveq  #-1,d0     
    54  0009c 6002            bra.s  L000a0     
    55  0009e 2017 L0009e     move.l (sp),d0    
    56  000a0 4ced L000a0     movem.l -8(a5),a0/a2 
@@ -121,7 +121,7 @@
   120  00166 2540            move.l d0,20(a2)  
   121  0016a 2004            move.l d4,d0      
   122  0016c 6002            bra.s  L00170     
-  123  0016e 70ff L0016e     moveq  #255,d0    
+  123  0016e 70ff L0016e     moveq  #-1,d0     
   124  00170 4ced L00170     movem.l -12(a5),a0/a2/d4 
   125  00176 4e5d            unlk   a5         
   126  00178 4e75            rts               

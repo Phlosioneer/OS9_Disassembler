@@ -34,7 +34,7 @@ L00048 move.b d4,(a2)
 L0004c moveq #0,d1
  move.l a3,d0
  bsr.w access
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L0003e
  move.l a3,d0

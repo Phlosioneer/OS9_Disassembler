@@ -25,7 +25,7 @@ L00032 btst.b #2,13(a2)
  movea.l 24(a2),a0
  jsr (a0)
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L0009e
  bset.b #5,13(a2)
@@ -51,7 +51,7 @@ L00090 move.l a2,d0
  bsr.w _flsbuf
  tst.l d0
  beq.s L0009e
-L0009a moveq #255,d0
+L0009a moveq #-1,d0
  bra.s L000a0
 L0009e move.l (sp),d0
 L000a0 movem.l -8(a5),a0/a2
@@ -121,7 +121,7 @@ L0014e moveq #0,d0
  move.l d0,20(a2)
  move.l d4,d0
  bra.s L00170
-L0016e moveq #255,d0
+L0016e moveq #-1,d0
 L00170 movem.l -12(a5),a0/a2/d4
  unlk a5
  rts 

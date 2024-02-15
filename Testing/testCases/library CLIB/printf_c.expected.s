@@ -73,7 +73,7 @@ L0000f equ *-3
  move.l d0,d4
  btst.b #5,$29+_iob(a6)
  beq.s L00040
- moveq #255,d0
+ moveq #-1,d0
  bra.s L00042
 L00040 move.l d4,d0
 L00042 movem.l -8(a5),a0/d4
@@ -95,7 +95,7 @@ fprintf: link.w a5,#0
  movea.l (sp),a0
  btst.b #5,13(a0)
  beq.s L00086
- moveq #255,d0
+ moveq #-1,d0
  bra.s L00088
 L00086 move.l d4,d0
 L00088 movem.l -8(a5),a0/d4
@@ -221,7 +221,7 @@ L001f6 move.b (a3)+,d0
 L00200 move.l D00208(a6),d0
  moveq #10,d1
  bsr.w _T$UMul
- moveq #208,d1
+ moveq #-48,d1
  add.l d5,d1
  add.l d1,d0
  move.l d0,D00208(a6)
@@ -258,7 +258,7 @@ L00258 move.b (a3)+,d0
 L00262 move.l D0020c(a6),d0
  moveq #10,d1
  bsr.w _T$UMul
- moveq #208,d1
+ moveq #-48,d1
  add.l d5,d1
  add.l d1,d0
  move.l d0,D0020c(a6)
@@ -301,7 +301,7 @@ L002d6 moveq #97,d0
  moveq #122,d1
  cmp.l d5,d1
  blt.s L002f4
- moveq #159,d0
+ moveq #-97,d0
  add.l d5,d0
  lsl.l #2,d0
  lea _00000(a6),a0
@@ -846,7 +846,7 @@ L00916 pea (sp)
  lea 16(sp),sp
  subq.l #1,d0
  move.l d0,d4
- moveq #252,d0
+ moveq #-4,d0
  cmp.l d4,d0
  bgt.s L00940
  cmp.l D0020c(a6),d4

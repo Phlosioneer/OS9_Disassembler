@@ -70,7 +70,7 @@
    69  000ce 2049            movea.l a1,a0      
    70  000d0 60c2            bra.s  L00094     
    71  000d2 2d41 L000d2     move.l d1,errno(a6) 
-   72  000d6 70ff            moveq  #255,d0    
+   72  000d6 70ff            moveq  #-1,d0     
    73  000d8 6004            bra.s  L000de     
    74  000da 2009 L000da     move.l a1,d0      
    75  000dc 9097            sub.l  (sp),d0    

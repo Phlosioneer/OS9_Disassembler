@@ -8,7 +8,7 @@ L00001 equ *-3
  move.l 132(sp),d0
  bsr.w open
  move.l d0,(sp)
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
 L00020 beq.s L00038
 L00021 equ *-1

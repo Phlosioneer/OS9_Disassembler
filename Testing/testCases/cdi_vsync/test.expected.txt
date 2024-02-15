@@ -240,10 +240,10 @@
   239  0029a 41fa            lea    L00304(pc),a0 
   240  0029e 2008            move.l a0,d0      
   241  002a0 611a            bsr.s  L002bc     
-  242  002a2 72ff            moveq  #255,d1    
+  242  002a2 72ff            moveq  #-1,d1     
   243  002a4 b280            cmp.l  d0,d1      
   244  002a6 6606            bne.s  L002ae     
-  245  002a8 70ff            moveq  #255,d0    
+  245  002a8 70ff            moveq  #-1,d0     
   246  002aa 6100            bsr.w  L003c6     
   247  002ae 6134 L002ae     bsr.s  L002e4     
   248  002b0 6148            bsr.s  L002fa     

@@ -8,10 +8,10 @@ clock: link.w a5,#0
  bsr.w getpid
  bsr.w _get_process_desc
  addq.l #4,sp
- moveq #255,d1
+ moveq #-1,d1
  cmp.l d0,d1
  bne.s L00028
- moveq #255,d0
+ moveq #-1,d0
  bra.s L00030
 L00028 move.l 692(sp),d0
  add.l 696(sp),d0
