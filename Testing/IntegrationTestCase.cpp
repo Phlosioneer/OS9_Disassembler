@@ -224,6 +224,11 @@ void IntegrationTestCase::assertStreamsEqual(std::istream& expected, std::istrea
 
 	if (!errors.empty())
 	{
+		for (const auto& message : errors) {
+			auto newMessage(message);
+			newMessage += L"\n";
+			Logger::WriteMessage(newMessage.c_str());
+		}
 		std::wofstream extraErrorFile(extraErrorsFilePath);
 		bool writtenSuccessfully = true;
 		if (extraErrorFile.good())
