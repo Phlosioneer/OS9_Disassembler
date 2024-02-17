@@ -32868,7 +32868,7 @@
 32867  18ba2 6038            bra.s  L18bdc     
 32868  18ba4 0880 L18ba4     bclr.l #31,d0     
 32869  18ba8 c007            and.b  d7,d0      
-32870  18baa 1032            move.b 254(a2,d0.w),d0 
+32870  18baa 1032            move.b -2(a2,d0.w),d0 
 32871  18bae 12c0            move.b d0,(a1)+   
 32872  18bb0 60c0            bra.s  L18b72     
 32873  18bb2 1a06 L18bb2     move.b d6,d5      

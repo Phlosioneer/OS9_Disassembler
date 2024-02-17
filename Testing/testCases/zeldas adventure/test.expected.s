@@ -32868,7 +32868,7 @@ L18b80 bclr.l #30,d0
  bra.s L18bdc
 L18ba4 bclr.l #31,d0
  and.b d7,d0
- move.b 254(a2,d0.w),d0
+ move.b -2(a2,d0.w),d0
  move.b d0,(a1)+
  bra.s L18b72
 L18bb2 move.b d6,d5

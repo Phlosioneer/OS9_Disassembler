@@ -387,8 +387,11 @@ int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
         if (!isWritableMode(mode, reg)) return 0;
     }
 
-    ci->source = get_eff_addr(ci, mode, reg, sizeOp, state);
-    if (!ci->source) return 0;
+    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
+    auto rawSource = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    moduleType);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);

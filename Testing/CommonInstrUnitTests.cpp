@@ -373,5 +373,26 @@ namespace UnitTests
 			pushWord(EXG | SOURCE_REG(3) | OPMODE(DATA_TO_ADDR) | 1);
 			runTest("exg", "d3,a1");
 		}
+
+		TEST_METHOD(one_ea)
+		{
+			const auto SOURCE_REG = [](uint16_t code) { return code; };
+			const auto SIZE = [](uint16_t code) { return code << 6; };
+			const auto INDEX_REG = [](uint16_t code) { return code << 12; };
+			const auto DISPLACEMENT = [](int value) { return static_cast<uint8_t>(value); };
+			const uint16_t CLR = 0b0100001000000000;
+			const uint16_t ADDR_INDEX_REG = 0x8000;
+			const uint16_t INDEX_REG_IS_LONG = 0x0800;
+			
+			subtestName = L"Positive index prints correctly";
+			pushWord(CLR | SOURCE_REG(3) | EA_MODE(Index) | SIZE(0));
+			pushWord(INDEX_REG(6) | DISPLACEMENT(120) | INDEX_REG_IS_LONG);
+			runTest("clr.b", "120(a3,d6.l)");
+
+			subtestName = L"Negative index prints correctly";
+			pushWord(CLR | SOURCE_REG(0) | EA_MODE(Index) | SIZE(2));
+			pushWord(INDEX_REG(2) | ADDR_INDEX_REG | DISPLACEMENT(-20));
+			runTest("clr.l", "-20(a0,a2.w)");
+		}
 	};
 }

@@ -108,7 +108,7 @@ class RawIndexParam : public RawParam
 
     Register baseReg;
     Register indexReg;
-    uint8_t displacement;
+    int8_t displacement;
     OperandSize size;
     uint32_t displacementAddress;
 
