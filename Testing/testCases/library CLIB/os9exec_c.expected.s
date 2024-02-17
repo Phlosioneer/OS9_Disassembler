@@ -9,8 +9,7 @@ D00000 ds.b 4
  ends 
 
 L00000 link.w a5,#0
-L00002 equ *-2
-L00004 movem.l a2-a3/d0-d1,-(sp)
+ movem.l a2-a3/d0-d1,-(sp)
  movea.l d0,a2
  movea.l d1,a3
 L0000c move.b (a3)+,(a2)+
@@ -163,7 +162,7 @@ L00194 tst.l (a3)
  bne.s L00188
  clr.b -1(a2)
  move.l #64513,(sp)
- pea (L00002).w
+ pea (2).w
  lea 6(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -177,7 +176,7 @@ L00194 tst.l (a3)
  add.l d1,d0
  addq.l #6,d0
  move.l d0,(sp)
- pea (L00004).w
+ pea (4).w
  lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -196,7 +195,7 @@ L00194 tst.l (a3)
 L001f4 clr.b (a2)+
  move.b #13,(a2)+
  clr.l (sp)
- pea (L00004).w
+ pea (4).w
  lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -207,7 +206,7 @@ L001f4 clr.b (a2)+
  addq.l #4,d0
  movea.l d0,a3
  bra.s L0023a
-L0021a pea (L00004).w
+L0021a pea (4).w
  lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -222,7 +221,7 @@ L0021a pea (L00004).w
 L0023a tst.l (a3)
  bne.s L0021a
  clr.l (sp)
- pea (L00004).w
+ pea (4).w
  lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -235,7 +234,7 @@ L0023a tst.l (a3)
  move.l d0,(sp)
  movea.l 64(sp),a3
  bra.s L00284
-L00264 pea (L00004).w
+L00264 pea (4).w
  lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0
@@ -250,7 +249,7 @@ L00264 pea (L00004).w
 L00284 tst.l (a3)
  bne.s L00264
  clr.l (sp)
- pea (L00004).w
+ pea (4).w
  lea 4(sp),a0
  move.l a0,d1
  move.l a2,d0

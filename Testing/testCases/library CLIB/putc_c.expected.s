@@ -1,7 +1,6 @@
  psect putc_c,0,0,0,0,putc
 
 putc: link.w a5,#0
-L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)
  movea.l d1,a2
  move.w 12(a2),d0
@@ -17,7 +16,7 @@ L00001 equ *-3
  bsr.w _setbase
 L00032 btst.b #2,13(a2)
  beq.s L00060
- pea (L00001).w
+ pea (1).w
  lea 7(sp),a0
  move.l a0,d1
  movea.w 14(a2),a0

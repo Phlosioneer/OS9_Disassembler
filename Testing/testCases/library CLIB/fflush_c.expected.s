@@ -1,7 +1,6 @@
  psect fflush_c,0,0,0,0,fflush
 
 fflush: link.w a5,#0
-L00001 equ *-3
  movem.l a2/d0,-(sp)
  movea.l d0,a2
  move.l a2,d0
@@ -197,7 +196,7 @@ L00254 move.w 12(a2),d0
  bne.s L00266
  move.l a2,d0
  bsr.w _setbase
-L00266 pea (L00001).w
+L00266 pea (1).w
  moveq #0,d1
  movea.w 14(a2),a0
  move.l a0,d0

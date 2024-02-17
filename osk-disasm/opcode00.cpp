@@ -366,8 +366,7 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     return 1;
 }
 
-/*
- * A generic handler for when the basic command is a
+/* * A generic handler for when the basic command is a
  *      single word and the EA is in the lower 6 bytes
  */
 int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -404,11 +403,45 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     uint8_t reg = ci->cmd_wrd & 7;
 
     /* eliminate modes */
-    if ((mode < 2) || (mode == 3) || (mode == 4)) return 0;
-    if (mode == 7 && reg == 4) return 0;
-
-    ci->source = get_eff_addr(ci, mode, reg, OperandSize::Long, state);
-    if (!ci->source) return 0;
+    if (mode == DirectDataReg || mode == DirectAddrReg) return 0;
+    if (mode == PostIncrement || mode == PreDecrement) return 0;
+    if (mode == Special && reg == ImmediateData) return 0;
+    
+    /* PEA is often (ab)used to push arbitrary words and longs onto the stack. */
+    std::unique_ptr<RawParam> rawSource;
+    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
+    if (op->id == InstrId::PEA && mode == Special && reg == AbsoluteWord)
+    {
+        if (!hasnext_w(state))
+        {
+            return 0;
+        }
+        uint16_t value = getnext_w(ci, state);
+        auto signedValue = static_cast<int16_t>(value);
+        auto number = MakeFormattedNumber(signedValue, AM_SHORT, OperandSize::Word, &LITERAL_DEC_SPACE);
+        ci->source = std::make_unique<AbsoluteAddrParam>(number, OperandSize::Word);
+    }
+    else if (op->id == InstrId::PEA && mode == Special && reg == AbsoluteLong)
+    {
+        if (!hasnext_l(state))
+        {
+            return 0;
+        }
+        if (!hasnext_w(state)) return 0;
+        uint16_t higher = getnext_w(ci, state);
+        if (!hasnext_w(state)) return 0;
+        uint16_t lower = getnext_w(ci, state);
+        uint32_t value = (static_cast<uint32_t>(higher) << 16) | lower;
+        auto signedValue = static_cast<int32_t>(value);
+        auto number = MakeFormattedNumber(signedValue, AM_LONG, OperandSize::Long, &LITERAL_DEC_SPACE);
+        ci->source = std::make_unique<AbsoluteAddrParam>(number, OperandSize::Long);
+        
+    }
+    else
+    {
+        ci->source = get_eff_addr(ci, mode, reg, OperandSize::Long, state);
+        if (!ci->source) return 0;
+    }
 
     ci->mnem = op->name;
     return 1;

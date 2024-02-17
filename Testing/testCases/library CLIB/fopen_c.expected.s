@@ -1,7 +1,6 @@
  psect fopen_c,0,0,0,0,L00000
 
 L00000 link.w a5,#0
-L00002 equ *-2
  movem.l a0/a2/d0,-(sp)
  lea _iob(a6),a2
  bra.s L00020
@@ -94,7 +93,7 @@ L000fe move.l d5,d0
  moveq #-1,d1
  cmp.l d0,d1
  beq.s L00124
- pea (L00002).w
+ pea (2).w
  moveq #0,d1
  move.l d4,d0
  bsr.w lseek

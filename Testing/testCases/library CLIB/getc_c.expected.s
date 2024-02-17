@@ -1,7 +1,6 @@
  psect getc_c,0,0,0,0,getc
 
 getc: link.w a5,#0
-L00001 equ *-3
  movem.l a0/a2/d0,-(sp)
  movea.l d0,a2
  move.l a2,d0
@@ -107,7 +106,7 @@ L00112 btst.b #3,13(a2)
  movea.l 20(a2),a0
  jsr (a0)
  bra.s L0014a
-L00132 pea (L00001).w
+L00132 pea (1).w
  moveq #16,d0
  add.l a2,d0
  move.l d0,4(a2)

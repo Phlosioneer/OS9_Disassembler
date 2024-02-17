@@ -84,6 +84,7 @@ void ungetnext_w(struct cmd_items* ci, struct parse_state* state);
 std::unique_ptr<RawParam> parseDisplacementParam(parse_state* state, Register baseReg);
 std::unique_ptr<RawParam> parseIndexParam(parse_state* state, Register baseReg);
 std::unique_ptr<RawParam> parseImmediateParam(parse_state* state, OperandSize size);
+std::unique_ptr<RawParam> parseAbsoluteParam(parse_state* state, OperandSize size);
 std::unique_ptr<RawParam> parseEffectiveAddressWithMode(parse_state* state, uint8_t mode, uint8_t reg, OperandSize size);
 
 // Unused

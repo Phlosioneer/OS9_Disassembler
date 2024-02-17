@@ -56,11 +56,9 @@ _00000 dc.l $00000000
  ends 
 
 printf: link.w a5,#0
-L00001 equ *-3
  movem.l a0/d0-d1/d4,-(sp)
  move.l #-76,d0
  bsr.w _stkcheck
-L0000f equ *-3
  lea $1c+_iob(a6),a0
  move.l a0,D00214(a6)
  pea 24(sp)
@@ -421,13 +419,13 @@ L0041e tst.b D00201(a6)
  tst.l d6
  ble.s L0043a
  move.l D00214(a6),-(sp)
- pea (L00001).w
+ pea (1).w
  move.l d6,d1
  move.l a4,d0
  bsr.w fwrite
  addq.l #8,sp
 L0043a move.l D00214(a6),-(sp)
- pea (L00001).w
+ pea (1).w
  move.l d4,d1
  move.l a2,d0
  bsr.w fwrite
@@ -437,7 +435,7 @@ L0043a move.l D00214(a6),-(sp)
  tst.l d6
  ble.s L00468
  move.l D00214(a6),-(sp)
- pea (L00001).w
+ pea (1).w
  move.l d6,d1
  move.l a4,d0
  bsr.w fwrite
@@ -776,7 +774,7 @@ L00836 link.w a5,#0
  bsr.w L006f4
  movea.l d0,a3
  pea (sp)
- pea (L07fff).w
+ pea (32767).w
  move.l D0020c(a6),d0
  addq.l #1,d0
  move.l d0,-(sp)
@@ -808,7 +806,7 @@ L00896 link.w a5,#0
  movea.l d0,a3
  pea (sp)
  move.l D0020c(a6),-(sp)
- pea (L0000f).w
+ pea (15).w
  pea (a3)
  movem.l D00222(a6),d0-d1
  bsr.w L00a36
@@ -838,7 +836,7 @@ L008ec link.w a5,#0
  moveq #1,d0
  move.l d0,D0020c(a6)
 L00916 pea (sp)
- pea (L07fff).w
+ pea (32767).w
  move.l D0020c(a6),-(sp)
  pea (a3)
  movem.l D00222(a6),d0-d1

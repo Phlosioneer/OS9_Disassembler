@@ -3,7 +3,7 @@
     2  00000 4e55 atoi:      link.w a5,#0      
     3  00004 48e7            movem.l a2/d0-d1,-(sp) 
     4  00008 2440            movea.l d0,a2      
-    5  0000a 4878 L0000a     pea    (L0000a).w 
+    5  0000a 4878            pea    (10).w     
     6  0000e 7200            moveq  #0,d1      
     7  00010 200a            move.l a2,d0      
     8  00012 6100            bsr.w  strtol     

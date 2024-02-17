@@ -393,6 +393,36 @@ std::unique_ptr<RawParam> parseImmediateParam(parse_state* state, OperandSize si
     return std::make_unique<RawLiteralParam>(immediate, size, immediateAddress);
 }
 
+std::unique_ptr<RawParam> parseAbsoluteParam(parse_state* state, OperandSize size)
+{
+    auto addressAddress = state->PCPos;
+
+
+    uint32_t absoluteAddress;
+    if (size == OperandSize::Word)
+    {
+        if (!hasnext_w(state))
+        {
+            return nullptr;
+        }
+        absoluteAddress = getnext_w_raw(state);
+    }
+    else if (size == OperandSize::Long)
+    {
+        if (!hasnext_l(state))
+        {
+            return nullptr;
+        }
+        absoluteAddress = getnext_l_raw(state);
+    }
+    else
+    {
+        throw std::runtime_error("Absolute param cannot be a single byte");
+    }
+
+    return std::make_unique<RawAbsoluteAddrParam>(absoluteAddress, addressAddress, size);
+}
+
 std::unique_ptr<RawParam> parseEffectiveAddressWithMode(parse_state* state, uint8_t mode, uint8_t reg, OperandSize size)
 {
     switch (mode)
@@ -420,27 +450,9 @@ std::unique_ptr<RawParam> parseEffectiveAddressWithMode(parse_state* state, uint
         switch (reg)
         {
         case AbsoluteWord: /* (xxx).W */
-        {
-            if (!hasnext_w(state))
-            {
-                return nullptr;
-            }
-            auto addressAddress = state->PCPos;
-            auto absoluteAddress = getnext_w_raw(state);
-
-            return std::make_unique<RawAbsoluteAddrParam>(absoluteAddress, addressAddress, OperandSize::Word);
-        }
+            return parseAbsoluteParam(state, OperandSize::Word);
         case AbsoluteLong: /* (xxx).L */
-        {
-            if (!hasnext_l(state))
-            {
-                return nullptr;
-            }
-            auto addressAddress = state->PCPos;
-            auto absoluteAddress = getnext_l_raw(state);
-
-            return std::make_unique<RawAbsoluteAddrParam>(absoluteAddress, addressAddress, OperandSize::Long);
-        }
+            return parseAbsoluteParam(state, OperandSize::Long);
         case ImmediateData: /* #xxx */
             return parseImmediateParam(state, size);
         case PcDisplacement: /* d16(PC) */

@@ -1,7 +1,6 @@
  psect direct_c,0,0,0,0,opendir
 
 opendir: link.w a5,#0
-L00001 equ *-3
  movem.l a0/a2/d0-d1,-(sp)
  lea -132(sp),sp
  move.l #129,d1
@@ -10,8 +9,7 @@ L00001 equ *-3
  move.l d0,(sp)
  moveq #-1,d1
  cmp.l d0,d1
-L00020 beq.s L00038
-L00021 equ *-1
+ beq.s L00038
  move.l #268,d0
  bsr.w malloc
  movea.l d0,a2
@@ -42,7 +40,7 @@ readdir: link.w a5,#0
  moveq #5,d0
  cmp.l 4(a2),d0
  bne.w L00114
- pea (L00021).w
+ pea (33).w
  lea 36(sp),a0
  move.l a0,d1
  move.l (a2),d0
@@ -83,7 +81,7 @@ L000e0 move.b 8(a3),d0
  cmpi.w #1,d0
  beq.s L000be
  bra.s L000d4
-L000f2 pea (L00001).w
+L000f2 pea (1).w
  moveq #0,d0
  move.b 68(sp),d0
  moveq #0,d1
@@ -96,7 +94,7 @@ L000f2 pea (L00001).w
  bsr.w lseek
  addq.l #4,sp
  bra.s L0017c
-L00114 pea (L00020).w
+L00114 pea (32).w
  lea 4(sp),a0
  move.l a0,d1
  move.l (a2),d0
@@ -146,7 +144,7 @@ L0017e lea 66(sp),sp
 telldir: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l d0,a2
- pea (L00001).w
+ pea (1).w
  moveq #0,d1
  move.l (a2),d0
  bsr.w lseek

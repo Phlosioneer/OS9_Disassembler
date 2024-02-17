@@ -3,7 +3,7 @@
 _atou: link.w a5,#0
  movem.l a2/d0-d1,-(sp)
  movea.l d0,a2
-L0000a pea (L0000a).w
+ pea (10).w
  moveq #0,d1
  move.l a2,d0
  bsr.w strtoul
