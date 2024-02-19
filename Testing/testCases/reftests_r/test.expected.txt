@@ -80,7 +80,7 @@
    78  00042 6e00            bgt.w  -int1+ext1 
    79  00046 0064            dc.b   -ext1+int1 
    80  00047 0000            dc.b   $00        
-   81  00048 ffff            dc.l   ext1-Lffffffffffffff9c 
+   81  00048 ffff            dc.l   ext1-Lfff9c 
    82  0004c 0000            ori.b  #$00,d0    
    83  00050 0000            dc.l   uninitStart 
    84  00054 0000            dc.l   initStart  

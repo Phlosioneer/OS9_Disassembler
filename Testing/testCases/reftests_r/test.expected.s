@@ -75,7 +75,7 @@ L00036 bgt.w L00034
  bgt.w -int1+ext1
  dc.b -ext1+int1
  dc.b $00
- dc.l ext1-Lffffffffffffff9c
+ dc.l ext1-Lfff9c
  ori.b #$00,d0
  dc.l uninitStart
  dc.l initStart

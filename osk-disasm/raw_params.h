@@ -88,11 +88,11 @@ class RawAbsoluteAddrParam : public RawParam
 class RawRegOffsetParam : public RawParam
 {
   public:
-    RawRegOffsetParam(Register baseReg, uint16_t displacement, uint32_t address, OperandSize size);
+    RawRegOffsetParam(Register baseReg, int16_t displacement, uint32_t address, OperandSize size);
     virtual ~RawRegOffsetParam() = default;
 
     Register baseReg;
-    uint16_t displacement;
+    int16_t displacement;
     uint32_t address;
     OperandSize size;
 

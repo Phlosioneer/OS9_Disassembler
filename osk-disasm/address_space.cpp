@@ -38,9 +38,16 @@ std::string AddressSpace::makeDefaultName(size_t address) const
     {
         fprintf(stderr, "Warning: Address is too large for default name (21+ bits): %llx", address);
     }
-    std::ostringstream ret;
-    ret << shortcode << PrettyNumber<size_t>(address).fill('0').width(5).hex();
-    return ret.str();
+    std::ostringstream retBuffer;
+    retBuffer << PrettyNumber<size_t>(address).fill('0').width(5).hex();
+    auto ret = retBuffer.str();
+    // Truncate the label, but only leading F characters, and don't accidentally end up
+    // with a hex number without the highest bit set (89ABCDEF).
+    while (ret.size() > 5 && ret[0] == 'f' && (isalpha(ret[1]) || ret[1] == '8' || ret[1] == '9'))
+    {
+        ret.erase(0, 1);
+    }
+    return shortcode + ret;
 }
 
 const AddressSpace CODE_SPACE("code", "L", SpaceKind::INITIALIZED);

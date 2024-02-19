@@ -84,7 +84,7 @@ std::unique_ptr<InstrParam> RawAbsoluteAddrParam::hydrate(bool isRof, int Pass, 
     }
 }
 
-RawRegOffsetParam::RawRegOffsetParam(Register baseReg, uint16_t displacement, uint32_t address, OperandSize size)
+RawRegOffsetParam::RawRegOffsetParam(Register baseReg, int16_t displacement, uint32_t address, OperandSize size)
     : RawParam(), baseReg(baseReg), displacement(displacement), address(address), size(size)
 {
 }
@@ -100,10 +100,10 @@ std::unique_ptr<InstrParam> RawRegOffsetParam::hydrate(bool isRof, int Pass, boo
     // This code undoes that bias before computing any labels. The assembler automatically
     // biases A6 displacements even when they're constants, so it's correct to do this
     // even if it doesn't correspond to a label.
-    auto actualOffset = displacement;
+    uint32_t actualOffset = displacement;
     if (baseReg == Register::A6 && !isRof && moduleType == MT_Program)
     {
-        actualOffset += 0x8000;
+        actualOffset = static_cast<uint16_t>(static_cast<uint16_t>(displacement) + 0x8000);
     }
     int32_t signedActualOffset = static_cast<int32_t>(static_cast<int16_t>(displacement));
 

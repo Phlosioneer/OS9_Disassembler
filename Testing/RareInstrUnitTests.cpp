@@ -123,7 +123,8 @@ namespace UnitTests
 			subtestName = L"MOVE from CCR to label";
 			pushWord(MOVE_FROM_CCR | EA_MODE(Displacement) | 6);
 			pushWord(63);
-			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 63 + 0x8000, "hello");
+			uint16_t displacement = 63 + 0x8000;
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, displacement, "hello");
 			runTest("move", "ccr,hello(a6)");
 
 			// TODO: Test moving ROF-external constant into CCR/SR
@@ -156,7 +157,8 @@ namespace UnitTests
 			runTest("asl", "(a3)");
 
 			subtestName = L"ASR";
-			labelManager.addLabel(&UNKNOWN_DATA_SPACE, 80 + 0x8000, "hello");
+			uint16_t displacement = 80 + 0x8000;
+			labelManager.addLabel(&UNKNOWN_DATA_SPACE, displacement, "hello");
 			pushWord(A_SHIFT | EA_MODE(5) | 6);
 			pushWord(80);
 			runTest("asr", "hello(a6)");
