@@ -38412,7 +38412,7 @@
 38411  1c9d8 b480            cmp.l  d0,d2      
 38412  1c9da 653e            bcs.s  L1ca1a     
 38413  1c9dc 2002            move.l d2,d0      
-38414  1c9de c47c            and.w  #31,d2     
+38414  1c9de c47c            and.w  #$001f,d2  
 38415  1c9e2 b540            eor.w  d2,d0      
 38416  1c9e4 41f0            lea    (a0,d0.l),a0 
 38417  1c9e8 48e7            movem.l a0-a2/d3-d7,-(sp) 
@@ -39052,7 +39052,7 @@
 39051  1d152 7207            moveq  #7,d1      
 39052  1d154 60a0            bra.s  L1d0f6     
 39053  1d156 4e55 L1d156     link.w a5,#0      
-39054  1d15a 827c            or.w   #8,d1      
+39054  1d15a 827c            or.w   #$0008,d1  
 39055  1d15e 4e40            os9    F$Event    
 39056  1d162 6406            bcc.s  L1d16a     
 39057  1d164 2d41            move.l d1,D0000c(a6) 
@@ -39146,7 +39146,7 @@
 39145  1d266 72cb            moveq  #-53,d1    
 39146  1d268 6000            bra.w  L1d670     
 39147  1d26c 5281 L1d26c     addq.l #1,d1      
-39148  1d26e c23c            and.b  #254,d1    
+39148  1d26e c23c            and.b  #$fe,d1    
 39149  1d272 242e            move.l D00b56(a6),d2 
 39150  1d276 9481            sub.l  d1,d2      
 39151  1d278 6510            bcs.s  L1d28a     
@@ -39170,7 +39170,7 @@
 39169  1d2b2 48e7            movem.l a0/d1-d2,-(sp) 
 39170  1d2b6 2200            move.l d0,d1      
 39171  1d2b8 5281            addq.l #1,d1      
-39172  1d2ba c23c            and.b  #254,d1    
+39172  1d2ba c23c            and.b  #$fe,d1    
 39173  1d2be 2401            move.l d1,d2      
 39174  1d2c0 d2ae            add.l  D00004(a6),d1 
 39175  1d2c4 6512            bcs.s  L1d2d8     
@@ -39185,7 +39185,7 @@
 39184  1d2de 4e55            link.w a5,#0      
 39185  1d2e2 48e7            movem.l a0/d1-d2,-(sp) 
 39186  1d2e6 5280            addq.l #1,d0      
-39187  1d2e8 c03c            and.b  #254,d0    
+39187  1d2e8 c03c            and.b  #$fe,d0    
 39188  1d2ec 2200            move.l d0,d1      
 39189  1d2ee d0ae            add.l  D00014(a6),d0 
 39190  1d2f2 2049            movea.l a1,a0      

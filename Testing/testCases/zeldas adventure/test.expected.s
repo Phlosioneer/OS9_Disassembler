@@ -38412,7 +38412,7 @@ L1c9d0 move.w d1,d0
  cmp.l d0,d2
  bcs.s L1ca1a
  move.l d2,d0
- and.w #31,d2
+ and.w #$001f,d2
  eor.w d2,d0
  lea (a0,d0.l),a0
  movem.l a0-a2/d3-d7,-(sp)
@@ -39052,7 +39052,7 @@ L1d148 link.w a5,#0
  moveq #7,d1
  bra.s L1d0f6
 L1d156 link.w a5,#0
- or.w #8,d1
+ or.w #$0008,d1
  os9 F$Event
  bcc.s L1d16a
  move.l d1,D0000c(a6)
@@ -39146,7 +39146,7 @@ L1d230 link.w a5,#0
  moveq #-53,d1
  bra.w L1d670
 L1d26c addq.l #1,d1
- and.b #254,d1
+ and.b #$fe,d1
  move.l D00b56(a6),d2
  sub.l d1,d2
  bcs.s L1d28a
@@ -39170,7 +39170,7 @@ L1d294 movea.l a2,a0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  addq.l #1,d1
- and.b #254,d1
+ and.b #$fe,d1
  move.l d1,d2
  add.l D00004(a6),d1
  bcs.s L1d2d8
@@ -39185,7 +39185,7 @@ L1d2d8 moveq #-49,d1
  link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  addq.l #1,d0
- and.b #254,d0
+ and.b #$fe,d0
  move.l d0,d1
  add.l D00014(a6),d0
  movea.l a1,a0

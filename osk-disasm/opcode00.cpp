@@ -101,17 +101,15 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
         space = &LITERAL_DEC_SPACE;
     }
 
-    /* The source here is always immediate, but go through
-     * get_eff_addr to get the label, if needed
-     */
-    auto raw = parseImmediateParam(state, sizeOp);
-    if (!raw) return 0;
+    auto rawSource = parseImmediateParam(state, sizeOp);
+    if (!rawSource) return 0;
     auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
-    ci->source = raw->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space,
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space,
                               moduleType);
 
-    ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state);
-    if (!ci->dest) return 0;
+    auto rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
+    if (!rawDest) return 0;
+    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space, moduleType);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
@@ -147,8 +145,10 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     ci->setSource(LiteralParam(FormattedNumber(ext1, OperandSize::Byte, &LITERAL_DEC_SPACE)));
 
     // Any literals tested should be hexadecimal.
-    ci->dest = get_eff_addr(ci, mode, regCode, sizeOp, state, &LITERAL_HEX_SPACE);
-    if (!ci->dest) return 0;
+    auto rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
+    if (!rawDest) return 0;
+    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_HEX_SPACE,
+                                state->opt->moduleType());
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
@@ -175,8 +175,10 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
 
     OperandSize size = destMode == DirectDataReg ? OperandSize::Long : OperandSize::Byte;
 
-    ci->dest = get_eff_addr(ci, destMode, destRegCode, size, state);
-    if (!ci->dest) return 0;
+    auto rawDest = parseEffectiveAddressWithMode(state, destMode, destRegCode, size);
+    if (!rawDest) return 0;
+    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                state->opt->moduleType());
 
     ci->setSource(RegParam(Registers::makeDReg(sourceRegCode), RegParamMode::Direct));
     ci->mnem = op->name;
@@ -439,8 +441,10 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     }
     else
     {
-        ci->source = get_eff_addr(ci, mode, reg, OperandSize::Long, state);
-        if (!ci->source) return 0;
+        auto rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Long);
+        if (!rawSource) return 0;
+        ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
+                                        &LITERAL_DEC_SPACE, state->opt->moduleType());
     }
 
     ci->mnem = op->name;
@@ -472,8 +476,10 @@ int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
     // Destination must be writable.
     if (!isWritableMode(mode, regCode)) return 0;
 
-    ci->source = get_eff_addr(ci, mode, regCode, OperandSize::Byte, state);
-    if (!ci->source) return 0;
+    auto rawSource = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Byte);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
     ci->mnem = op->name;
     return 1;
@@ -629,6 +635,9 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
 
+    // For bitwise operators, use hex literals. For add and sub, use decimal literals.
+    auto literalHint = (op->id == InstrId::ADD || op->id == InstrId::SUB) ? &LITERAL_DEC_SPACE : &LITERAL_HEX_SPACE;
+
     if (eaIsDest)
     {
         if (!isWritableMode(ea_mode, ea_reg)) return 0;
@@ -644,8 +653,11 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
             if (ea_mode == DirectAddrReg || ea_mode == DirectDataReg) return 0;
         }
         ci->setSource(RegParam(dataReg, RegParamMode::Direct));
-        ci->dest = get_eff_addr(ci, ea_mode, ea_reg, sizeOp, state);
-        if (!ci->dest) return 0;
+
+        auto rawDest = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
+        if (!rawDest) return 0;
+        ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, literalHint,
+                                    state->opt->moduleType());
     }
     else
     {
@@ -665,8 +677,10 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
             break;
         }
 
-        ci->source = get_eff_addr(ci, ea_mode, ea_reg, sizeOp, state);
-        if (!ci->source) return 0;
+        auto rawSource = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
+        if (!rawSource) return 0;
+        ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, literalHint,
+                                        state->opt->moduleType());
         ci->setDest(RegParam(dataReg, RegParamMode::Direct));
     }
 

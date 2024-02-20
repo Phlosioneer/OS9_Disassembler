@@ -31,7 +31,7 @@
    30  0004e b480            cmp.l  d0,d2      
    31  00050 653e            bcs.s  L00090     
    32  00052 2002            move.l d2,d0      
-   33  00054 c47c            and.w  #31,d2     
+   33  00054 c47c            and.w  #$001f,d2  
    34  00058 b540            eor.w  d2,d0      
    35  0005a 41f0            lea    (a0,d0.l),a0 
    36  0005e 48e7            movem.l a0-a2/d3-d7,-(sp) 

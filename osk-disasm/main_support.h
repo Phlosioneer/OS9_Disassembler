@@ -28,6 +28,12 @@ struct options
     std::unique_ptr<module_header> modHeader;
 
     ~options();
+
+    // Not really sure what to return if not a module, so returning 0 for now.
+    inline int moduleType() const noexcept
+    {
+        return modHeader ? modHeader->type : 0;
+    }
 };
 
 void usage(void);

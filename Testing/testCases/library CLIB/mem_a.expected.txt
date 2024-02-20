@@ -27,7 +27,7 @@
    26  0000c 7200            moveq  #E$BMode,d1 
    27  0000e 6000            bra.w  _os9err    
    28  00012 5281 L00012     addq.l #1,d1      
-   29  00014 c23c            and.b  #254,d1    
+   29  00014 c23c            and.b  #$fe,d1    
    30  00018 242e            move.l D00004(a6),d2 
    31  0001c 9481            sub.l  d1,d2      
    32  0001e 6510            bcs.s  L00030     
@@ -51,7 +51,7 @@
    50  00058 48e7            movem.l a0/d1-d2,-(sp) 
    51  0005c 2200            move.l d0,d1      
    52  0005e 5281            addq.l #1,d1      
-   53  00060 c23c            and.b  #254,d1    
+   53  00060 c23c            and.b  #$fe,d1    
    54  00064 2401            move.l d1,d2      
    55  00066 d2ae            add.l  _mtop(a6),d1 
    56  0006a 6512            bcs.s  L0007e     
@@ -66,7 +66,7 @@
    65  00084 4e55 sbrk:      link.w a5,#0      
    66  00088 48e7            movem.l a0/d1-d2,-(sp) 
    67  0008c 5280            addq.l #1,d0      
-   68  0008e c03c            and.b  #254,d0    
+   68  0008e c03c            and.b  #$fe,d0    
    69  00092 2200            move.l d0,d1      
    70  00094 d0ae            add.l  _sbsize(a6),d0 
    71  00098 2049            movea.l a1,a0      

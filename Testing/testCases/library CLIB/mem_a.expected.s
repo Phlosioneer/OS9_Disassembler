@@ -25,7 +25,7 @@ ebrk: link.w a5,#0
  moveq #E$BMode,d1
  bra.w _os9err
 L00012 addq.l #1,d1
- and.b #254,d1
+ and.b #$fe,d1
  move.l D00004(a6),d2
  sub.l d1,d2
  bcs.s L00030
@@ -49,7 +49,7 @@ ibrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  move.l d0,d1
  addq.l #1,d1
- and.b #254,d1
+ and.b #$fe,d1
  move.l d1,d2
  add.l _mtop(a6),d1
  bcs.s L0007e
@@ -64,7 +64,7 @@ L0007e moveq #E$MemFul,d1
 sbrk: link.w a5,#0
  movem.l a0/d1-d2,-(sp)
  addq.l #1,d0
- and.b #254,d0
+ and.b #$fe,d0
  move.l d0,d1
  add.l _sbsize(a6),d0
  movea.l a1,a0

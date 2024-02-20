@@ -31,7 +31,7 @@ L00046 move.w d1,d0
  cmp.l d0,d2
  bcs.s L00090
  move.l d2,d0
- and.w #31,d2
+ and.w #$001f,d2
  eor.w d2,d0
  lea (a0,d0.l),a0
  movem.l a0-a2/d3-d7,-(sp)

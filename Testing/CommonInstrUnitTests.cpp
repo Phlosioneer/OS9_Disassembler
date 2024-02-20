@@ -73,41 +73,106 @@ namespace UnitTests
 		}
 
 		// Tests all of the opcodes that begin with 0b1001
-		TEST_METHOD(add_sub)
+		TEST_METHOD(add_sub_normal)
 		{
 			const uint16_t ADD = 0b1101 << 12;
 			const uint16_t SUB = 0b1001 << 12;
+			const uint16_t OR = 0b1000 << 12;
+			const uint16_t EOR = 0b1011 << 12;
+			const uint16_t AND = 0b1100 << 12;
 
 			const auto OPMODE = [](uint16_t mode) { return mode << 6; };
 			const auto DATA_REG = [](uint16_t reg) { return reg << 9; };
+			const uint16_t DATA_IS_DEST = OPMODE(0b000);
+			const uint16_t EA_IS_DEST = OPMODE(0b100);
+			const uint16_t BYTE_SIZE = OPMODE(0);
+			const uint16_t WORD_SIZE = OPMODE(1);
+			const uint16_t LONG_SIZE = OPMODE(2);
 
 			subtestName = L"SUB with EA source";
-			pushWord(SUB | DATA_REG(2) | OPMODE(0b010) | EA_MODE(2) | 3);
+			pushWord(SUB | DATA_REG(2) | DATA_IS_DEST | LONG_SIZE | EA_MODE(Indirect) | 3);
 			runTest("sub.l", "(a3),d2");
 
 			subtestName = L"SUB with EA dest";
-			pushWord(SUB | DATA_REG(4) | OPMODE(0b101) | EA_MODE(2) | 5);
+			pushWord(SUB | DATA_REG(4) | EA_IS_DEST | WORD_SIZE | EA_MODE(Indirect) | 5);
 			runTest("sub.w", "d4,(a5)");
 
-			subtestName = L"SUBA word";
-			pushWord(SUB | DATA_REG(3) | OPMODE(0b011) | EA_MODE(0) | 0);
-			runTest("suba.w", "d0,a3");
-
-			subtestName = L"SUBA long";
-			pushWord(SUB | DATA_REG(6) | OPMODE(0b111) | EA_MODE(0) | 5);
-			runTest("suba.l", "d5,a6");
-
 			subtestName = L"ADD with EA source";
-			pushWord(ADD | DATA_REG(2) | OPMODE(0b010) | EA_MODE(2) | 3);
+			pushWord(ADD | DATA_REG(2) | DATA_IS_DEST | LONG_SIZE | EA_MODE(Indirect) | 3);
 			runTest("add.l", "(a3),d2");
 
 			subtestName = L"ADD with EA dest";
-			pushWord(ADD | DATA_REG(4) | OPMODE(0b101) | EA_MODE(2) | 5);
-			runTest("add.w", "d4,(a5)");
+			pushWord(ADD | DATA_REG(4) | EA_IS_DEST | WORD_SIZE | EA_MODE(PreDecrement) | 5);
+			runTest("add.w", "d4,-(a5)");
+
+			subtestName = L"Add uses decimal literals";
+			pushWord(ADD | DATA_REG(3) | DATA_IS_DEST | WORD_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(678);
+			runTest("add.w", "#678,d3");
+
+			subtestName = L"Sub uses decimal literals";
+			pushWord(SUB | DATA_REG(1) | DATA_IS_DEST | LONG_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(0xF234);
+			pushWord(0x5678);
+			runTest("sub.l", "#-231451016,d1");
+
+			subtestName = L"Byte sized negative decimals handled correctly";
+			pushWord(ADD | DATA_REG(7) | DATA_IS_DEST | BYTE_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(0x00F3);
+			runTest("add.b", "#-13,d7");
+
+			subtestName = L"Or uses hex literals";
+			pushWord(OR | DATA_REG(0) | DATA_IS_DEST | WORD_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(0x1234);
+			runTest("or.w", "#$1234,d0");
+
+			subtestName = L"Eor can't use literals, test some other setup";
+			pushWord(EOR | DATA_REG(3) | EA_IS_DEST | BYTE_SIZE | EA_MODE(PostIncrement) | 7);
+			runTest("eor.b", "d3,(sp)+");
+
+			subtestName = L"And uses hex literals";
+			pushWord(AND | DATA_REG(6) | DATA_IS_DEST | WORD_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(0x7777);
+			runTest("and.w", "#$7777,d6");
+
+			subtestName = L"Negative signs are not added to hex literals";
+			pushWord(OR | DATA_REG(5) | DATA_IS_DEST | LONG_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(0xFFFF);
+			pushWord(0xDD1F);
+			runTest("or.l", "#$ffffdd1f,d5");
+		}
+
+		TEST_METHOD(add_sub_addresses)
+		{
+			const auto OPMODE = [](uint16_t mode) { return mode << 6; };
+			const auto ADDR_REG = [](uint16_t reg) { return reg << 9; };
+			const uint16_t ADD = 0b1101 << 12;
+			const uint16_t SUB = 0b1001 << 12;
+			const uint16_t WORD_SIZE = OPMODE(0b011);
+			const uint16_t LONG_SIZE = OPMODE(0b111);
+
+			subtestName = L"SUBA word";
+			pushWord(SUB | ADDR_REG(3) | WORD_SIZE | EA_MODE(DirectDataReg) | 0);
+			runTest("suba.w", "d0,a3");
+
+			subtestName = L"SUBA long";
+			pushWord(SUB | ADDR_REG(6) | LONG_SIZE | EA_MODE(Displacement) | 5);
+			pushWord(16);
+			runTest("suba.l", "16(a5),a6");
 
 			subtestName = L"ADDA word";
-			pushWord(ADD | DATA_REG(3) | OPMODE(0b011) | EA_MODE(0) | 0);
-			runTest("adda.w", "d0,a3");
+			pushWord(ADD | ADDR_REG(3) | WORD_SIZE | EA_MODE(DirectAddrReg) | 0);
+			runTest("adda.w", "a0,a3");
+
+			subtestName = L"Literals use decimal format";
+			pushWord(ADD | ADDR_REG(4) | WORD_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(2000);
+			runTest("adda.w", "#2000,a4");
+
+			subtestName = L"Negative literals are rendered correctly";
+			pushWord(SUB | ADDR_REG(1) | WORD_SIZE | EA_MODE(Special) | ImmediateData);
+			pushWord(-27);
+			runTest("suba.w", "#-27,a1");
 		}
 
 		TEST_METHOD(data_or_predec)
