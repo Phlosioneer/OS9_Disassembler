@@ -72,9 +72,6 @@ struct parse_state
     struct options* opt = nullptr;
 };
 
-std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
-                                         struct parse_state* state, AddrSpaceHandle literalSpaceHint = nullptr);
-
 int reg_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);

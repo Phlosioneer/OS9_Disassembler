@@ -700,8 +700,10 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     OperandSize size = isLong ? OperandSize::Long : OperandSize::Word;
 
     // All EA modes are allowed
-    ci->source = get_eff_addr(ci, sourceMode, sourceRegCode, size, state);
-    if (!ci->source) return 0;
+    auto rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceRegCode, size);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
@@ -740,8 +742,10 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
     auto destReg = opmode > 2 ? Registers::makeAReg(destRegCode) : Registers::makeDReg(destRegCode);
 
-    ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
-    if (!ci->source) return 0;
+    auto rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
@@ -766,8 +770,10 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
 
-    ci->dest = get_eff_addr(ci, mode, reg, sizeOp, state);
-    if (!ci->dest) return 0;
+    auto rawDest = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
+    if (!rawDest) return 0;
+    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                state->opt->moduleType());
 
     ci->setSource(LiteralParam(FormattedNumber(data, OperandSize::Byte)));
 
@@ -889,8 +895,10 @@ int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     if (mode == DirectAddrReg) return 0;
     if (!isWritableMode(mode, reg)) return 0;
 
-    ci->source = get_eff_addr(ci, mode, reg, OperandSize::Byte, state);
-    if (!ci->source) return 0;
+    auto rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Byte);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
     auto mnem = std::string("s") + typecondition[conditionCode].condition;
     ci->mnem = mnem.c_str();

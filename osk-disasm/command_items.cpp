@@ -37,8 +37,6 @@ struct extWbrief
     int iiSel = 0;          /* Index/Indirect Selection */
 };
 
-static int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state);
-
 void cmd_items::setSource(const LiteralParam& param)
 {
     source = std::make_unique<LiteralParam>(param);
@@ -177,8 +175,10 @@ int reg_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         throw std::runtime_error("Unexpected instruction id");
     }
 
-    ci->source = get_eff_addr(ci, sourceMode, sourceReg, size, state);
-    if (!ci->source) return 0;
+    auto rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
     ci->mnem = op->name;
     Register destReg = Registers::makeDReg(destRegCode);
@@ -230,8 +230,10 @@ int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     if (!hasnext_w(state)) return 0;
     uint16_t regmask = getnext_w(ci, state);
 
-    auto eaParam = get_eff_addr(ci, mode, reg, size, state);
-    if (!eaParam) return 0;
+    auto rawEaParam = parseEffectiveAddressWithMode(state, mode, reg, size);
+    if (!rawEaParam) return 0;
+    auto eaParam = rawEaParam->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
+                                       &LITERAL_DEC_SPACE, state->opt->moduleType());
 
     auto mnem = std::string(op->name) + OperandSizes::getLetter(size);
     ci->mnem = op->name;
@@ -273,39 +275,6 @@ int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
         // auto params = paramsBuffer.str();
         // strcpy(ci->params, params.c_str());
     }
-    return 1;
-}
-
-/*
- * Retrieves the extended command word, and sets up
- *      the values.
- * Returns 1 if valid, 0 if is Full Extended Word (m68020+ only)
- */
-static int get_ext_wrd(struct cmd_items* ci, struct extWbrief* extW, int mode, int reg, struct parse_state* state)
-{
-    int ew; /* A local copy of the extended word (stored in ci->code[0]) */
-    if (!hasnext_w(state)) return 0;
-    ew = getnext_w(ci, state);
-
-    if (ew & 0x0100)
-    {
-        ungetnext_w(ci, state);
-        return 0;
-    }
-
-    /* get the values common to all */
-    extW->isLong = (ew >> 11) & 1;
-    extW->scale = (ew >> 9) & 3;
-    extW->regno = (ew >> 12) & 7;
-    extW->isAddrReg = ((ew >> 15) & 1) == 1;
-
-    extW->displ = ew & 0xff;
-
-    if (extW->displ & 0x80)
-    {
-        extW->displ = extW->displ | (-1 ^ 0xff);
-    }
-
     return 1;
 }
 
@@ -465,278 +434,6 @@ std::unique_ptr<RawParam> parseEffectiveAddressWithMode(parse_state* state, uint
     default:
         throw std::runtime_error("Unknown mode error");
     }
-}
-
-// literalSpaceHint applies to (xxx).w, (xxx).l, and #<data> cases.
-std::unique_ptr<InstrParam> get_eff_addr(struct cmd_items* ci, uint8_t mode, uint8_t reg, OperandSize size,
-                                         struct parse_state* state, AddrSpaceHandle literalSpaceHint)
-{
-    int ext1;
-    int ext2;
-    int ref_ptr;
-    struct extWbrief ew_b;
-    int ea_addr;
-
-    ea_addr = state->PCPos;
-    bool pbytsizIsValid = true;
-
-    std::unique_ptr<InstrParam> param;
-
-    switch (mode)
-    {
-    case DirectDataReg: /* "Dn" */
-        param = std::make_unique<RegParam>(Registers::makeDReg(reg));
-        break;
-    case DirectAddrReg: /* "An" */
-        if (size == OperandSize::Byte) return nullptr;
-    case Indirect:      /* (An) */
-    case PostIncrement: /* (An)+ */
-    case PreDecrement:  /* -(An) */
-        param = std::make_unique<RegParam>(Registers::makeAReg(reg), static_cast<RegParamMode>(mode - 1));
-        break;
-    case Displacement: /* d{16}(An) */
-    {
-        if (!hasnext_w(state)) return nullptr;
-        ext1 = getnext_w(ci, state);
-
-        /* The system biases the data Pointer (a6) by 0x8000 bytes,
-         * so compensate
-         */
-
-        if (reg == 6 && !state->opt->IsROF && state->opt->modHeader->type == MT_Program)
-        {
-            ext1 += 0x8000;
-        }
-
-        /* NOTE:: NEED TO TAKE INTO ACCOUNT WHEN DISPLACEMENT IS A LABEL !!! */
-        std::string dispstr;
-        if (LblCalc(dispstr, ext1, AM_A0 + reg, ea_addr, state->opt->IsROF, state->Pass, OperandSize::Word))
-        {
-            param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), dispstr);
-        }
-        else
-        {
-            // Temporary
-            auto number = MakeFormattedNumber(ext1, AM_A0 + reg, size);
-            param = std::make_unique<RegOffsetParam>(Registers::makeAReg(reg), number);
-        }
-
-        // `0(An)` and `(An)` assemble to different instructions.
-        ((RegOffsetParam*)param.get())->setShouldForceZero(true);
-
-        break;
-    }
-    case Index: /* d{8}(An,Xn) */
-        if (get_ext_wrd(ci, &ew_b, mode, reg, state))
-        {
-            if (ew_b.scale != 0)
-            {
-                ungetnext_w(ci, state);
-                return 0;
-            }
-            auto addressReg = Registers::makeAReg(reg);
-            auto offsetReg = ew_b.isAddrReg ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
-            auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
-            if (ew_b.displ != 0)
-            {
-                // ew_b.displ -= 2;
-                int amode = AM_A0 + reg;
-                std::string dispstr;
-                if (LblCalc(dispstr, ew_b.displ, amode, state->PCPos - 2, state->opt->IsROF, state->Pass, OperandSize::Byte))
-                {
-                    param =
-                        std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, dispstr);
-                }
-                else
-                {
-                    auto number = MakeFormattedNumber(ew_b.displ, amode, size);
-                    param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, number);
-                }
-            }
-            else
-            {
-                param = std::make_unique<RegOffsetParam>(addressReg, offsetReg, offsetRegSize, FormattedNumber(0));
-            }
-        }
-        else
-        {
-            return nullptr;
-        }
-
-        break;
-
-        /* We now go to mode %111, where the mode is determined
-         * by the register field
-         */
-    case Special:
-        switch (reg)
-        {
-        case AbsoluteWord: /* (xxx).W */
-        case AbsoluteLong: /* (xxx).L */
-        {
-            OperandSize opSize;
-            int amode_local;
-            if (reg == 0)
-            {
-                opSize = OperandSize::Word;
-                if (!hasnext_w(state)) return 0;
-                ext1 = getnext_w(ci, state);
-                amode_local = AM_SHORT;
-            }
-            else
-            {
-                opSize = OperandSize::Long;
-                if (!hasnext_w(state)) return 0;
-                ext1 = getnext_w(ci, state);
-                if (!hasnext_w(state)) return 0;
-                ext1 = (ext1 << 16) | (getnext_w(ci, state) & 0xffff);
-                amode_local = AM_LONG;
-            }
-            std::string dispstr;
-            if (LblCalc(dispstr, ext1, amode_local, ea_addr, state->opt->IsROF, state->Pass, opSize))
-            {
-                param = std::make_unique<AbsoluteAddrParam>(dispstr, opSize);
-            }
-            else
-            {
-                auto number = MakeFormattedNumber(ext1, amode_local, size, literalSpaceHint);
-                param = std::make_unique<AbsoluteAddrParam>(number, opSize);
-            }
-
-            break;
-        }
-        case ImmediateData: /* #<data> */
-        {
-            ref_ptr = state->PCPos;
-            if (!hasnext_w(state)) return 0;
-            ext1 = getnext_w(ci, state);
-
-            switch (size)
-            {
-            case OperandSize::Byte:
-                // We read a word, so byte values should never be negative at this stage
-                // (even if they should be interpreted as a signed value later).
-                // Even though it's not allowed by the standard, assemblers don't
-                // respect that and output 0xFF for negative numbers.
-                if ((ext1 < CHAR_MIN) || (ext1 > 0xff))
-                {
-                    ungetnext_w(ci, state);
-                    return 0;
-                }
-
-                // The byte is not aligned.
-                ref_ptr += 1;
-
-                break;
-            case OperandSize::Word:
-                // We read exactly 2 bytes, there's no need to check anything.
-                break;
-            case OperandSize::Long:
-                if (!hasnext_w(state)) return 0;
-                ext2 = getnext_w(ci, state);
-                ext1 = (ext1 << 16) | (ext2 & 0xffff);
-                break;
-            default:
-                throw std::runtime_error("Invalid size");
-            }
-
-            // Not enough information to say whether refs are automatically relative; allow the caller (mainly branches) to decide.
-            int addressMode = ci->forceRelativeImmediateMode ? AM_REL : AM_IMM;
-
-            std::string dispstr;
-            if (rof_setup_ref(dispstr, &CODE_SPACE, static_cast<uint32_t>(ref_ptr), ext1, state->Pass, size, ci->forceRelativeImmediateMode))
-            {
-                dispstr = "#" + dispstr;
-                param = std::make_unique<LiteralParam>(dispstr);
-            }
-            else if (LblCalc(dispstr, ext1, addressMode, ea_addr, state->opt->IsROF, state->Pass, size))
-            {
-                param = std::make_unique<LiteralParam>(dispstr);
-            }
-            else
-            {
-                auto number = MakeFormattedNumber(ext1, AM_IMM, size, literalSpaceHint);
-                param = std::make_unique<LiteralParam>(number);
-            }
-            break;
-        }
-        case PcDisplacement: /* (d16,PC) */
-        {
-            if (!hasnext_w(state)) return 0;
-            ext1 = getnext_w(ci, state);
-            std::string dispstr;
-            // PC displacements automatically imply any references/labels used are relative.
-            if (LblCalc(dispstr, ext1, AM_REL, ea_addr, state->opt->IsROF, state->Pass, OperandSize::Word))
-            {
-                param = std::make_unique<RegOffsetParam>(Register::PC, dispstr);
-            }
-            else
-            {
-                auto number = MakeFormattedNumber(ext1, AM_REL, size);
-                param = std::make_unique<RegOffsetParam>(Register::PC, number);
-            }
-            break;
-        }
-        case PcIndex: /* d8(PC,Xn) */
-            if (get_ext_wrd(ci, &ew_b, mode, reg, state))
-            {
-                if (ew_b.scale != 0)
-                {
-                    ungetnext_w(ci, state);
-                    return nullptr;
-                }
-                auto offsetReg = ew_b.isAddrReg ? Registers::makeAReg(ew_b.regno) : Registers::makeDReg(ew_b.regno);
-                auto offsetRegSize = ew_b.isLong ? OperandSize::Long : OperandSize::Word;
-                char* label = nullptr;
-                if (ew_b.displ != 0)
-                {
-                    ew_b.displ -= 2;
-                    std::string dispstr;
-                    // PC displacements automatically imply any references/labels used are relative.
-                    if (LblCalc(dispstr, ew_b.displ, AM_REL, state->PCPos, state->opt->IsROF, state->Pass, OperandSize::Byte))
-                    {
-                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
-                                                                 std::string(dispstr));
-                    }
-                    else
-                    {
-                        auto number = MakeFormattedNumber(ew_b.displ, AM_REL, size);
-                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize, number);
-                    }
-                }
-                else
-                {
-                    // The PC-1 is due to the 8-bit offset placed in the 2nd byte of the brief
-                    // extension word.
-                    std::string refDisplayString;
-                    // PC displacements automatically imply any references/labels used are relative.
-                    if (state->opt->IsROF && IsRef(refDisplayString, state->PCPos - 1, 0, state->Pass, OperandSize::Byte, true))
-                    {
-                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
-                                                                 refDisplayString);
-                    }
-                    else
-                    {
-                        param = std::make_unique<RegOffsetParam>(Register::PC, offsetReg, offsetRegSize,
-                                                                 FormattedNumber(0));
-                    }
-                }
-            }
-            else
-            {
-                return nullptr;
-            }
-
-            break;
-        default:
-            return 0;
-        }
-        break;
-    default:
-        return 0;
-    }
-
-    return param;
 }
 
 char getnext_b(struct cmd_items* ci, struct parse_state* state)
