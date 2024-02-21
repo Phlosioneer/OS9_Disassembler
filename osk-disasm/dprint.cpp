@@ -347,7 +347,7 @@ void PrintDirective(const std::string& label, const char* directive, FormattedNu
 
     instr.lblname = label;
     instr.mnem = directive;
-    instr.setSource(LiteralParam(value, false));
+    instr.source = std::make_unique<LiteralParam>(value, false);
     PrintLine(&instr, space, CmdEnt, PCPos, opt);
 }
 
@@ -379,7 +379,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     struct cmd_items instr;
     instr.lblname = label;
     instr.mnem = directive;
-    instr.setSource(LiteralParam(param, false));
+    instr.source = std::make_unique<LiteralParam>(param, false);
     PrintLine(&instr, space, CmdEnt, PCPos, opt);
 }
 
@@ -391,7 +391,7 @@ void PrintDirective(const std::string& label, const char* directive, const std::
     struct cmd_items instr;
     instr.lblname = label;
     instr.mnem = directive;
-    instr.setSource(LiteralParam(param, false));
+    instr.source = std::make_unique<LiteralParam>(param, false);
 
     if (rawData.size() >= cmd_items::RAW_DATA_MAX) throw std::runtime_error("Too much data for directive!");
     for (size_t i = 0; i < rawData.size(); i++)

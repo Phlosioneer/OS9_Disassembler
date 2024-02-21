@@ -21,56 +21,6 @@ typedef struct modestrs
     int CPULvl;
 } MODE_STR;
 
-void cmd_items::setSource(const LiteralParam& param)
-{
-    source = std::make_unique<LiteralParam>(param);
-}
-
-void cmd_items::setSource(const RegParam& param)
-{
-    source = std::make_unique<RegParam>(param);
-}
-
-void cmd_items::setSource(const AbsoluteAddrParam& param)
-{
-    source = std::make_unique<AbsoluteAddrParam>(param);
-}
-
-void cmd_items::setSource(const RegOffsetParam& param)
-{
-    source = std::make_unique<RegOffsetParam>(param);
-}
-
-void cmd_items::setSource(const MultiRegParam& param)
-{
-    source = std::make_unique<MultiRegParam>(param);
-}
-
-void cmd_items::setDest(const LiteralParam& param)
-{
-    dest = std::make_unique<LiteralParam>(param);
-}
-
-void cmd_items::setDest(const RegParam& param)
-{
-    dest = std::make_unique<RegParam>(param);
-}
-
-void cmd_items::setDest(const AbsoluteAddrParam& param)
-{
-    dest = std::make_unique<AbsoluteAddrParam>(param);
-}
-
-void cmd_items::setDest(const RegOffsetParam& param)
-{
-    dest = std::make_unique<RegOffsetParam>(param);
-}
-
-void cmd_items::setDest(const MultiRegParam& param)
-{
-    dest = std::make_unique<MultiRegParam>(param);
-}
-
 std::string cmd_items::renderParams() const
 {
     std::ostringstream paramBuffer;
@@ -238,11 +188,11 @@ int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     if (regsAreDest)
     {
         ci->rawSource = std::move(rawEaParam);
-        ci->setDest(MultiRegParam(reglist(regmask, mode)));
+        ci->dest = std::make_unique<MultiRegParam>(reglist(regmask, mode));
     }
     else
     {
-        ci->setSource(MultiRegParam(reglist(regmask, mode)));
+        ci->source = std::make_unique<MultiRegParam>(reglist(regmask, mode));
         ci->rawDest = std::move(rawEaParam);
     }
     return 1;
@@ -253,16 +203,11 @@ int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
     ci->mnem = op->name;
 
-    if (op->id == InstrId::UNLK)
-    {
-        ci->setSource(RegParam(reg));
-    }
-    else
+    ci->rawSource = std::make_unique<RawRegParam>(reg, RegParamMode::Direct);
+    if (op->id != InstrId::UNLK)
     {
         ci->rawDest = parseImmediateParam(state, OperandSize::Word);
         if (!ci->rawDest) return 0;
-
-        ci->setSource(RegParam(reg));
     }
     return 1;
 }

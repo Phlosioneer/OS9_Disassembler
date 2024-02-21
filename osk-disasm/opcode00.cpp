@@ -76,7 +76,7 @@ int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     ci->rawSource = std::move(rawSource);
 
     ci->mnem = op->name;
-    ci->setDest(RegParam(reg));
+    ci->rawDest = std::make_unique<RawRegParam>(reg, RegParamMode::Direct);
 
     return 1;
 }
@@ -172,7 +172,7 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
     ci->rawDest = parseEffectiveAddressWithMode(state, destMode, destRegCode, size);
     if (!ci->rawDest) return 0;
     
-    ci->setSource(RegParam(Registers::makeDReg(sourceRegCode), RegParamMode::Direct));
+    ci->rawSource = std::make_unique<RawRegParam>(Registers::makeDReg(sourceRegCode), RegParamMode::Direct);
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(size);
     return 1;
@@ -253,7 +253,7 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
     {
         ci->rawSource = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Word);
         if (!ci->rawSource) return 0;
-        ci->setDest(RegParam(specialReg, RegParamMode::Direct));
+        ci->rawDest = std::make_unique<RawRegParam>(specialReg, RegParamMode::Direct);
         break;
     }
     case InstrId::MOVE_FROM_SR:
@@ -262,7 +262,7 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
         // Check that the destination is writable first.
         if (!isWritableMode(mode, regCode)) return 0;
 
-        ci->setSource(RegParam(specialReg, RegParamMode::Direct));
+        ci->rawSource = std::make_unique<RawRegParam>(specialReg, RegParamMode::Direct);
         ci->rawDest = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Word);
         if (!ci->rawDest) return 0;
         break;
@@ -281,18 +281,18 @@ int move_usp(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     uint8_t regCode = ci->cmd_wrd & 7;
     bool moveFromUSP = ((ci->cmd_wrd >> 3) & 1) != 0;
 
-    const RegParam usp(Register::USP, RegParamMode::Direct);
-    const RegParam otherReg(Registers::makeAReg(regCode), RegParamMode::Direct);
+    const RawRegParam usp(Register::USP, RegParamMode::Direct);
+    const RawRegParam otherReg(Registers::makeAReg(regCode), RegParamMode::Direct);
 
     if (moveFromUSP)
     {
-        ci->setSource(usp);
-        ci->setDest(otherReg);
+        ci->rawSource = std::make_unique<RawRegParam>(usp);
+        ci->rawDest = std::make_unique<RawRegParam>(otherReg);
     }
     else
     {
-        ci->setSource(otherReg);
-        ci->setDest(usp);
+        ci->rawSource = std::make_unique<RawRegParam>(otherReg);
+        ci->rawDest = std::make_unique<RawRegParam>(usp);
     }
 
     ci->mnem = op->name;
@@ -303,7 +303,7 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
 {
     uint8_t addrRegCode = ci->cmd_wrd & 7;
     uint8_t dataRegCode = (ci->cmd_wrd >> 9) & 7;
-    RegParam dataParam(Registers::makeDReg(dataRegCode), RegParamMode::Direct);
+    RawRegParam dataParam(Registers::makeDReg(dataRegCode), RegParamMode::Direct);
     auto size = ((ci->cmd_wrd >> 6) & 1) ? OperandSize::Long : OperandSize::Word;
     bool destIsMemory = (ci->cmd_wrd >> 7) & 1;
 
@@ -311,13 +311,13 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     {
         ci->rawDest = parseDisplacementParam(state, Registers::makeAReg(addrRegCode));
         if (!ci->rawDest) return 0;
-        ci->setSource(dataParam);
+        ci->rawSource = std::make_unique<RawRegParam>(dataParam);
     }
     else
     {
         ci->rawSource = parseDisplacementParam(state, Registers::makeAReg(addrRegCode));
         if (!ci->rawSource) return 0;
-        ci->setDest(dataParam);
+        ci->rawDest = std::make_unique<RawRegParam>(dataParam);
     }
 
     ci->mnem = op->name;
@@ -335,7 +335,7 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     ci->rawSource = std::make_unique<RawLiteralParam>(immParamValue, OperandSize::Byte, immParamAddress);
 
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
-    ci->setDest(RegParam(Registers::makeDReg(destRegCode), RegParamMode::Direct));
+    ci->rawDest = std::make_unique<RawRegParam>(Registers::makeDReg(destRegCode), RegParamMode::Direct);
 
     ci->mnem = op->name;
     return 1;
@@ -403,7 +403,7 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
 int swap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     uint8_t regCode = ci->cmd_wrd & 7;
-    ci->setSource(RegParam(Registers::makeDReg(regCode), RegParamMode::Direct));
+    ci->rawSource = std::make_unique<RawRegParam>(Registers::makeDReg(regCode), RegParamMode::Direct);
     ci->mnem = op->name;
     return 1;
 }
@@ -441,15 +441,15 @@ int bit_rotate_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
 
     if (sourceIsReg)
     {
-        ci->setSource(RegParam(Registers::makeDReg(countOrReg), RegParamMode::Direct));
+        ci->rawSource = std::make_unique<RawRegParam>(Registers::makeDReg(countOrReg), RegParamMode::Direct);
     }
     else
     {
         if (countOrReg == 0) countOrReg = 8;
-        ci->setSource(LiteralParam(FormattedNumber(countOrReg, OperandSize::Byte)));
+        ci->rawSource = std::make_unique<RawLiteralParam>(countOrReg, OperandSize::Byte, state->CmdEnt);
     }
 
-    ci->setDest(RegParam(Registers::makeDReg(destRegCode), RegParamMode::Direct));
+    ci->rawDest = std::make_unique<RawRegParam>(Registers::makeDReg(destRegCode), RegParamMode::Direct);
 
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
@@ -502,7 +502,7 @@ int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
         // Decode the register parameter.
         uint8_t regCode = ci->cmd_wrd & 7;
         auto reg = Registers::makeDReg(regCode);
-        ci->setSource(RegParam(reg, RegParamMode::Direct));
+        ci->rawSource = std::make_unique<RawRegParam>(reg, RegParamMode::Direct);
 
         return 1;
     }
@@ -579,7 +579,7 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
             // Address and data registers aren't allowed.
             if (ea_mode == DirectAddrReg || ea_mode == DirectDataReg) return 0;
         }
-        ci->setSource(RegParam(dataReg, RegParamMode::Direct));
+        ci->rawSource = std::make_unique<RawRegParam>(dataReg, RegParamMode::Direct);
 
         ci->rawDest = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
         if (!ci->rawDest) return 0;
@@ -604,7 +604,7 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 
         ci->rawSource = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
         if (!ci->rawSource) return 0;
-        ci->setDest(RegParam(dataReg, RegParamMode::Direct));
+        ci->rawDest = std::make_unique<RawRegParam>(dataReg, RegParamMode::Direct);
     }
 
     ci->mnem = op->name;
@@ -626,7 +626,7 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     ci->rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceRegCode, size);
     if (!ci->rawSource) return 0;
 
-    ci->setDest(RegParam(destReg, RegParamMode::Direct));
+    ci->rawDest = std::make_unique<RawRegParam>(destReg, RegParamMode::Direct);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(size);
@@ -666,7 +666,7 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     ci->rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
     if (!ci->rawSource) return 0;
 
-    ci->setDest(RegParam(destReg, RegParamMode::Direct));
+    ci->rawDest = std::make_unique<RawRegParam>(destReg, RegParamMode::Direct);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(size);
@@ -692,7 +692,8 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     ci->rawDest = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
     if (!ci->rawDest) return 0;
 
-    ci->setSource(LiteralParam(FormattedNumber(data, OperandSize::Byte)));
+    // TODO: Write a unit test that puts an external ref in an addq or subq
+    ci->rawSource = std::make_unique<RawLiteralParam>(data, OperandSize::Byte, state->CmdEnt + 1);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
@@ -732,7 +733,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
         // TODO: Throw an error if more than one ref is detected here.
 
         const RelocatedReference &vec_ref = vec_refs->at(0);
-        ci->setSource(LiteralParam(vec_ref.getName()));
+        ci->source = std::make_unique<LiteralParam>(vec_ref.getName());
         ci->mnem = "tcall";
 
         // Only guess math syscall if this is the math trap lib.
@@ -749,7 +750,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
         vectorHasName = false;
 
         // We may change this later if the syscall matches something from T$Math
-        ci->setSource(LiteralParam(FormattedNumber(vector, OperandSize::Byte)));
+        ci->source = std::make_unique<LiteralParam>(FormattedNumber(vector, OperandSize::Byte));
         shouldGuessMathLib = vector == MATH_TRAP_LIB;
     }
 
@@ -759,7 +760,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
         // No need to guess anything.
 
         // TODO: Throw an error if more than one ref is detected here.
-        ci->setDest(LiteralParam(call_refs->at(0).getName()));
+        ci->dest = std::make_unique<LiteralParam>(call_refs->at(0).getName());
     }
     else if (shouldGuessSyscall && trapNumber < sysCallCount)
     {
@@ -767,7 +768,7 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
         if (strlen(syscall) != 0)
         {
             labelManager.addLabel(&EQUATE_SPACE, trapNumber, syscall);
-            ci->setDest(LiteralParam(syscall));
+            ci->dest = std::make_unique<LiteralParam>(syscall);
         }
     }
     else if (shouldGuessMathLib && trapNumber < mathCallCount)
@@ -779,18 +780,18 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
             if (!vectorHasName)
             {
                 labelManager.addLabel(&EQUATE_SPACE, MATH_TRAP_LIB, MATH_TRAP_LIB_NAME);
-                ci->setSource(LiteralParam(MATH_TRAP_LIB_NAME));
+                ci->source = std::make_unique<LiteralParam>(MATH_TRAP_LIB_NAME);
             }
 
             labelManager.addLabel(&EQUATE_SPACE, trapNumber, functionName);
-            ci->setDest(LiteralParam(functionName));
+            ci->dest = std::make_unique<LiteralParam>(functionName);
         }
     }
 
     // If we were unable to guess the trap name, give it a number literal.
     if (!ci->dest)
     {
-        ci->setDest(LiteralParam(FormattedNumber(trapNumber, OperandSize::Word)));
+        ci->dest = std::make_unique<LiteralParam>(FormattedNumber(trapNumber, OperandSize::Word));
     }
 
     // If ci->source is null (an os9 syscall), move dest to source.
@@ -856,8 +857,8 @@ int cmd_exg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
         return 0;
     }
 
-    ci->setSource(RegParam(sourceReg, RegParamMode::Direct));
-    ci->setDest(RegParam(destReg, RegParamMode::Direct));
+    ci->rawSource = std::make_unique<RawRegParam>(sourceReg, RegParamMode::Direct);
+    ci->rawDest = std::make_unique<RawRegParam>(destReg, RegParamMode::Direct);
     ci->mnem = op->name;
     return 1;
 }
@@ -884,7 +885,7 @@ int cmd_ext(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
         return 0;
     }
 
-    ci->setSource(RegParam(reg, RegParamMode::Direct));
+    ci->rawSource = std::make_unique<RawRegParam>(reg, RegParamMode::Direct);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(size);
@@ -914,8 +915,8 @@ int data_or_predec(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
         ci->mnem += OperandSizes::getLetter(sizeOp);
     }
 
-    ci->setSource(RegParam(maker(srcRegno), mode));
-    ci->setDest(RegParam(maker(dstRegno), mode));
+    ci->rawSource = std::make_unique<RawRegParam>(maker(srcRegno), mode);
+    ci->rawDest = std::make_unique<RawRegParam>(maker(dstRegno), mode);
     return 1;
 }
 
@@ -928,8 +929,8 @@ int cmd_cmpm(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
 
-    ci->setSource(RegParam(Registers::makeAReg(srcRegno), RegParamMode::PostIncrement));
-    ci->setDest(RegParam(Registers::makeAReg(dstRegno), RegParamMode::PostIncrement));
+    ci->rawSource = std::make_unique<RawRegParam>(Registers::makeAReg(srcRegno), RegParamMode::PostIncrement);
+    ci->rawDest = std::make_unique<RawRegParam>(Registers::makeAReg(dstRegno), RegParamMode::PostIncrement);
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);

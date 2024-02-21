@@ -34,18 +34,6 @@ struct cmd_items
     bool forceRelativeImmediateMode = false;
     AddrSpaceHandle literalSpaceHint = &LITERAL_DEC_SPACE;
 
-    void setSource(const LiteralParam& param);
-    void setSource(const RegParam& param);
-    void setSource(const AbsoluteAddrParam& param);
-    void setSource(const RegOffsetParam& param);
-    void setSource(const MultiRegParam& param);
-
-    void setDest(const LiteralParam& param);
-    void setDest(const RegParam& param);
-    void setDest(const AbsoluteAddrParam& param);
-    void setDest(const RegOffsetParam& param);
-    void setDest(const MultiRegParam& param);
-
     std::string renderParams() const;
 
     inline uint16_t cmd() const
