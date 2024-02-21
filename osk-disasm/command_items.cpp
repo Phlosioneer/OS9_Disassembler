@@ -92,11 +92,27 @@ cmd_items& cmd_items::operator=(struct cmd_items&& other) noexcept
     comment = other.comment;
     source.swap(other.source);
     dest.swap(other.dest);
+    rawSource.swap(other.rawSource);
+    rawDest.swap(other.rawDest);
     memcpy_s(rawData, 10, other.rawData, 10);
     rawDataSize = other.rawDataSize;
     forceRelativeImmediateMode = other.forceRelativeImmediateMode;
+    literalSpaceHint = other.literalSpaceHint;
 
     return *this;
+}
+
+void cmd_items::hydrateRawParams(bool isRof, int Pass, uint16_t moduleType)
+{
+    if (rawSource && !source)
+    {
+        source = rawSource->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType);
+    }
+
+    if (rawDest && !dest)
+    {
+        dest = rawDest->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType);
+    }
 }
 
 /*
@@ -159,10 +175,8 @@ int reg_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
         throw std::runtime_error("Unexpected instruction id");
     }
 
-    auto rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
+    if (!ci->rawSource) return 0;
 
     ci->mnem = op->name;
     Register destReg = Registers::makeDReg(destRegCode);
@@ -216,8 +230,6 @@ int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
     auto rawEaParam = parseEffectiveAddressWithMode(state, mode, reg, size);
     if (!rawEaParam) return 0;
-    auto eaParam = rawEaParam->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
-                                       &LITERAL_DEC_SPACE, state->opt->moduleType());
 
     auto mnem = std::string(op->name) + OperandSizes::getLetter(size);
     ci->mnem = op->name;
@@ -225,13 +237,13 @@ int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
     if (regsAreDest)
     {
-        ci->source = std::move(eaParam);
+        ci->rawSource = std::move(rawEaParam);
         ci->setDest(MultiRegParam(reglist(regmask, mode)));
     }
     else
     {
         ci->setSource(MultiRegParam(reglist(regmask, mode)));
-        ci->dest = std::move(eaParam);
+        ci->rawDest = std::move(rawEaParam);
     }
     return 1;
 }
@@ -247,10 +259,8 @@ int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     }
     else
     {
-        auto rawDest = parseImmediateParam(state, OperandSize::Word);
-        if (!rawDest) return 0;
-        ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+        ci->rawDest = parseImmediateParam(state, OperandSize::Word);
+        if (!ci->rawDest) return 0;
 
         ci->setSource(RegParam(reg));
     }

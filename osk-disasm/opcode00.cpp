@@ -52,8 +52,9 @@ enum
     REG2EA
 };
 
+// Note: Doesn't save the displacement
 static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state,
-                         std::unique_ptr<RawRelativeParam> displacement, uint8_t conditionCode);
+                         const std::unique_ptr<RawRelativeParam>& displacement, uint8_t conditionCode);
 
 /*
  * Immediate bit operations involving the status registers (ori, andi, eori)
@@ -72,8 +73,7 @@ int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
         return 0;
     }
 
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = std::move(rawSource);
 
     ci->mnem = op->name;
     ci->setDest(RegParam(reg));
@@ -98,21 +98,16 @@ int biti_size(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     if (mode == DirectAddrReg) return 0;
     if (!isWritableMode(mode, regCode)) return 0;
 
-    AddrSpaceHandle space = &LITERAL_HEX_SPACE;
-    if (op->id == InstrId::SUBI || op->id == InstrId::CMPI)
+    if (op->id != InstrId::SUBI && op->id != InstrId::CMPI)
     {
-        space = &LITERAL_DEC_SPACE;
+        ci->literalSpaceHint = &LITERAL_HEX_SPACE;
     }
 
-    auto rawSource = parseImmediateParam(state, sizeOp);
-    if (!rawSource) return 0;
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space,
-                              moduleType);
-
-    auto rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
-    if (!rawDest) return 0;
-    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, space, moduleType);
+    ci->rawSource = parseImmediateParam(state, sizeOp);
+    if (!ci->rawSource) return 0;
+    
+    ci->rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
+    if (!ci->rawDest) return 0;
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
@@ -140,18 +135,14 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
         ungetnext_w_raw(state);
         return 0;
     }
+    ci->rawSource = std::move(rawSource);
 
     OperandSize sizeOp = mode == DirectDataReg ? OperandSize::Long : OperandSize::Byte;
 
-    // The literal only makes sense as a decimal number.
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
-
-    // Any literals tested should be hexadecimal.
-    auto rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
-    if (!rawDest) return 0;
-    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_HEX_SPACE,
-                                state->opt->moduleType());
+    // TODO: Any literals tested should be hexadecimal.
+    //ci->literalSpaceHint = &LITERAL_HEX_SPACE;
+    ci->rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
+    if (!ci->rawDest) return 0;
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
@@ -178,11 +169,9 @@ int bit_dynamic(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
 
     OperandSize size = destMode == DirectDataReg ? OperandSize::Long : OperandSize::Byte;
 
-    auto rawDest = parseEffectiveAddressWithMode(state, destMode, destRegCode, size);
-    if (!rawDest) return 0;
-    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                state->opt->moduleType());
-
+    ci->rawDest = parseEffectiveAddressWithMode(state, destMode, destRegCode, size);
+    if (!ci->rawDest) return 0;
+    
     ci->setSource(RegParam(Registers::makeDReg(sourceRegCode), RegParamMode::Direct));
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(size);
@@ -220,17 +209,11 @@ int move_instr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     if (size == OperandSize::Byte && d_mode == DirectAddrReg) return 0;
     if (!isWritableMode(d_mode, d_reg)) return 0;
 
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
-
-    auto rawSource = parseEffectiveAddressWithMode(state, src_mode, src_reg, size);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                              moduleType);
+    ci->rawSource = parseEffectiveAddressWithMode(state, src_mode, src_reg, size);
+    if (!ci->rawSource) return 0;
     
-    auto rawDest = parseEffectiveAddressWithMode(state, d_mode, d_reg, size);
-    if (!rawDest) return 0;
-    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                moduleType);
+    ci->rawDest = parseEffectiveAddressWithMode(state, d_mode, d_reg, size);
+    if (!ci->rawDest) return 0;
 
     ci->mnem = d_mode == DirectAddrReg ? "movea" : "move";
     ci->mnem += OperandSizes::getSuffix(size);
@@ -263,18 +246,14 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
     }
 
     // Next figure out direction.
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
     switch (op->id)
     {
     case InstrId::MOVE_TO_SR:
     case InstrId::MOVE_TO_CCR:
     {
-        auto rawSource = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Word);
-        if (!rawSource) return 0;
-        ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
-                                        &LITERAL_DEC_SPACE, moduleType);
+        ci->rawSource = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Word);
+        if (!ci->rawSource) return 0;
         ci->setDest(RegParam(specialReg, RegParamMode::Direct));
-        if (!ci->source) return 0;
         break;
     }
     case InstrId::MOVE_FROM_SR:
@@ -284,14 +263,13 @@ int move_ccr_sr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state*
         if (!isWritableMode(mode, regCode)) return 0;
 
         ci->setSource(RegParam(specialReg, RegParamMode::Direct));
-        auto rawDest = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Word);
-        if (!rawDest) return 0;
-        ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    moduleType);
+        ci->rawDest = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Word);
+        if (!ci->rawDest) return 0;
         break;
     }
     default:
         // Unreachable
+        throw std::exception();
         ;
     }
     ci->mnem = op->name;
@@ -329,21 +307,16 @@ int movep(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     auto size = ((ci->cmd_wrd >> 6) & 1) ? OperandSize::Long : OperandSize::Word;
     bool destIsMemory = (ci->cmd_wrd >> 7) & 1;
 
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
     if (destIsMemory)
     {
-        auto rawDest = parseDisplacementParam(state, Registers::makeAReg(addrRegCode));
-        if (!rawDest) return 0;
-        ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    moduleType);
+        ci->rawDest = parseDisplacementParam(state, Registers::makeAReg(addrRegCode));
+        if (!ci->rawDest) return 0;
         ci->setSource(dataParam);
     }
     else
     {
-        auto rawSource = parseDisplacementParam(state, Registers::makeAReg(addrRegCode));
-        if (!rawSource) return 0;
-        ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
-                                        &LITERAL_DEC_SPACE, moduleType);
+        ci->rawSource = parseDisplacementParam(state, Registers::makeAReg(addrRegCode));
+        if (!ci->rawSource) return 0;
         ci->setDest(dataParam);
     }
 
@@ -359,10 +332,7 @@ int moveq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state
     std::string labelBuffer;
     // The immediate value is at address+1
     auto immParamAddress = state->CmdEnt + 1;
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
-    auto rawSource = std::make_unique<RawLiteralParam>(immParamValue, OperandSize::Byte, immParamAddress);
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
-                                       &LITERAL_DEC_SPACE, moduleType);
+    ci->rawSource = std::make_unique<RawLiteralParam>(immParamValue, OperandSize::Byte, immParamAddress);
 
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
     ci->setDest(RegParam(Registers::makeDReg(destRegCode), RegParamMode::Direct));
@@ -391,11 +361,8 @@ int one_ea_sized(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
         if (!isWritableMode(mode, reg)) return 0;
     }
 
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
-    auto rawSource = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    moduleType);
+    ci->rawSource = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
+    if (!ci->rawSource) return 0;
 
     ci->mnem = op->name;
     ci->mnem += OperandSizes::getLetter(sizeOp);
@@ -414,7 +381,6 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     
     /* PEA is often (ab)used to push arbitrary words and longs onto the stack. */
     std::unique_ptr<RawParam> rawSource;
-    auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
     if (op->id == InstrId::PEA && mode == Special && (reg == AbsoluteWord || reg == AbsoluteLong))
     {
         auto size = reg == AbsoluteWord ? OperandSize::Word : OperandSize::Long;
@@ -426,10 +392,8 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     }
     else
     {
-        auto rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Long);
-        if (!rawSource) return 0;
-        ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
-                                        &LITERAL_DEC_SPACE, state->opt->moduleType());
+        ci->rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Long);
+        if (!ci->rawSource) return 0;
     }
 
     ci->mnem = op->name;
@@ -461,10 +425,8 @@ int bit_rotate_mem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_sta
     // Destination must be writable.
     if (!isWritableMode(mode, regCode)) return 0;
 
-    auto rawSource = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Byte);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = parseEffectiveAddressWithMode(state, mode, regCode, OperandSize::Byte);
+    if (!ci->rawSource) return 0;
 
     ci->mnem = op->name;
     return 1;
@@ -519,7 +481,12 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     // Condition codes 0 (true) and 1 (false) aren't allowed, if the branch is conditional at all.
     if (op->id != InstrId::BRA && op->id != InstrId::BSR && conditionCode <= 1) return 0;
 
-    return branch_common(ci, op, state, std::move(rawDisplacement), conditionCode);
+    auto ret = branch_common(ci, op, state, rawDisplacement, conditionCode);
+    if (ret)
+    {
+        ci->rawSource = std::move(rawDisplacement);
+    }
+    return ret;
 }
 
 int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
@@ -528,10 +495,9 @@ int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 
     auto rawDisplacement = parseRelativeParam(state, OperandSize::Word);
 
-    if (branch_common(ci, op, state, std::move(rawDisplacement), conditionCode))
+    if (branch_common(ci, op, state, rawDisplacement, conditionCode))
     {
-        // Swap the source into the destination.
-        ci->source.swap(ci->dest);
+        ci->rawDest = std::move(rawDisplacement);
 
         // Decode the register parameter.
         uint8_t regCode = ci->cmd_wrd & 7;
@@ -544,13 +510,10 @@ int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
 }
 
 static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state,
-                         std::unique_ptr<RawRelativeParam> displacement, uint8_t conditionCode)
+                         const std::unique_ptr<RawRelativeParam>& displacement, uint8_t conditionCode)
 {
     ci->forceRelativeImmediateMode = true;
     if (displacement->rawValue & 1) return 0;
-
-    ci->source = displacement->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
-                                       &LITERAL_DEC_SPACE, state->opt->moduleType());
 
     ci->mnem = op->name;
     auto conditionStart = ci->mnem.find('~');
@@ -600,7 +563,7 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     if (!parseStandardSize(size, sizeOp)) return 0;
 
     // For bitwise operators, use hex literals. For add and sub, use decimal literals.
-    auto literalHint = (op->id == InstrId::ADD || op->id == InstrId::SUB) ? &LITERAL_DEC_SPACE : &LITERAL_HEX_SPACE;
+    ci->literalSpaceHint = (op->id == InstrId::ADD || op->id == InstrId::SUB) ? &LITERAL_DEC_SPACE : &LITERAL_HEX_SPACE;
 
     if (eaIsDest)
     {
@@ -618,10 +581,8 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
         }
         ci->setSource(RegParam(dataReg, RegParamMode::Direct));
 
-        auto rawDest = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
-        if (!rawDest) return 0;
-        ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, literalHint,
-                                    state->opt->moduleType());
+        ci->rawDest = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
+        if (!ci->rawDest) return 0;
     }
     else
     {
@@ -641,10 +602,8 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
             break;
         }
 
-        auto rawSource = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
-        if (!rawSource) return 0;
-        ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, literalHint,
-                                        state->opt->moduleType());
+        ci->rawSource = parseEffectiveAddressWithMode(state, ea_mode, ea_reg, sizeOp);
+        if (!ci->rawSource) return 0;
         ci->setDest(RegParam(dataReg, RegParamMode::Direct));
     }
 
@@ -664,10 +623,8 @@ int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state
     OperandSize size = isLong ? OperandSize::Long : OperandSize::Word;
 
     // All EA modes are allowed
-    auto rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceRegCode, size);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceRegCode, size);
+    if (!ci->rawSource) return 0;
 
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
@@ -706,10 +663,8 @@ int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     uint8_t destRegCode = (ci->cmd_wrd >> 9) & 7;
     auto destReg = opmode > 2 ? Registers::makeAReg(destRegCode) : Registers::makeDReg(destRegCode);
 
-    auto rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = parseEffectiveAddressWithMode(state, sourceMode, sourceReg, size);
+    if (!ci->rawSource) return 0;
 
     ci->setDest(RegParam(destReg, RegParamMode::Direct));
 
@@ -734,10 +689,8 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     OperandSize sizeOp;
     if (!parseStandardSize(size, sizeOp)) return 0;
 
-    auto rawDest = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
-    if (!rawDest) return 0;
-    ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                state->opt->moduleType());
+    ci->rawDest = parseEffectiveAddressWithMode(state, mode, reg, sizeOp);
+    if (!ci->rawDest) return 0;
 
     ci->setSource(LiteralParam(FormattedNumber(data, OperandSize::Byte)));
 
@@ -851,10 +804,8 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 
 int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    auto rawSource = parseImmediateParam(state, OperandSize::Word);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = parseImmediateParam(state, OperandSize::Word);
+    if (!ci->rawSource) return 0;
     ci->mnem = op->name;
     return 1;
 }
@@ -868,10 +819,8 @@ int cmd_scc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
     if (mode == DirectAddrReg) return 0;
     if (!isWritableMode(mode, reg)) return 0;
 
-    auto rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Byte);
-    if (!rawSource) return 0;
-    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
-                                    state->opt->moduleType());
+    ci->rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Byte);
+    if (!ci->rawSource) return 0;
 
     auto mnem = std::string("s") + typecondition[conditionCode].condition;
     ci->mnem = mnem.c_str();

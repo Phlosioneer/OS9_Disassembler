@@ -9,12 +9,10 @@
 #include "disglobs.h"
 #include "params.h"
 #include "reader.h"
+#include "raw_params.h"
 
 struct OPSTRUCTURE;
 struct options;
-class RawParam;
-class RawLiteralParam;
-class RawRelativeParam;
 
 struct cmd_items
 {
@@ -26,12 +24,15 @@ struct cmd_items
     std::string comment{};
     std::unique_ptr<InstrParam> source{};
     std::unique_ptr<InstrParam> dest{};
+    std::unique_ptr<RawParam> rawSource{};
+    std::unique_ptr<RawParam> rawDest{};
 
     static constexpr size_t RAW_DATA_MAX = 10;
     uint16_t rawData[RAW_DATA_MAX]{};
     size_t rawDataSize = 0;
 
     bool forceRelativeImmediateMode = false;
+    AddrSpaceHandle literalSpaceHint = &LITERAL_DEC_SPACE;
 
     void setSource(const LiteralParam& param);
     void setSource(const RegParam& param);
@@ -57,6 +58,8 @@ struct cmd_items
     struct cmd_items& operator=(struct cmd_items&& other) noexcept;
     // But not copy-assignment
     struct cmd_items& operator=(const struct cmd_items& other) = delete;
+
+    void hydrateRawParams(bool isRof, int Pass, uint16_t moduleType);
 };
 
 class EofException : public std::exception

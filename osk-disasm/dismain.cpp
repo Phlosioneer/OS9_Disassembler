@@ -46,6 +46,7 @@
 #include "main_support.h"
 #include "modtypes.h"
 #include "textdef.h"
+#include "raw_params.h"
 
 #ifdef _WIN32
 #define strcasecmp _stricmp
@@ -629,6 +630,7 @@ bool get_asmcmd(struct cmd_items* Instruction, struct parse_state* state)
         {
             if (curop->opfunc(Instruction, curop, state))
             {
+                Instruction->hydrateRawParams(state->opt->IsROF, state->Pass, state->opt->moduleType());
                 return true;
             }
             else
