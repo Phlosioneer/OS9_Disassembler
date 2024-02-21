@@ -21,22 +21,6 @@ typedef struct modestrs
     int CPULvl;
 } MODE_STR;
 
-/* The following two structures define
- * the extended word
- */
-struct extWbrief
-{
-    bool isAddrReg = false; /* Index Register ('D' or 'A' */
-    int regno = 0;          /* Register # */
-    int isLong = 0;         /* Index size (W/L, 0 if sign-extended word */
-    int scale = 0;          /* Scale  00 = 1, 01 = 2, 03 = 4, 11= 8 */
-    int displ = 0;          /* Displacement (lower byte) */
-    int is = 0;             /* Index Suppress */
-    int bs = 0;             /* Base Displacement Suppress */
-    int bdSize = 0;         /* BD Size */
-    int iiSel = 0;          /* Index/Indirect Selection */
-};
-
 void cmd_items::setSource(const LiteralParam& param)
 {
     source = std::make_unique<LiteralParam>(param);
@@ -259,21 +243,16 @@ int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 
     if (op->id == InstrId::UNLK)
     {
-        // strcpy(ci->params, Registers::getName(reg));
         ci->setSource(RegParam(reg));
     }
     else
     {
-        if (!hasnext_w(state)) return 0;
-        auto ext_w = getnext_w(ci, state);
+        auto rawDest = parseImmediateParam(state, OperandSize::Word);
+        if (!rawDest) return 0;
+        ci->dest = rawDest->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
         ci->setSource(RegParam(reg));
-        ci->setDest(LiteralParam(FormattedNumber(ext_w, OperandSize::Word)));
-
-        // std::ostringstream paramsBuffer;
-        // paramsBuffer << Registers::getName(reg) << ",#" << PrettyNumber<int16_t>(ext_w);
-        // auto params = paramsBuffer.str();
-        // strcpy(ci->params, params.c_str());
     }
     return 1;
 }
@@ -312,7 +291,7 @@ std::unique_ptr<RawParam> parseIndexParam(parse_state* state, Register baseReg)
     return std::make_unique<RawIndexParam>(baseReg, extensionWord, dispAddress);
 }
 
-std::unique_ptr<RawParam> parseImmediateParam(parse_state* state, OperandSize size)
+std::unique_ptr<RawLiteralParam> parseImmediateParam(parse_state* state, OperandSize size)
 {
     auto immediateAddress = state->PCPos;
     uint32_t immediate = 0;
@@ -360,6 +339,14 @@ std::unique_ptr<RawParam> parseImmediateParam(parse_state* state, OperandSize si
     }
 
     return std::make_unique<RawLiteralParam>(immediate, size, immediateAddress);
+}
+
+std::unique_ptr<RawRelativeParam> parseRelativeParam(parse_state* state, OperandSize size)
+{
+    auto relativeToAddr = state->PCPos;
+    auto immediate = parseImmediateParam(state, size);
+    if (!immediate) return nullptr;
+    return std::make_unique<RawRelativeParam>(*immediate, relativeToAddr);
 }
 
 std::unique_ptr<RawParam> parseAbsoluteParam(parse_state* state, OperandSize size)

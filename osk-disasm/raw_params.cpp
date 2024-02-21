@@ -37,18 +37,44 @@ std::unique_ptr<InstrParam> RawLiteralParam::hydrate(bool isRof, int Pass, bool 
     // TODO: When exactly is '#' needed?
     if (rof_setup_ref(dispstr, &CODE_SPACE, address, rawValue, Pass, size, forceRelativeImmediateMode))
     {
-        dispstr = "#" + dispstr;
-        return std::make_unique<LiteralParam>(dispstr);
+        return std::make_unique<LiteralParam>(dispstr, true);
     }
     else if (LblCalc(dispstr, rawValue, AM_IMM, address, isRof, Pass, size))
     {
-        dispstr = "#" + dispstr;
-        return std::make_unique<LiteralParam>(dispstr);
+        return std::make_unique<LiteralParam>(dispstr, true);
     }
     else
     {
         auto number = MakeFormattedNumber(signedValue(), AM_IMM, size, literalSpaceHint);
-        return std::make_unique<LiteralParam>(number);
+        return std::make_unique<LiteralParam>(number, true);
+    }
+}
+
+RawRelativeParam::RawRelativeParam(uint32_t rawValue, OperandSize size, uint32_t address, uint32_t relativeToAddress)
+    : RawLiteralParam(rawValue, size, address), relativeToAddress(relativeToAddress)
+{
+}
+
+RawRelativeParam::RawRelativeParam(const RawLiteralParam& rawLiteral, uint32_t relativeToAddress)
+    : RawLiteralParam(rawLiteral), relativeToAddress(relativeToAddress)
+{
+}
+
+std::unique_ptr<InstrParam> RawRelativeParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                     AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+{
+    std::string dispstr;
+    if (rof_setup_ref(dispstr, &CODE_SPACE, address, signedValue(), Pass, size, forceRelativeImmediateMode))
+    {
+        return std::make_unique<LiteralParam>(dispstr, false);
+    }
+    else if (LblCalc(dispstr, signedValue(), AM_REL, relativeToAddress, isRof, Pass, size))
+    {
+        return std::make_unique<LiteralParam>(dispstr, false);
+    }
+    else
+    {
+        return std::make_unique<LiteralParam>(FormattedNumber(signedValue(), size, literalSpaceHint));
     }
 }
 

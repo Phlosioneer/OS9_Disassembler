@@ -58,6 +58,18 @@ class RawLiteralParam : public RawParam
     }
 };
 
+class RawRelativeParam : public RawLiteralParam
+{
+  public:
+    RawRelativeParam(uint32_t rawValue, OperandSize size, uint32_t address, uint32_t relativeToAddress);
+    RawRelativeParam(const RawLiteralParam& rawLiteral, uint32_t relativeToAddress);
+
+    uint32_t relativeToAddress;
+
+    virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+};
+
 class RawRegParam : public RawParam
 {
   public:

@@ -52,8 +52,8 @@ enum
     REG2EA
 };
 
-static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state, int32_t displ,
-                         OperandSize size, uint32_t immAddress, uint8_t conditionCode);
+static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state,
+                         std::unique_ptr<RawRelativeParam> displacement, uint8_t conditionCode);
 
 /*
  * Immediate bit operations involving the status registers (ori, andi, eori)
@@ -61,18 +61,21 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
  */
 int biti_reg(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    if (!hasnext_w(state)) return 0;
-    uint16_t ext1 = getnext_w(ci, state);
+    auto rawSource = parseImmediateParam(state, OperandSize::Word);
+    if (!rawSource) return 0;
+
     auto reg = ((ci->cmd_wrd >> 6) & 1) == 0 ? Register::CCR : Register::SR;
 
-    if ((reg == Register::CCR) && (ext1 > 0x1f))
+    if ((reg == Register::CCR) && (rawSource->rawValue > 0x1f))
     {
-        ungetnext_w(ci, state);
+        ungetnext_w_raw(state);
         return 0;
     }
 
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
+
     ci->mnem = op->name;
-    ci->setSource(LiteralParam(FormattedNumber(ext1, OperandSize::Byte, &LITERAL_DEC_SPACE)));
     ci->setDest(RegParam(reg));
 
     return 1;
@@ -124,25 +127,25 @@ int bit_static(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* 
     if (mode == DirectAddrReg) return 0;
     if (!isWritableMode(mode, regCode)) return 0;
 
-    if (!hasnext_w(state)) return 0;
-    uint16_t ext1 = getnext_w(ci, state);
-
+    auto rawSource = parseImmediateParam(state, OperandSize::Byte); 
+    
     // Also the bit number has limits: 32 for D registers, 8 for all other modes.
-    if (mode == DirectDataReg && ext1 > 32)
+    if (mode == DirectDataReg && rawSource->rawValue > 32)
     {
-        ungetnext_w(ci, state);
+        ungetnext_w_raw(state);
         return 0;
     }
-    else if (mode != DirectDataReg && ext1 > 8)
+    else if (mode != DirectDataReg && rawSource->rawValue > 8)
     {
-        ungetnext_w(ci, state);
+        ungetnext_w_raw(state);
         return 0;
     }
 
     OperandSize sizeOp = mode == DirectDataReg ? OperandSize::Long : OperandSize::Byte;
 
     // The literal only makes sense as a decimal number.
-    ci->setSource(LiteralParam(FormattedNumber(ext1, OperandSize::Byte, &LITERAL_DEC_SPACE)));
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
 
     // Any literals tested should be hexadecimal.
     auto rawDest = parseEffectiveAddressWithMode(state, mode, regCode, sizeOp);
@@ -412,32 +415,14 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     /* PEA is often (ab)used to push arbitrary words and longs onto the stack. */
     std::unique_ptr<RawParam> rawSource;
     auto moduleType = state->opt->modHeader ? state->opt->modHeader->type : 0;
-    if (op->id == InstrId::PEA && mode == Special && reg == AbsoluteWord)
+    if (op->id == InstrId::PEA && mode == Special && (reg == AbsoluteWord || reg == AbsoluteLong))
     {
-        if (!hasnext_w(state))
-        {
-            return 0;
-        }
-        uint16_t value = getnext_w(ci, state);
-        auto signedValue = static_cast<int16_t>(value);
-        auto number = MakeFormattedNumber(signedValue, AM_SHORT, OperandSize::Word, &LITERAL_DEC_SPACE);
-        ci->source = std::make_unique<AbsoluteAddrParam>(number, OperandSize::Word);
-    }
-    else if (op->id == InstrId::PEA && mode == Special && reg == AbsoluteLong)
-    {
-        if (!hasnext_l(state))
-        {
-            return 0;
-        }
-        if (!hasnext_w(state)) return 0;
-        uint16_t higher = getnext_w(ci, state);
-        if (!hasnext_w(state)) return 0;
-        uint16_t lower = getnext_w(ci, state);
-        uint32_t value = (static_cast<uint32_t>(higher) << 16) | lower;
-        auto signedValue = static_cast<int32_t>(value);
-        auto number = MakeFormattedNumber(signedValue, AM_LONG, OperandSize::Long, &LITERAL_DEC_SPACE);
-        ci->source = std::make_unique<AbsoluteAddrParam>(number, OperandSize::Long);
+        auto size = reg == AbsoluteWord ? OperandSize::Word : OperandSize::Long;
+        auto addressMode = reg == AbsoluteWord ? AM_SHORT : AM_LONG;
+        auto paramAsLiteral = parseImmediateParam(state, size);
         
+        auto number = MakeFormattedNumber(paramAsLiteral->signedValue(), addressMode, size, &LITERAL_DEC_SPACE);
+        ci->source = std::make_unique<AbsoluteAddrParam>(number, size);
     }
     else
     {
@@ -515,16 +500,12 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
 {
     uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
     int32_t displ = ci->cmd_wrd & 0xff;
-    OperandSize size;
-    uint32_t immAddress;
 
+    std::unique_ptr<RawRelativeParam> rawDisplacement;
     if (displ == 0)
     {
-        immAddress = state->PCPos;
-        if (!hasnext_w(state)) return 0;
-        displ = (int16_t)getnext_w(ci, state);
-
-        size = OperandSize::Word;
+        rawDisplacement = parseRelativeParam(state, OperandSize::Word);
+        if (!rawDisplacement) return 0;
     }
     else if (displ == 0xff)
     {
@@ -532,26 +513,22 @@ int branch(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     }
     else
     {
-        immAddress = state->CmdEnt + 1;
-        /* Sign extend the 8-bit displacement */
-        displ = (int8_t)displ;
-        size = OperandSize::Byte;
+        rawDisplacement = std::make_unique<RawRelativeParam>(displ, OperandSize::Byte, state->CmdEnt + 1, state->CmdEnt + 2);
     }
 
-    // Condition codes 0 (true) and 1 (false) aren't allowed.
+    // Condition codes 0 (true) and 1 (false) aren't allowed, if the branch is conditional at all.
     if (op->id != InstrId::BRA && op->id != InstrId::BSR && conditionCode <= 1) return 0;
 
-    return branch_common(ci, op, state, displ, size, immAddress, conditionCode);
+    return branch_common(ci, op, state, std::move(rawDisplacement), conditionCode);
 }
 
 int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     uint8_t conditionCode = (ci->cmd_wrd >> 8) & 0x0f;
-    uint32_t immAddress = state->PCPos;
-    if (!hasnext_w(state)) return 0;
-    int16_t displ = getnext_w(ci, state);
 
-    if (branch_common(ci, op, state, displ, OperandSize::Word, immAddress, conditionCode))
+    auto rawDisplacement = parseRelativeParam(state, OperandSize::Word);
+
+    if (branch_common(ci, op, state, std::move(rawDisplacement), conditionCode))
     {
         // Swap the source into the destination.
         ci->source.swap(ci->dest);
@@ -566,27 +543,14 @@ int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* st
     return 0;
 }
 
-static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state, int32_t displ,
-                         OperandSize size, uint32_t immAddress, uint8_t conditionCode)
+static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state,
+                         std::unique_ptr<RawRelativeParam> displacement, uint8_t conditionCode)
 {
     ci->forceRelativeImmediateMode = true;
-    if (displ & 1) return 0;
+    if (displacement->rawValue & 1) return 0;
 
-    std::string temp;
-    if (state->opt->IsROF && rof_setup_ref(temp, &CODE_SPACE, immAddress, displ, state->Pass, size, true))
-    {
-        ci->setSource(LiteralParam(temp));
-    }
-    else if (LblCalc(temp, displ, AM_REL, state->CmdEnt + 2, state->opt->IsROF, state->Pass, size))
-    {
-        if (displ == 0) return 0;
-        ci->setSource(LiteralParam(temp));
-    }
-    else
-    {
-        if (displ == 0) return 0;
-        ci->setSource(LiteralParam(FormattedNumber(displ, size)));
-    }
+    ci->source = displacement->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode,
+                                       &LITERAL_DEC_SPACE, state->opt->moduleType());
 
     ci->mnem = op->name;
     auto conditionStart = ci->mnem.find('~');
@@ -600,13 +564,13 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
     if (op->id != InstrId::DBCC)
     {
         // Branches use ".s" instead of ".b"
-        if (size == OperandSize::Byte)
+        if (displacement->size == OperandSize::Byte)
         {
             ci->mnem += ".s";
         }
         else
         {
-            ci->mnem += OperandSizes::getSuffix(size);
+            ci->mnem += OperandSizes::getSuffix(displacement->size);
         }
     }
 
@@ -785,8 +749,16 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
 int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
     uint8_t vector = ci->cmd_wrd & 0x0f;
-    if (!hasnext_w(state)) return 0;
-    uint16_t trapNumber = getnext_w(ci, state);
+    RawLiteralParam rawVector{vector, OperandSize::Byte, state->CmdEnt + 1};
+
+    auto rawTrap = parseImmediateParam(state, OperandSize::Word);
+    if (!rawTrap) return 0;
+
+    // TODO: Move all of this into the "hydrate" step. It has to be instruction-
+    // specific hydration, there's no other way to handle this without abusing
+    // AddrSpaceHandles more than I already am.
+    
+    uint16_t trapNumber = static_cast<uint16_t>(rawTrap->rawValue);
     const size_t sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
     const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
 
@@ -879,9 +851,10 @@ int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 
 int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    if (!hasnext_w(state)) return 0;
-    uint8_t imm = getnext_w(ci, state);
-    ci->setSource(LiteralParam(FormattedNumber(imm, OperandSize::Word)));
+    auto rawSource = parseImmediateParam(state, OperandSize::Word);
+    if (!rawSource) return 0;
+    ci->source = rawSource->hydrate(state->opt->IsROF, state->Pass, ci->forceRelativeImmediateMode, &LITERAL_DEC_SPACE,
+                                    state->opt->moduleType());
     ci->mnem = op->name;
     return 1;
 }
