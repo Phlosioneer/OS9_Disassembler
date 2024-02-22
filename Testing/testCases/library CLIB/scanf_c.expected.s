@@ -538,7 +538,7 @@ L005fc tst.l d6
 L00606 lea 16(sp),a0
  move.l a0,d0
  bsr.w atof
- tcall T$Math1,T$DtoF
+ tcall #T$Math1,#T$DtoF
  movea.l (a3),a0
  move.l d0,(a0)
  bra.s L00672

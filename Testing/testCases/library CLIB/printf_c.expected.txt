@@ -673,7 +673,7 @@
   672  00718 6c16            bge.s  L00730     
   673  0071a 16fc            move.b #45,(a3)+  
   674  0071e 4cee            movem.l D00222(a6),d0-d1 
-  675  00724 4e40            tcall  T$Math1,T$DNeg 
+  675  00724 4e40            tcall  #T$Math1,#T$DNeg 
   676  00728 48ee            movem.l d0-d1,D00222(a6) 
   677  0072e 6016            bra.s  L00746     
   678  00730 4a2e L00730     tst.b  D00202(a6) 
@@ -954,7 +954,7 @@
   953  00a46 e18a            lsl.l  #8,d2      
   954  00a48 e18a            lsl.l  #8,d2      
   955  00a4a 84ad            or.l   12(a5),d2  
-  956  00a4e 4e40            tcall  T$Math1,T$DtoA 
+  956  00a4e 4e40            tcall  #T$Math1,#T$DtoA 
   957  00a52 4cdf            movem.l (sp)+,a0/d2 
   958  00a56 4e5d L00a56     unlk   a5         
   959  00a58 4e75            rts               

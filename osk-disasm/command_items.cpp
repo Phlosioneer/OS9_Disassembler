@@ -40,13 +40,13 @@ void cmd_items::hydrateRawParams(bool isRof, int Pass, uint16_t moduleType)
     if (rawSource && !source)
     {
         source = rawSource->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType,
-                                    suppressAbsoluteAddressLabels);
+                                    suppressAbsoluteAddressLabels, suppressHashTagForImmediates);
     }
 
     if (rawDest && !dest)
     {
         dest = rawDest->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType,
-                                suppressAbsoluteAddressLabels);
+                                suppressAbsoluteAddressLabels, suppressHashTagForImmediates);
     }
 }
 

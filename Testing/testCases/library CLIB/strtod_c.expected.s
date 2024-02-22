@@ -52,7 +52,7 @@ L0008a move.l 4(sp),12(sp)
  move.l (sp),8(sp)
  bra.s L000c0
 L00096 move.l (sp),d0
- tcall T$Math1,T$UtoD
+ tcall #T$Math1,#T$UtoD
  movem.l d0-d1,8(sp)
  bra.s L000c0
 L000a4 lea (sp),a0
@@ -70,7 +70,7 @@ L000c0 move.l a2,d0
 L000c8 tst.l d4
  beq.s L000dc
  movem.l 8(sp),d0-d1
- tcall T$Math1,T$DNeg
+ tcall #T$Math1,#T$DNeg
  movem.l d0-d1,8(sp)
 L000dc movem.l 8(sp),d0-d1
  lea 16(sp),sp
@@ -81,7 +81,7 @@ L000ee link.w a5,#0
  movea.l d0,a2
  movea.l (a2),a0
  movea.l d1,a1
- tcall T$Math1,T$AtoN
+ tcall #T$Math1,#T$AtoN
  movem.l d0-d1,(a1)
  bvc.s L0010a
  moveq #2,d0

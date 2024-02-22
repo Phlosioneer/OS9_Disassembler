@@ -671,7 +671,7 @@ L006f4 link.w a5,#0
  bge.s L00730
  move.b #45,(a3)+
  movem.l D00222(a6),d0-d1
- tcall T$Math1,T$DNeg
+ tcall #T$Math1,#T$DNeg
  movem.l d0-d1,D00222(a6)
  bra.s L00746
 L00730 tst.b D00202(a6)
@@ -952,7 +952,7 @@ L00a36 link.w a5,#0
  lsl.l #8,d2
  lsl.l #8,d2
  or.l 12(a5),d2
- tcall T$Math1,T$DtoA
+ tcall #T$Math1,#T$DtoA
  movem.l (sp)+,a0/d2
 L00a56 unlk a5
  rts 

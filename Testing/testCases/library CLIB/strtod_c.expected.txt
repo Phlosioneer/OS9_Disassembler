@@ -52,7 +52,7 @@
    51  00090 2f57            move.l (sp),8(sp) 
    52  00094 602a            bra.s  L000c0     
    53  00096 2017 L00096     move.l (sp),d0    
-   54  00098 4e40            tcall  T$Math1,T$UtoD 
+   54  00098 4e40            tcall  #T$Math1,#T$UtoD 
    55  0009c 48ef            movem.l d0-d1,8(sp) 
    56  000a2 601c            bra.s  L000c0     
    57  000a4 41d7 L000a4     lea    (sp),a0    
@@ -70,7 +70,7 @@
    69  000c8 4a84 L000c8     tst.l  d4         
    70  000ca 6710            beq.s  L000dc     
    71  000cc 4cef            movem.l 8(sp),d0-d1 
-   72  000d2 4e40            tcall  T$Math1,T$DNeg 
+   72  000d2 4e40            tcall  #T$Math1,#T$DNeg 
    73  000d6 48ef            movem.l d0-d1,8(sp) 
    74  000dc 4cef L000dc     movem.l 8(sp),d0-d1 
    75  000e2 4fef            lea    16(sp),sp  
@@ -81,7 +81,7 @@
    80  000f6 2440            movea.l d0,a2      
    81  000f8 2052            movea.l (a2),a0    
    82  000fa 2241            movea.l d1,a1      
-   83  000fc 4e40            tcall  T$Math1,T$AtoN 
+   83  000fc 4e40            tcall  #T$Math1,#T$AtoN 
    84  00100 48d1            movem.l d0-d1,(a1) 
    85  00104 6804            bvc.s  L0010a     
    86  00106 7002            moveq  #2,d0      

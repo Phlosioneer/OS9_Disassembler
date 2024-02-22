@@ -9,69 +9,69 @@
     8  0000e 0000            dc.w   $0000      
     9  00010 48e7 sin:       movem.l d2-d3,-(sp) 
    10  00014 4cfa            movem.l L00000(pc),d2-d3 
-   11  0001a 4e40            tcall  T$Math,T$Sin 
+   11  0001a 4e40            tcall  #T$Math,#T$Sin 
    12  0001e 4cdf            movem.l (sp)+,d2-d3 
    13  00022 4e75            rts               
    14  00024 48e7 cos:       movem.l d2-d3,-(sp) 
    15  00028 4cfa            movem.l L00000(pc),d2-d3 
-   16  0002e 4e40            tcall  T$Math,T$Cos 
+   16  0002e 4e40            tcall  #T$Math,#T$Cos 
    17  00032 4cdf            movem.l (sp)+,d2-d3 
    18  00036 4e75            rts               
    19  00038 48e7 tan:       movem.l d2-d3,-(sp) 
    20  0003c 4cfa            movem.l L00000(pc),d2-d3 
-   21  00042 4e40            tcall  T$Math,T$Tan 
+   21  00042 4e40            tcall  #T$Math,#T$Tan 
    22  00046 4cdf            movem.l (sp)+,d2-d3 
    23  0004a 4e75            rts               
    24  0004c 48e7 asin:      movem.l d2-d3,-(sp) 
    25  00050 4cfa            movem.l L00000(pc),d2-d3 
-   26  00056 4e40            tcall  T$Math,T$Asn 
+   26  00056 4e40            tcall  #T$Math,#T$Asn 
    27  0005a 4cdf            movem.l (sp)+,d2-d3 
    28  0005e 4e75            rts               
    29  00060 48e7 acos:      movem.l d2-d3,-(sp) 
    30  00064 4cfa            movem.l L00000(pc),d2-d3 
-   31  0006a 4e40            tcall  T$Math,T$Acs 
+   31  0006a 4e40            tcall  #T$Math,#T$Acs 
    32  0006e 4cdf            movem.l (sp)+,d2-d3 
    33  00072 4e75            rts               
    34  00074 48e7 atan:      movem.l d2-d3,-(sp) 
    35  00078 4cfa            movem.l L00000(pc),d2-d3 
-   36  0007e 4e40            tcall  T$Math,T$Atn 
+   36  0007e 4e40            tcall  #T$Math,#T$Atn 
    37  00082 4cdf            movem.l (sp)+,d2-d3 
    38  00086 4e75            rts               
    39  00088 48e7 exp:       movem.l d2-d3,-(sp) 
    40  0008c 4cfa            movem.l L00000(pc),d2-d3 
-   41  00092 4e40            tcall  T$Math,T$Exp 
+   41  00092 4e40            tcall  #T$Math,#T$Exp 
    42  00096 4cdf            movem.l (sp)+,d2-d3 
    43  0009a 4e75            rts               
    44  0009c 48e7 log:       movem.l d2-d3,-(sp) 
    45  000a0 4cfa            movem.l L00000(pc),d2-d3 
-   46  000a6 4e40            tcall  T$Math,T$Log 
+   46  000a6 4e40            tcall  #T$Math,#T$Log 
    47  000aa 4cdf            movem.l (sp)+,d2-d3 
    48  000ae 4e75            rts               
    49  000b0 48e7 log10:     movem.l d2-d3,-(sp) 
    50  000b4 4cfa            movem.l L00000(pc),d2-d3 
-   51  000ba 4e40            tcall  T$Math,T$Log10 
+   51  000ba 4e40            tcall  #T$Math,#T$Log10 
    52  000be 4cdf            movem.l (sp)+,d2-d3 
    53  000c2 4e75            rts               
    54  000c4 48e7 pow:       movem.l d2-d5,-(sp) 
    55  000c8 4cef            movem.l 20(sp),d2-d3 
    56  000ce 4cfa            movem.l L00000(pc),d4-d5 
-   57  000d4 4e40            tcall  T$Math,T$Power 
+   57  000d4 4e40            tcall  #T$Math,#T$Power 
    58  000d8 4cdf            movem.l (sp)+,d2-d5 
    59  000dc 4e75            rts               
    60  000de 48e7 sqrt:      movem.l d2-d3,-(sp) 
    61  000e2 4cfa            movem.l L00000(pc),d2-d3 
-   62  000e8 4e40            tcall  T$Math,T$Sqrt 
+   62  000e8 4e40            tcall  #T$Math,#T$Sqrt 
    63  000ec 4cdf            movem.l (sp)+,d2-d3 
    64  000f0 4e75            rts               
    65  000f2 48e7 floor:     movem.l d2-d3,-(sp) 
    66  000f6 4a80            tst.l  d0         
    67  000f8 6c0e            bge.s  L00108     
-   68  000fa 4e40            tcall  T$Math,T$DTrn 
+   68  000fa 4e40            tcall  #T$Math,#T$DTrn 
    69  000fe 4a82            tst.l  d2         
    70  00100 670a            beq.s  L0010c     
-   71  00102 4e40            tcall  T$Math,T$DDec 
+   71  00102 4e40            tcall  #T$Math,#T$DDec 
    72  00106 6004            bra.s  L0010c     
-   73  00108 4e40 L00108     tcall  T$Math,T$DTrn 
+   73  00108 4e40 L00108     tcall  #T$Math,#T$DTrn 
    74  0010c 4cdf L0010c     movem.l (sp)+,d2-d3 
    75  00110 4e75            rts               
    76  00112 48e7 ceil:      movem.l d2-d3,-(sp) 
@@ -87,7 +87,7 @@
    86  0012e 0880 fabs:      bclr.l #31,d0     
    87  00132 4e75            rts               
    88  00134 48e7 modf:      movem.l a0/d2-d3,-(sp) 
-   89  00138 4e40            tcall  T$Math,T$DTrn 
+   89  00138 4e40            tcall  #T$Math,#T$DTrn 
    90  0013c 206f            movea.l 16(sp),a0  
    91  00140 48d0            movem.l d0-d1,(a0) 
    92  00144 2002            move.l d2,d0      
@@ -98,7 +98,7 @@
    97  00152 4cef            movem.l 20(sp),d2-d3 
    98  00158 0880            bclr.l #31,d0     
    99  0015c 0882            bclr.l #31,d2     
-  100  00160 4e40            tcall  T$Math,T$DCmp 
+  100  00160 4e40            tcall  #T$Math,#T$DCmp 
   101  00164 6b04            bmi.s  L0016a     
   102  00166 c142            exg    d0,d2      
   103  00168 c343            exg    d1,d3      
@@ -108,15 +108,15 @@
   107  00174 2002            move.l d2,d0      
   108  00176 2203            move.l d3,d1      
   109  00178 6024            bra.s  L0019e     
-  110  0017a 4e40 L0017a     tcall  T$Math,T$DDiv 
+  110  0017a 4e40 L0017a     tcall  #T$Math,#T$DDiv 
   111  0017e 2400            move.l d0,d2      
   112  00180 2601            move.l d1,d3      
-  113  00182 4e40            tcall  T$Math,T$DMul 
-  114  00186 4e40            tcall  T$Math,T$DInc 
+  113  00182 4e40            tcall  #T$Math,#T$DMul 
+  114  00186 4e40            tcall  #T$Math,#T$DInc 
   115  0018a 4cfa            movem.l L00000(pc),d2-d3 
-  116  00190 4e40            tcall  T$Math,T$Sqrt 
+  116  00190 4e40            tcall  #T$Math,#T$Sqrt 
   117  00194 4cef            movem.l 20(sp),d2-d3 
-  118  0019a 4e40            tcall  T$Math,T$DMul 
+  118  0019a 4e40            tcall  #T$Math,#T$DMul 
   119  0019e 4cdf L0019e     movem.l (sp)+,d2-d5 
   120  001a2 4e75            rts               
   121

@@ -28,6 +28,8 @@ int add_sub(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* sta
 int add_sub_addr(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmp_cmpa(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int os9_trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
+int math_trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_stop(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);
 int cmd_dbcc(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state);

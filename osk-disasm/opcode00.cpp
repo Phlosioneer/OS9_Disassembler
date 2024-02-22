@@ -506,6 +506,8 @@ static int branch_common(struct cmd_items* ci, const OPSTRUCTURE* op, struct par
                          const std::unique_ptr<RawRelativeParam>& displacement, uint8_t conditionCode)
 {
     ci->forceRelativeImmediateMode = true;
+    // Branches omit the # symbol, I guess because that's the only addressing mode?
+    ci->suppressAbsoluteAddressLabels = true;
     if (displacement->rawValue & 1) return 0;
 
     ci->mnem = op->name;
@@ -693,106 +695,81 @@ int addq_subq(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     return 1;
 }
 
-int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+int os9_trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
 {
-    uint8_t vector = ci->cmd_wrd & 0x0f;
-    RawLiteralParam rawVector{vector, OperandSize::Byte, state->CmdEnt + 1};
+    // If the vector is nonzero or an extern, let the tcall handler take it.
+    const RawLiteralParam rawVector{0, OperandSize::Byte, state->CmdEnt + 1};
+    if (rawVector.findRefs(&CODE_SPACE)) return 0;
 
     auto rawTrap = parseImmediateParam(state, OperandSize::Word);
     if (!rawTrap) return 0;
 
-    // TODO: Move all of this into the "hydrate" step. It has to be instruction-
-    // specific hydration, there's no other way to handle this without abusing
-    // AddrSpaceHandles more than I already am.
-    
-    uint16_t trapNumber = static_cast<uint16_t>(rawTrap->rawValue);
+    // "os9" is a directive, not an opcode, so the # is not needed.
+    ci->suppressHashTagForImmediates = true;
+
     const size_t sysCallCount = sizeof(SysNames) / sizeof(SysNames[0]);
-    const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
-
-    const std::vector<RelocatedReference>* vec_refs = nullptr;
-    const std::vector<RelocatedReference>* call_refs = nullptr;
-    if (state->opt->IsROF)
+    auto refs = rawTrap->findRefs(&CODE_SPACE);
+    if ((!refs || refs->size() == 0) && rawTrap->rawValue < sysCallCount)
     {
-        vec_refs = refManager.find_extrn(&CODE_SPACE, state->CmdEnt + 1);
-        call_refs = refManager.find_extrn(&CODE_SPACE, state->CmdEnt + 2);
-    }
-
-    // Start with vec_ref.
-    bool shouldGuessSyscall = false;
-    bool shouldGuessMathLib = false;
-    bool vectorHasName = true;
-    if (vec_refs && vec_refs->size() > 0)
-    {
-        // TODO: Throw an error if more than one ref is detected here.
-
-        const RelocatedReference &vec_ref = vec_refs->at(0);
-        ci->source = std::make_unique<LiteralParam>(vec_ref.getName());
-        ci->mnem = "tcall";
-
-        // Only guess math syscall if this is the math trap lib.
-        shouldGuessMathLib = vec_ref.getName() == MATH_TRAP_LIB_NAME;
-    }
-    else if (vector == 0)
-    {
-        ci->mnem = "os9";
-        shouldGuessSyscall = true;
+        auto syscall = SysNames[rawTrap->rawValue];
+        if (strlen(syscall) != 0)
+        {
+            ci->rawSource = std::make_unique<RawEquateParam>(*rawTrap, syscall);
+        }
+        else
+        {
+            ci->rawSource = std::move(rawTrap);
+        }
     }
     else
     {
-        ci->mnem = "tcall";
-        vectorHasName = false;
-
-        // We may change this later if the syscall matches something from T$Math
-        ci->source = std::make_unique<LiteralParam>(FormattedNumber(vector, OperandSize::Byte));
-        shouldGuessMathLib = vector == MATH_TRAP_LIB;
+        ci->rawSource = std::move(rawTrap);
     }
 
-    // Then do call_ref.
-    if (call_refs && call_refs->size() > 0)
-    {
-        // No need to guess anything.
+    ci->mnem = op->name;
+    return 1;
+}
 
-        // TODO: Throw an error if more than one ref is detected here.
-        ci->dest = std::make_unique<LiteralParam>(call_refs->at(0).getName());
-    }
-    else if (shouldGuessSyscall && trapNumber < sysCallCount)
+int math_trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    auto rawTrap = parseImmediateParam(state, OperandSize::Word);
+    if (!rawTrap) return 0;
+
+    ci->rawSource =
+        std::make_unique<RawEquateParam>(MATH_TRAP_LIB, OperandSize::Byte, state->CmdEnt + 1, MATH_TRAP_LIB_NAME);
+    
+    const size_t mathCallCount = sizeof(MathCalls) / sizeof(MathCalls[0]);
+    auto refs = rawTrap->findRefs(&CODE_SPACE);
+    if ((!refs || refs->size() == 0) && rawTrap->rawValue < mathCallCount)
     {
-        auto syscall = SysNames[trapNumber];
-        if (strlen(syscall) != 0)
-        {
-            labelManager.addLabel(&EQUATE_SPACE, trapNumber, syscall);
-            ci->dest = std::make_unique<LiteralParam>(syscall);
-        }
-    }
-    else if (shouldGuessMathLib && trapNumber < mathCallCount)
-    {
-        auto functionName = MathCalls[trapNumber];
+        auto functionName = MathCalls[rawTrap->rawValue];
         if (strlen(functionName) != 0)
         {
-            // Successful match. Ensure the vector has the T$Math name.
-            if (!vectorHasName)
-            {
-                labelManager.addLabel(&EQUATE_SPACE, MATH_TRAP_LIB, MATH_TRAP_LIB_NAME);
-                ci->source = std::make_unique<LiteralParam>(MATH_TRAP_LIB_NAME);
-            }
-
-            labelManager.addLabel(&EQUATE_SPACE, trapNumber, functionName);
-            ci->dest = std::make_unique<LiteralParam>(functionName);
+            ci->rawDest = std::make_unique<RawEquateParam>(*rawTrap, functionName);
+        }
+        else
+        {
+            ci->rawDest = std::move(rawTrap);
         }
     }
-
-    // If we were unable to guess the trap name, give it a number literal.
-    if (!ci->dest)
+    else
     {
-        ci->dest = std::make_unique<LiteralParam>(FormattedNumber(trapNumber, OperandSize::Word));
+        ci->rawDest = std::move(rawTrap);
     }
 
-    // If ci->source is null (an os9 syscall), move dest to source.
-    if (!ci->source)
-    {
-        ci->dest.swap(ci->source);
-    }
+    ci->mnem = op->name;
+    return 1;
+}
 
+int trap(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* state)
+{
+    uint8_t vector = ci->cmd_wrd & 0x0f;
+    ci->rawSource = std::make_unique<RawLiteralParam>(vector, OperandSize::Byte, state->CmdEnt + 1);
+
+    ci->rawDest = parseImmediateParam(state, OperandSize::Word);
+    if (!ci->rawDest) return 0;
+
+    ci->mnem = op->name;
     return 1;
 }
 

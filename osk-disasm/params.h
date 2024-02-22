@@ -192,7 +192,7 @@ class RegParam : public InstrParam, public RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 
     const Register reg;
     const RegParamMode mode;
@@ -262,7 +262,7 @@ class MultiRegParam : public InstrParam, public RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 
 private:
     RegisterSet _regs;

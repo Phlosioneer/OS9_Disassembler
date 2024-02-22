@@ -539,7 +539,7 @@
   538  00606 41ef L00606     lea    16(sp),a0  
   539  0060a 2008            move.l a0,d0      
   540  0060c 6100            bsr.w  atof       
-  541  00610 4e40            tcall  T$Math1,T$DtoF 
+  541  00610 4e40            tcall  #T$Math1,#T$DtoF 
   542  00614 2053            movea.l (a3),a0    
   543  00616 2080            move.l d0,(a0)    
   544  00618 6058            bra.s  L00672     

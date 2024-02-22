@@ -362,24 +362,24 @@ namespace UnitTests
 			subtestName = L"Invalid Syscall: Too big";
 			pushWord(TRAP | 0);
 			pushWord(163);
-			runTest("os9", "#163");
+			runTest("os9", "163");
 
 			subtestName = L"Invalid Syscall: Gap between syscalls";
 			pushWord(TRAP | 0);
 			pushWord(0x70);
-			runTest("os9", "#112");
+			runTest("os9", "112");
 
 			// Test valid T$Math traps
 			subtestName = L"Math Tangent trap";
 			pushWord(TRAP | MATH_TRAP);
 			pushWord(0x30);
-			runTest("tcall", "T$Math,T$Tan");
+			runTest("tcall", "#T$Math,#T$Tan");
 
 			// Test invalid T$Math traps
 			subtestName = L"Math invalid trap";
 			pushWord(TRAP | MATH_TRAP);
 			pushWord(68);
-			runTest("tcall", "#15,#68");
+			runTest("tcall", "#T$Math,#68");
 
 			// Test user traps
 			subtestName = L"User trap";
@@ -393,13 +393,15 @@ namespace UnitTests
 		{
 			const uint16_t TRAP = 0b0100111001000000;
 			const uint16_t MATH_TRAP = 15;
+			const uint16_t BYTE_EXTERN = 0b01000;
+			const uint16_t WORD_EXTERN = 0b10000;
 			opt.IsROF = true;
 
 			// Test valid syscalls
 			subtestName = L"Syscall Unlink trap";
 			pushWord(TRAP | 0);
 			pushWord(0);
-			RelocatedReference unlink(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
+			RelocatedReference unlink(RoffReferenceInfo{ WORD_EXTERN, ReferenceScope::REFXTRN }, 2);
 			unlink.setName("F$UnLink");
 			refManager.insert(&CODE_SPACE, std::move(unlink));
 			runTest("os9", "F$UnLink");
@@ -409,13 +411,13 @@ namespace UnitTests
 			subtestName = L"Math Tangent trap";
 			pushWord(TRAP | MATH_TRAP);
 			pushWord(0);
-			RelocatedReference temp(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 1);
+			RelocatedReference temp(RoffReferenceInfo{ BYTE_EXTERN, ReferenceScope::REFXTRN }, 1);
 			temp.setName("T$Math");
 			refManager.insert(&CODE_SPACE, std::move(temp));
-			RelocatedReference temp2(RoffReferenceInfo{ 0, ReferenceScope::REFXTRN }, 2);
+			RelocatedReference temp2(RoffReferenceInfo{ WORD_EXTERN, ReferenceScope::REFXTRN }, 2);
 			temp2.setName("T$Tan");
 			refManager.insert(&CODE_SPACE, std::move(temp2));
-			runTest("tcall", "T$Math,T$Tan");
+			runTest("tcall", "#T$Math,#T$Tan");
 			refManager.clear();
 		}
 

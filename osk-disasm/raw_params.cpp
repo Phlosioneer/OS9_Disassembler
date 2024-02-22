@@ -32,23 +32,30 @@ RawLiteralParam::RawLiteralParam(uint32_t rawValue, OperandSize size, uint32_t a
 
 std::unique_ptr<InstrParam> RawLiteralParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                      AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                     bool suppressAbsoluteAddressLabels)
+                                                     bool suppressAbsoluteAddressLabels,
+                                                     bool suppressHashTagForImmediates)
 {
     std::string dispstr;
     // TODO: When exactly is '#' needed?
     if (rof_setup_ref(dispstr, &CODE_SPACE, address, rawValue, Pass, size, forceRelativeImmediateMode))
     {
-        return std::make_unique<LiteralParam>(dispstr, true);
+        return std::make_unique<LiteralParam>(dispstr, !suppressHashTagForImmediates);
     }
     else if (LblCalc(dispstr, rawValue, AM_IMM, address, isRof, Pass, size))
     {
-        return std::make_unique<LiteralParam>(dispstr, true);
+        return std::make_unique<LiteralParam>(dispstr, !suppressHashTagForImmediates);
     }
     else
     {
         auto number = MakeFormattedNumber(signedValue(), AM_IMM, size, literalSpaceHint);
-        return std::make_unique<LiteralParam>(number, true);
+        return std::make_unique<LiteralParam>(number, !suppressHashTagForImmediates);
     }
+}
+
+const std::vector<RelocatedReference>* RawLiteralParam::findRefs(AddrSpaceHandle space) const
+{
+    // TODO: Should this respect `this->size`?
+    return refManager.find_extrn(space, address);
 }
 
 RawRelativeParam::RawRelativeParam(uint32_t rawValue, OperandSize size, uint32_t address, uint32_t relativeToAddress)
@@ -63,21 +70,44 @@ RawRelativeParam::RawRelativeParam(const RawLiteralParam& rawLiteral, uint32_t r
 
 std::unique_ptr<InstrParam> RawRelativeParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                       AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                      bool suppressAbsoluteAddressLabels)
+                                                      bool suppressAbsoluteAddressLabels,
+                                                      bool suppressHashTagForImmediates)
 {
     std::string dispstr;
     if (rof_setup_ref(dispstr, &CODE_SPACE, address, signedValue(), Pass, size, forceRelativeImmediateMode))
     {
-        return std::make_unique<LiteralParam>(dispstr, false);
+        return std::make_unique<LiteralParam>(dispstr, !suppressAbsoluteAddressLabels);
     }
     else if (LblCalc(dispstr, signedValue(), AM_REL, relativeToAddress, isRof, Pass, size))
     {
-        return std::make_unique<LiteralParam>(dispstr, false);
+        return std::make_unique<LiteralParam>(dispstr, !suppressAbsoluteAddressLabels);
     }
     else
     {
-        return std::make_unique<LiteralParam>(FormattedNumber(signedValue(), size, literalSpaceHint));
+        return std::make_unique<LiteralParam>(FormattedNumber(signedValue(), size, literalSpaceHint),
+                                              !suppressAbsoluteAddressLabels);
     }
+}
+
+RawEquateParam::RawEquateParam(uint32_t rawValue, OperandSize size, uint32_t address, const char* name)
+    : RawLiteralParam(rawValue, size, address), name(name)
+{
+}
+RawEquateParam::RawEquateParam(const RawLiteralParam& rawLiteral, const char* name)
+    : RawLiteralParam(rawLiteral), name(name)
+{
+}
+
+std::unique_ptr<InstrParam> RawEquateParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                    AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                    bool suppressAbsoluteAddressLabels,
+                                                    bool suppressHashTagForImmediates)
+{
+    auto label = labelManager.addLabel(&EQUATE_SPACE, rawValue, std::string(name));
+    if (!label) return nullptr;
+
+    auto prefix = suppressHashTagForImmediates ? "" : "#";
+    return std::make_unique<LiteralParam>(prefix + name);
 }
 
 RawAbsoluteAddrParam::RawAbsoluteAddrParam(uint32_t value, uint32_t address, OperandSize size)
@@ -87,7 +117,8 @@ RawAbsoluteAddrParam::RawAbsoluteAddrParam(uint32_t value, uint32_t address, Ope
 
 std::unique_ptr<InstrParam> RawAbsoluteAddrParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                           AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                          bool suppressAbsoluteAddressLabels)
+                                                          bool suppressAbsoluteAddressLabels,
+                                                          bool suppressHashTagForImmediates)
 {
     auto addressMode = suppressAbsoluteAddressLabels ? AM_NO_LABELS : AM_ABSOLUTE;
 
@@ -111,7 +142,8 @@ RawRegOffsetParam::RawRegOffsetParam(Register baseReg, int16_t displacement, uin
 
 std::unique_ptr<InstrParam> RawRegOffsetParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                        AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                       bool suppressAbsoluteAddressLabels)
+                                                       bool suppressAbsoluteAddressLabels,
+                                                       bool suppressHashTagForImmediates)
 {
     // The system biases the data pointer (A6) by 0x8000 bytes in programs, to maximize
     // addressable memory from a signed word offset. So a real data variable may be at
@@ -159,7 +191,8 @@ RawIndexParam::RawIndexParam(Register baseReg, const ExtensionWord& extension, u
 
 std::unique_ptr<InstrParam> RawIndexParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                    AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                   bool suppressAbsoluteAddressLabels)
+                                                   bool suppressAbsoluteAddressLabels,
+                                                   bool suppressHashTagForImmediates)
 {
     if (displacement == 0)
     {

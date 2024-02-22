@@ -385,7 +385,7 @@ void RegParam::format(std::ostream& stream) const
 
 std::unique_ptr<InstrParam> RegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                  AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                 bool suppressAbsoluteAddressLabels)
+                                              bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates)
 {
     return std::make_unique<RegParam>(*this);
 }
@@ -512,7 +512,8 @@ void MultiRegParam::format(std::ostream& stream) const
 
 std::unique_ptr<InstrParam> MultiRegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                    AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                   bool suppressAbsoluteAddressLabels)
+                                                   bool suppressAbsoluteAddressLabels,
+                                                   bool suppressHashTagForImmediates)
 {
     // Just return a copy of this.
     return std::make_unique<MultiRegParam>(*this);

@@ -34,6 +34,7 @@ struct cmd_items
     bool forceRelativeImmediateMode = false;
     AddrSpaceHandle literalSpaceHint = &LITERAL_DEC_SPACE;
     bool suppressAbsoluteAddressLabels = false;
+    bool suppressHashTagForImmediates = false;
 
     std::string renderParams() const;
 

@@ -4,6 +4,7 @@
 #include "range.h"
 #include "address_space.h"
 #include "registers.h"
+#include "references.h"
 
 class InstrParam;
 
@@ -32,7 +33,8 @@ class RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels) = 0;
+                                                bool suppressAbsoluteAddressLabels,
+                                                bool suppressHashTagForImmediates) = 0;
 };
 
 class RawLiteralParam : public RawParam
@@ -52,12 +54,14 @@ class RawLiteralParam : public RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 
     inline int32_t signedValue() const
     {
         return OperandSizes::truncateSigned(size, rawValue);
     }
+
+    const std::vector<RelocatedReference>* findRefs(AddrSpaceHandle space) const;
 };
 
 class RawRelativeParam : public RawLiteralParam
@@ -70,7 +74,20 @@ class RawRelativeParam : public RawLiteralParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
+};
+
+class RawEquateParam : public RawLiteralParam
+{
+  public:
+    RawEquateParam(uint32_t rawValue, OperandSize size, uint32_t address, const char* name);
+    RawEquateParam(const RawLiteralParam& rawLiteral, const char* name);
+
+    std::string name;
+
+    virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 };
 
 class RawAbsoluteAddrParam : public RawParam
@@ -85,7 +102,7 @@ class RawAbsoluteAddrParam : public RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 };
 
 class RawRegOffsetParam : public RawParam
@@ -101,7 +118,7 @@ class RawRegOffsetParam : public RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 };
 
 class RawIndexParam : public RawParam
@@ -118,5 +135,5 @@ class RawIndexParam : public RawParam
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
+                                                bool suppressAbsoluteAddressLabels, bool suppressHashTagForImmediates);
 };
