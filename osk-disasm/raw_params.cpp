@@ -31,7 +31,8 @@ RawLiteralParam::RawLiteralParam(uint32_t rawValue, OperandSize size, uint32_t a
 }
 
 std::unique_ptr<InstrParam> RawLiteralParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                     AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+                                                     AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                     bool suppressAbsoluteAddressLabels)
 {
     std::string dispstr;
     // TODO: When exactly is '#' needed?
@@ -61,7 +62,8 @@ RawRelativeParam::RawRelativeParam(const RawLiteralParam& rawLiteral, uint32_t r
 }
 
 std::unique_ptr<InstrParam> RawRelativeParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                     AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+                                                      AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                      bool suppressAbsoluteAddressLabels)
 {
     std::string dispstr;
     if (rof_setup_ref(dispstr, &CODE_SPACE, address, signedValue(), Pass, size, forceRelativeImmediateMode))
@@ -83,7 +85,8 @@ RawRegParam::RawRegParam(Register reg, RegParamMode mode) : RawParam(), reg(reg)
 }
 
 std::unique_ptr<InstrParam> RawRegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                 bool suppressAbsoluteAddressLabels)
 {
     return std::make_unique<RegParam>(reg, mode);
 }
@@ -94,9 +97,10 @@ RawAbsoluteAddrParam::RawAbsoluteAddrParam(uint32_t value, uint32_t address, Ope
 }
 
 std::unique_ptr<InstrParam> RawAbsoluteAddrParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                          AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+                                                          AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                          bool suppressAbsoluteAddressLabels)
 {
-    int addressMode = size == OperandSize::Word ? AM_SHORT : AM_LONG;
+    auto addressMode = suppressAbsoluteAddressLabels ? AM_NO_LABELS : AM_ABSOLUTE;
 
     std::string displayString;
     if (LblCalc(displayString, value, addressMode, address, isRof, Pass, size))
@@ -105,7 +109,8 @@ std::unique_ptr<InstrParam> RawAbsoluteAddrParam::hydrate(bool isRof, int Pass, 
     }
     else
     {
-        auto number = MakeFormattedNumber(value, addressMode, size, literalSpaceHint);
+        // Absolute Address values are sign extended. Weird, but designed for PEA (ab)use.
+        auto number = FormattedNumber(OperandSizes::truncateSigned(size, value), size, literalSpaceHint);
         return std::make_unique<AbsoluteAddrParam>(number, size);
     }
 }
@@ -116,7 +121,8 @@ RawRegOffsetParam::RawRegOffsetParam(Register baseReg, int16_t displacement, uin
 }
 
 std::unique_ptr<InstrParam> RawRegOffsetParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                       AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+                                                       AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                       bool suppressAbsoluteAddressLabels)
 {
     // The system biases the data pointer (A6) by 0x8000 bytes in programs, to maximize
     // addressable memory from a signed word offset. So a real data variable may be at
@@ -163,7 +169,8 @@ RawIndexParam::RawIndexParam(Register baseReg, const ExtensionWord& extension, u
 }
 
 std::unique_ptr<InstrParam> RawIndexParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                   AddrSpaceHandle literalSpaceHint, uint16_t moduleType)
+                                                   AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                   bool suppressAbsoluteAddressLabels)
 {
     if (displacement == 0)
     {

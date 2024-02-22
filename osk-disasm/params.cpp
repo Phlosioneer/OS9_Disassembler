@@ -243,26 +243,6 @@ std::ostream& operator<<(std::ostream& os, const FormattedNumber& self)
     return os;
 }
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space)
-{
-    OperandSize convertedSize;
-    switch (defaultHexSize)
-    {
-    case 1:
-        convertedSize = OperandSize::Byte;
-        break;
-    case 2:
-        convertedSize = OperandSize::Word;
-        break;
-    case 4:
-        convertedSize = OperandSize::Long;
-        break;
-    default:
-        throw std::runtime_error("Invalid size");
-    }
-    return MakeFormattedNumber(value, amod, convertedSize, space);
-}
-
 FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexSize, AddrSpaceHandle space)
 {
     if (!space && amod)
@@ -304,15 +284,7 @@ FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexS
 
     if (*space == LITERAL_HEX_SPACE)
     {
-        switch (amod)
-        {
-        default:
-            return FormattedNumber(value, defaultHexSize, space);
-        case AM_LONG:
-            return FormattedNumber(value, OperandSize::Long, space);
-        case AM_SHORT:
-            return FormattedNumber(value, OperandSize::Word, space);
-        }
+        return FormattedNumber(value, defaultHexSize, space);
     }
     else if (*space == LITERAL_DEC_SPACE)
     {

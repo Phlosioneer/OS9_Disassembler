@@ -148,7 +148,6 @@ class FormattedNumber
 
 std::ostream& operator<<(std::ostream& os, const FormattedNumber& number);
 
-FormattedNumber MakeFormattedNumber(int value, int amod, int defaultHexSize = 4, AddrSpaceHandle space = nullptr);
 FormattedNumber MakeFormattedNumber(int value, int amod, OperandSize defaultHexSize = OperandSize::Long,
                                     AddrSpaceHandle space = nullptr);
 

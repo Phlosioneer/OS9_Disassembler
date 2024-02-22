@@ -35,33 +35,18 @@ std::string cmd_items::renderParams() const
     return paramBuffer.str();
 }
 
-cmd_items& cmd_items::operator=(struct cmd_items&& other) noexcept
-{
-    lblname = std::move(other.lblname);
-    mnem = std::move(other.mnem);
-    comment = other.comment;
-    source.swap(other.source);
-    dest.swap(other.dest);
-    rawSource.swap(other.rawSource);
-    rawDest.swap(other.rawDest);
-    memcpy_s(rawData, 10, other.rawData, 10);
-    rawDataSize = other.rawDataSize;
-    forceRelativeImmediateMode = other.forceRelativeImmediateMode;
-    literalSpaceHint = other.literalSpaceHint;
-
-    return *this;
-}
-
 void cmd_items::hydrateRawParams(bool isRof, int Pass, uint16_t moduleType)
 {
     if (rawSource && !source)
     {
-        source = rawSource->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType);
+        source = rawSource->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType,
+                                    suppressAbsoluteAddressLabels);
     }
 
     if (rawDest && !dest)
     {
-        dest = rawDest->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType);
+        dest = rawDest->hydrate(isRof, Pass, forceRelativeImmediateMode, literalSpaceHint, moduleType,
+                                suppressAbsoluteAddressLabels);
     }
 }
 

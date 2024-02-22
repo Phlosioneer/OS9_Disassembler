@@ -127,8 +127,8 @@ class LabelManager
 
 bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, bool isRof, int Pass,
              OperandSize sizeConstraint);
-void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
-std::string PrintNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space = nullptr);
+void PrintNumber(std::ostream& dest, int value, int amod, OperandSize defaultHexSize, AddrSpaceHandle space = nullptr);
+std::string PrintNumber(int value, int amod, OperandSize defaultHexSize, AddrSpaceHandle space = nullptr);
 
 extern LabelManager labelManager;
 

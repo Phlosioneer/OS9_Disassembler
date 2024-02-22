@@ -712,7 +712,7 @@ static void HandleDataRegion(const DataRegion* db, struct parse_state* state, Ad
         /* AMode = 0 to prevent LblCalc from defining class */
         if (!LblCalc(tmps, value, AM_NO_LABELS, dataEnt, state->opt->IsROF, state->Pass, db->size))
         {
-            tmps = PrintNumber(value, 0, OperandSizes::getByteCount(db->size), literalSpace);
+            tmps = PrintNumber(value, 0, db->size, literalSpace);
         }
 
         if (state->Pass == 2)

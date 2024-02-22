@@ -33,6 +33,7 @@ struct cmd_items
 
     bool forceRelativeImmediateMode = false;
     AddrSpaceHandle literalSpaceHint = &LITERAL_DEC_SPACE;
+    bool suppressAbsoluteAddressLabels = false;
 
     std::string renderParams() const;
 
@@ -43,7 +44,7 @@ struct cmd_items
     }
 
     // Allow move-assignment
-    struct cmd_items& operator=(struct cmd_items&& other) noexcept;
+    struct cmd_items& operator=(struct cmd_items&& other) noexcept = default;
     // But not copy-assignment
     struct cmd_items& operator=(const struct cmd_items& other) = delete;
 

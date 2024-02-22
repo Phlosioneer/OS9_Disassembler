@@ -31,7 +31,8 @@ class RawParam
     virtual ~RawParam() = default;
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType) = 0;
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels) = 0;
 };
 
 class RawLiteralParam : public RawParam
@@ -50,7 +51,8 @@ class RawLiteralParam : public RawParam
     }
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 
     inline int32_t signedValue() const
     {
@@ -67,7 +69,8 @@ class RawRelativeParam : public RawLiteralParam
     uint32_t relativeToAddress;
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 };
 
 class RawRegParam : public RawParam
@@ -80,7 +83,8 @@ class RawRegParam : public RawParam
     RegParamMode mode;
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 };
 
 class RawAbsoluteAddrParam : public RawParam
@@ -94,7 +98,8 @@ class RawAbsoluteAddrParam : public RawParam
     OperandSize size;
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 };
 
 class RawRegOffsetParam : public RawParam
@@ -109,7 +114,8 @@ class RawRegOffsetParam : public RawParam
     OperandSize size;
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 };
 
 class RawIndexParam : public RawParam
@@ -125,5 +131,6 @@ class RawIndexParam : public RawParam
     uint32_t displacementAddress;
 
     virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType);
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 };

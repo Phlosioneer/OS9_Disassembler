@@ -68,8 +68,7 @@ enum
     AM_A6,
     AM_A7,
     AM_IMM,
-    AM_SHORT, /* Absolute Short */
-    AM_LONG,  /* Absolute Long */
+    AM_ABSOLUTE,
     AM_REL,
     AM_MAXMODES /* Count of Modes + 1 */
 };

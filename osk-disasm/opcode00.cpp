@@ -381,20 +381,13 @@ int one_ea(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* stat
     
     /* PEA is often (ab)used to push arbitrary words and longs onto the stack. */
     std::unique_ptr<RawParam> rawSource;
-    if (op->id == InstrId::PEA && mode == Special && (reg == AbsoluteWord || reg == AbsoluteLong))
+    if (op->id == InstrId::PEA)
     {
-        auto size = reg == AbsoluteWord ? OperandSize::Word : OperandSize::Long;
-        auto addressMode = reg == AbsoluteWord ? AM_SHORT : AM_LONG;
-        auto paramAsLiteral = parseImmediateParam(state, size);
-        
-        auto number = MakeFormattedNumber(paramAsLiteral->signedValue(), addressMode, size, &LITERAL_DEC_SPACE);
-        ci->source = std::make_unique<AbsoluteAddrParam>(number, size);
+        ci->suppressAbsoluteAddressLabels = true;
     }
-    else
-    {
-        ci->rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Long);
-        if (!ci->rawSource) return 0;
-    }
+
+    ci->rawSource = parseEffectiveAddressWithMode(state, mode, reg, OperandSize::Long);
+    if (!ci->rawSource) return 0;
 
     ci->mnem = op->name;
     return 1;

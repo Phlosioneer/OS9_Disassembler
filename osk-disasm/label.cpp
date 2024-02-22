@@ -241,7 +241,7 @@ std::string Label::nameWithColon() const
     return _global ? _name + ':' : _name;
 }
 
-std::string PrintNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle space)
+std::string PrintNumber(int value, int amod, OperandSize defaultHexSize, AddrSpaceHandle space)
 {
     std::ostringstream stream;
     PrintNumber(stream, value, amod, defaultHexSize, space);
@@ -254,7 +254,7 @@ std::string PrintNumber(int value, int amod, int defaultHexSize, AddrSpaceHandle
  *          (2) clas - The Class Letter for the label.
  *          (3)  adr - The label's address.
  */
-void PrintNumber(std::ostream& dest, int value, int amod, int defaultHexSize, AddrSpaceHandle space)
+void PrintNumber(std::ostream& dest, int value, int amod, OperandSize defaultHexSize, AddrSpaceHandle space)
 {
     dest << MakeFormattedNumber(value, amod, defaultHexSize, space);
 }
@@ -291,9 +291,6 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
 
     if (amod != AM_NO_LABELS)
     {
-        /*mainclass = DEFAULTCLASS;*/
-        // AMODE_BOUNDS_CHECK(amod);
-        // mainclass = defaultLabelClasses[amod - 1];
         if (amod == AM_A6)
         {
             mainclass = &UNKNOWN_DATA_SPACE;
@@ -336,12 +333,9 @@ bool LblCalc(std::string& out_name, uint32_t adr, int amod, uint32_t curloc, boo
             auto t = (mainclass ? mainclass : &INIT_DATA_SPACE);
             fprintf(stderr, "Lookup error on Pass 2 (main)\n");
             fprintf(stderr, "Cannot find %s - %05x\n", t->name.c_str(), adjusted);
-            /*   fprintf (stderr, "Cmd line thus far: %s\n", tmpname);*/
             throw std::runtime_error("");
         }
         out_name = dest.str();
     }
-    //std::string destStr = dest.str();
-    //strcat(dst, destStr.c_str());
     return true;
 }
