@@ -77,6 +77,9 @@ class AddressSpace
     // For example, two labels for the same instruction are interchangable. But an
     // error-code equate is never interchangable with a syscall equate, even if they
     // have the same value!
+    //
+    // TODO: allowsAliases is ignored by LabelCategory::add!
+    // (corresponding TODO is also on LabelCategory::add)
     const bool allowsAliases;
 
     const SpaceKind kind;

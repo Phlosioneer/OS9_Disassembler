@@ -119,6 +119,8 @@ std::shared_ptr<Label> LabelCategory::add(long value)
     return it->second;
 }
 
+// TODO: This ignores code.allowsAliases!
+// (corresponding TODO is also in address_space.h)
 std::shared_ptr<Label> LabelCategory::add(long value, std::string&& newName)
 {
     auto it = _labelsByValue.find(value);
