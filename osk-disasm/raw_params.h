@@ -73,20 +73,6 @@ class RawRelativeParam : public RawLiteralParam
                                                 bool suppressAbsoluteAddressLabels);
 };
 
-class RawRegParam : public RawParam
-{
-  public:
-    RawRegParam(Register reg, RegParamMode mode);
-    virtual ~RawRegParam() = default;
-
-    Register reg;
-    RegParamMode mode;
-
-    virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                bool suppressAbsoluteAddressLabels);
-};
-
 class RawAbsoluteAddrParam : public RawParam
 {
   public:

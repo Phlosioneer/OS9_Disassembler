@@ -80,17 +80,6 @@ std::unique_ptr<InstrParam> RawRelativeParam::hydrate(bool isRof, int Pass, bool
     }
 }
 
-RawRegParam::RawRegParam(Register reg, RegParamMode mode) : RawParam(), reg(reg), mode(mode)
-{
-}
-
-std::unique_ptr<InstrParam> RawRegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
-                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
-                                                 bool suppressAbsoluteAddressLabels)
-{
-    return std::make_unique<RegParam>(reg, mode);
-}
-
 RawAbsoluteAddrParam::RawAbsoluteAddrParam(uint32_t value, uint32_t address, OperandSize size)
     : RawParam(), value(value), address(address), size(size)
 {

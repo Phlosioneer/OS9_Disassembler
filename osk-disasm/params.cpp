@@ -351,7 +351,7 @@ RegParam::RegParam(Register reg) : RegParam(reg, RegParamMode::Direct)
 {
 }
 
-RegParam::RegParam(Register reg, RegParamMode mode) : reg(reg), mode(mode)
+RegParam::RegParam(Register reg, RegParamMode mode) : InstrParam(), RawParam(), reg(reg), mode(mode)
 {
     if (reg >= Register::D0 && reg <= Register::D7)
     {
@@ -381,6 +381,13 @@ void RegParam::format(std::ostream& stream) const
         message << "Unexpected enum value: " << static_cast<int>(mode);
         throw std::runtime_error(message.str());
     }
+}
+
+std::unique_ptr<InstrParam> RegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                 AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                 bool suppressAbsoluteAddressLabels)
+{
+    return std::make_unique<RegParam>(*this);
 }
 
 #pragma endregion
@@ -493,7 +500,7 @@ Register RegOffsetParam::offsetReg() const
 
 #pragma region MultiRegParam
 
-MultiRegParam::MultiRegParam(RegisterSet&& registers) : _regs(std::move(registers))
+MultiRegParam::MultiRegParam(RegisterSet&& registers) : InstrParam(), RawParam(), _regs(std::move(registers))
 {
 
 }
@@ -501,6 +508,14 @@ MultiRegParam::MultiRegParam(RegisterSet&& registers) : _regs(std::move(register
 void MultiRegParam::format(std::ostream& stream) const
 {
     stream << _regs;
+}
+
+std::unique_ptr<InstrParam> MultiRegParam::hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                   AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                   bool suppressAbsoluteAddressLabels)
+{
+    // Just return a copy of this.
+    return std::make_unique<MultiRegParam>(*this);
 }
 
 #pragma endregion

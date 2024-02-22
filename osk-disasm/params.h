@@ -11,6 +11,7 @@
 #include "disglobs.h"
 #include "size.h"
 #include "registers.h"
+#include "raw_params.h"
 
 class Label;
 extern const AddressSpace LITERAL_DEC_SPACE;
@@ -180,7 +181,7 @@ class LiteralParam : public InstrParam
     const bool usePrefix;
 };
 
-class RegParam : public InstrParam
+class RegParam : public InstrParam, public RawParam
 {
   public:
     RegParam(Register reg);
@@ -188,6 +189,10 @@ class RegParam : public InstrParam
     virtual ~RegParam() = default;
 
     virtual void format(std::ostream& stream) const override;
+
+    virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 
     const Register reg;
     const RegParamMode mode;
@@ -243,7 +248,7 @@ class RegOffsetParam : public InstrParam
     bool _forceZero;
 };
 
-class MultiRegParam : public InstrParam
+class MultiRegParam : public InstrParam, public RawParam
 {
   public:
     MultiRegParam(RegisterSet&& registers);
@@ -254,6 +259,10 @@ class MultiRegParam : public InstrParam
     {
         return _regs;
     }
+
+    virtual std::unique_ptr<InstrParam> hydrate(bool isRof, int Pass, bool forceRelativeImmediateMode,
+                                                AddrSpaceHandle literalSpaceHint, uint16_t moduleType,
+                                                bool suppressAbsoluteAddressLabels);
 
 private:
     RegisterSet _regs;

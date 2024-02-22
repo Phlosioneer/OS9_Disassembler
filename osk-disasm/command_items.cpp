@@ -173,11 +173,11 @@ int cmd_movem(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     if (regsAreDest)
     {
         ci->rawSource = std::move(rawEaParam);
-        ci->dest = std::make_unique<MultiRegParam>(reglist(regmask, mode));
+        ci->rawDest = std::make_unique<MultiRegParam>(reglist(regmask, mode));
     }
     else
     {
-        ci->source = std::make_unique<MultiRegParam>(reglist(regmask, mode));
+        ci->rawSource = std::make_unique<MultiRegParam>(reglist(regmask, mode));
         ci->rawDest = std::move(rawEaParam);
     }
     return 1;
@@ -188,7 +188,7 @@ int link_unlk(struct cmd_items* ci, const OPSTRUCTURE* op, struct parse_state* s
     auto reg = Registers::makeAReg(ci->cmd_wrd & 7);
     ci->mnem = op->name;
 
-    ci->rawSource = std::make_unique<RawRegParam>(reg, RegParamMode::Direct);
+    ci->rawSource = std::make_unique<RegParam>(reg, RegParamMode::Direct);
     if (op->id != InstrId::UNLK)
     {
         ci->rawDest = parseImmediateParam(state, OperandSize::Word);
@@ -275,7 +275,7 @@ std::unique_ptr<RawLiteralParam> parseImmediateParam(parse_state* state, Operand
         immediate = getnext_l_raw(state);
         break;
     default:
-        std::runtime_error("Invalid size");
+        throw std::runtime_error("Invalid size");
     }
 
     return std::make_unique<RawLiteralParam>(immediate, size, immediateAddress);
@@ -324,20 +324,20 @@ std::unique_ptr<RawParam> parseEffectiveAddressWithMode(parse_state* state, uint
     switch (mode)
     {
     case DirectDataReg: /* "Dn" */
-        return std::make_unique<RawRegParam>(Registers::makeDReg(reg), RegParamMode::Direct);
+        return std::make_unique<RegParam>(Registers::makeDReg(reg), RegParamMode::Direct);
     case DirectAddrReg: /* "An" */
         if (size == OperandSize::Byte)
         {
             // TODO: Document why this is always illegal.
             return nullptr;
         }
-        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::Direct);
+        return std::make_unique<RegParam>(Registers::makeAReg(reg), RegParamMode::Direct);
     case Indirect: /* (An) */
-        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::Indirect);
+        return std::make_unique<RegParam>(Registers::makeAReg(reg), RegParamMode::Indirect);
     case PostIncrement: /* (An)+ */
-        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::PostIncrement);
+        return std::make_unique<RegParam>(Registers::makeAReg(reg), RegParamMode::PostIncrement);
     case PreDecrement: /* -(An) */
-        return std::make_unique<RawRegParam>(Registers::makeAReg(reg), RegParamMode::PreDecrement);
+        return std::make_unique<RegParam>(Registers::makeAReg(reg), RegParamMode::PreDecrement);
     case Displacement: /* d16(An)*/
         return parseDisplacementParam(state, Registers::makeAReg(reg));
     case Index: /* d8(An,Xn) */
