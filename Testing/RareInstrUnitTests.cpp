@@ -53,6 +53,8 @@ namespace UnitTests
 		{
 			stream = std::make_unique<BigEndianStream>(std::move(testData));
 			state.Module = stream.get();
+			state.PCPos = 0;
+			state.CmdEnt = 0;
 
 			struct cmd_items instr;
 			Assert::IsTrue(get_asmcmd(&instr, &state), subtestName);
